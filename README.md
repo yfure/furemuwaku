@@ -1,2 +1,2 @@
-# framework
+# Framework
 The Yume Framework.
