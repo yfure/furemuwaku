@@ -29,9 +29,9 @@
 		"phpunit/phpunit": "^9.5.10"
 	},
 	"autoload": {
-		"files": {
+		"files": [
 			"src/Furemuwaku/Support/Helpers/helpers.php",
-		},
+		],
 		"psr-4": {
 			"Yume\\Fure\\": "src/Furemuwaku/"
 		}
