@@ -30,7 +30,7 @@
 	},
 	"autoload": {
 		"files": [
-			"src/Furemuwaku/Support/Helpers/helpers.php",
+			"src/Furemuwaku/Support/Helpers/helpers.php"
 		],
 		"psr-4": {
 			"Yume\\Fure\\": "src/Furemuwaku/"
