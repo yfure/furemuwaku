@@ -15,13 +15,15 @@ abstract class ReflectClass
 {
 	
 	/*
-	 * Gets Attributes
+	 * Gets Attributes.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getAttributes( Object | String $class, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
 	{
@@ -29,13 +31,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets defined constant
+	 * Gets defined constant.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Mixed
 	 */
 	public static function getConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Mixed
 	{
@@ -43,13 +47,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets constants
+	 * Gets constants.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Int $filter
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
@@ -57,13 +63,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets the constructor of the class
+	 * Gets the constructor of the class.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionMethod
 	 */
 	public static function getConstructor( Object | String $class, Mixed &$reflect = Null ): ? ReflectionMethod
 	{
@@ -71,13 +78,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets default properties
+	 * Gets default properties.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getDefaultProperties( Object | String $class, Mixed &$reflect = Null ): Array
 	{
@@ -85,13 +93,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets doc comments
+	 * Gets doc comments.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
 	public static function getDocComment( Object | String $class, Mixed &$reflect = Null ): False | String
 	{
@@ -99,13 +108,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets end line
+	 * Gets end line.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|Int
 	 */
 	public static function getEndLine( Object | String $class, Mixed &$reflect = Null ): False | Int
 	{
@@ -113,11 +123,12 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets a ReflectionExtension object for the extension which defined the class
+	 * Gets a ReflectionExtension object for the extension which defined the class.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -127,13 +138,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets the name of the extension which defined the class
+	 * Gets the name of the extension which defined the class.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
 	public static function getExtensionName( Object | String $class, Mixed &$reflect = Null ): False | String
 	{
@@ -141,13 +153,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets the filename of the file in which the class has been defined
+	 * Gets the filename of the file in which the class has been defined.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
 	public static function getFileName( Object | String $class, Mixed &$reflect = Null ): False | String
 	{
@@ -155,13 +168,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets the interface names
+	 * Gets the interface names.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getInterfaceNames( Object | String $class, Mixed &$reflect = Null ): Array
 	{
@@ -169,13 +183,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets the interfaces
+	 * Gets the interfaces.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getInterfaces( Object | String $class, Mixed &$reflect = Null ): Array
 	{
@@ -183,13 +198,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets a ReflectionMethod for a class method
+	 * Gets a ReflectionMethod for a class method.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionMethod
 	 */
 	public static function getMethod( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionMethod
 	{
@@ -197,13 +214,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets an array of methods
+	 * Gets an array of methods.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Int $filter
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getMethods( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
@@ -211,13 +230,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets the class modifiers
+	 * Gets the class modifiers.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Int
 	 */
 	public static function getModifiers( Object | String $class, Mixed &$reflect = Null ): Int
 	{
@@ -225,13 +245,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets class name
+	 * Gets class name.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
 	public static function getName( Object | String $class, Mixed &$reflect = Null ): String
 	{
@@ -239,13 +260,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets namespace name
+	 * Gets namespace name.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
 	public static function getNamespaceName( Object | String $class, Mixed &$reflect = Null ): String
 	{
@@ -253,13 +275,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets parent class
+	 * Gets parent class.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionClass
 	 */
 	public static function getParentClass( Object | String $class, Mixed &$reflect = Null ): False | ReflectionClass
 	{
@@ -267,13 +290,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets parent class
+	 * Gets parent class.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getParentClasses( Object | String $class, Mixed &$reflect = Null ): Array
 	{
@@ -289,13 +313,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets properties
+	 * Gets properties.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Int $filter
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getProperties( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
@@ -303,13 +329,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets a ReflectionProperty for a class's property
+	 * Gets a ReflectionProperty for a class's property.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionProperty
 	 */
 	public static function getProperty( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionProperty
 	{
@@ -317,13 +345,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets a ReflectionClassConstant for a class's constant
+	 * Gets a ReflectionClassConstant for a class's constant.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|ReflectionClassConstant
 	 */
 	public static function getReflectionConstant( Object | String $class, String $name, Mixed &$reflect = Null ): False | ReflectionClassConstant
 	{
@@ -331,13 +361,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets class constants
+	 * Gets class constants.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Int $filter
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getReflectionConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
@@ -345,13 +377,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets short name
+	 * Gets short name.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
 	public static function getShortName( Object | String $class, Mixed &$reflect = Null ): String
 	{
@@ -359,13 +392,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets starting line number
+	 * Gets starting line number.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|Int
 	 */
 	public static function getStartLine( Object | String $class, Mixed &$reflect = Null ): False | Int
 	{
@@ -373,13 +407,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets static properties
+	 * Gets static properties.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getStaticProperties( Object | String $class, Mixed &$reflect = Null ): ? Array
 	{
@@ -387,13 +422,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Gets static property value
+	 * Gets static property value.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Mixed
 	 */
 	public static function getStaticPropertyValue( Object | String $class, String $name, Mixed &$value, Mixed &$reflect = Null ): Mixed
 	{
@@ -401,13 +438,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Returns an array of trait aliases
+	 * Returns an array of trait aliases.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getTraitAliases( Object | String $class, Mixed &$reflect = Null ): Array
 	{
@@ -415,13 +453,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Returns an array of names of traits used by this class
+	 * Returns an array of names of traits used by this class.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getTraitNames( Object | String $class, Mixed &$reflect = Null ): Array
 	{
@@ -439,13 +478,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Returns an array of traits used by this class
+	 * Returns an array of traits used by this class.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
 	public static function getTraits( Object | String $class, Mixed &$reflect = Null ): Array
 	{
@@ -453,13 +493,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Checks if constant is defined
+	 * Checks if constant is defined.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function hasConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
 	{
@@ -467,13 +509,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Checks if method is defined
+	 * Checks if method is defined.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function hasMethod( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
 	{
@@ -481,13 +525,15 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Checks if property is defined
+	 * Checks if property is defined.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function hasProperty( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
 	{
@@ -495,13 +541,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Checks if in namespace
+	 * Checks if in namespace.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function inNamespace( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
@@ -509,27 +556,30 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Creates a new class instance from given arguments
+	 * Creates a new class instance from given arguments.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Array|False $construct
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Object
 	 */
-	public static function instance( Object | String $class, Mixed &$reflect = Null ): Object
+	public static function instance( Object | String $class, Array | False | Null $construct = Null, Mixed &$reflect = Null ): Object
 	{
 		// ...
 	}
 	
 	/*
-	 * Checks if class is abstract
+	 * Checks if class is abstract.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function isAbstract( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
@@ -537,13 +587,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Checks if class is anonymous
+	 * Checks if class is anonymous.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function isAnonymous( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
@@ -551,24 +602,45 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Returns whether this class is cloneable
+	 * Returns whether this class is Cloneable.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function isCloneable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
+	/*
+	 * Returns whether this class is Countable.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
 	public static function isCountable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		
 	}
 	
+	/*
+	 * Returns whether this class is an data.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
 	public static function isData( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		
@@ -579,7 +651,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -593,7 +666,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -607,7 +681,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -621,7 +696,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -635,7 +711,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -649,7 +726,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -663,7 +741,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -677,7 +756,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -691,7 +771,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -700,11 +781,31 @@ abstract class ReflectClass
 		// ...
 	}
 	
+	/*
+	 * Returns whether this class is ServiceProvider.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
 	public static function isServicesProvider( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
+	/*
+	 * Returns whether this class is a Singleton.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
 	public static function isSingleton( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
@@ -715,7 +816,8 @@ abstract class ReflectClass
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
 	 * @return 
 	 */
@@ -724,24 +826,45 @@ abstract class ReflectClass
 		// ...
 	}
 	
+	/*
+	 * Returns whether this class is Stringable.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
 	public static function isStringable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
+	/*
+	 * Returns whether this class is Throwable.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
 	public static function isThrowable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		
 	}
 	
 	/*
-	 * Returns whether this is a trait
+	 * Returns whether this is a trait.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function isTrait( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
@@ -749,13 +872,14 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Checks if user defined
+	 * Checks if user defined.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
 	public static function isUserDefined( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
@@ -763,13 +887,16 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Sets static property value
+	 * Sets static property value.
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Object|String $class
+	 * @params String $name
+	 * @params Mixed $value
+	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Void
 	 */
 	public static function setStaticPropertyValue( Object | String $class, String $name, Mixed $value, Mixed &$reflect = Null ): Void
 	{
