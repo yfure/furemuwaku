@@ -564,6 +564,16 @@ abstract class ReflectClass
 		// ...
 	}
 	
+	public static function isCountable( Mixed &$reflect = Null ): Bool
+	{
+		
+	}
+	
+	public static function isData( Mixed &$reflect = Null ): Bool
+	{
+		
+	}
+	
 	/*
 	 * Returns whether this is an enum
 	 *
@@ -690,6 +700,16 @@ abstract class ReflectClass
 		// ...
 	}
 	
+	public static function isServicesProvider( Mixed &$reflect = Null ): Bool
+	{
+		// ...
+	}
+	
+	public static function isSingleton( Mixed &$reflect = Null ): Bool
+	{
+		// ...
+	}
+	
 	/*
 	 * Checks if a subclass
 	 *
@@ -702,6 +722,16 @@ abstract class ReflectClass
 	public static function isSubclassOf( String | ReflectionClass $subclass, Mixed &$reflect = Null ): Bool
 	{
 		// ...
+	}
+	
+	public static function isStringable( Mixed &$reflect = Null ): Bool
+	{
+		// ...
+	}
+	
+	public static function isThrowable( Mixed &$reflect = Null ): Bool
+	{
+		
 	}
 	
 	/*
