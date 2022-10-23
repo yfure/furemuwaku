@@ -314,6 +314,7 @@ class Data implements DataInterface
 		
 		// Get data keys.
 		$keys = $this->keys();
+		$vals = $this->values();
 		
 		// Mapping data.
 		for( $i = 0; $i < $this->count(); $i++ )
@@ -326,11 +327,11 @@ class Data implements DataInterface
 				// Index iteration.
 				$i,
 				
-				// Array key name.
+				// Array index.
 				$keys[$i],
 				
 				// Array value.
-				$this->data[$keys[$i]]
+				$vals[$i]
 			);
 		}
 		
