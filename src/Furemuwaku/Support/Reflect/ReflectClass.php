@@ -23,7 +23,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getAttributes( ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
+	public static function getAttributes( Object | String $class, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -37,7 +37,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getConstant( String $name, Mixed &$reflect = Null ): Mixed
+	public static function getConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Mixed
 	{
 		// ...
 	}
@@ -51,7 +51,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getConstants( ? Int $filter = Null, Mixed &$reflect = Null ): Array
+	public static function getConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -65,7 +65,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getConstructor( Mixed &$reflect = Null ): ? ReflectionMethod
+	public static function getConstructor( Object | String $class, Mixed &$reflect = Null ): ? ReflectionMethod
 	{
 		// ...
 	}
@@ -79,7 +79,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getDefaultProperties( Mixed &$reflect = Null ): Array
+	public static function getDefaultProperties( Object | String $class, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -93,7 +93,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getDocComment( Mixed &$reflect = Null ): False | String
+	public static function getDocComment( Object | String $class, Mixed &$reflect = Null ): False | String
 	{
 		// ...
 	}
@@ -107,7 +107,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getEndLine( Mixed &$reflect = Null ): False | Int
+	public static function getEndLine( Object | String $class, Mixed &$reflect = Null ): False | Int
 	{
 		// ...
 	}
@@ -121,7 +121,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getExtension( Mixed &$reflect = Null ): ? ReflectionExtension
+	public static function getExtension( Object | String $class, Mixed &$reflect = Null ): ? ReflectionExtension
 	{
 		// ...
 	}
@@ -135,7 +135,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getExtensionName( Mixed &$reflect = Null ): False | String
+	public static function getExtensionName( Object | String $class, Mixed &$reflect = Null ): False | String
 	{
 		// ...
 	}
@@ -149,7 +149,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getFileName( Mixed &$reflect = Null ): False | String
+	public static function getFileName( Object | String $class, Mixed &$reflect = Null ): False | String
 	{
 		// ...
 	}
@@ -163,7 +163,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getInterfaceNames( Mixed &$reflect = Null ): Array
+	public static function getInterfaceNames( Object | String $class, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -177,7 +177,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getInterfaces( Mixed &$reflect = Null ): Array
+	public static function getInterfaces( Object | String $class, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -191,7 +191,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getMethod( String $name, Mixed &$reflect = Null ): ReflectionMethod
+	public static function getMethod( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionMethod
 	{
 		// ...
 	}
@@ -205,7 +205,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getMethods( ? Int $filter = Null, Mixed &$reflect = Null ): Array
+	public static function getMethods( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -219,7 +219,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getModifiers( Mixed &$reflect = Null ): Int
+	public static function getModifiers( Object | String $class, Mixed &$reflect = Null ): Int
 	{
 		// ...
 	}
@@ -233,7 +233,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getName( Mixed &$reflect = Null ): String
+	public static function getName( Object | String $class, Mixed &$reflect = Null ): String
 	{
 		// ...
 	}
@@ -247,7 +247,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getNamespaceName( Mixed &$reflect = Null ): String
+	public static function getNamespaceName( Object | String $class, Mixed &$reflect = Null ): String
 	{
 		// ...
 	}
@@ -261,7 +261,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getParentClass( Mixed &$reflect = Null ): False | ReflectionClass
+	public static function getParentClass( Object | String $class, Mixed &$reflect = Null ): False | ReflectionClass
 	{
 		// ...
 	}
@@ -275,9 +275,9 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getParentClasses( Mixed &$reflect = Null ): Array
+	public static function getParentClasses( Object | String $class, Mixed &$reflect = Null ): Array
 	{
-		$parent = self::reflect( $class, $reflect );
+		$parent = self::reflect( $class, $class, $reflect );
 		$parents = [];
 		
 		while( $parent = $class->getParentClass() )
@@ -297,7 +297,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getProperties( ? Int $filter = Null, Mixed &$reflect = Null ): Array
+	public static function getProperties( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -311,7 +311,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getProperty( String $name, Mixed &$reflect = Null ): ReflectionProperty
+	public static function getProperty( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionProperty
 	{
 		// ...
 	}
@@ -325,7 +325,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getReflectionConstant( String $name, Mixed &$reflect = Null ): False | ReflectionClassConstant
+	public static function getReflectionConstant( Object | String $class, String $name, Mixed &$reflect = Null ): False | ReflectionClassConstant
 	{
 		// ...
 	}
@@ -339,7 +339,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getReflectionConstants( ? Int $filter = Null, Mixed &$reflect = Null ): Array
+	public static function getReflectionConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -353,7 +353,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getShortName( Mixed &$reflect = Null ): String
+	public static function getShortName( Object | String $class, Mixed &$reflect = Null ): String
 	{
 		// ...
 	}
@@ -367,7 +367,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getStartLine( Mixed &$reflect = Null ): False | Int
+	public static function getStartLine( Object | String $class, Mixed &$reflect = Null ): False | Int
 	{
 		// ...
 	}
@@ -381,7 +381,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getStaticProperties( Mixed &$reflect = Null ): ? Array
+	public static function getStaticProperties( Object | String $class, Mixed &$reflect = Null ): ? Array
 	{
 		// ...
 	}
@@ -395,7 +395,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getStaticPropertyValue( String $name, Mixed &$value, Mixed &$reflect = Null ): Mixed
+	public static function getStaticPropertyValue( Object | String $class, String $name, Mixed &$value, Mixed &$reflect = Null ): Mixed
 	{
 		// ...
 	}
@@ -409,7 +409,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getTraitAliases( Mixed &$reflect = Null ): Array
+	public static function getTraitAliases( Object | String $class, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -423,19 +423,19 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getTraitNames( Mixed &$reflect = Null ): Array
+	public static function getTraitNames( Object | String $class, Mixed &$reflect = Null ): Array
 	{
 		// ...
 		$traitsNames = [];
-		$recursiveClasses = function ($class) use(&$recursiveClasses, &$traitsNames) {
+		$recursiveClasses = function ($class) use( &$recursiveClasses, &$traitsNames) {
 		if ($class->getParentClass() != false) {
-		$recursiveClasses($class->getParentClass());
+		$recursiveClasses( $class->getParentClass());
 		}
 		else {
-		$traitsNames = array_merge($traitsNames, $class->getTraitNames());
+		$traitsNames = array_merge( $traitsNames, $class->getTraitNames());
 		}
 		};
-		$recursiveClasses($controllerClass);
+		$recursiveClasses( $controllerClass);
 	}
 	
 	/*
@@ -447,7 +447,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function getTraits( Mixed &$reflect = Null ): Array
+	public static function getTraits( Object | String $class, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -461,7 +461,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function hasConstant( String $name, Mixed &$reflect = Null ): Bool
+	public static function hasConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -475,7 +475,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function hasMethod( String $name, Mixed &$reflect = Null ): Bool
+	public static function hasMethod( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -489,7 +489,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function hasProperty( String $name, Mixed &$reflect = Null ): Bool
+	public static function hasProperty( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -503,7 +503,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function inNamespace( Mixed &$reflect = Null ): Bool
+	public static function inNamespace( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -517,7 +517,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function instance( Mixed &$reflect = Null ): Object
+	public static function instance( Object | String $class, Mixed &$reflect = Null ): Object
 	{
 		// ...
 	}
@@ -531,7 +531,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isAbstract( Mixed &$reflect = Null ): Bool
+	public static function isAbstract( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -545,7 +545,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isAnonymous( Mixed &$reflect = Null ): Bool
+	public static function isAnonymous( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -559,17 +559,17 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isCloneable( Mixed &$reflect = Null ): Bool
+	public static function isCloneable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
-	public static function isCountable( Mixed &$reflect = Null ): Bool
+	public static function isCountable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		
 	}
 	
-	public static function isData( Mixed &$reflect = Null ): Bool
+	public static function isData( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		
 	}
@@ -583,7 +583,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isEnum( Mixed &$reflect = Null ): Bool
+	public static function isEnum( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -597,7 +597,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isFinal( Mixed &$reflect = Null ): Bool
+	public static function isFinal( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -611,7 +611,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isImplements( String $name, Mixed &$reflect = Null ): Bool
+	public static function isImplements( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -625,7 +625,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isInstance( Object $object, Mixed &$reflect = Null ): Bool
+	public static function isInstance( Object | String $class, Object $object, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -639,7 +639,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isInstantiable( Mixed &$reflect = Null ): Bool
+	public static function isInstantiable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -653,7 +653,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isInterface( Mixed &$reflect = Null ): Bool
+	public static function isInterface( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -667,7 +667,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isInternal( Mixed &$reflect = Null ): Bool
+	public static function isInternal( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -681,7 +681,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isIterable( Mixed &$reflect = Null ): Bool
+	public static function isIterable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -695,17 +695,17 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isIterateable( Mixed &$reflect = Null ): Bool
+	public static function isIterateable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
-	public static function isServicesProvider( Mixed &$reflect = Null ): Bool
+	public static function isServicesProvider( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
-	public static function isSingleton( Mixed &$reflect = Null ): Bool
+	public static function isSingleton( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -719,17 +719,17 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isSubclassOf( String | ReflectionClass $subclass, Mixed &$reflect = Null ): Bool
+	public static function isSubclassOf( Object | String $class, String | ReflectionClass $subclass, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
-	public static function isStringable( Mixed &$reflect = Null ): Bool
+	public static function isStringable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
 	
-	public static function isThrowable( Mixed &$reflect = Null ): Bool
+	public static function isThrowable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		
 	}
@@ -743,7 +743,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isTrait( Mixed &$reflect = Null ): Bool
+	public static function isTrait( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -757,7 +757,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function isUserDefined( Mixed &$reflect = Null ): Bool
+	public static function isUserDefined( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -771,7 +771,7 @@ abstract class ReflectClass
 	 *
 	 * @return 
 	 */
-	public static function setStaticPropertyValue( String $name, Mixed $value, Mixed &$reflect = Null ): Void
+	public static function setStaticPropertyValue( Object | String $class, String $name, Mixed $value, Mixed &$reflect = Null ): Void
 	{
 		// ...
 	}
