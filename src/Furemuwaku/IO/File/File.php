@@ -39,6 +39,22 @@ abstract class File
 		"e"
 	];
 	
+	private static function assertMode( String $file, String $mode ): Void
+	{
+		try
+		{
+			// If file open mode is invalid mode.
+			if( in_array( $mode, self::$modes ) === False )
+			{
+				throw new Error\AssertError( [ "mode", self::$modes, $mode ], Error\AssertError::VALUE_ERROR );
+			}
+		}
+		catch( Error\AssertionError $e )
+		{
+			throw new Error\FileError( [ $file, $mode ], Error\FileError::MODE_ERROR, $e );
+		}
+	}
+	
 	/*
 	 * Check if file is exists.
 	 *
@@ -54,6 +70,36 @@ abstract class File
 	}
 	
 	/*
+	 * Opens file or URL.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $file
+	 * @params String $mode
+	 * @params Bool $include
+	 * @params Resource $context
+	 *
+	 * @return Resource
+	 */
+	public static function open( String $file, String $mode = "r", Bool $include = False, $context = Null )
+	{
+		// File mode assertion.
+		self::assertMode( $file, $mode );
+		
+		// Check if the filename is not a directory.
+		if( IO\Path\Path::exists( $file ) === False )
+		{
+			// Check if such a directory exists.
+			if( IO\Path\Path::exists( $fpath = Util\Str::pop( $file, "/" ) ) )
+			{
+				return( fopen( $file, $mode, $include, $context ) );
+			}
+			throw new Error\FileError( $fpath, Error\FileError::PATH_ERROR );
+		}
+		throw new Error\FileError( $file, Error\FileError::TYPE_ERROR );
+	}
+	
+	/*
 	 * Read the contents of the file.
 	 *
 	 * @access Public Static
@@ -64,49 +110,32 @@ abstract class File
 	 */
 	public static function read( String $file ): String
 	{
-		// Check if the filename is a directory.
-		if( IO\Path::exists( $file ) )
+		// Check if such directory is unreadable.
+		if( IO\IO::readable( Util\Str::pop( $file, "/" ) ) === False )
 		{
-			throw new FileError( $file, FileError::NOT_FILE );
+			throw new Error\PathError( $fpath, Error\PathError::READ_ERROR );
 		}
-		
-		// Check if such a directory exists.
-		if( IO\Path::exists( $fpath = Util\Stringer::pop( $file, "/" ) ) )
+		// Check if such a file exists.
+		if( self::exists( $file ) )
 		{
-			// Check if such directory is unreadable.
-			if( IO\IO::readable( $fpath ) === False )
+			// Check if such files are readable.
+			if( IO\IO::readable( $file ) )
 			{
-				throw new IO\Path\PathError( $fpath, IO\Path\PathError::NOT_READABLE );
-			}
-			
-			// Check if such a file exists.
-			if( self::exists( $file ) )
-			{
-				// Check if such files are unreadable.
-				if( IO\IO::readable( $file ) === False )
-				{
-					throw new FileError( $file, FileError::NOT_READABLE );
-				}
-			}
-			else {
-				throw new FileError( $file, FileError::NOT_FOUND );
-			}
-			
-			// Add prefix base path.
-			$fname = path( $file );
-			
-			// Get file size.
-			$fsize = ( $fsize = self::size( $file ) ) !== 0 ? $fsize : 13421779;
-			
-			// Open file.
-			if( $fopen = fopen( $fname, "r" ) )
-			{
+				// Add prefix base path.
+				$fname = path( $file );
+				
+				// Get file size.
+				$fsize = ( $fsize = self::size( $file ) ) === 0 ? 13421779 : $fsize;
+				
+				// Open file.
+				$fopen = self::open( $fname, "r" );
+				
 				// File readed.
 				$fread = "";
 				
+				// Binary-safe file read.
 				while( feof( $fopen ) === False )
 				{
-					// Binary-safe file read.
 					$fread .= fread( $fopen, $fsize );
 				}
 				
@@ -115,9 +144,11 @@ abstract class File
 				
 				return( $fread );
 			}
-			// Failed Open File {}
+			throw new Error\FileError( $file, Error\FileError::READ_ERROR );
 		}
-		throw new IO\Path\PathError( $fpath, IO\Path\PathError::NOT_FOUND );
+		else {
+			throw new Error\FileError( $file, Error\FileError::FILE_ERROR );
+		}
 	}
 	
 	/*
@@ -187,8 +218,9 @@ abstract class File
 		// Get timestamp value from file.
 		$time = filemtime( path( $file ) );
 		
-		// Clone instance of DateTime Runtime class.
-		$date = ( clone App\Runtime::$app->object->dateTime )->setTimestamp( $time );
+		// Create new instance of DateTime class.
+		$date = new DateTime;
+		$date->setTimestamp( $time );
 		
 		// Return DateTime instance.
 		return( $date );
@@ -220,21 +252,21 @@ abstract class File
 	public static function write( String $file, ? String $fdata = Null, String $fmode = "w" ): Void
 	{
 		// Check if the filename is a directory.
-		if( IO\Path::exists( $file ) )
+		if( IO\Path\Path::exists( $file ) )
 		{
 			throw new FileError( $file, FileError::NOT_FILE );
 		}
 		
 		// Check if such a directory exists.
-		if( IO\Path::exists( $fpath = Util\Stringer::pop( $file, "/" ) ) === False )
+		if( IO\Path\Path::exists( $fpath = Util\Str::pop( $file, "/" ) ) === False )
 		{
-			IO\Path::mkdir( $fpath );
+			IO\Path\Path::mkdir( $fpath );
 		}
 		
 		// Check if such directory is unwriteable.
 		if( IO\IO::writeable( $fpath ) === False )
 		{
-			throw new IO\Path\PathError( $fpath, IO\Path\PathError::NOT_WRITEABLE );
+			throw new Error\PermissionError( $fpath, Error\PermissionError::WRITE_ERROR );
 		}
 		
 		// Check if such a file exists.
@@ -243,7 +275,7 @@ abstract class File
 			// Check if such files are unwriteable.
 			if( IO\IO::writeable( $file ) === False )
 			{
-				throw new FileError( $file, FileError::NOT_WRITEABLE );
+				throw new Error\PermissionError( $file, Error\PermissionError::WRITE_ERROR );
 			}
 		}
 		
@@ -263,7 +295,7 @@ abstract class File
 			fclose( $fopen );
 		}
 		else {
-			throw new FileError( f( "Failed write file {}.", $fname ) );
+			throw new IOError( $fname, Error\IOError );
 		}
 	}
 

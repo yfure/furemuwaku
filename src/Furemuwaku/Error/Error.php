@@ -8,11 +8,11 @@ BaseError
   ..IOError
   ..  ..HTTPError
   ..  ..JSONError
-  ..  ..PathError
+  ..  ..PermissionError
+  ..  ..  ..PathError
   ..  ..  ..FileError
   ..  ..  ..  ..ImportError
   ..  ..  ..  ..  ..ModuleError
-  ..  ..PermissionError
   ..LocaleError
   ..  ..DateTimeZoneError
   ..ReferenceError
