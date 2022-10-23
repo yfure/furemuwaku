@@ -21,7 +21,7 @@ final class App extends Support\Design\Creational\Singleton
 	 */
 	protected function __construct()
 	{
-		puts( "*", 0 );
+		echo Support\Package\Package::import( parent::class );
 	}
 	
 }
