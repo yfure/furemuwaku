@@ -4,6 +4,8 @@ namespace Yume\Fure\Util;
 
 use Stringable;
 
+use phpseclib3\Crypt;
+
 use Yume\Fure\Error;
 use Yume\Fure\Support;
 
@@ -14,6 +16,42 @@ use Yume\Fure\Support;
  */
 abstract class Str
 {
+	
+	/*
+	 * Escape string.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 *
+	 * @return String
+	 */
+	public static function escape( String $string ): String
+	{
+		return( Support\RegExp\RegExp::replace( "/\\\(\S)/m", $string, function( Array $match )
+		{
+			// If the value is not single or double quote.
+			if( $match[1] !== "\"" && $match[1] !== "'" )
+			{
+				return( self::fmt( "\\\\{1}", $match ) );
+			}
+			return( $match[0] );
+		}));
+	}
+	
+	/*
+	 * Check if check if letter is upper or lower.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 *
+	 * @return Bool
+	 */
+	public static function firstLetterIsUpper( String $string ): Int | Bool
+	{
+		return( Support\RegExp\RegExp::match( "/^[\p{Lu}\x{2160}-\x{216F}]/u", $string ) );
+	}
 	
 	/*
 	 * String formater.
@@ -46,7 +84,7 @@ abstract class Str
 			// If array key is matched.
 			if( isset( $match['key'] ) )
 			{
-				return( self::parse( Arr::ify( $match['key'], $format ) ) );
+				return( $match['except'] . self::parse( Arr::ify( $match['key'], $format ) ) );
 			}
 			
 			// If array index is matched.
@@ -55,7 +93,7 @@ abstract class Str
 				// Check if index is exists.
 				if( isset( $format[$match['index']] ) )
 				{
-					return( self::parse( $match['except'] . $format[$match['index']] ) );
+					return( $match['except'] . self::parse( $format[$match['index']] ) );
 				}
 				throw new Error\IndexError( $match['index'], Error\IndexError::RANGE_ERROR );
 			}
@@ -65,12 +103,26 @@ abstract class Str
 				// Check if index iteration is exists.
 				if( isset( $format[$i] ) )
 				{
-					return( self::parse( $match['except'] . $format[$i++] ) );
+					return( $match['except'] . self::parse( $format[$i++] ) );
 				}
 				throw new Error\IndexError( $i++, Error\IndexError::RANGE_ERROR );
 			}
 			$i++;
 		}));
+	}
+	
+	/*
+	 * Checks if string is enclosed by double or single quote.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 *
+	 * @return Bool
+	 */
+	public static function isQuoted( String $string ): Bool
+	{
+		return( Support\RegExp\RegExp::test( "/^(?:(\"[^\"]*|\'[^\']*))$/" ) );
 	}
 	
 	/*
@@ -118,14 +170,80 @@ abstract class Str
 		return( ( String ) $args );
 	}
 	
-	public static function random( Int $length = 16 ): String
+	/*
+	 * Remove last string with separator.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $subject
+	 * @params String $separator
+	 *
+	 * @return String
+	 */
+	public static function pop( String $subject, String $separator ): String
 	{
+		// Split string with separator.
+		$split = explode( $separator, $subject );
 		
+		// Remove last array ellement.
+		array_pop( $split );
+		
+		// Join array elements with a string.
+		return( $subject = implode( $separator, $split ) );
 	}
 	
+	/*
+	 * Generate random pseudo bytes by length.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Int $length
+	 *
+	 * @return String
+	 */
+	public static function random( Int $length = 16 ): String
+	{
+		return( Crypt\Random::string( $length ) );
+	}
+	
+	/*
+	 * Generate random string by alphabhet given.
+	 *
+	 * @source http://stackoverflow.com/a/13733588/
+	 *
+	 * @access Public Static
+	 *
+	 * @params Int $length
+	 * @params String $alphabet
+	 *
+	 * @return String
+	 */
 	public static function randomAlpha(): String
 	{
+		// Token result stack.
+		$token = "";
 		
+		// Check if alphabet is null type.
+		if( $alphabet === Null )
+		{
+			// Generate random alphabet.
+			$alphabet = self::fmt( "{}{}{}", [
+				implode( range( "a", "z" ) ),
+				implode( range( "A", "Z" ) ),
+				implode( range( 0, 9 ) )
+			]);
+		}
+		
+		// Get alphabet length.
+		$alphabetLength = strlen( $alphabet );
+		
+		for( $i = 0; $i < $length; $i++ )
+		{
+			// Get alphabet based on randomable number.
+			$token .= $alphabet[Number::random( 0, $alphabetLength )];
+		}
+		
+		return( $token );
 	}
 	
 }

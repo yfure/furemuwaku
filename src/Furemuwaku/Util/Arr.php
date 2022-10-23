@@ -28,11 +28,14 @@ abstract class Arr
 		// If `refs` is string type.
 		if( is_string( $refs ) )
 		{
-			// Encodes each character inside [].
-			$refs = Support\RegExp\RegExp::replace( "/(?:\[([^\]]*)\])/", $refs, fn( $m ) => f( ".hx_{}", bin2hex( $m[1] ) ) );
-			
-			// Split string with period.
-			$refs = explode( ".", $refs );
+			// Split string reference.
+			$refs = self::ifySplit( $refs );
+		}
+		
+		// If `refs` length is zero or empty value.
+		if( count( $refs ) === 0 )
+		{
+			return( $data );
 		}
 		
 		foreach( $refs As $index )
@@ -45,12 +48,8 @@ abstract class Arr
 			}
 			else {
 				
-				// Checks if the string is encoded text.
-				if( $index !== "" && Support\RegExp\RegExp::test( "/^(?:hx_.*?)$/", $index ) )
-				{
-					// Decode Hexadecimal strings.
-					$index = Support\RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $index, fn( $m ) => hex2bin( $m[1] ) );
-				}
+				// Decode Hexadecimal strings.
+				$index = Support\RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $index, fn( $m ) => hex2bin( $m[1] ) );
 			}
 			
 			// Check if stack variable is exists.
@@ -77,6 +76,34 @@ abstract class Arr
 			}
 		}
 		return( $stack ?? $data );
+	}
+	
+	/*
+	 * Join array elements with a period.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array $split
+	 *
+	 * @return String
+	 */
+	public static function ifyJoin( Array $split ): String
+	{
+		return( implode( ".", self::map( $split, fn( $i, $k, $refer ) => Support\RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $refer, fn( $m ) => hex2bin( $m[1] ) ) ) ) );
+	}
+	
+	/*
+	 * Split string with period.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $refer
+	 *
+	 * @return Array
+	 */
+	public static function ifySplit( String $refer ): Array
+	{
+		return( explode( ".", Support\RegExp\RegExp::replace( "/(?:\[([^\]]*)\])/", $refer, fn( $m ) => f( ".hx_{}", bin2hex( $m[1] ) ) ) ) );
 	}
 	
 	/*
