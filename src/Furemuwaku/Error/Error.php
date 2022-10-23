@@ -13,6 +13,8 @@ BaseError
   ..  ..  ..  ..ImportError
   ..  ..  ..  ..  ..ModuleError
   ..  ..PermissionError
+  ..LocaleError
+  ..  ..DateTimeZoneError
   ..ReferenceError
   ..  ..FormatError
   ..  ..LookupError
@@ -31,6 +33,7 @@ BaseError
   ..  ..  ..EnvError
   ..  ..  ..ViewError
   ..  ..  ..  ..HTMLError
+  ..TriggerError
   ..TypeError
   ..  ..ParameterError
   ..  ..  ..ArgumentError
