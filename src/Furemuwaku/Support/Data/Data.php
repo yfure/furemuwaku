@@ -39,7 +39,7 @@ class Data implements DataInterface
 	 *
 	 * @return Void
 	 */
-	public function __construct( Array $data = [] )
+	public function __construct( Array | DataInterface $data = [] )
 	{
 		Util\Arr::map( $data, function( $i, $key, $value )
 		{
@@ -172,7 +172,7 @@ class Data implements DataInterface
 	 */
 	public function __set( String $name, Mixed $value ): Void
 	{
-		$this->data[$name] = $value;
+		$this->data[$name] = is_array( $value ) ? new Data( $value ) : $value;
 	}
 	
 	/*

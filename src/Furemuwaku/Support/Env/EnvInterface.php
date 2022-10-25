@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Support\Env;
 
+use Yume\Fure\Support;
+
 /*
  * EnvInterface
  *
@@ -9,6 +11,15 @@ namespace Yume\Fure\Support\Env;
  */
 interface EnvInterface
 {
+	
+	/*
+	 * Get all environment variables.
+	 *
+	 * @access Public
+	 *
+	 * @return Yume\Fure\Support\Data\DataInterface;
+	 */
+	public function getAll( Bool $type = False ): Support\Data\DataInterface;
 	
 	/*
 	 * Get environment variable value.

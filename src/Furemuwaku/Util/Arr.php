@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util;
 
+use ArrayAccess;
+
 use Yume\Fure\Error;
 use Yume\Fure\Support;
 
@@ -241,6 +243,41 @@ abstract class Arr
 			}
 			return( $stack );
 		}
+		return( $array );
+	}
+	
+	/*
+	 * Unset multiple array elements based on array values.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array|ArrayAccess $array
+	 * @params Mixed $values
+	 *
+	 * @return Array|ArrayAccess
+	 */
+	public static function unset( Array | ArrayAccess $array, Mixed $values ): Array | ArrayAccess
+	{
+		// If `values` is not array type.
+		if( is_array( $values ) === False && $values Instanceof ArrayAccess === False )
+		{
+			$values = [ $values ];
+		}
+		
+		// Mapping array values.
+		self::map( $values, function( $i, $index, $value ) use( &$array )
+		{
+			// Mapping array data.
+			self::map( $array, function( $i, $index, $target ) use( &$array, $value )
+			{
+				// If array value is equal target.
+				if( $value === $target )
+				{
+					unset( $array[$index] );
+				}
+			});
+		});
+		
 		return( $array );
 	}
 	
