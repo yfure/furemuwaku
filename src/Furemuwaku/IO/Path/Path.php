@@ -2,6 +2,10 @@
 
 namespace Yume\Fure\IO\Path;
 
+use Yume\Fure\Error;
+use Yume\Fure\Support;
+use Yume\Fure\Util;
+
 /*
  * Path
  *
@@ -32,6 +36,8 @@ abstract class Path
 	 * @params String $dir
 	 *
 	 * @return Array|Bool
+	 *
+	 * @throws Yume\Fure\Error\PathError
 	 */
 	public static function ls( String $path ): Array | Bool
 	{
@@ -48,7 +54,7 @@ abstract class Path
 			
 			return( $scan );
 		}
-		return( False );
+		throw new Error\PathError( $path, Error\PathError::PATH_ERROR );
 	}
 	
 	/*
@@ -66,15 +72,45 @@ abstract class Path
 		$stack = "";
 		
 		// Mapping dir.
-		array_map( array: explode( "/", $path ), callback: function( $dir ) use( &$stack )
+		Util\Arr::map( explode( "/", $path ), function( $dir ) use( &$stack )
 		{
 			// Check if directory is exists.
-			if( self::exists( $stack = f( "{}{}/", $stack, $dir ) ) === False )
+			if( self::exists( $stack = Util\Str::fmt( "{}{}/", $stack, $dir ) ) === False )
 			{
 				// Create new directory.
 				mkdir( path( $stack ) );
 			}
 		});
+	}
+	
+	/*
+	 * Get fullpath name or remove basepath name.
+	 *
+	 * @params String $path
+	 * @params Bool $remove
+	 *
+	 * @return String
+	 */
+	public static function path( String $path, Bool $remove = False ): String
+	{
+		// Check if the path name has a prefix (e.g. php://).
+		if( Support\RegExp\RegExp::test( "/(?<name>^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\:(?<separator>\/\/|\\\)/i", $path ) )
+		{
+			return( $path );
+		}
+		else {
+			
+			// Remove all basepath in string.
+			if( $remove )
+			{
+				return( str_replace( Support\RegExp\RegExp::replace( "/\//", BASE_PATH, DIRECTORY_SEPARATOR ), "", $path ) );
+			}
+			else {
+				
+				// Add basepath into prefix pathname.
+				return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, Support\RegExp\RegExp::replace( "/\//", f( "{}/{}", BASE_PATH, $path ), DIRECTORY_SEPARATOR ) ) );
+			}
+		}
 	}
 	
 	/*
@@ -86,6 +122,8 @@ abstract class Path
 	 * @params String $parent
 	 *
 	 * @return Array|False
+	 *
+	 * @throws Yume\Fure\Error\PathError
 	 */
 	public static function tree( String $path, String $parent = "" ): Array | False
 	{
@@ -109,7 +147,7 @@ abstract class Path
 			}
 			return( $tree );
 		}
-		return( False );
+		throw new Error\PathError( $path, Error\PathError::PATH_ERROR );
 	}
 	
 }

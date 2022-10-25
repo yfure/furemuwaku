@@ -28,7 +28,7 @@ interface EnvInterface
 	 *
 	 * @return String
 	 */
-	public function getFilename(): String
+	public function getFilename(): String;
 	
 	/*
 	 * Load and parse environmen file.

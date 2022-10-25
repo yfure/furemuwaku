@@ -59,6 +59,15 @@ function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
 }
 
 /*
+ * @inherit Yume\Fure\IO\File\File
+ *
+ */
+function fsize( String $file, Int $optional = 0 ): Int
+{
+	return( IO\File\File::size( $file, $optional ) );
+}
+
+/*
  * @inherit Yume\Fure\IO\Path\Path
  *
  */
@@ -68,20 +77,11 @@ function ls( String $path ): Array | Bool
 }
 
 /*
- * Get fullpath name or remove basepath name.
- *
- * @params String $path
- * @params Bool $remove
- *
- * @return String
+ * @inherit Yume\Fure\IO\Path\Path
  */
 function path( String $path, Bool $remove = False ): String
 {
-	if( $path !== Null && $remove )
-	{
-		return( str_replace( RegExp\RegExp::replace( "/\//", BASE_PATH, DIRECTORY_SEPARATOR ), "", $path ) );
-	}
-	return( Support\RegExp\RegExp::replace( "/\//", f( "{}/{}", BASE_PATH, $path ), DIRECTORY_SEPARATOR ) );
+	return( IO\Path\Path::path( $path, $remove ) );
 }
 
 /*
@@ -104,6 +104,37 @@ function puts( String $string, Mixed ...$format ): Void
 function tree( String $path, String $parent = "" ): Array | False
 {
 	return( IO\Path\Path::tree( $path, $parent ) );
+}
+
+function valueIsEmpty( Mixed $value ): Bool
+{
+	switch( True )
+	{
+		// If `value` is Int type.
+		case is_int( $value ):
+			return( $value === 0 );
+			
+		// If `value` is Null type.
+		case is_null( $value ): return( True );
+		
+		// If `value` is Bool type.
+		case is_bool( $value ):
+			return( $value === False );
+		
+		// If `value` is Array type.
+		case is_array( $value ):
+			return( count( $value ) === 0 );
+			
+		// If `value` is String type.
+		case is_string( $value ):
+			return( Support\RegExp\RegExp::test( "/^([\s\t\n]*)$/", $value ) );
+	}
+	return( False );
+}
+
+function valueIsNotEmpty( Mixed $value ): Bool
+{
+	return( valueIsEmpty( $value ) === False );
 }
 
 /*

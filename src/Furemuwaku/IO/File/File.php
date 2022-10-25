@@ -16,8 +16,6 @@ use Yume\Fure\Util;
 abstract class File
 {
 	
-	public const SKIP_EMPTY_LINE = 7829;
-	
 	/*
 	 * PHP File open modes.
 	 *
@@ -39,6 +37,19 @@ abstract class File
 		"e"
 	];
 	
+	/*
+	 * File open assertion mode.
+	 *
+	 * @access Private Static
+	 *
+	 * @params String $file
+	 * @params String $mode
+	 *
+	 * @return Void
+	 *
+	 * @throws Yume\Fure\Error\AssertError
+	 * @throws Yume\Fure\Error\FileError
+	 */
 	private static function assertMode( String $file, String $mode ): Void
 	{
 		try
@@ -80,6 +91,8 @@ abstract class File
 	 * @params Resource $context
 	 *
 	 * @return Resource
+	 *
+	 * @throws Yume\Fure\Error\FileError
 	 */
 	public static function open( String $file, String $mode = "r", Bool $include = False, $context = Null )
 	{
@@ -90,7 +103,7 @@ abstract class File
 		if( IO\Path\Path::exists( $file ) === False )
 		{
 			// Check if such a directory exists.
-			if( IO\Path\Path::exists( $fpath = Util\Str::pop( $file, "/" ) ) )
+			if( IO\Path\Path::exists( $fpath = Util\Str::pop( $file, "/", True ) ) )
 			{
 				return( fopen( $file, $mode, $include, $context ) );
 			}
@@ -107,48 +120,63 @@ abstract class File
 	 * @params String $file
 	 *
 	 * @return String
+	 *
+	 * @throws Yume\Fure\Error\FileError
+	 * @throws Yume\Fure\Error\PathError
 	 */
 	public static function read( String $file ): String
 	{
-		// Check if such directory is unreadable.
-		if( IO\IO::readable( Util\Str::pop( $file, "/" ) ) === False )
+		// Check if the filename is a directory.
+		if( IO\Path\Path::exists( $file ) )
 		{
-			throw new Error\PathError( $fpath, Error\PathError::READ_ERROR );
+			throw new Error\FileError( $file, Error\FileError::TYPE_ERROR );
 		}
-		// Check if such a file exists.
-		if( self::exists( $file ) )
+		
+		// Check if such directory is exists.
+		if( IO\Path\Path::exists( $fpath = Util\Str::pop( $file, DIRECTORY_SEPARATOR, True ) ) )
 		{
-			// Check if such files are readable.
-			if( IO\IO::readable( $file ) )
+			// Check if such directory is unreadable.
+			if( IO\IO::readable( $fpath ) )
 			{
-				// Add prefix base path.
-				$fname = path( $file );
-				
-				// Get file size.
-				$fsize = ( $fsize = self::size( $file ) ) === 0 ? 13421779 : $fsize;
-				
-				// Open file.
-				$fopen = self::open( $fname, "r" );
-				
-				// File readed.
-				$fread = "";
-				
-				// Binary-safe file read.
-				while( feof( $fopen ) === False )
+				// Check if such a file exists.
+				if( self::exists( $file ) === False )
 				{
-					$fread .= fread( $fopen, $fsize );
+					throw new Error\FileError( $file, Error\FileError::FILE_ERROR );
 				}
 				
-				// Closes an open file pointer.
-				fclose( $fopen );
+				// Check if such files are readable.
+				if( IO\IO::readable( $file ) === False )
+				{
+					throw new Error\FileError( $file, Error\FileError::READ_ERROR );
+				}
 				
-				return( $fread );
+				// Binary-safe file open.
+				if( $fopen = fopen( $file, "r" ) )
+				{
+					// Get file size.
+					$fsize = fsize( $file, 13421779 );
+					
+					// Reader stack.
+					$fread = "";
+					
+					// Binary-safe file read.
+					while( feof( $fopen ) === False )
+					{
+						$fread .= fread( $fopen, $fsize );
+					}
+					
+					// Closes an open file pointer.
+					fclose( $fopen );
+					
+					return( $fread );
+				}
+				else {
+					throw new Error\FileError( $file, Error\FileError::OPEN_ERROR );
+				}
 			}
-			throw new Error\FileError( $file, Error\FileError::READ_ERROR );
+			throw new Error\PathError( $fpath, Error\PathError::READ_ERROR );
 		}
-		else {
-			throw new Error\FileError( $file, Error\FileError::FILE_ERROR );
-		}
+		throw new Error\PathError( $fpath, Error\PathError::PATH_ERROR );
 	}
 	
 	/*
@@ -157,11 +185,11 @@ abstract class File
 	 * @access Public Static
 	 *
 	 * @params String $file
-	 * @params Int $flags
+	 * @params Bool $skip
 	 *
 	 * @return Array
 	 */
-	public static function readline( String $file, Int $flags = 0 ): Array
+	public static function readline( String $file, Bool $skip = false ): Array
 	{
 		// Reading file contents.
 		$fread = self::read( $file );
@@ -169,24 +197,20 @@ abstract class File
 		// Split file contents with end line.
 		$fline = explode( "\n", $fread );
 		
-		switch( $flags )
+		// If empty line skip.
+		if( $skip )
 		{
-			// Remove or skip blank lines.
-			case self::SKIP_EMPTY_LINE:
-			
-				// Mapping Lines.
-				foreach( $fline As $i => $line )
+			// Mapping Lines.
+			foreach( $fline As $i => $line )
+			{
+				// Check if the line is empty.
+				if( $line === "" )
 				{
-					// Check if the line is empty.
-					if( $line === "" )
-					{
-						// Destroy the line.
-						unset( $fline[$i] );
-					}
+					// Destroy the line.
+					unset( $fline[$i] );
 				}
-				break;
+			}
 		}
-		
 		return( $fline );
 	}
 	
@@ -196,12 +220,20 @@ abstract class File
 	 * @access Public Static
 	 *
 	 * @params String $file
+	 * @params Int $optional
 	 *
 	 * @return String|Int
+	 *
+	 * @throws Yume\Fure\Error\FileError
 	 */
-	public static function size( String $file ): Int | String
+	public static function size( String $file, Int $optional = 0 ): Int | String
 	{
-		return( filesize( path( $file ) ) );
+		// Check if such a file exists.
+		if( self::exists( $file ) )
+		{
+			return( filesize( path( $file ) ) ?: $optional );
+		}
+		throw new Error\FileError( $file, Error\FileError::FILE_ERROR );
 	}
 	
 	/*
@@ -212,18 +244,25 @@ abstract class File
 	 * @params String $file
 	 *
 	 * @return DateTime
+	 *
+	 * @throws Yume\Fure\Error\FileError
 	 */
 	public static function time( String $file ): DateTime
 	{
-		// Get timestamp value from file.
-		$time = filemtime( path( $file ) );
-		
-		// Create new instance of DateTime class.
-		$date = new DateTime;
-		$date->setTimestamp( $time );
-		
-		// Return DateTime instance.
-		return( $date );
+		// Check if such a file exists.
+		if( self::exists( $file ) )
+		{
+			// Get timestamp value from file.
+			$time = filemtime( path( $file ) );
+			
+			// Create new instance of DateTime class.
+			$date = new DateTime;
+			$date->setTimestamp( $time );
+			
+			// Return DateTime instance.
+			return( $date );
+		}
+		throw new Error\FileError( $file, Error\FileError::FILE_ERROR );
 	}
 	
 	/*
@@ -248,17 +287,20 @@ abstract class File
 	 * @params String $file
 	 *
 	 * @return Bool
+	 *
+	 * @throws Yume\Fure\Error\FileError
+	 * @throws Yume\Fure\Error\PermissionError
 	 */
 	public static function write( String $file, ? String $fdata = Null, String $fmode = "w" ): Void
 	{
 		// Check if the filename is a directory.
 		if( IO\Path\Path::exists( $file ) )
 		{
-			throw new FileError( $file, FileError::NOT_FILE );
+			throw new Error\FileError( $file, Error\FileError::TYPE_ERROR );
 		}
 		
 		// Check if such a directory exists.
-		if( IO\Path\Path::exists( $fpath = Util\Str::pop( $file, "/" ) ) === False )
+		if( IO\Path\Path::exists( $fpath = Util\Str::pop( $file, DIRECTORY_SEPARATOR ) ) === False )
 		{
 			IO\Path\Path::mkdir( $fpath );
 		}
@@ -285,7 +327,7 @@ abstract class File
 		// File contents.
 		$fdata = $fdata ? $fdata : "";
 		
-		// Open file.
+		// Binary-safe file open.
 		if( $fopen = fopen( $fname, $fmode ) )
 		{
 			// Binary-safe file write.
@@ -295,7 +337,7 @@ abstract class File
 			fclose( $fopen );
 		}
 		else {
-			throw new IOError( $fname, Error\IOError );
+			throw new Error\FileError( $file, Error\FileError::OPEN_ERROR );
 		}
 	}
 

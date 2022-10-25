@@ -55,11 +55,20 @@ class BaseError extends Error
 			// If the flag is available.
 			if( isset( $this->flags[$code] ) )
 			{
-				$message = f( $this->flags[$code], $message );
+				if( is_array( $message ) )
+				{
+					$message = Util\Str::fmt( $this->flags[$code], ...$message );
+				}
+				else {
+					$message = Util\Str::fmt( $this->flags[$code], $message );
+				}
 			}
 			else {
 				$message = Util\Str::parse( $message );
 			}
+		}
+		else {
+			$message = Util\Str::parse( $message );
 		}
 		
 		// Get constant name.
@@ -94,13 +103,13 @@ class BaseError extends Error
 		return( 
 			path( 
 				remove: True, 
-				path: f( "{}: {} on file {} line {} code {}.\n{}", [
+				path: f( "{}: {} on file {} line {} code {}.\n{}", ...[
 					$this::class, 
-					$this->message, 
-					$this->file, 
-					$this->line, 
-					$this->code, 
-					$this->trace 
+					$this->getMessage(), 
+					$this->getFile(), 
+					$this->getLine(), 
+					$this->getCode(), 
+					$this->getTrace()
 				]) 
 			) 
 		);

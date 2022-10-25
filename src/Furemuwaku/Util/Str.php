@@ -177,16 +177,18 @@ abstract class Str
 	 *
 	 * @params String $subject
 	 * @params String $separator
+	 * @params Bool $remove
 	 *
 	 * @return String
 	 */
-	public static function pop( String $subject, String $separator ): String
+	public static function pop( String $subject, String $separator, Bool $remove = False ): String
 	{
-		// Split string with separator.
-		$split = explode( $separator, $subject );
-		
-		// Remove last array ellement.
-		array_pop( $split );
+		// Check if value is more than one.
+		if( count( $split = explode( $separator, $subject ) ) > 1 || $remove )
+		{
+			// Remove last array ellement.
+			array_pop( $split );
+		}
 		
 		// Join array elements with a string.
 		return( $subject = implode( $separator, $split ) );

@@ -39,6 +39,8 @@ class FileError extends PermissionError
 	 */
 	public const NAME_ERROR = 8514;
 	
+	public const OPEN_ERROR = 8515;
+	
 	/*
 	 * No such path or directory.
 	 *
@@ -46,7 +48,7 @@ class FileError extends PermissionError
 	 *
 	 * @values Int
 	 */
-	public const PATH_ERROR = 8515;
+	public const PATH_ERROR = 8516;
 	
 	/*
 	 * Not file.
@@ -55,7 +57,7 @@ class FileError extends PermissionError
 	 *
 	 * @values Int
 	 */
-	public const TYPE_ERROR = 8517;
+	public const TYPE_ERROR = 8518;
 	
 	/*
 	 * @inherit Yume\Fure\Error\PermissionError
@@ -68,8 +70,9 @@ class FileError extends PermissionError
 		8511 => "No such file `{}`",
 		8513 => "Invalid file mode for `{}`: `{}`",
 		8514 => "Invalid file name for `{}`.",
-		8515 => "No such path ot directory `{}`",
-		8517 => "Unable to open `{}` because it is not a file."
+		8515 => "Failed open file `{}`.",
+		8516 => "No such path or directory `{}`",
+		8518 => "Unable to open `{}` because it is not a file."
 	];
 	
 }

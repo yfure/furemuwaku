@@ -36,11 +36,11 @@ abstract class Singleton
 	/*
 	 * Prevent the instance from being cloned.
 	 *
-	 * @access Private
+	 * @access Protected
 	 *
 	 * @return Void
 	 */
-	private function __clone() {}
+	final protected function __clone() {}
 
 	/*
 	 * Prevent from being unserialized.
@@ -52,7 +52,7 @@ abstract class Singleton
 	 *
 	 * @throws Yume\Fure\Error\RuntimeError
 	 */
-	public function __wakeup()
+	final public function __wakeup()
 	{
 		throw new Error\RuntimeError( f( "Cannot unserialize {}.", $this::class ) );
 	}
@@ -64,13 +64,13 @@ abstract class Singleton
 	 *
 	 * @return Yume\Fure\Support\Design\Creational\Singleton
 	 */
-	public static function self(): Singleton
+	final public static function self(): Singleton
 	{
 		// If singleton stack is not created.
 		if( static::$instances Instanceof Support\Data\DataInterface === False )
 		{
 			static::$instances = new Support\Data\Data([
-				static::class => new Static
+				static::class => new Static( ...func_get_args() )
 			]);
 		}
 		else {
@@ -78,11 +78,12 @@ abstract class Singleton
 			// Current singleton class is not exists.
 			if( static::$instances->__isset( static::class ) === False )
 			{
-				static::$instances->__set( static::class, new Static );
+				static::$instances->__set( static::class, new Static( ...func_get_args() ) );
 			}
 		}
 		return( static::$instances )->__get( static::class );
 	}
+	
 }
 
 ?>

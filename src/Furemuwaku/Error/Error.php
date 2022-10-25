@@ -27,9 +27,10 @@ BaseError
   ..  ..  ..PropertyError
   ..  ..ConsoleError
   ..  ..ControllerError
+  ..  ..LogicError
   ..SeclibError
-  ..SyntaxError
-  ..  ..ParseError
+  ..ParseError
+  ..  ..SyntaxError
   ..  ..  ..EnvError
   ..  ..  ..ViewError
   ..  ..  ..  ..HTMLError
