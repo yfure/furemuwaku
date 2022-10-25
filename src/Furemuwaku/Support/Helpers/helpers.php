@@ -22,6 +22,11 @@ function config( String $name, Bool $reImport = False ): App\Config\Config
 	return( Support\Services\Services::config( $name, $reImport ) );
 }
 
+function env( String $env, Mixed $optional = Null )
+{
+	return( Support\Env\Env::self() )->getEnv( $env, $optional );
+}
+
 /*
  * Compare execution time.
  *

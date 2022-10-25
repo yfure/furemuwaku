@@ -2,12 +2,13 @@
 
 namespace Yume\Fure\App;
 
-use Error;
-use Exception;
 use Throwable;
 
+use Yume\Fure\Error;
+use Yume\Fure\IO;
 use Yume\Fure\Support;
 use Yume\Fure\Util;
+use Yume\Fure\View;
 
 /*
  * App
@@ -27,7 +28,6 @@ final class App extends Support\Design\Creational\Singleton
 	{
 		try
 		{
-			// Load application environment variables.
 			Support\Env\Env::self()->load();
 		}
 		catch( Throwable $e )
@@ -42,9 +42,26 @@ final class App extends Support\Design\Creational\Singleton
 		}
 	}
 	
+	/*
+	 * Launch the application.
+	 *
+	 * @access Public
+	 *
+	 * @return Void
+	 */
 	public function run(): Void
 	{
-		
+		// Check if application context has ben defined.
+		if( defined( "YUME_CONTEXT" ) )
+		{
+			// Define application environment.
+			define( "ENVIRONMENT", env( "ENVIRONMENT", "development" ) );
+			
+			
+		}
+		else {
+			throw new Error\LogicError( "Unknown application context." );
+		}
 	}
 	
 }

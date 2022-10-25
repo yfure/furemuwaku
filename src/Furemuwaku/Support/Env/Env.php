@@ -58,18 +58,20 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 							"value" => explode( ":", $value )
 						]);
 					}
-					else {
-						
-						// Match environment values.
-						$match = $this->matchValue( $value );
-						
+					
+					// Match environment values.
+					if( $match = $this->matchValue( $value ) )
+					{
 						return([
 							"type" => $type = $this->type( $match ),
 							"value" => $this->value( $type, $match )
 						]);
 					}
 				}
-				return( $value );
+				return([
+					"type" => "Null",
+					"value" => $value
+				]);
 			}));
 		}
 		else {
@@ -144,7 +146,7 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 						$match = $this->matchValue( $parse['value'] );
 						
 						// Get variable type and value.
-						$parse['value'] = $this->value( $parse['type'] = $this->type( $match ), $match );
+						$parse['value'] = $this->value( $parse['type'] = $this->type( $match ), $match, $i +1 );
 					}
 					
 					// Set variable to environment collections.
@@ -237,25 +239,37 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 	 *
 	 * @return Mixed
 	 */
-	private function value( String $type, Array $match ): Mixed
+	private function value( String $type, Array $match, Int $line = 0 ): Mixed
 	{
-		return( match( $type )
+		try {
+			return( match( $type )
+			{
+				// If value type is Int.
+				"Int" => ( Int ) $match['value'],
+				
+				// If value type is Bool.
+				"Bool" => strtoupper( $match['value'] ) === "TRUE",
+				
+				// If value type is Null.
+				"Null" => Null,
+				
+				// If value type is Array.
+				"Array" => Util\JSON::decode( $match['value'], True ),
+				
+				// If value type is String.
+				"String" => $match['string'],
+			});
+		}
+		catch( Error\JSONError $e )
 		{
-			// If value type is Int.
-			"Int" => ( Int ) $match['value'],
-			
-			// If value type is Bool.
-			"Bool" => strtoupper( $match['value'] ) === "TRUE",
-			
-			// If value type is Null.
-			"Null" => Null,
-			
-			// If value type is Array.
-			"Array" => Util\JSON::decode( $match['value'], True ),
-			
-			// If value type is String.
-			"String" => $match['string'],
-		});
+			throw new Error\EnvError(
+				code: Error\EnvError::RULE_ERROR,
+				message: [
+					"file" => $this->filename,
+					"line" => $line
+				]
+			);
+		}
 	}
 	
 }
