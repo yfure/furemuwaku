@@ -81,6 +81,23 @@ abstract class File
 	}
 	
 	/*
+	 * Decode String from file content.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $file
+	 * @params Bool $associative
+	 * @params Int $depth
+	 * @params Int $flags
+	 *
+	 * @return Array
+	 */
+	public static function json( String $file, ? Bool $associative = Null, Int $depth = 512, Int $flags = 0 ): Array
+	{
+		return( Util\JSON::decode( self::read( $file ), $associative, $depth, $flags ) );
+	}
+	
+	/*
 	 * Opens file or URL.
 	 *
 	 * @access Public Static

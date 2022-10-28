@@ -13,6 +13,34 @@ abstract class Number
 {
 	
 	/*
+	 * PHP code to check whether the number is even.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Int $n
+	 *
+	 * @return Bool
+	 */
+	public static function isEven( Int $n ): Bool
+	{
+		return( $n % 2 === 0 );
+	}
+	
+	/*
+	 * PHP code to check whether the number is odd.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Int $n
+	 *
+	 * @return Bool
+	 */
+	public static function isOdd( Int $n ): Bool
+	{
+		return( $n % 2 !== 0 );
+	}
+	
+	/*
 	 * Check if string is number only.
 	 *
 	 * @access Public Static

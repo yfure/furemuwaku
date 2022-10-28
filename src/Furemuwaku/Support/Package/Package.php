@@ -19,6 +19,43 @@ class Package extends Support\Design\Creational\Singleton
 {
 	
 	/*
+	 * Composer autoload classes.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Yume\Fure\Support\Data\DataInterface
+	 */
+	static private Support\Data\DataInterface $packages;
+	
+	/*
+	 * @inherit Yume\Fure\Support\Design\Creational\Singleton
+	 *
+	 */
+	protected function __construct()
+	{
+		// Create new data instance.
+		static::$packages = new Support\Data\Data;
+		
+		// Get composer installed packages.
+		$composer = IO\File\File::json( "vendor/composer/installed.json", True );
+		
+		// Mapping all packages.
+		Util\Arr::map( $packages['packages'], function( $package )
+		{
+			// Check if package has autoload psr-4.
+			if( isset( $package['autoload']['psr-4'] ) )
+			{
+				Util\Arr::map( $package['autoload']['psr-4'], fn( $i, $namespace, $directory ) => static::$packages[] = $namespace );
+			}
+		});
+	}
+	
+	public static function getPackages(): Support\Data\DataInterface
+	{
+		return( Package::self() )->packages->map( fn( $i, $k, $v ) => $v );
+	}
+	
+	/*
 	 * Import php file.
 	 *
 	 * @access Public Static
@@ -39,7 +76,7 @@ class Package extends Support\Design\Creational\Singleton
 		if( IO\File\File::exists( $file ) )
 		{
 			try {
-				require( path( $file ) );
+				return( require( path( $file ) ) );
 			}
 			catch( Throwable $e )
 			{

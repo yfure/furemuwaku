@@ -2,6 +2,13 @@
 
 namespace Yume\Fure\Support\Reflect;
 
+use Closure;
+
+use ReflectionClass;
+use ReflectionExtension;
+use ReflectionFunction;
+use ReflectionType;
+
 /*
  * ReflectFunction
  *
@@ -15,14 +22,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Closure
 	 */
-	public static function getClosure( Mixed &$reflect = Null ): 
+	public static function getClosure( Closure | String $function, Mixed &$reflect = Null ): ? Closure
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getClosure();
 	}
 	
 	/*
@@ -30,14 +37,33 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Mixed
 	 */
-	public static function invoke( Mixed &$reflect = Null ): 
+	public static function invoke( Closure | String $function, Array $arguments = [], Mixed &$reflect = Null ): Mixed
 	{
-		// ...
+		// Get ReflectionFunction class.
+		$reflect = self::reflect( $function, $reflect );
+		 
+		// Get value from invoke function.
+		return(
+			
+			// Invoke function.
+			$reflect->invoke( 
+				
+				// Get parameter binding result with given argument.
+				ReflectParameter::builder(
+					
+					// Get function parameters.
+					self::getParameters( $function, $reflect ),
+					
+					// Arguments given.
+					$arguments
+				)
+			)
+		);
 	}
 	
 	/*
@@ -45,14 +71,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isAnonymous( Mixed &$reflect = Null ): 
+	public static function isAnonymous( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isAnonymous();
 	}
 	
 	/*
@@ -60,14 +86,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isDisabled( Mixed &$reflect = Null ): 
+	public static function isDisabled( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isDisabled();
 	}
 	
 	
@@ -76,14 +102,16 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
+	 * @params String $name
+	 * @params Int $flags
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getAttributes( Mixed &$reflect = Null ): 
+	public static function getAttributes( Closure | String $function, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getAttributes( $name, $flags );
 	}
 	
 	/*
@@ -91,14 +119,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionClass
 	 */
-	public static function getClosureScopeClass( Mixed &$reflect = Null ): 
+	public static function getClosureScopeClass( Closure | String $function, Mixed &$reflect = Null ): ? ReflectionClass
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getClosureScopeClass();
 	}
 	
 	/*
@@ -106,14 +134,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Object
 	 */
-	public static function getClosureThis( Mixed &$reflect = Null ): 
+	public static function getClosureThis( Closure | String $function, Mixed &$reflect = Null ): ? Object
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getClosureScopeThis();
 	}
 	
 	/*
@@ -121,14 +149,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getClosureUsedVariables( Mixed &$reflect = Null ): 
+	public static function getClosureUsedVariables( Closure | String $function, Mixed &$reflect = Null ): Array
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getClosureUsedVariables();
 	}
 	
 	/*
@@ -136,14 +164,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
-	public static function getDocComment( Mixed &$reflect = Null ): 
+	public static function getDocComment( Closure | String $function, Mixed &$reflect = Null ): False | String
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getDocComment();
 	}
 	
 	/*
@@ -151,14 +179,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|Int
 	 */
-	public static function getEndLine( Mixed &$reflect = Null ): 
+	public static function getEndLine( Closure | String $function, Mixed &$reflect = Null ): False | Int
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getEndLine();
 	}
 	
 	/*
@@ -166,14 +194,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionExtension
 	 */
-	public static function getExtension( Mixed &$reflect = Null ): 
+	public static function getExtension( Closure | String $function, Mixed &$reflect = Null ): ? ReflectionExtension
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getExtendsion();
 	}
 	
 	/*
@@ -181,14 +209,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
-	public static function getExtensionName( Mixed &$reflect = Null ): 
+	public static function getExtensionName( Closure | String $function, Mixed &$reflect = Null ): False | String
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getExtendsionName();
 	}
 	
 	/*
@@ -196,14 +224,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
-	public static function getFileName( Mixed &$reflect = Null ): 
+	public static function getFileName( Closure | String $function, Mixed &$reflect = Null ): False | String
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getFileName();
 	}
 	
 	/*
@@ -211,14 +239,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
-	public static function getName( Mixed &$reflect = Null ): 
+	public static function getName( Closure | String $function, Mixed &$reflect = Null ): String
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getName();
 	}
 	
 	/*
@@ -226,14 +254,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
-	public static function getNamespaceName( Mixed &$reflect = Null ): 
+	public static function getNamespaceName( Closure | String $function, Mixed &$reflect = Null ): String
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getNamespaceName();
 	}
 	
 	/*
@@ -241,14 +269,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Int
 	 */
-	public static function getNumberOfParameters( Mixed &$reflect = Null ): 
+	public static function getNumberOfParameters( Closure | String $function, Mixed &$reflect = Null ): Int
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getNumberOfParameters();
 	}
 	
 	/*
@@ -256,14 +284,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Int
 	 */
-	public static function getNumberOfRequiredParameters( Mixed &$reflect = Null ): 
+	public static function getNumberOfRequiredParameters( Closure | String $function, Mixed &$reflect = Null ): Int
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getNumberOfRequiredParameters();
 	}
 	
 	/*
@@ -271,14 +299,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getParameters( Mixed &$reflect = Null ): 
+	public static function getParameters( Closure | String $function, Mixed &$reflect = Null ): Array
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getParameters();
 	}
 	
 	/*
@@ -286,14 +314,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionType
 	 */
-	public static function getReturnType( Mixed &$reflect = Null ): 
+	public static function getReturnType( Closure | String $function, Mixed &$reflect = Null ): ? ReflectionType
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getReturnType();
 	}
 	
 	/*
@@ -301,14 +329,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
-	public static function getShortName( Mixed &$reflect = Null ): 
+	public static function getShortName( Closure | String $function, Mixed &$reflect = Null ): String
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getShortName();
 	}
 	
 	/*
@@ -316,14 +344,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|Int
 	 */
-	public static function getStartLine( Mixed &$reflect = Null ): 
+	public static function getStartLine( Closure | String $function, Mixed &$reflect = Null ): False | Int
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getStartLine();
 	}
 	
 	/*
@@ -331,14 +359,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getStaticVariables( Mixed &$reflect = Null ): 
+	public static function getStaticVariables( Closure | String $function, Mixed &$reflect = Null ): Array
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getStaticVariables();
 	}
 	
 	/*
@@ -346,14 +374,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionType
 	 */
-	public static function getTentativeReturnType( Mixed &$reflect = Null ): 
+	public static function getTentativeReturnType( Closure | String $function, Mixed &$reflect = Null ): ? ReflectionType
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->getTentativeReturnType();
 	}
 	
 	/*
@@ -361,14 +389,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function hasReturnType( Mixed &$reflect = Null ): 
+	public static function hasReturnType( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->hasReturnType();
 	}
 	
 	/*
@@ -376,14 +404,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function hasTentativeReturnType( Mixed &$reflect = Null ): 
+	public static function hasTentativeReturnType( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->hasTentativeReturnType();
 	}
 	
 	/*
@@ -391,14 +419,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function inNamespace( Mixed &$reflect = Null ): 
+	public static function inNamespace( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->inNamespace();
 	}
 	
 	/*
@@ -406,14 +434,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isClosure( Mixed &$reflect = Null ): 
+	public static function isClosure( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isClosure();
 	}
 	
 	/*
@@ -421,14 +449,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isDeprecated( Mixed &$reflect = Null ): 
+	public static function isDeprecated( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isDeprecated();
 	}
 	
 	/*
@@ -436,14 +464,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isGenerator( Mixed &$reflect = Null ): 
+	public static function isGenerator( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isGenerator();
 	}
 	
 	/*
@@ -451,14 +479,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isInternal( Mixed &$reflect = Null ): 
+	public static function isInternal( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isInternal();
 	}
 	
 	/*
@@ -466,14 +494,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isUserDefined( Mixed &$reflect = Null ): 
+	public static function isUserDefined( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isUserDefined();
 	}
 	
 	/*
@@ -481,14 +509,14 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isVariadic( Mixed &$reflect = Null ): 
+	public static function isVariadic( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->isVariadic();
 	}
 	
 	/*
@@ -496,14 +524,39 @@ abstract class ReflectFunction
 	 *
 	 * @access Public Static
 	 *
-	 * @params  $
+	 * @params Closure|String $function
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function returnsReference( Mixed &$reflect = Null ): 
+	public static function returnsReference( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		// ...
+		return( $reflect = self::reflect( $function, $reflect ) )->returnsReference();
+	}
+	
+	/*
+	 * Create ReflectionFunction instance.
+	 *
+	 * @access Private Static
+	 *
+	 * @params Closure|String $function
+	 * @params Mixed $reflect
+	 *
+	 * @return ReflectionFunction
+	 */
+	private static function reflect( Closure | String $function, Mixed $reflect ): ReflectionFunction
+	{
+		// If
+		if( $reflect Instanceof ReflectionFunction )
+		{
+			// 
+			if( is_string( $function ) && $reflect->getName() === $function ||
+				is_callable( $function ) && $reflect->getClosure() === $function )
+			{
+				return( $reflect );
+			}
+		}
+		return( new ReflectionFunction( $function ) );
 	}
 	
 }

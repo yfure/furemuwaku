@@ -33,7 +33,7 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 	 *
 	 * @values Yume\Fure\Support\Data\DataInterface
 	 */
-	private Support\Data\DataInterface $vars;
+	private ? Support\Data\DataInterface $vars = Null;
 	
 	/*
 	 * @inherit Yume\Fure\Support\Design\Creational\Singleton
@@ -44,8 +44,60 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 		// Check if file environment is exists.
 		if( IO\File\File::exists( $this->filename ) )
 		{
-			// Set all built-in environment variables.
-			$this->vars = new Support\Data\Data( Util\Arr::map( $_ENV, function( $i, $env, $value )
+			$this->init();
+		}
+		else {
+			throw new Error\EnvError( $this->filename, Error\EnvError::FILE_ERROR );
+		}
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Support\Env\EnvInterface
+	 *
+	 */
+	public function getAll( Bool $type = False ): Support\Data\DataInterface
+	{
+		return( new Support\Data\Data( $type ? $this->vars->__toArray() : Util\Arr::map( $this->vars, fn( $i, $env, $value ) => $value->value )->__toArray() ) );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Support\Env\EnvInterface
+	 *
+	 */
+	public function getEnv( String $env, Mixed $none = Null ): Mixed
+	{
+		if( $this->vars && $this->vars->__isset( $env ) )
+		{
+			return( $this->vars )->__get( $env )->value;
+		}
+		return( $none );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Support\Env\EnvInterface
+	 *
+	 */
+	public function getFilename(): String
+	{
+		return( $this->filename );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Support\Env\EnvInterface
+	 *
+	 */
+	public function load(): Void
+	{
+		$this->parse( IO\File\File::readline( $this->filename ) )->register();
+	}
+	
+	private function init(): Static
+	{
+		// Check if vars is not defined.
+		if( $this->vars Instanceof Support\Data\Data === False )
+		{
+			// Mapping builtin environment.
+			$vars = Util\Arr::map( $_ENV, function( $i, $env, $value )
 			{
 				// Check if value is not array type.
 				if( is_array( $value ) === False )
@@ -72,51 +124,56 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 					"type" => "Null",
 					"value" => $value
 				]);
-			}));
+			});
+			
+			// Set all built-in environment variables.
+			$this->vars = new Support\Data\Data( $vars );
 		}
-		else {
-			throw new Error\EnvError( $this->filename, Env\EnvError::FILE_ERROR );
-		}
+		
+		return( $this );
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Support\Env\EnvInterface
+	 * Match environment values.
 	 *
+	 * @access Private
+	 *
+	 * @params String $value
+	 *
+	 * @return Array|False
 	 */
-	public function getAll( Bool $type = False ): Support\Data\DataInterface
+	private function matchValue( String $value ): Array | False
 	{
-		return( new Support\Data\Data( $type ? $this->vars->__toArray() : Util\Arr::map( $this->vars, fn( $i, $env, $value ) => $value->value )->__toArray() ) );
+		return( Support\RegExp\RegExp::match( "/^(?:(?<value>(?<int>[\d]+)|(?<bool>True|False)|(?<null>None|Null)|(?<array>\{.*?\}|\[.*?\])|(?<string>\"(?<string>.*?)\"|\'(?<string>.*?)\'|(?<string>[^\n]+))))$/iJ", $this->matchValueInherit( $value ) ) );
 	}
 	
-	/*
-	 * @inherit Yume\Fure\Support\Env\EnvInterface
-	 *
-	 */
-	public function getEnv( String $env, Mixed $none = Null ): Mixed
+	private function matchValueInherit( String $value ): String
 	{
-		if( $this->vars->__isset( $env ) )
+		return( Support\RegExp\RegExp::replace( "/(?:(?<inherit>(?<except>\\\{0,})(?<define>(?<dollar>\\$)(?<name>([a-zA-Z0-9_\x80-\xff])([a-zA-Z0-9_\x80-\xff]{0,})))))/i", $value, function( Array $match )
 		{
-			return( $this->vars )->__get( $env );
-		}
-		return( $none );
-	}
-	
-	/*
-	 * @inherit Yume\Fure\Support\Env\EnvInterface
-	 *
-	 */
-	public function getFilename(): String
-	{
-		return( $this->filename );
-	}
-	
-	/*
-	 * @inherit Yume\Fure\Support\Env\EnvInterface
-	 *
-	 */
-	public function load(): Void
-	{
-		$this->parse( IO\File\File::readline( $this->filename ) )->register();
+			// If backslash character exists.
+			if( isset( $match['except'] ) && $match['except'] !== "" )
+			{
+				// Get backslash lenght.
+				$length = strlen( $match['except'] );
+				
+				// If the number of backslashes is one.
+				if( $length === 1 )
+				{
+					return( $match['define'] );
+				}
+				
+				// If number of backslash is odd.
+				if( Util\Number::isOdd( $length ) )
+				{
+					return( Util\Str::fmt( "{}{}", str_repeat( "\\", $length -2 ), $match['define'] ) );
+				}
+				
+				// Make backslashes as much as the amount minus two.
+				$match['except'] = str_repeat( "\\", $length === 2 ? $length -1 : $length -2 );
+			}
+			return( Util\Str::fmt( "{}{}", $match['except'] ?? "", $this->getEnv( $match['name'], "" ) ) );
+		}));
 	}
 	
 	/*
@@ -142,8 +199,15 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 					// If variable has value.
 					if( $parse['value'] )
 					{
-						// Match environment values.
-						$match = $this->matchValue( $parse['value'] );
+						// Match environment values return is boolean type.
+						if( is_bool( $match = $this->matchValue( $parse['value'] ) ) )
+						{
+							$match = [
+								"",
+								"null" => "",
+								"value" => ""
+							];
+						}
 						
 						// Get variable type and value.
 						$parse['value'] = $this->value( $parse['type'] = $this->type( $match ), $match, $i +1 );
@@ -184,20 +248,6 @@ class Env extends Support\Design\Creational\Singleton implements EnvInterface
 	private function register(): Void
 	{
 		$this->vars->map( fn( $i, $env, $value ) => $_ENV[$env] = $value->value Instanceof Support\Data\DataInterface ? $value->value->__toArray() : $value->value );
-	}
-	
-	/*
-	 * Match environment values.
-	 *
-	 * @access Private
-	 *
-	 * @params String $value
-	 *
-	 * @return Array|False
-	 */
-	private function matchValue( String $value ): Array | False
-	{
-		return( Support\RegExp\RegExp::match( "/^(?:(?<value>(?<int>[\d]+)|(?<bool>True|False)|(?<array>\{.*?\}|\[.*?\])|(?<string>\"(?<string>.*?)\"|\'(?<string>.*?)\'|(?<string>[^\n]+))))$/iJ", $value, True ) );
 	}
 	
 	/*

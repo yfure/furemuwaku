@@ -311,6 +311,20 @@ abstract class ReflectProperty
 		// ...
 	}
 	
+	/*
+	 * Create ReflectionProperty instance.
+	 *
+	 * @access Private Static
+	 *
+	 * @params  $property
+	 * @params Mixed $reflect
+	 *
+	 * @return ReflectionProperty
+	 */
+	private static function reflect( $property, Mixed $reflect ): ReflectionProperty
+	{
+	}
+	
 }
 
 ?>

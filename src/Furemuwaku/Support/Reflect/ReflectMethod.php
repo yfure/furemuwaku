@@ -18,9 +18,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Closure
 	 */
-	public static function getClosure( Mixed &$reflect = Null ): 
+	public static function getClosure( Mixed &$reflect = Null ): ? Closure
 	{
 		// ...
 	}
@@ -33,9 +33,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function invoke( Mixed &$reflect = Null ): 
+	public static function isAnonymous( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -48,24 +48,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isAnonymous( Mixed &$reflect = Null ): 
-	{
-		// ...
-	}
-	
-	/*
-	 * Returns a dynamically created closure for the function.
-	 *
-	 * @access Public Static
-	 *
-	 * @params  $
-	 * @params Mixed $reflect
-	 *
-	 * @return 
-	 */
-	public static function isDisabled( Mixed &$reflect = Null ): 
+	public static function isDisabled( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -77,11 +62,13 @@ abstract class ReflectMethod
 	 * @access Public Static
 	 *
 	 * @params  $
+	 * @params String $name
+	 * @params Int $flags
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getAttributes( Mixed &$reflect = Null ): 
+	public static function getAttributes( ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -94,9 +81,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionClass
 	 */
-	public static function getClosureScopeClass( Mixed &$reflect = Null ): 
+	public static function getClosureScopeClass( Mixed &$reflect = Null ): ? ReflectionClass
 	{
 		// ...
 	}
@@ -109,9 +96,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Object
 	 */
-	public static function getClosureThis( Mixed &$reflect = Null ): 
+	public static function getClosureThis( Mixed &$reflect = Null ): ? Object
 	{
 		// ...
 	}
@@ -124,9 +111,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getClosureUsedVariables( Mixed &$reflect = Null ): 
+	public static function getClosureUsedVariables( Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -139,9 +126,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
-	public static function getDocComment( Mixed &$reflect = Null ): 
+	public static function getDocComment( Mixed &$reflect = Null ): False | String
 	{
 		// ...
 	}
@@ -154,9 +141,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|Int
 	 */
-	public static function getEndLine( Mixed &$reflect = Null ): 
+	public static function getEndLine( Mixed &$reflect = Null ): False | Int
 	{
 		// ...
 	}
@@ -169,9 +156,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionExtension
 	 */
-	public static function getExtension( Mixed &$reflect = Null ): 
+	public static function getExtension( Mixed &$reflect = Null ): ? ReflectionExtension
 	{
 		// ...
 	}
@@ -184,9 +171,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
-	public static function getExtensionName( Mixed &$reflect = Null ): 
+	public static function getExtensionName( Mixed &$reflect = Null ): False | String
 	{
 		// ...
 	}
@@ -199,9 +186,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|String
 	 */
-	public static function getFileName( Mixed &$reflect = Null ): 
+	public static function getFileName( Mixed &$reflect = Null ): False | String
 	{
 		// ...
 	}
@@ -214,9 +201,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
-	public static function getName( Mixed &$reflect = Null ): 
+	public static function getName( Mixed &$reflect = Null ): String
 	{
 		// ...
 	}
@@ -229,9 +216,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
-	public static function getNamespaceName( Mixed &$reflect = Null ): 
+	public static function getNamespaceName( Mixed &$reflect = Null ): String
 	{
 		// ...
 	}
@@ -244,9 +231,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Int
 	 */
-	public static function getNumberOfParameters( Mixed &$reflect = Null ): 
+	public static function getNumberOfParameters( Mixed &$reflect = Null ): Int
 	{
 		// ...
 	}
@@ -259,9 +246,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Int
 	 */
-	public static function getNumberOfRequiredParameters( Mixed &$reflect = Null ): 
+	public static function getNumberOfRequiredParameters( Mixed &$reflect = Null ): Int
 	{
 		// ...
 	}
@@ -274,9 +261,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getParameters( Mixed &$reflect = Null ): 
+	public static function getParameters( Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -289,9 +276,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionType
 	 */
-	public static function getReturnType( Mixed &$reflect = Null ): 
+	public static function getReturnType( Mixed &$reflect = Null ): ? ReflectionType
 	{
 		// ...
 	}
@@ -304,9 +291,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return String
 	 */
-	public static function getShortName( Mixed &$reflect = Null ): 
+	public static function getShortName( Mixed &$reflect = Null ): String
 	{
 		// ...
 	}
@@ -319,9 +306,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return False|Int
 	 */
-	public static function getStartLine( Mixed &$reflect = Null ): 
+	public static function getStartLine( Mixed &$reflect = Null ): False | Int
 	{
 		// ...
 	}
@@ -334,9 +321,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Array
 	 */
-	public static function getStaticVariables( Mixed &$reflect = Null ): 
+	public static function getStaticVariables( Mixed &$reflect = Null ): Array
 	{
 		// ...
 	}
@@ -349,9 +336,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return ReflectionType
 	 */
-	public static function getTentativeReturnType( Mixed &$reflect = Null ): 
+	public static function getTentativeReturnType( Mixed &$reflect = Null ): ? ReflectionType
 	{
 		// ...
 	}
@@ -364,9 +351,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function hasReturnType( Mixed &$reflect = Null ): 
+	public static function hasReturnType( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -379,9 +366,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function hasTentativeReturnType( Mixed &$reflect = Null ): 
+	public static function hasTentativeReturnType( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -394,9 +381,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function inNamespace( Mixed &$reflect = Null ): 
+	public static function inNamespace( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -409,9 +396,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isClosure( Mixed &$reflect = Null ): 
+	public static function isClosure( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -424,9 +411,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isDeprecated( Mixed &$reflect = Null ): 
+	public static function isDeprecated( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -439,9 +426,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isGenerator( Mixed &$reflect = Null ): 
+	public static function isGenerator( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -454,9 +441,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isInternal( Mixed &$reflect = Null ): 
+	public static function isInternal( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -469,9 +456,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isUserDefined( Mixed &$reflect = Null ): 
+	public static function isUserDefined( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -484,9 +471,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function isVariadic( Mixed &$reflect = Null ): 
+	public static function isVariadic( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -499,9 +486,9 @@ abstract class ReflectMethod
 	 * @params  $
 	 * @params Mixed $reflect
 	 *
-	 * @return 
+	 * @return Bool
 	 */
-	public static function returnsReference( Mixed &$reflect = Null ): 
+	public static function returnsReference( Mixed &$reflect = Null ): Bool
 	{
 		// ...
 	}
@@ -715,6 +702,20 @@ abstract class ReflectMethod
 	public static function setAccessible( Mixed &$reflect = Null ): 
 	{
 		// ...
+	}
+	
+	/*
+	 * Create ReflectionMethod instance.
+	 *
+	 * @access Private Static
+	 *
+	 * @params  $method
+	 * @params Mixed $reflect
+	 *
+	 * @return ReflectionMethod
+	 */
+	private static function reflect( $method, Mixed $reflect ): ReflectionMethod
+	{
 	}
 	
 }

@@ -44,8 +44,6 @@ class Services extends Support\Design\Creational\Singleton
 	 */
 	static private Support\Data\DataInterface $services;
 	
-	use \Yume\Fure\App\Config\ConfigTrait;
-	
 	/*
 	 * @inherit Yume\Fure\Support\Design\Creational\Singleton
 	 *
@@ -53,8 +51,8 @@ class Services extends Support\Design\Creational\Singleton
 	protected function __construct()
 	{
 		// New Data instance.
-		static::$binding = new Support\Data;
-		static::$configs = new Support\Data;
+		static::$binding = new Support\Data\Data;
+		static::$configs = new Support\Data\Data;
 		
 		// Mapping services class.
 		static::$services = self::config( "services", True )->map( function( Object | String $service )
@@ -87,7 +85,7 @@ class Services extends Support\Design\Creational\Singleton
 		});
 	}
 	
-	public static function bind( String $name, ? Object $object = Null ): Object
+	public static function binding( String $name ): ? Object
 	{
 		
 	}
@@ -113,7 +111,7 @@ class Services extends Support\Design\Creational\Singleton
 			// If the configuration has not been registered or if re-import is allowed.
 			if( self::$configs->__isset( $split[0] ) === False || $import )
 			{
-				self::$configs->__set( $split[0], Support\Package\Package::import( f( "/system/configs/{}", $split ) ) );
+				self::$configs->__set( $split[0], Support\Package\Package::import( f( "/system/configs/{}", $split[0] ) ) );
 			}
 		}
 		else {
@@ -122,8 +120,12 @@ class Services extends Support\Design\Creational\Singleton
 				message: "Configuration name can't be empty."
 			);
 		}
-		
 		return( Util\Arr::ify( $split, self::$configs ) );
+	}
+	
+	public static function response()
+	{
+		
 	}
 	
 }

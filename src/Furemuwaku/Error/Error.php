@@ -11,8 +11,8 @@ BaseError
   ..  ..PermissionError
   ..  ..  ..PathError
   ..  ..  ..FileError
-  ..  ..  ..  ..ImportError
-  ..  ..  ..  ..  ..ModuleError
+  ..  ..  ..  ..ModuleError
+  ..  ..  ..  ..  ..ImportError
   ..LocaleError
   ..  ..DateTimeZoneError
   ..ReferenceError

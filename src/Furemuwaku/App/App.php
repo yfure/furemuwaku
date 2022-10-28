@@ -57,7 +57,33 @@ final class App extends Support\Design\Creational\Singleton
 			// Define application environment.
 			define( "ENVIRONMENT", env( "ENVIRONMENT", "development" ) );
 			
+			// If appication environment name is invalid.
+			if( ENVIRONMENT !== "development" && 
+				ENVIRONMENT !== "prpduction" )
+			{
+				throw new Error\LogicError( "Unknown application environment named." );
+			}
 			
+			try
+			{
+				// Import application configuration based environment.
+				Support\Package\Package::import( f( "app/Runtime/{}.php", ENVIRONMENT ) );
+			}
+			catch( Error\ModuleError $e )
+			{
+				// Check if Throwable thrown is ModuleError instance.
+				if( $e Instanceof Error\ImportError )
+				{
+					throw new Error\RuntimeError( f( "Something error when import app/Runtime/{}.php", ENVIRONMENT ), 0, $e );
+				}
+				throw new Error\RuntimeError( "Unknown application environment.", 0, $e );
+			}
+			
+			// Run the entire service provider class.
+			Support\Services\Services::self();
+			
+			// Testing.
+			Support\Package\Package::import( "app/Tests/Test.php" );
 		}
 		else {
 			throw new Error\LogicError( "Unknown application context." );

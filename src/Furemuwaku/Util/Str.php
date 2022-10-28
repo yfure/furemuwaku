@@ -65,7 +65,7 @@ abstract class Str
 	 */
 	public static function fmt( String $string, Mixed ...$format ): String
 	{
-		return( Support\RegExp\RegExp::replace( "/(?:(?<format>(?<except>\\\{0,})(\{[\s\t]*((?<key>[a-zA-Z0-9_\x80-\xff]([a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)|(?<index>[\d]+))*[\s\t]*\})))/i", $string, function( Array $match ) use( &$string, &$format )
+		return( Support\RegExp\RegExp::replace( "/(?:(?<matched>(?<except>\\\{0,})(\{[\s\t]*(?<format>(?<key>[a-zA-Z0-9_\x80-\xff]([a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)|(?<index>[\d]+))*[\s\t]*\})))/i", $string, function( Array $match ) use( &$string, &$format )
 		{
 			// Statically variable.
 			static $i = 0;
@@ -73,12 +73,26 @@ abstract class Str
 			// If backslash character exists.
 			if( isset( $match['except'] ) && $match['except'] !== "" )
 			{
-				// If the number of backslashes is more than one.
-				if( strlen( $match['except'] ) === 1 )
+				// Get backslash lenght.
+				$length = strlen( $match['except'] );
+				
+				// If the number of backslashes is one.
+				if( $length === 1 )
 				{
-					return( $match['format'] );
+					echo "*\n";
+					return( $match['format'] ?? "{}" );
 				}
-				$match['except'] = str_repeat( "\\", strlen( $match['except'] ) -1 );
+				
+				// If number of backslash is odd.
+				if( Number::isOdd( $length ) )
+				{
+					echo "***\n";
+					return( str_repeat( "\\", $length -1 ) . ( $match['format'] ?? "{}" ) );
+				}
+				
+				echo "**\n";
+				// Make backslashes as much as the amount minus two.
+				$match['except'] = str_repeat( "\\", $length === 2 ? $length -1 : $length -2 );
 			}
 			
 			// If array key is matched.
@@ -97,7 +111,6 @@ abstract class Str
 				}
 				throw new Error\IndexError( $match['index'], Error\IndexError::RANGE_ERROR );
 			}
-			
 			else {
 				
 				// Check if index iteration is exists.
@@ -152,7 +165,7 @@ abstract class Str
 			// If `args` value is callable type.
 			if( is_callable( $args ) )
 			{
-				return( self::parse( Support\Reflect\ReflectFunction::invoke( $data ) ) );
+				return( self::parse( Support\Reflect\ReflectFunction::invoke( $args ) ) );
 			}
 			else {
 				

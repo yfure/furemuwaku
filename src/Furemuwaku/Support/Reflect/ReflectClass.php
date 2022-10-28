@@ -586,7 +586,7 @@ abstract class ReflectClass
 				$parameter = $reflect->getConstructor()->getParameters();
 				
 				// Return new class instance.
-				return( $reflect )->newInstance( ...ReflectParameter::create( $parameter, $construct ?? [] ) );
+				return( $reflect )->newInstance( ...ReflectParameter::builder( $parameter, $construct ?? [] ) );
 			}
 			
 			// Return new class instance without constructor.
@@ -931,14 +931,14 @@ abstract class ReflectClass
 	/*
 	 * Create ReflectionClass instance.
 	 *
-	 * @access Public Static
+	 * @access Private Static
 	 *
 	 * @params Object|String $class
 	 * @params Mixed $reflect
 	 *
 	 * @return ReflectionClass
 	 */
-	private static function reflect( Object | String $class, Mixed $reflect = Null ): ReflectionClass
+	private static function reflect( Object | String $class, Mixed $reflect ): ReflectionClass
 	{
 		// Get class name.
 		$class = is_object( $class ) ? $class::class : $class;

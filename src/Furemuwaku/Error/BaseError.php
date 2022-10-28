@@ -57,10 +57,10 @@ class BaseError extends Error
 			{
 				if( is_array( $message ) )
 				{
-					$message = Util\Str::fmt( $this->flags[$code], ...$message );
+					$message = Util\Str::fmt( $this->flags[$code], ...Util\Arr::map( $message, fn( $i, $k, $v ) => $v ?? "" ) );
 				}
 				else {
-					$message = Util\Str::fmt( $this->flags[$code], $message );
+					$message = Util\Str::fmt( $this->flags[$code], $message ?? "" );
 				}
 			}
 			else {
