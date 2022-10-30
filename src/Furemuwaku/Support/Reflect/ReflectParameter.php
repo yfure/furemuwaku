@@ -339,7 +339,7 @@ abstract class ReflectParameter
 			$reflect[$params->getName()] = $params;
 			
 			// Get parameter value.
-			$binding[$params->getName()] = ReflectType::binding( $namedType = $params->getType(), $value = $arguments[$params->getName()] ?? $arguments[$params->getPosition()] ?? Null );
+			$binding[$params->getName()] = ReflectType::binding( $value = $arguments[$params->getName()] ?? $arguments[$params->getPosition()] ?? Null, $namedType = $params->getType() );
 			
 			// If Null value is not allowed.
 			if( $namedType && $namedType->allowsNull() === False && 

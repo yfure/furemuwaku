@@ -6,6 +6,7 @@ use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionType;
 use ReflectionUnionType;
+use Reflector;
 
 use Yume\Fure\Support;
 use Yume\Fure\Util;
@@ -43,24 +44,21 @@ abstract class ReflectType
 	 *
 	 * @return Mixed
 	 */
-	public static function binding( ? ReflectionType $type, Mixed $value = Null, Mixed &$reflect = Null ): Mixed
+	public static function binding( Mixed $value = Null, ? ReflectionType $reflect = Null ): Mixed
 	{
-		// ...
-		if( $type Instanceof ReflectionIntersectionType )
+		if( $reflect Instanceof ReflectionType )
 		{
-			
-		}
-		else {
-			
-			if( $type === Null )
+			if( $reflect Instanceof ReflectionIntersectionType )
 			{
-				return( Null );
+				foreach( $reflect->getTypes() As $i => $type )
+				{
+					if( $type->allowsNull() )
+					{
+						
+					}
+				}
 			}
-			
-			// Split Split type with |.
-			$name = explode( "|", str_replace( "?", "null|", $type->__toString() ) );
-			
-			//
+			// ...
 		}
 		return( $value );
 	}

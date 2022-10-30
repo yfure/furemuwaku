@@ -18,114 +18,40 @@ class Services extends Support\Design\Creational\Singleton
 {
 	
 	/*
-	 * A collection of classes to bind to parameters.
+	 * Application instance.
 	 *
 	 * @access Static Private
 	 *
-	 * @values Yume\Fure\Support\Data\DataInterface
+	 * @values Yume\Fure\App\App
 	 */
-	static private Support\Data\DataInterface $binding;
-	
-	/*
-	 * A collection of configurations that have been loaded.
-	 *
-	 * @access Static Private
-	 *
-	 * @values Yume\Fure\Support\Data\DataInterface
-	 */
-	static private Support\Data\DataInterface $configs;
-	
-	/*
-	 * Service class instance collection.
-	 *
-	 * @access Static Private
-	 *
-	 * @values Yume\Fure\Support\Data\DataInterface
-	 */
-	static private Support\Data\DataInterface $services;
+	static private ? App\App $app = Null;
 	
 	/*
 	 * @inherit Yume\Fure\Support\Design\Creational\Singleton
 	 *
 	 */
-	protected function __construct()
+	protected function __construct( App\App $app )
 	{
-		// New Data instance.
-		static::$binding = new Support\Data\Data;
-		static::$configs = new Support\Data\Data;
-		
-		// Mapping services class.
-		static::$services = self::config( "services", True )->map( function( Object | String $service )
+		// Check if application has instanced.
+		if( static::$app Instanceof App\App )
 		{
-			// ReflectionClass instance.
-			$reflect = Null;
-			
-			// Check if service provider class is not implement ServiceProviderInterface.
-			if( Support\Reflect\ReflectClass::isImplements( $service, ServicesProviderInterface::class, $reflect ) === False )
-			{
-				throw new Error\InterfaceError(
-					code: Error\InterfaceError::IMPLEMENTS_ERROR,
-					message: [
-						$service,
-						ServicesProviderInterface::class
-					]
-				);
-			}
-			else {
-				
-				$reflect
-				
-				// Get method reflection class.
-				->getMethod( "boot" )
-				
-				// Invoke service bootstrap.
-				->invoke( $service = $reflect->newInstance(), "boot" );
-			}
-			return( $service );
-		});
-	}
-	
-	public static function binding( String $name ): ? Object
-	{
+			throw new Error\LogicError( f( "Can't duplicate {} instance!", App\App::class ) );
+		}
 		
+		// Set application instance.
+		static::$app = $app;
 	}
 	
 	/*
-	 * Return or import configuration.
+	 * Get application instance.
 	 *
 	 * @access Public Static
 	 *
-	 * @params String $name
-	 * @params Bool $import
-	 *
-	 * @return Mixed
+	 * @return Yume\Fure\App\App
 	 */
-	public static function config( String $name, Bool $import = False ): Mixed
+	public static function app(): ? App\App
 	{
-		// Check if config is not empty.
-		if( valueIsNotEmpty( $name ) )
-		{
-			// Split config name.
-			$split = Util\Arr::ifySplit( $name );
-			
-			// If the configuration has not been registered or if re-import is allowed.
-			if( self::$configs->__isset( $split[0] ) === False || $import )
-			{
-				self::$configs->__set( $split[0], Support\Package\Package::import( f( "/system/configs/{}", $split[0] ) ) );
-			}
-		}
-		else {
-			throw new Error\ArgumentError(
-				code: Error\ArgumentError::VALUE_ERROR,
-				message: "Configuration name can't be empty."
-			);
-		}
-		return( Util\Arr::ify( $split, self::$configs ) );
-	}
-	
-	public static function response()
-	{
-		
+		return( static::$app );
 	}
 	
 }

@@ -98,19 +98,15 @@ abstract class Path
 		{
 			return( $path );
 		}
-		else {
-			
-			// Remove all basepath in string.
-			if( $remove )
-			{
-				return( str_replace( Support\RegExp\RegExp::replace( "/\//", BASE_PATH, DIRECTORY_SEPARATOR ), "", $path ) );
-			}
-			else {
-				
-				// Add basepath into prefix pathname.
-				return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, Support\RegExp\RegExp::replace( "/\//", f( "{}/{}", BASE_PATH, $path ), DIRECTORY_SEPARATOR ) ) );
-			}
+		
+		// Remove all basepath in string.
+		if( $remove )
+		{
+			return( str_replace( [ Support\RegExp\RegExp::replace( "/\//", BASE_PATH, DIRECTORY_SEPARATOR ), Support\RegExp\RegExp::replace( "/\//", BASE_PATH, "\\" . DIRECTORY_SEPARATOR ) ], "", $path ) );
 		}
+		
+		// Add basepath into prefix pathname.
+		return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, Support\RegExp\RegExp::replace( "/\//", f( "{}/{}", BASE_PATH, $path ), DIRECTORY_SEPARATOR ) ) );
 	}
 	
 	/*

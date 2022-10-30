@@ -14,14 +14,18 @@ use Yume\Fure\Util;
 use Yume\Fure\View;
 
 /*
- * @inherit Yume\Fure\Support\Services\Services
+ * @inherit Yume\Fure\App\App
  *
  */
-function config( String $name, Bool $reImport = False ): App\Config\Config
+function config( String $name, Bool $reImport = False ): Mixed
 {
-	return( Support\Services\Services::config( $name, $reImport ) );
+	return( Support\Services\Services::app()->config( $name, $reImport ) );
 }
 
+/*
+ * @inherit Yume\Fure\Support\Env\Env
+ *
+ */
 function env( String $env, Mixed $optional = Null )
 {
 	return( Support\Env\Env::self() )->getEnv( $env, $optional );
