@@ -40,7 +40,7 @@ trait ConfigTrait
 			$class = end( $split );
 			
 			// Get class configuration.
-			self::$configs = Support\Services\Services::config( $class );
+			self::$configs = Support\Services\Services::app()->config( $class );
 		}
 		
 		// Check if `name` is not null type.
