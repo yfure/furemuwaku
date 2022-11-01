@@ -80,7 +80,7 @@ class Package extends Support\Design\Creational\Singleton
 			}
 			catch( Throwable $e )
 			{
-				throw new Error\ImportError( $name, Error\ImportError::SOMETHING_ERROR );
+				throw new Error\ImportError( $name, Error\ImportError::SOMETHING_ERROR, $e );
 			}
 		}
 		throw new Error\ModuleError( $name, Error\ModuleError::NAME_ERROR );

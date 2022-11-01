@@ -22,6 +22,25 @@ function config( String $name, Bool $reImport = False ): Mixed
 	return( Support\Services\Services::app()->config( $name, $reImport ) );
 }
 
+function e( $e ): Void
+{
+	if( $e->getPrevious() )
+	{
+		do {
+			e( $e );
+		}
+		while( $e = $e->getPrevious() );
+		return;
+	}
+	echo path( remove: True, path: f( "\x1b[1;32m{}\x1b[1;33m: \x1b[0;37m{} in file \x1b[1;36m{} \x1b[0;37mon line \x1b[1;31m{}\n\x1b[1;30m{}\n", ...[
+		$e::class,
+		$e->getMessage(),
+		$e->getFile(),
+		$e->getLine(),
+		$e->getTrace()
+	]));
+}
+
 /*
  * @inherit Yume\Fure\Support\Env\Env
  *

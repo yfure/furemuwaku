@@ -18,86 +18,6 @@ abstract class ReflectFunction
 {
 	
 	/*
-	 * Returns a dynamically created closure for the function.
-	 *
-	 * @access Public Static
-	 *
-	 * @params Closure|String $function
-	 * @params Mixed $reflect
-	 *
-	 * @return Closure
-	 */
-	public static function getClosure( Closure | String $function, Mixed &$reflect = Null ): ? Closure
-	{
-		return( $reflect = self::reflect( $function, $reflect ) )->getClosure();
-	}
-	
-	/*
-	 * Returns a dynamically created closure for the function.
-	 *
-	 * @access Public Static
-	 *
-	 * @params Closure|String $function
-	 * @params Mixed $reflect
-	 *
-	 * @return Mixed
-	 */
-	public static function invoke( Closure | String $function, Array $arguments = [], Mixed &$reflect = Null ): Mixed
-	{
-		// Get ReflectionFunction class.
-		$reflect = self::reflect( $function, $reflect );
-		 
-		// Get value from invoke function.
-		return(
-			
-			// Invoke function.
-			$reflect->invoke( 
-				
-				// Get parameter binding result with given argument.
-				ReflectParameter::builder(
-					
-					// Get function parameters.
-					self::getParameters( $function, $reflect ),
-					
-					// Arguments given.
-					$arguments
-				)
-			)
-		);
-	}
-	
-	/*
-	 * Returns a dynamically created closure for the function.
-	 *
-	 * @access Public Static
-	 *
-	 * @params Closure|String $function
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	public static function isAnonymous( Closure | String $function, Mixed &$reflect = Null ): Bool
-	{
-		return( $reflect = self::reflect( $function, $reflect ) )->isAnonymous();
-	}
-	
-	/*
-	 * Returns a dynamically created closure for the function.
-	 *
-	 * @access Public Static
-	 *
-	 * @params Closure|String $function
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	public static function isDisabled( Closure | String $function, Mixed &$reflect = Null ): Bool
-	{
-		return( $reflect = self::reflect( $function, $reflect ) )->isDisabled();
-	}
-	
-	
-	/*
 	 * Gets Attributes.
 	 *
 	 * @access Public Static
@@ -112,6 +32,21 @@ abstract class ReflectFunction
 	public static function getAttributes( Closure | String $function, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
 	{
 		return( $reflect = self::reflect( $function, $reflect ) )->getAttributes( $name, $flags );
+	}
+	
+	/*
+	 * Returns a dynamically created closure for the function.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Closure|String $function
+	 * @params Mixed $reflect
+	 *
+	 * @return Closure
+	 */
+	public static function getClosure( Closure | String $function, Mixed &$reflect = Null ): ? Closure
+	{
+		return( $reflect = self::reflect( $function, $reflect ) )->getClosure();
 	}
 	
 	/*
@@ -201,7 +136,7 @@ abstract class ReflectFunction
 	 */
 	public static function getExtension( Closure | String $function, Mixed &$reflect = Null ): ? ReflectionExtension
 	{
-		return( $reflect = self::reflect( $function, $reflect ) )->getExtendsion();
+		return( $reflect = self::reflect( $function, $reflect ) )->getExtension();
 	}
 	
 	/*
@@ -216,7 +151,7 @@ abstract class ReflectFunction
 	 */
 	public static function getExtensionName( Closure | String $function, Mixed &$reflect = Null ): False | String
 	{
-		return( $reflect = self::reflect( $function, $reflect ) )->getExtendsionName();
+		return( $reflect = self::reflect( $function, $reflect ) )->getExtensionName();
 	}
 	
 	/*
@@ -430,6 +365,44 @@ abstract class ReflectFunction
 	}
 	
 	/*
+	 * Returns a dynamically created closure for the function.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Closure|String $function
+	 * @params Mixed $reflect
+	 *
+	 * @return Mixed
+	 */
+	public static function invoke( Closure | String $function, Array $arguments = [], Mixed &$reflect = Null ): Mixed
+	{
+		// Get ReflectionFunction class.
+		$reflect = self::reflect( $function, $reflect );
+		
+		// Return the result of the called function.
+		return( $reflect->invoke(
+			
+			// Build parameters for functions.
+			...ReflectParameter::builder( $reflect->getParameters(), $arguments )
+		));
+	}
+	
+	/*
+	 * Returns a dynamically created closure for the function.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Closure|String $function
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
+	public static function isAnonymous( Closure | String $function, Mixed &$reflect = Null ): Bool
+	{
+		return( $reflect = self::reflect( $function, $reflect ) )->isAnonymous();
+	}
+	
+	/*
 	 * Checks if closure.
 	 *
 	 * @access Public Static
@@ -457,6 +430,21 @@ abstract class ReflectFunction
 	public static function isDeprecated( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
 		return( $reflect = self::reflect( $function, $reflect ) )->isDeprecated();
+	}
+	
+	/*
+	 * Returns a dynamically created closure for the function.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Closure|String $function
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
+	public static function isDisabled( Closure | String $function, Mixed &$reflect = Null ): Bool
+	{
+		return( $reflect = self::reflect( $function, $reflect ) )->isDisabled();
 	}
 	
 	/*
@@ -546,7 +534,7 @@ abstract class ReflectFunction
 	 */
 	private static function reflect( Closure | String $function, Mixed $reflect ): ReflectionFunction
 	{
-		// If
+		// Check if `reflect` is instanceof ReflectionFunction.
 		if( $reflect Instanceof ReflectionFunction )
 		{
 			// 

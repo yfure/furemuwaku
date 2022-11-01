@@ -11,6 +11,7 @@ use ReflectionExtension;
 use ReflectionMethod;
 use ReflectionProperty;
 
+use Yume\Fure\App;
 use Yume\Fure\Support;
 
 /*
@@ -474,6 +475,7 @@ abstract class ReflectClass
 	{
 		// ...
 		$traitsNames = [];
+		
 		$recursiveClasses = function ($class) use( &$recursiveClasses, &$traitsNames) {
 		if ($class->getParentClass() != false) {
 		$recursiveClasses( $class->getParentClass());
@@ -576,23 +578,26 @@ abstract class ReflectClass
 	 */
 	public static function instance( Object | String $class, Array | False | Null $construct = Null, Mixed &$reflect = Null ): Object
 	{
-		// Check if class is not Singleton.
-		if( self::isSingleton( $class, $reflect ) )
+		// Check if class is Singleton.
+		// Check if class is App.
+		if( ReflectClass::isSingleton( $class, $reflect ) ||
+			ReflectClass::isApp( $class, $reflect ) )
 		{
-			// Check if class is not abstraction and has constructor.
-			if( $construct !== False && $reflect->isAbstract() === False && $reflect->getConstructor() )
-			{
-				// Get class constructor parameter.
-				$parameter = $reflect->getConstructor()->getParameters();
-				
-				// Return new class instance.
-				return( $reflect )->newInstance( ...ReflectParameter::builder( $parameter, $construct ?? [] ) );
-			}
-			
-			// Return new class instance without constructor.
-			return( $reflect )->newInstanceWithoutConstructor();
+			throw new Error\ClassError( $class, Error\ClassError::INSTANCE_ERROR );
 		}
-		throw new Error\ClassError( $class, Error\ClassError::INSTANCE_ERROR );
+		
+		// Check if class is not abstraction and has constructor.
+		if( $construct !== False && $reflect->isAbstract() === False && $reflect->getConstructor() )
+		{
+			// Get class constructor parameter.
+			$parameter = $reflect->getConstructor()->getParameters();
+			
+			// Return new class instance.
+			return( $reflect )->newInstance( ...ReflectParameter::builder( $parameter, $construct ?? [] ) );
+		}
+		
+		// Return new class instance without constructor.
+		return( $reflect )->newInstanceWithoutConstructor();
 	}
 	
 	/*
@@ -623,6 +628,26 @@ abstract class ReflectClass
 	public static function isAnonymous( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		return( $reflect = self::reflect( $class, $reflect ) )->isAnonymous();
+	}
+	
+	/*
+	 * Return whether this class is App.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
+	public static function isApp( Object | String $class, Mixed &$reflect = Null  ): Bool
+	{
+		// Check if `class` is Object type.
+		if( is_object( $class ) )
+		{
+			return( $class Instanceof App\App );
+		}
+		return( self::getName( $class, $reflect ) === App\App::class );
 	}
 	
 	/*
@@ -773,6 +798,21 @@ abstract class ReflectClass
 	public static function isInternal( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		return( $reflect = self::reflect( $class, $reflect ) )->isInternal();
+	}
+	
+	/*
+	 * Check whether this class is invokable.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
+	public static function isInvokable( Object | String $class, Mixed $reflect = Null ): Bool
+	{
+		return( self::hasMethod( $class, "__invoke", $reflect ) );
 	}
 	
 	/*
@@ -943,7 +983,7 @@ abstract class ReflectClass
 		// Get class name.
 		$class = is_object( $class ) ? $class::class : $class;
 		
-		// Check if `reflect` is ReflectionClass instance.
+		// Check if `reflect` is instanceof ReflectionClass.
 		if( $reflect Instanceof ReflectionClass && $reflect->getClass() === $class )
 		{
 			return( $reflect );

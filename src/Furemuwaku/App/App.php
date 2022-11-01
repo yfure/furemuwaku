@@ -56,6 +56,9 @@ final class App
 		$this->binding = new Support\Data\Data;
 		$this->configs = new Support\Data\Data;
 		
+		// Testing package bind.
+		$this->binding->__set( \Test::class, new \StdClass );
+		
 		try
 		{
 			Support\Env\Env::self()->load();
@@ -109,6 +112,11 @@ final class App
 	public function bind( String $package, Object $instance ): Void
 	{
 		$this->binding->__set( $package, $instance );
+	}
+	
+	public function binded( String $package ): False | Object
+	{
+		return( $this->binding )->__get( $package );
 	}
 	
 	/*
@@ -166,7 +174,7 @@ final class App
 				throw new Error\LogicError( "Unknown application environment named." );
 			}
 			
-			// Set apolication context.
+			// Set application context.
 			$this->context = YUME_CONTEXT;
 			
 			try
