@@ -5,13 +5,10 @@ namespace Yume\Fure\Error;
 /*
  * ReferenceError
  *
- * @extends Yume\Fure\Error\BaseError
- *
  * @package Yume\Fure\Error
+ *
+ * @extends Yume\Fure\Error\BaseError
  */
-class ReferenceError extends BaseError
-{
-	// ...
-}
+class ReferenceError extends BaseError {}
 
 ?>

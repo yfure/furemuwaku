@@ -109,7 +109,7 @@ abstract class ReflectProperty
 	 *
 	 * @return String
 	 */
-	public static function getName( Object | String $class, String $property, Mixed &$reflect = Null ): 
+	public static function getName( Object | String $class, String $property, Mixed &$reflect = Null ): String
 	{
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getName();
 	}

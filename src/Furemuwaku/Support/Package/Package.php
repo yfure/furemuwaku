@@ -2,20 +2,21 @@
 
 namespace Yume\Fure\Support\Package;
 
-use Throwable;
-
 use Yume\Fure\Error;
-use Yume\Fure\IO;
-use Yume\Fure\Support;
+use Yume\Fure\Support\Data;
+use Yume\Fure\Support\Design;
+use Yume\Fure\Support\File;
+use Yume\Fure\Util;
+use Yume\Fure\Util\RegExp;
 
 /*
  * Package
  *
- * @extends Yume\Fure\Support\Design\Creational\Singleton
- *
  * @package Yume\Fure\Support\Package
+ *
+ * @extends Yume\Fure\Support\Design\Singleton
  */
-class Package extends Support\Design\Creational\Singleton
+class Package extends Design\Singleton
 {
 	
 	/*
@@ -25,19 +26,19 @@ class Package extends Support\Design\Creational\Singleton
 	 *
 	 * @values Yume\Fure\Support\Data\DataInterface
 	 */
-	static private Support\Data\DataInterface $packages;
+	static private Data\DataInterface $packages;
 	
 	/*
-	 * @inherit Yume\Fure\Support\Design\Creational\Singleton
+	 * @inherit Yume\Fure\Support\Design\Singleton
 	 *
 	 */
-	protected function __construct()
+	final protected function __construct()
 	{
 		// Create new data instance.
-		static::$packages = new Support\Data\Data;
+		static::$packages = new Data\Data;
 		
 		// Get composer installed packages.
-		$composer = IO\File\File::json( "vendor/composer/installed.json", True );
+		$composer = File\File::json( "vendor/composer/installed.json", True );
 		
 		// Mapping all packages.
 		Util\Arr::map( $packages['packages'], function( $package )
@@ -50,9 +51,16 @@ class Package extends Support\Design\Creational\Singleton
 		});
 	}
 	
-	public static function getPackages(): Support\Data\DataInterface
+	/*
+	 * Get all packages.
+	 *
+	 * @access Public Static
+	 *
+	 * @return Yume\Fure\Support\Data\DataInterface
+	 */
+	public static function getPackages(): Data\DataInterface
 	{
-		return( Package::self() )->packages->map( fn( $i, $k, $v ) => $v );
+		return( self::self() )->packages->map( fn( $i, $k, $v ) => $v );
 	}
 	
 	/*
@@ -67,23 +75,23 @@ class Package extends Support\Design\Creational\Singleton
 	public static function import( String $package ): Mixed
 	{
 		// Replace package namespace.
-		$name = Support\RegExp\RegExp::replace( "/^\\\*Yume\\\(App|Fure)\b/i", $package, fn( Array $match ) => $match[1] === "Fure" || $match[1] === "fure" ? "system/furemu" : "app" );
+		$name = RegExp\RegExp::replace( "/^\\\*Yume\\\(App|Fure)\b/i", $package, fn( Array $match ) => $match[1] === "Fure" || $match[1] === "fure" ? "system/furemu" : "app" );
 		
 		// Create file name.
 		$file = f( "{}{}", $name, substr( $name, -4 ) !== ".php" ? ".php" : "" );
 		
 		// Check if file name is exists.
-		if( IO\File\File::exists( $file ) )
+		if( File\File::exists( $file ) )
 		{
 			try {
 				return( require( path( $file ) ) );
 			}
 			catch( Throwable $e )
 			{
-				throw new Error\ImportError( $name, Error\ImportError::SOMETHING_ERROR, $e );
+				throw new Error\ImportError( $name, previous: $e );
 			}
 		}
-		throw new Error\ModuleError( $name, Error\ModuleError::NAME_ERROR );
+		throw new Error\ModuleNotFoundError( $name );
 	}
 	
 }

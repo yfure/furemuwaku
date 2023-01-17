@@ -8,7 +8,7 @@ use ReflectionIntersectionType;
 use ReflectionParameter;
 use ReflectionType;
 
-use Yume\Fure\Support;
+use Yume\Fure\Support\Data;
 use Yume\Fure\Util;
 
 /*
@@ -49,7 +49,7 @@ abstract class ReflectParameter
 	public static function builder( Array $parameter, Array $arguments = [], Mixed &$reflect = Null ): Array
 	{
 		// Reflection instance references.
-		$reflect = new Support\Data\Data;
+		$reflect = new Data\Data;
 		
 		// Parameter binding stack.
 		$binding = [];
@@ -131,7 +131,7 @@ abstract class ReflectParameter
 	 */
 	private static function format( Mixed &$function, Int | String $param ): String
 	{
-		$format = new Support\Data\Data([
+		$format = new Data\Data([
 			"class" => "*",
 			"function" => "*",
 			"parameter" => $param

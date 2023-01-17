@@ -2,62 +2,54 @@
 
 namespace Yume\Fure\Error;
 
+use Throwable;
+
 /*
  * PermissionError
  *
- * @extends Yume\Fure\Error\IOError
- *
  * @package Yume\Fure\Error
+ *
+ * @extends Yume\Fure\Error\IOError
  */
 class PermissionError extends IOError
 {
 	
 	/*
-	 * Access Denied.
+	 * Error constant for errors while reading the file.
 	 *
 	 * @access Public Static
 	 *
 	 * @values Int
 	 */
-	public const ACCESS_ERROR = 8640;
+	public const READ_ERROR = 84901;
 	
 	/*
-	 * File is not executable.
+	 * Error constant for error while writing the contents of the file.
 	 *
 	 * @access Public Static
 	 *
 	 * @values Int
 	 */
-	public const EXEC_ERROR = 8643;
+	public const WRITE_ERROR = 84911;
 	
 	/*
-	 * File or directory is not readable.
-	 *
-	 * @access Public Static
-	 *
-	 * @values Int
-	 */
-	public const READ_ERROR = 8646;
-	
-	/*
-	 * File or directory is not writeable.
-	 *
-	 * @access Public Static
-	 *
-	 * @values Int
-	 */
-	public const WRITE_ERROR = 8649;
-	
-	/*
-	 * @inherit Yume\Fure\Error\BaseError
+	 * @inherit Yume\Fure\Error\IOError
 	 *
 	 */
 	protected Array $flags = [
-		8640 => "Permission denied for `{}`.",
-		8643 => "Can't execute file `{}`.",
-		8646 => "Unable to read file or directory `{}`.",
-		8649 => "Unable to write file or make directory `{}`."
+		self::PERMISSION_ERROR => "Access denied for \"{}\"",
+		self::READ_ERROR => "Can't read \"{}\"",
+		self::WRITE_ERROR => "Can't write \"{}\""
 	];
+	
+	/*
+	 * @inherit Yume\Fure\Error\IOError
+	 *
+	 */
+	public function __construct( Array | Int | String $message, Int $code = self::PERMISSION_ERROR, ? Throwable $previous = Null )
+	{
+		parent::__construct( ...func_get_args() );
+	}
 	
 }
 

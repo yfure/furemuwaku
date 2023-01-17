@@ -7,8 +7,6 @@ use Countable;
 use Iterator;
 use Stringable;
 
-use Yume\Fure\Util;
-
 /*
  * DataInterface
  *

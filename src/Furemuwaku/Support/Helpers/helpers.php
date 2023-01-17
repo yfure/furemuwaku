@@ -1,25 +1,27 @@
 <?php
 
-use Yume\App\Models;
-use Yume\App\Views;
-
-use Yume\Fure\App;
+use Yume\Fure\Config;
 use Yume\Fure\Database;
 use Yume\Fure\Error;
 use Yume\Fure\HTTP;
-use Yume\Fure\IO;
-use Yume\Fure\Seclib;
 use Yume\Fure\Support;
+use Yume\Fure\Support\Data;
+use Yume\Fure\Support\File;
+use Yume\Fure\Support\Path;
+use Yume\Fure\Support\Services;
 use Yume\Fure\Util;
+use Yume\Fure\Util\Env;
+use Yume\Fure\Util\Json;
+use Yume\Fure\Util\RegExp;
 use Yume\Fure\View;
 
 /*
- * @inherit Yume\Fure\App\App
+ * @inherit Yume\Fure\Config\Config
  *
  */
-function config( String $name, Bool $reImport = False ): Mixed
+function config( String $name, Bool $import = False ): Mixed
 {
-	return( Support\Services\Services::app()->config( $name, $reImport ) );
+	return( Services\Services::get( "app" ) )->config( $name, $import );
 }
 
 function e( $e ): Void
@@ -47,7 +49,7 @@ function e( $e ): Void
  */
 function env( String $env, Mixed $optional = Null )
 {
-	return( Support\Env\Env::self() )->getEnv( $env, $optional );
+	return( Env\Env::get( $env, $optional ) );
 }
 
 /*
@@ -87,29 +89,29 @@ function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
 }
 
 /*
- * @inherit Yume\Fure\IO\File\File
+ * @inherit Yume\Fure\Support\File\File
  *
  */
 function fsize( String $file, Int $optional = 0 ): Int
 {
-	return( IO\File\File::size( $file, $optional ) );
+	return( File\File::size( $file, $optional ) );
 }
 
 /*
- * @inherit Yume\Fure\IO\Path\Path
+ * @inherit Yume\Fure\Support\Path\Path
  *
  */
 function ls( String $path ): Array | Bool
 {
-	return( IO\Path\Path::ls( $path ) );
+	return( Path\Path::ls( $path ) );
 }
 
 /*
- * @inherit Yume\Fure\IO\Path\Path
+ * @inherit Yume\Fure\Support\Path\Path
  */
 function path( String $path, Bool $remove = False ): String
 {
-	return( IO\Path\Path::path( $path, $remove ) );
+	return( Path\Path::path( $path, $remove ) );
 }
 
 /*
@@ -126,14 +128,21 @@ function puts( String $string, Mixed ...$format ): Void
 }
 
 /*
- * @inherit Yume\Fure\IO\Path\Path
+ * @inherit Yume\Fure\Support\Path\Path
  *
  */
 function tree( String $path, String $parent = "" ): Array | False
 {
-	return( IO\Path\Path::tree( $path, $parent ) );
+	return( Path\Path::tree( $path, $parent ) );
 }
 
+/*
+ * Check if value is empty.
+ *
+ * @params Mixed $value
+ *
+ * @return Bool
+ */
 function valueIsEmpty( Mixed $value ): Bool
 {
 	switch( True )
@@ -155,27 +164,23 @@ function valueIsEmpty( Mixed $value ): Bool
 			
 		// If `value` is String type.
 		case is_string( $value ):
-			return( Support\RegExp\RegExp::test( "/^([\s\t\n]*)$/", $value ) );
+			return( RegExp\RegExp::test( "/^([\s\t\n]*)$/", $value ) );
 	}
 	return( False );
 }
 
+/*
+ * Check if value is empty.
+ *
+ * @params Mixed $value
+ *
+ * @return Bool
+ */
 function valueIsNotEmpty( Mixed $value ): Bool
 {
 	return( valueIsEmpty( $value ) === False );
 }
 
-/*
- * ...
- *
- * @params String $view
- * @params Array|Yume\Fure\Support\Data\DataInterface $vars
- *
- * @return Yume\Fure\View\ViewInterface
- */
-function view( String $view, Array | Support\Data\DataInterface $vars ): View\ViewInterface
-{
-	
-}
+
 
 ?>

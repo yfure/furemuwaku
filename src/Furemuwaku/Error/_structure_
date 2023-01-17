@@ -1,0 +1,35 @@
+<?php
+
+Error\BaseError
+  ..Error\AssertionError +
+  ..Error\HTTPError
+  ..Error\IOError +
+  ..  ..Error\PermissionError +
+  ..  ..  ..Support\Path\PathError +
+  ..  ..  ..  ..Support\Path\PathNotFoundError +
+  ..  ..  ..Support\File\FileError +
+  ..  ..  ..  ..Support\File\FileNotFoundError +
+  ..Error\LocaleError
+  ..  ..DateTime\DateTimeZoneError
+  ..Error\ReferenceError +
+  ..  ..FormatError -
+  ..  ..Error\LookupError +
+  ..  ..  ..Error\IndexError +
+  ..  ..  ..Error\KeyError +
+  ..Error\RuntimeError +
+  ..  ..Error\LogicError +
+  ..SecureError
+  ..Error\TriggerError +
+  ..Error\TypeError +
+  ..  ..Error\ParameterError
+  ..  ..  ..Error\ArgumentError
+  ..  ..Error\ModuleError +
+  ..  ..  Error\ImportError +
+  ..  ..  Error\ModuleNotFoundError +
+  ..  ..Support\Services\ServicesError +
+  ..  ..Util\Env\EnvError
+  ..  ..Util\RegExp\RegExpError
+  ..Error\ValueError +
+  ..  ..Util\Json\JsonError +
+  
+?>

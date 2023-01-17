@@ -5,10 +5,10 @@ namespace Yume\Fure\Error;
 /*
  * LogicError
  *
- * @extends Yume\Fure\Error\BaseError
- *
  * @package Yume\Fure\Error
+ *
+ * @extends Yume\Fure\Error\RuntimeError
  */
-class LogicError extends BaseError {}
+class LogicError extends RuntimeError {}
 
 ?>

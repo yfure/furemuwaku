@@ -2,7 +2,9 @@
 
 namespace Yume\Fure\Support\Data;
 
+use Yume\Fure\Error;
 use Yume\Fure\Util;
+use Yume\Fure\Util\Json;
 
 /*
  * Data
@@ -41,8 +43,10 @@ class Data implements DataInterface
 	 */
 	public function __construct( Array | DataInterface $data = [] )
 	{
+		// Mapping data.
 		Util\Arr::map( $data, function( $i, $key, $value )
 		{
+			// If data value is Array type.
 			if( is_array( $value ) )
 			{
 				$value = new Data( $value );
@@ -210,7 +214,7 @@ class Data implements DataInterface
 	 */
 	final public function __toString(): String
 	{
-		return( Util\JSON::encode( $this->__toArray(), JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ) );
+		return( Json\Json::encode( $this->__toArray(), JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ) );
 	}
 	
 	/*

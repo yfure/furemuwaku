@@ -2,127 +2,165 @@
 
 namespace Yume\Fure\App;
 
-use Throwable;
-
+use Yume\Fure\Config;
 use Yume\Fure\Error;
-use Yume\Fure\HTTP;
-use Yume\Fure\IO;
-use Yume\Fure\Support;
+use Yume\Fure\Support\Data;
+use Yume\Fure\Support\Design;
+use Yume\Fure\Support\Package;
+use Yume\Fure\Support\Reflect;
+use Yume\Fure\Support\Services;
 use Yume\Fure\Util;
-use Yume\Fure\View;
+use Yume\Fure\Util\Env;
+use Yume\Fure\Util\RegExp;
 
 /*
  * App
  *
  * @package Yume\Fure\App
+ *
+ * @extends Yume\Fure\Support\Design\Singleton
  */
-final class App
+final class App extends Design\Singleton
 {
 	
 	/*
-	 * A collection of classes to bind to parameters.
+	 * Application configs.
 	 *
-	 * @access Private
+	 * @access Private Readonly
 	 *
 	 * @values Yume\Fure\Support\Data\DataInterface
 	 */
-	private Support\Data\DataInterface $binding;
+	private Data\DataInterface $configs;
 	
 	/*
-	 * A collection of configurations that have been loaded.
+	 * Configuration path saved.
 	 *
-	 * @access Private
+	 * @access Private Readonly
 	 *
-	 * @values Yume\Fure\Support\Data\DataInterface
+	 * @values String
 	 */
-	private Support\Data\DataInterface $configs;
-	
-	private String $context;
-	
-	private $response;
+	private Readonly String $configPath;
 	
 	/*
-	 * Service class instance collection.
+	 * Application context.
 	 *
-	 * @access Private
+	 * @access Private Readonly
 	 *
-	 * @values Yume\Fure\Support\Data\DataInterface
+	 * @values String
 	 */
-	private Support\Data\DataInterface $services;
+	private Readonly String $context;
 	
-	private function __construct()
+	/*
+	 * If application is running.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Bool
+	 */
+	static private Bool $run = False;
+	
+	/*
+	 * @inherit Yume\Fure\Support\Design\Singleton
+	 *
+	 */
+	protected function __construct()
 	{
-		// New Data instance.
-		$this->binding = new Support\Data\Data;
-		$this->configs = new Support\Data\Data;
+		// Parse environment file.
+		Env\Env::self();
 		
-		// Testing package bind.
-		$this->binding->__set( \Test::class, new \StdClass );
+		// Get application environment.
+		$env = strtolower( env( "ENVIRONMENT" ) );
 		
-		try
+		// Check if valid application environment.
+		if( $env === "development" || $env === "production" )
 		{
-			Support\Env\Env::self()->load();
+			// Check if application has context.
+			if( defined( "YUME_CONTEXT" ) )
+			{
+				// Set application context.
+				$this->context = match( True )
+				{
+					YUME_CONTEXT_CLI => "cli",
+					YUME_CONTEXT_CLI_SERVER => "cli-server",
+					YUME_CONTEXT_WEB => "web",
+					
+					default => throw new Error\LogicError( Util\Str::fmt( "Unknown application context for \"{}\"", YUME_CONTEXT ) )
+				};
+			}
+			else {
+				throw new Error\LogicError( "The application has no context" );
+			}
+			
+			// Define application evironment.
+			define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
+			
+			// Import runtime settings file by environment.
+			Package\Package::import( Util\Str::fmt( "/app/Runtime/{}", $env ) );
+			
+			// Register application.
+			Services\Services::register( "app", $this, False );
+			Services\Services::register( $this, $this, False );
 		}
-		catch( Throwable $e )
+		else {
+			throw new Error\LogicError( Util\Str::fmt( "The application environment must be development|production, \"{}\" given", $env ) );
+		}
+		
+		// Check if application has no error handler.
+		if( Env\Env::isset( "ERROR_HANDLER", False ) )
 		{
-			exit( path( remove: True, path: f( "<pre>{}: {} in file {} on line {}\n{}", ...[
-				$e::class,
-				$e->getMessage(),
-				$e->getFile(),
-				$e->getLine(),
-				$e->getTrace()
-			])));
+			// Set default error handler into env file.
+			Env\Env::set( "ERROR_HANDLER", "Yume\\Fure\\Handler\\Error::handler" );
 		}
+		
+		// Check if application has no exception handler.
+		if( Env\Env::isset( "EXCEPTION_HANDLER", False ) )
+		{
+			Env\Env::set( "EXCEPTION_HANDLER", "Yume\\Fure\\Handler\\Exception::handler" );
+		}
+		
+		// Sets a user-defined error & exception handler function.
+		set_error_handler( env( "ERROR_HANDLER" ) );
+		set_exception_handler( env( "EXCEPTION_HANDLER" ) );
+		
+		// ...
+		$this->configs = new Data\Data([]);
+		$this->configPath = "/system/configs/{}";
 	}
 	
 	/*
-	 * Prevent the instance from being cloned.
-	 *
-	 * @access Protected
-	 *
-	 * @return Void
-	 */
-	private function __clone() {}
-	
-	/*
-	 * Prevent from being unserialized.
-	 * Or which would create a second instance of it.
+	 * Run application.
 	 *
 	 * @access Public
 	 *
 	 * @return Void
-	 *
-	 * @throws Yume\Fure\Error\RuntimeError
 	 */
-	public function __wakeup()
+	public function run(): Void
 	{
-		throw new Error\RuntimeError( f( "Cannot unserialize {}.", $this::class ) );
+		// Check if the application is running.
+		if( static::$run )
+		{
+			throw new Error\RuntimeError( "Unable to run the currently running application" );
+		}
+		else {
+			
+			// Set application as run.
+			static::$run = True;
+			
+			// Check if application is running on cli mode.
+			if( $this->isCli() )
+			{
+				echo 0;
+			}
+			else {
+				
+			}
+		}
 	}
 	
 	/*
-	 * Bind class instance.
+	 * Get or import configuration.
 	 *
 	 * @access Public
-	 *
-	 * @params String $package
-	 * @params Object $instance
-	 *
-	 * @return Void
-	 */
-	public function bind( String $package, Object $instance ): Void
-	{
-		$this->binding->__set( $package, $instance );
-	}
-	
-	public function binded( String $package ): False | Object
-	{
-		return( $this->binding )->__get( $package );
-	}
-	
-	/*
-	 * Return or import configuration.
-	 *
-	 * @access Public Static
 	 *
 	 * @params String $name
 	 * @params Bool $import
@@ -136,103 +174,90 @@ final class App
 		{
 			// Split config name.
 			$split = Util\Arr::ifySplit( $name );
+			$split[0] = strtolower( $split[0] );
 			
 			// If the configuration has not been registered or if re-import is allowed.
-			if( $this->configs->__isset( $split[0] ) === False || $import )
+			if( isset( $this->configs[$split[0]] ) === False || $import )
 			{
-				$this->configs->__set( $split[0], Support\Package\Package::import( f( "/system/configs/{}", $split[0] ) ) );
+				$this->configs[$split[0]] = Package\Package::import( f( $this->configPath, $split[0] ) );
 			}
 		}
 		else {
-			throw new Error\ArgumentError(
-				code: Error\ArgumentError::VALUE_ERROR,
-				message: "Configuration name can't be empty."
-			);
+			throw new Error\ValueError( "Unable to fetch or import configuration, configuration name is required" );
 		}
 		return( Util\Arr::ify( $split, $this->configs ) );
 	}
 	
 	/*
-	 * Launch the application.
+	 * Get configuration path saved.
 	 *
 	 * @access Public
 	 *
-	 * @return Void
+	 * @return String
 	 */
-	public function run(): Void
+	public function getConfigPath(): String
 	{
-		// Check if application context has ben defined.
-		if( defined( "YUME_CONTEXT" ) )
-		{
-			// Define application environment.
-			define( "ENVIRONMENT", env( "ENVIRONMENT", "development" ) );
-			
-			// If appication environment name is invalid.
-			if( ENVIRONMENT !== "development" && 
-				ENVIRONMENT !== "prpduction" )
-			{
-				throw new Error\LogicError( "Unknown application environment named." );
-			}
-			
-			// Set application context.
-			$this->context = YUME_CONTEXT;
-			
-			try
-			{
-				// Import application configuration based environment.
-				Support\Package\Package::import( f( "app/Runtime/{}.php", ENVIRONMENT ) );
-			}
-			catch( Error\ModuleError $e )
-			{
-				// Check if Throwable thrown is ModuleError instance.
-				if( $e Instanceof Error\ImportError )
-				{
-					throw new Error\RuntimeError( f( "Something error when import app/Runtime/{}.php", ENVIRONMENT ), 0, $e );
-				}
-				throw new Error\RuntimeError( "Unknown application environment.", 0, $e );
-			}
-			
-			// Run the entire service provider class.
-			Support\Services\Services::self();
-			
-			// Testing.
-			Support\Package\Package::import( "app/Tests/Test.php" );
-		}
-		else {
-			throw new Error\LogicError( "Unknown application context." );
-		}
+		return( $this )->configPath;
 	}
 	
 	/*
-	 * Create new application instance.
+	 * Get current application context.
 	 *
-	 * @access Public Static
+	 * @access Public
 	 *
-	 * @return Static
+	 * @return String
 	 */
-	public static function create(): Static
+	public function getContext(): String
 	{
-		// Check if application has instanced.
-		if( self::created() )
-		{
-			throw new Error\LogicError( f( "Can't duplicate {} instance!", App\App::class ) );
-		}
-		else {
-			Support\Services\Services::self( new Static );
-		}
-		return( Support\Services\Services::app() );
+		return( $this )->context;
 	}
 	
 	/*
-	 * Check if application has instanced.
+	 * Return if applicaion context is cli.
 	 *
-	 * @access Public Static
+	 * @access Public
 	 *
 	 * @return Bool
 	 */
-	public static function created(): Bool
+	public function isCli(): Bool
 	{
-		return( Support\Services\Services::app() Instanceof App );
+		return( YUME_CONTEXT_CLI );
+	}
+	
+	/*
+	 * Return if applicaion context is cli server.
+	 *
+	 * @access Public
+	 *
+	 * @return Bool
+	 */
+	public function isCliServer(): Bool
+	{
+		return( YUME_CONTEXT_CLI_SERVER );
+	}
+	
+	/*
+	 * Return if applicaion context is web.
+	 *
+	 * @access Public
+	 *
+	 * @return Bool
+	 */
+	public function isWeb(): Bool
+	{
+		return( YUME_CONTEXT_WEB );
+	}
+	
+	/*
+	 * Return if application is currently running.
+	 *
+	 * @access Public
+	 *
+	 * @return Bool
+	 */
+	public function isRun(): Bool
+	{
+		return( $this )->run;
 	}
 	
 }

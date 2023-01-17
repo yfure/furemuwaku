@@ -12,7 +12,9 @@ use ReflectionMethod;
 use ReflectionProperty;
 
 use Yume\Fure\App;
-use Yume\Fure\Support;
+use Yume\Fure\Support\Data;
+use Yume\Fure\Support\Design;
+use Yume\Fure\Support\Services;
 
 /*
  * ReflectClass
@@ -692,7 +694,7 @@ abstract class ReflectClass
 	 */
 	public static function isData( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
-		return( self::isImplements( $class, Support\Data\DataInterface::class, $reflect ) );
+		return( self::isImplements( $class, Data\DataInterface::class, $reflect ) );
 	}
 	
 	/*
@@ -857,7 +859,7 @@ abstract class ReflectClass
 	 */
 	public static function isServicesProvider( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
-		return( self::isImplements( $class, Support\Services\ServicesProviderInterface::class ) );
+		return( self::isImplements( $class, Services\ServicesProviderInterface::class ) );
 	}
 	
 	/*
@@ -872,7 +874,7 @@ abstract class ReflectClass
 	 */
 	public static function isSingleton( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
-		return( self::isSubClassOf( $class, Support\Design\Creational\Singleton::class, $reflect ) );
+		return( self::isSubClassOf( $class, Design\Singleton::class, $reflect ) );
 	}
 	
 	/*

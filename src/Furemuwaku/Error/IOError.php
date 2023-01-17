@@ -5,30 +5,29 @@ namespace Yume\Fure\Error;
 /*
  * IOError
  *
- * @extends Yume\Fure\Error\BaseError
- *
  * @package Yume\Fure\Error
+ *
+ * @extends Yume\Fure\Error\BaseError
  */
 class IOError extends BaseError
 {
 	
 	/*
-	 * If input error.
+	 * Error constants for permission errors.
 	 *
 	 * @access Public Static
 	 *
 	 * @values Int
 	 */
-	public const INPUT_ERROR = 7643;
+	public const PERMISSION_ERROR = 61947;
 	
 	/*
-	 * If output error.
+	 * @inherit Yume\Fure\Error\BaseError
 	 *
-	 * @access Public Static
-	 *
-	 * @values Int
 	 */
-	public const OUTPUT_ERROR = 7648;
+	protected Array $flags = [
+		self::PERMISSION_ERROR => "Access denied for \"{}\""
+	];
 	
 }
 

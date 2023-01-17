@@ -8,8 +8,8 @@ use ReflectionType;
 use ReflectionUnionType;
 use Reflector;
 
-use Yume\Fure\Support;
-use Yume\Fure\Util;
+use Yume\Fure\Support\Services;
+use Yume\Fure\Util\RegExp;
 
 /*
  * ReflectType
@@ -55,7 +55,7 @@ abstract class ReflectType
 			foreach( $types As $type )
 			{
 				// Remove interface name.
-				$type = Support\RegExp\RegExp::replace( "/Interface$/i", ucfirst( $type ), "" );
+				$type = RegExp\RegExp::replace( "/Interface$/i", ucfirst( $type ), "" );
 				
 				// Check if the type name is not Mixed.
 				if( $type !== "Mixed" )
@@ -79,7 +79,7 @@ abstract class ReflectType
 					if( $given === "Object" && $type === $value::class ) return( $value );
 					
 					// Check if the class name has been bound in the application.
-					if( $binded = Support\Services\Services::app()->binded( $type ) ) return( $binded );
+					if( $binded = Services\Services::app()->binded( $type ) ) return( $binded );
 				}
 				else {
 					return( $value );

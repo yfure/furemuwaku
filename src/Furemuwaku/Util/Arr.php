@@ -5,7 +5,8 @@ namespace Yume\Fure\Util;
 use ArrayAccess;
 
 use Yume\Fure\Error;
-use Yume\Fure\Support;
+use Yume\Fure\Support\Data;
+use Yume\Fure\Util\RegExp;
 
 /*
  * Arr<Array>
@@ -51,7 +52,7 @@ abstract class Arr
 			else {
 				
 				// Decode Hexadecimal strings.
-				$index = Support\RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $index, fn( $m ) => hex2bin( $m[1] ) );
+				$index = RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $index, fn( $m ) => hex2bin( $m[1] ) );
 			}
 			
 			// Check if stack variable is exists.
@@ -63,7 +64,7 @@ abstract class Arr
 					$stack = $stack[$index];
 				}
 				else {
-					throw is_string( $index ) ? new Error\KeyError( $index, Error\KeyError::NAME_ERROR ) : new Error\IndexError( $index, Error\IndexError::RANGE_ERROR );
+					throw is_string( $index ) ? new Error\KeyError( $index ) : new Error\IndexError( $index );
 				}
 			} else {
 				
@@ -73,7 +74,7 @@ abstract class Arr
 					$stack = $data[$index];
 				}
 				else {
-					throw is_string( $index ) ? new Error\KeyError( $index, Error\KeyError::NAME_ERROR ) : new Error\IndexError( $index, Error\IndexError::RANGE_ERROR );
+					throw is_string( $index ) ? new Error\KeyError( $index ) : new Error\IndexError( $index );
 				}
 			}
 		}
@@ -91,7 +92,7 @@ abstract class Arr
 	 */
 	public static function ifyJoin( Array $split ): String
 	{
-		return( implode( ".", self::map( $split, fn( $i, $k, $refer ) => Support\RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $refer, fn( $m ) => hex2bin( $m[1] ) ) ) ) );
+		return( implode( ".", self::map( $split, fn( $i, $k, $refer ) => RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $refer, fn( $m ) => hex2bin( $m[1] ) ) ) ) );
 	}
 	
 	/*
@@ -105,7 +106,7 @@ abstract class Arr
 	 */
 	public static function ifySplit( String $refer ): Array
 	{
-		return( explode( ".", Support\RegExp\RegExp::replace( "/(?:\[([^\]]*)\])/", $refer, fn( $m ) => f( ".hx_{}", bin2hex( $m[1] ) ) ) ) );
+		return( explode( ".", RegExp\RegExp::replace( "/(?:\[([^\]]*)\])/", $refer, fn( $m ) => f( ".hx_{}", bin2hex( $m[1] ) ) ) ) );
 	}
 	
 	/*
@@ -118,12 +119,12 @@ abstract class Arr
 	 *
 	 * @return Array|Yume\Fure\Support\Data\DataInterface
 	 */
-	public static function map( Array | String | Support\Data\DataInterface $array, Callable $callback ): Array | Support\Data\DataInterface
+	public static function map( Array | String | Data\DataInterface $array, Callable $callback ): Array | Data\DataInterface
 	{
 		switch( True )
 		{
 			// If `array` is DataInterface.
-			case $array Instanceof Support\Data\DataInterface: return( $array )->map( $callback );
+			case $array Instanceof Data\DataInterface: return( $array )->map( $callback );
 			
 			// If `array` is String type.
 			case is_string( $array ): $array = str_split( $array ); break;

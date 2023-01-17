@@ -4,10 +4,9 @@ namespace Yume\Fure\Util;
 
 use Stringable;
 
-use phpseclib3\Crypt;
-
 use Yume\Fure\Error;
-use Yume\Fure\Support;
+use Yume\Fure\Support\Reflect;
+use Yume\Fure\Util\RegExp;
 
 /*
  * Str<String>
@@ -28,7 +27,7 @@ abstract class Str
 	 */
 	public static function escape( String $string ): String
 	{
-		return( Support\RegExp\RegExp::replace( "/\\\(\S)/m", $string, function( Array $match )
+		return( RegExp\RegExp::replace( "/\\\(\S)/m", $string, function( Array $match )
 		{
 			// If the value is not single or double quote.
 			if( $match[1] !== "\"" && $match[1] !== "'" )
@@ -50,7 +49,7 @@ abstract class Str
 	 */
 	public static function firstLetterIsUpper( String $string ): Int | Bool
 	{
-		return( Support\RegExp\RegExp::match( "/^[\p{Lu}\x{2160}-\x{216F}]/u", $string ) );
+		return( RegExp\RegExp::match( "/^[\p{Lu}\x{2160}-\x{216F}]/u", $string ) );
 	}
 	
 	/*
@@ -65,7 +64,16 @@ abstract class Str
 	 */
 	public static function fmt( String $string, Mixed ...$format ): String
 	{
-		return( Support\RegExp\RegExp::replace( "/(?:(?<matched>(?<except>\\\{0,})(\{[\s\t]*(?<format>(?<key>[a-zA-Z0-9_\x80-\xff]([a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)|(?<index>[\d]+))*[\s\t]*\})))/i", $string, function( Array $match ) use( &$string, &$format )
+		// Check if first index of array is exists.
+		if( isset( $format[0] ) && count( $format ) === 1 )
+		{
+			// If first index of array is array.
+			if( is_array( $format[0] ) || $format[0] Instanceof ArrayAccess )
+			{
+				$format = $format[0];
+			}
+		}
+		return( RegExp\RegExp::replace( "/(?:(?<matched>(?<except>\\\{0,})(\{[\s\t]*(?<format>(?<key>[a-zA-Z0-9_\x80-\xff]([a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)|(?<index>[\d]+))*[\s\t]*\})))/i", $string, function( Array $match ) use( &$string, &$format )
 		{
 			// Statically variable.
 			static $i = 0;
@@ -79,18 +87,17 @@ abstract class Str
 				// If the number of backslashes is one.
 				if( $length === 1 )
 				{
-					echo "*\n";
+					//echo "*\n";
 					return( $match['format'] ?? "{}" );
 				}
 				
 				// If number of backslash is odd.
 				if( Number::isOdd( $length ) )
 				{
-					echo "***\n";
+					//echo "***\n";
 					return( str_repeat( "\\", $length -1 ) . ( $match['format'] ?? "{}" ) );
 				}
 				
-				echo "**\n";
 				// Make backslashes as much as the amount minus two.
 				$match['except'] = str_repeat( "\\", $length === 2 ? $length -1 : $length -2 );
 			}
@@ -109,7 +116,7 @@ abstract class Str
 				{
 					return( $match['except'] . self::parse( $format[$match['index']] ) );
 				}
-				throw new Error\IndexError( $match['index'], Error\IndexError::RANGE_ERROR );
+				throw new Error\IndexError( $match['index'] );
 			}
 			else {
 				
@@ -118,10 +125,66 @@ abstract class Str
 				{
 					return( $match['except'] . self::parse( $format[$i++] ) );
 				}
-				throw new Error\IndexError( $i++, Error\IndexError::RANGE_ERROR );
+				throw new Error\IndexError( $i++ );
 			}
 			$i++;
 		}));
+	}
+	
+	/*
+	 * To match a string that is a valid binary number.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 *
+	 * @return Bool
+	 */
+	public static function isBin( String $string ): Bool
+	{
+		return( RegExp\RegExp::test( "/^(?:([01]+))$/", $string ) );
+	}
+	
+	/*
+	 * To match a string that is a valid decimal number.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 *
+	 * @return Bool
+	 */
+	public static function isDec( String $string ): Bool
+	{
+		return( RegExp\RegExp::test( "/^(?:([0-9]+))$/", $string ) );
+	}
+	
+	/*
+	 * To match a string that is a valid hexadecimal.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 *
+	 * @return Bool
+	 */
+	public static function isHexa( String $string ): Bool
+	{
+		return( RegExp\RegExp::test( "/^(?:([0-9a-fA-F]+))$/", $string ) );
+	}
+	
+	/*
+	 * To match a string that is a valid octal number.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 *
+	 * @return Bool
+	 */
+	public static function isOctal( String $string ): Bool
+	{
+		return( RegExp\RegExp::test( "/^(?:(0[1-7][0-7]*))$/", $string ) );
 	}
 	
 	/*
@@ -135,7 +198,7 @@ abstract class Str
 	 */
 	public static function isQuoted( String $string ): Bool
 	{
-		return( Support\RegExp\RegExp::test( "/^(?:(\"[^\"]*|\'[^\']*))$/" ) );
+		return( RegExp\RegExp::test( "/^(?:(\"[^\"]*|\'[^\']*))$/" ) );
 	}
 	
 	/*
@@ -157,7 +220,7 @@ abstract class Str
 		if( $args === False ) return( "False" );
 		
 		// If `args` value is array type.
-		if( is_array( $args ) ) return( JSON::encode( $args, JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ) );
+		if( is_array( $args ) ) return( Json\Json::encode( $args, JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ) );
 		
 		// If `args` value is object type.
 		if( is_object( $args ) )
@@ -165,7 +228,7 @@ abstract class Str
 			// If `args` value is callable type.
 			if( is_callable( $args ) )
 			{
-				return( self::parse( Support\Reflect\ReflectFunction::invoke( $args ) ) );
+				return( self::parse( Reflect\ReflectFunction::invoke( $args ) ) );
 			}
 			else {
 				
@@ -218,7 +281,7 @@ abstract class Str
 	 */
 	public static function random( Int $length = 16 ): String
 	{
-		return( Crypt\Random::string( $length ) );
+		return( random_bytes( $length ) );
 	}
 	
 	/*

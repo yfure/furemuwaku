@@ -2,26 +2,25 @@
 
 namespace Yume\Fure\Error;
 
+use Throwable;
+
 /*
  * ImportError
  *
- * @extends Yume\Fure\Error\ModuleError
- *
  * @package Yume\Fure\Error
+ *
+ * @extends Yume\Fure\Error\ModuleError
  */
 class ImportError extends ModuleError
 {
-	
-	public const SOMETHING_ERROR = 96337;
-	
 	/*
-	 * @inherit Yume\Fure\Error\FileError
+	 * @inherit Yume\Fure\Error\ModuleError
 	 *
 	 */
-	protected Array $flags = [
-		96337 => "Failed to import `{}` file, this usually happens because there is a code error in the file itself."
-	];
-	
+	public function __construct( Array | Int | String $message, Int $code = parent::IMPORT_ERROR, ? Throwable $previous = Null )
+	{
+		parent::__construct( ...func_get_args() );
+	}
 }
 
 ?>

@@ -2,56 +2,95 @@
 
 namespace Yume\Fure\Support\Services;
 
-use Yume\Fure\App;
-use Yume\Fure\Error;
-use Yume\Fure\Support;
-use Yume\Fure\Util;
+use Yume\Fure\Support\Design;
 
 /*
  * Services
  *
- * @extends Yume\Fure\Support\Design\Creational\Singleton
- *
  * @package Yume\Fure\Support\Services
+ *
+ * @extends Yume\Fure\Support\Design\Singleton
  */
-class Services extends Support\Design\Creational\Singleton
+final class Services extends Design\Singleton
 {
 	
 	/*
-	 * Application instance.
+	 * Services
 	 *
 	 * @access Static Private
 	 *
-	 * @values Yume\Fure\App\App
+	 * @values Array
 	 */
-	static private ? App\App $app = Null;
+	static private Array $services = [];
 	
 	/*
-	 * @inherit Yume\Fure\Support\Design\Creational\Singleton
-	 *
-	 */
-	protected function __construct( App\App $app )
-	{
-		// Check if application has instanced.
-		if( static::$app Instanceof App\App )
-		{
-			throw new Error\LogicError( f( "Can't duplicate {} instance!", App\App::class ) );
-		}
-		
-		// Set application instance.
-		static::$app = $app;
-	}
-	
-	/*
-	 * Get application instance.
+	 * Get services.
 	 *
 	 * @access Public Static
 	 *
-	 * @return Yume\Fure\App\App
+	 * @params Object|String $name
+	 *
+	 * @return Object
 	 */
-	public static function app(): ? App\App
+	public static function get( Object | String $name ): Object
 	{
-		return( static::$app );
+		// Check if name is object type.
+		if( is_object( $name ) )
+		{
+			$name = $name::class;
+		}
+		
+		// Check if services is exists.
+		if( isset( static::$services[$name] ) )
+		{
+			// Get service callback value.
+			$service = static::$services[$name]['callback'];
+			
+			// Check if services is callable.
+			if( is_callable( $service ) )
+			{
+				$service = $service();
+			}
+			return( $service );
+		}
+		throw new ServiceLookupError( $name );
+	}
+	
+	/*
+	 * Register new services.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $name
+	 * @params Object|Callable $callback
+	 * @params Bool $override
+	 *
+	 * @return Void
+	 */
+	public static function register( Object | String $name, Callable | Object $callback, Bool $override = True ): Void
+	{
+		// Check if name is object type.
+		if( is_object( $name ) )
+		{
+			$name = $name::class;
+		}
+		
+		// Check if services is exists.
+		if( isset( static::$services[$name] ) )
+		{
+			// Check if services is not overrideable.
+			if( static::$services[$name]['override'] === False )
+			{
+				throw new ServicesOverrideError( $name );
+			}
+		}
+		
+		// Set services.
+		static::$services[$name] = [
+			"name" => $name,
+			"callback" => $callback,
+			"override" => $override
+		];
 	}
 	
 }

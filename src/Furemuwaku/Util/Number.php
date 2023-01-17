@@ -2,7 +2,7 @@
 
 namespace Yume\Fure\Util;
 
-use Yume\Fure\Support;
+use Yume\Fure\Util\RegExp;
 
 /*
  * Number
@@ -51,7 +51,7 @@ abstract class Number
 	 */
 	public static function valid( String $ref ): Bool
 	{
-		return( Support\RegExp\RegExp::test( "/^(?:\d+)$/", $ref ) );
+		return( RegExp\RegExp::test( "/^(?:\d+)$/", $ref ) );
 	}
 	
 	/*

@@ -31,6 +31,18 @@ class TriggerError extends BaseError
 		parent::__construct( $message, $code, $previous );
 	}
 	
+	/*
+	 * Get error level as string.
+	 *
+	 * @access Public
+	 *
+	 * @return String
+	 */
+	public function getType(): String
+	{
+		return( $this )->type;
+	}
+	
 }
 
 ?>
