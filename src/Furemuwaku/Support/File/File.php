@@ -17,6 +17,24 @@ abstract class File
 {
 	
 	/*
+	 * PHP Valid file open read modes.
+	 *
+	 * @access Public Static
+	 *
+	 * @values String
+	 */
+	public const READABLE_MODES = "/r|a\+|ab\+|w\+|wb\+|x\+|xb\+|c\+|cb\+/";
+	
+	/*
+	 * PHP Valid file open write modes.
+	 *
+	 * @access Public Static
+	 *
+	 * @values String
+	 */
+	public const WRITABLE_MODES = "/a|w|r\+|rb\+|rw|x|c/";
+	
+	/*
 	 * PHP File open modes.
 	 *
 	 * @access Protected
@@ -26,15 +44,17 @@ abstract class File
 	protected static Array $modes = [
 		"r",
 		"r+",
-		"w",
-		"w+",
-		"a",
+		"rb",
+		"rw",
 		"a+",
+		"ab+",
+		"w",
+		"wb+",
 		"x",
 		"x+",
-		"c",
+		"xb+",
 		"c+",
-		"e"
+		"cb+"
 	];
 	
 	/*
@@ -57,7 +77,7 @@ abstract class File
 			// If file open mode is invalid mode.
 			if( in_array( $mode, self::$modes ) === False )
 			{
-				throw new Error\AssertionError( [ "mode", self::$modes, $mode ], Error\AssertError::VALUE_ERROR );
+				throw new Error\AssertionError( [ "mode", self::$modes, $mode ], Error\AssertionError::VALUE_ERROR );
 			}
 		}
 		catch( Error\AssertionError $e )
@@ -67,9 +87,24 @@ abstract class File
 	}
 	
 	/*
+	 * Changes file mode.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $file.
+	 * @params Int $permissions
+	 *
+	 * @return Bool
+	 */
+	public static function chmod( String $file, Int $permissions ): Bool
+	{
+		return( chmod( Path\Path::path( $file ), $permissions ) );
+	}
+	
+	/*
 	 * Check if file is executable.
 	 *
-	 * @access Public
+	 * @access Public Static
 	 *
 	 * @params String $file
 	 *
@@ -109,6 +144,27 @@ abstract class File
 	public static function json( String $file, ? Bool $associative = Null, Int $depth = 512, Int $flags = 0 ): Array
 	{
 		return( Json\Json::decode( self::read( $file ), $associative, $depth, $flags ) );
+	}
+	
+	/*
+	 * Return if file is modified.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $file
+	 *
+	 * @return Bool
+	 */
+	public static function modified( String $file ): Bool
+	{
+		// ...
+		$time = self::time( $file );
+		
+		// ...
+		clearstatcache();
+		
+		// ...
+		return( $time->getTimestamp() != self::time( $file )->getTimestamp() );
 	}
 	
 	/*
@@ -165,6 +221,8 @@ abstract class File
 	 * @access Public Static
 	 *
 	 * @params String $file
+	 * @params Resource $context
+	 * @params Bool $close
 	 *
 	 * @return String
 	 *
@@ -173,62 +231,78 @@ abstract class File
 	 * @throws Yume\Fure\Support\Path\PathError
 	 * @throws Yume\Fure\Support\Path\PathNotFoundError
 	 */
-	public static function read( String $file ): String
+	public static function read( String $file, $context = Null, Bool $close = True ): String
 	{
-		// Get file pathname.
-		$fpath = Util\Str::pop( $file, "/", True );
-		
-		// Check if the filename is a directory.
-		if( Path\Path::exists( $file ) )
+		// Check if context is Resource type.
+		if( is_resource( $context ) )
 		{
-			throw new FileError( $file, FileError::FILE_ERROR );
+			$fopen = $context;
 		}
-		
-		// Check if such directory is exists.
-		if( Path\Path::exists( $fpath ) )
-		{
-			// Check if such directory is unreadable.
-			if( Path\Path::readable( $fpath ) )
+		else {
+			
+			// Get file pathname.
+			$fpath = Util\Str::pop( $file, "/", True );
+			
+			// Check if the filename is a directory.
+			if( Path\Path::exists( $file ) )
 			{
-				// Check if such a file exists.
-				if( self::none( $file ) )
+				throw new FileError( $file, FileError::FILE_ERROR );
+			}
+			
+			// Check if such directory is exists.
+			if( Path\Path::exists( $fpath ) )
+			{
+				// Check if such directory is unreadable.
+				if( Path\Path::readable( $fpath ) )
 				{
-					throw new FileNotFoundError( $file );
-				}
-				
-				// Check if such files are readable.
-				if( self::readable( $file ) === False )
-				{
-					throw new FileError( $file, FileError::READ_ERROR );
-				}
-				
-				// Binary-safe file open.
-				if( $fopen = fopen( $file, "r" ) )
-				{
-					// Get file size.
-					$fsize = fsize( $file, 13421779 );
-					
-					// Reader stack.
-					$fread = "";
-					
-					// Binary-safe file read.
-					while( feof( $fopen ) === False )
+					// Check if such a file exists.
+					if( self::none( $file ) )
 					{
-						$fread .= fread( $fopen, $fsize );
+						throw new FileNotFoundError( $file );
 					}
 					
-					// Closes an open file pointer.
-					fclose( $fopen );
+					// Check if such files are readable.
+					if( self::readable( $file ) === False )
+					{
+						throw new FileError( $file, FileError::READ_ERROR );
+					}
 					
-					return( $fread );
+					// Binary-safe file open.
+					$fopen = fopen( $file, "r" );
 				}
 				else {
-					throw new FileError( $file, FileError::OPEN_ERROR );
+					throw new FileError( $file, FileError::READ_ERROR, new Path\PathError( $fpath, Path\PathError::READ_ERROR ) );
 				}
 			}
-			throw new FileError( $file, FileError::READ_ERROR, new Path\PathError( $fpath, Path\PathError::READ_ERROR ) );
+			else {
+				throw new FileNotFoundError( $file, previous: new Path\PathNotFoundError( $fpath ) );
+			}
 		}
-		throw new FileNotFoundError( $file, previous: new Path\PathNotFoundError( $fpath ) );
+		
+		// Check if file success open.
+		if( $fopen )
+		{
+			// Get file size.
+			$fsize = fsize( $fopen, 13421779 );
+			
+			// Reader stack.
+			$fread = "";
+			
+			// Binary-safe file read.
+			while( feof( $fopen ) === False )
+			{
+				$fread .= fread( $fopen, $fsize );
+			}
+			
+			// Closes an open file pointer.
+			fclose( $fopen );
+			
+			// Return readed contents.
+			return( $fread );
+		}
+		else {
+			throw new FileError( $file, FileError::OPEN_ERROR );
+		}
 	}
 	
 	/*
@@ -238,13 +312,14 @@ abstract class File
 	 *
 	 * @params String $file
 	 * @params Bool $skip
+	 * @params Resource $context
 	 *
 	 * @return Array
 	 */
-	public static function readline( String $file, Bool $skip = false ): Array
+	public static function readline( String $file, Bool $skip = false, $context = Null ): Array
 	{
 		// Reading file contents.
-		$fread = self::read( $file );
+		$fread = self::read( $file, $context );
 		
 		// Split file contents with end line.
 		$fline = explode( "\n", $fread );
@@ -269,7 +344,7 @@ abstract class File
 	/*
 	 * Check if file is readable.
 	 *
-	 * @access Public
+	 * @access Public Static
 	 *
 	 * @params String $file
 	 *
@@ -285,31 +360,53 @@ abstract class File
 	 *
 	 * @access Public Static
 	 *
-	 * @params String $file
-	 * @params Int $optional
+	 * @params Resource|String $file
+	 * @params Int|String $optional
 	 *
 	 * @return String|Int
 	 *
 	 * @throws Yume\Fure\Support\File\FileNotFoundError
 	 */
-	public static function size( String $file, Int $optional = 0 ): Int | String
+	public static function size( $file, Int | String $optional = 0 ): Int | String
 	{
-		// Check if such a file exists.
-		if( self::exists( $file ) )
+		// Default file size.
+		$fsize = 0;
+		
+		// Check if file is Resource type.
+		if( is_resource( $file ) )
 		{
-			return( filesize( Path\Path::path( $file ) ) ?: $optional );
+			// Get file information.
+			$fstat = fstat( $file );
+			
+			// Check if info is available.
+			if( $fstat !== False )
+			{
+				$fsize = $fstat['size'] ?? 0;
+			}
 		}
-		throw new FileNotFoundError( $file );
+		else {
+			
+			// Check if such a file exists.
+			if( self::exists( $file ) )
+			{
+				$fsize = filesize( Path\Path::path( $file ) );
+			}
+			else {
+				throw new FileNotFoundError( $file );
+			}
+		}
+		return( $fsize ?: ( is_int( $optional ) ? $optional : strlen( $optional ) ) );
 	}
 	
 	/*
-	 * Get DateTime class instance from file.
+	 * Get last file modified timestamp.
+	 * This method DateTime class instance from file.
 	 *
 	 * @access Public Static
 	 *
 	 * @params String $file
 	 *
-	 * @return DateTime
+	 * @return Yume\Fure\Locale\DateTime\DateTime
 	 *
 	 * @throws Yume\Fure\Support\File\FileNotFoundError
 	 */
@@ -351,56 +448,71 @@ abstract class File
 	 * @access Public Static
 	 *
 	 * @params String $file
+	 * @params Resource $context
 	 *
 	 * @return Bool
 	 *
 	 * @throws Yume\Fure\Error\PermissionError
 	 * @throws Yume\Fure\Support\File\FileError
 	 */
-	public static function write( String $file, ? String $fdata = Null, String $fmode = "w" ): Void
+	public static function write( String $file, ? String $fdata = Null, String $fmode = "w", $context = Null ): Bool | Int
 	{
-		// Get file pathname.
-		$fpath = Util\Str::pop( $file, DIRECTORY_SEPARATOR );
+		// Default function return.
+		$fwrite = False;
 		
-		// Check if the filename is a directory.
-		if( Path\Path::exists( $file ) )
+		// Check if context is Resource type.
+		if( is_resource( $context ) )
 		{
-			throw new FileError( $file, FileError::FILE_ERROR );
+			$fopen = $context;
 		}
-		
-		// Check if such a directory exists.
-		if( Path\Path::exists( $fpath ) === False )
-		{
-			Path\Path::mkdir( $fpath );
-		}
-		
-		// Check if such directory is unwriteable.
-		if( Path\Path::writeable( $fpath ) === False )
-		{
-			throw new Error\PermissionError( $fpath, Error\PermissionError::WRITE_ERROR );
-		}
-		
-		// Check if such a file exists.
-		if( self::exists( $file ) )
-		{
-			// Check if such files are unwriteable.
-			if( self::writeable( $file ) === False )
+		else {
+			
+			// Get file pathname.
+			$fpath = Util\Str::pop( $file, DIRECTORY_SEPARATOR );
+			
+			// Check if the filename is a directory.
+			if( Path\Path::exists( $file ) )
 			{
-				throw new Error\PermissionError( $file, Error\PermissionError::WRITE_ERROR );
+				throw new FileError( $file, FileError::FILE_ERROR );
 			}
+			
+			// Check if such a directory exists.
+			if( Path\Path::exists( $fpath ) === False )
+			{
+				Path\Path::mkdir( $fpath );
+			}
+			
+			// Check if such directory is unwriteable.
+			if( Path\Path::writeable( $fpath ) === False )
+			{
+				throw new Error\PermissionError( $fpath, Error\PermissionError::WRITE_ERROR );
+			}
+			
+			// Check if such a file exists.
+			if( self::exists( $file ) )
+			{
+				// Check if such files are unwriteable.
+				if( self::writeable( $file ) === False )
+				{
+					throw new Error\PermissionError( $file, Error\PermissionError::WRITE_ERROR );
+				}
+			}
+			
+			// Add prefix base path.
+			$fname = path( $file );
+			
+			// Binary-safe file open.
+			$fopen = fopen( $fname, $fmode );
 		}
-		
-		// Add prefix base path.
-		$fname = path( $file );
 		
 		// File contents.
-		$fdata = $fdata ? $fdata : "";
+		$fdata = $fdata ?? "";
 		
-		// Binary-safe file open.
-		if( $fopen = fopen( $fname, $fmode ) )
+		// Check if file success open.
+		if( $fopen )
 		{
 			// Binary-safe file write.
-			fwrite( $fopen, $fdata );
+			$fwrite = is_int( fwrite( $fopen, $fdata ) );
 			
 			// Closes an open file pointer.
 			fclose( $fopen );
@@ -408,6 +520,7 @@ abstract class File
 		else {
 			throw new FileError( $file, FileError::OPEN_ERROR );
 		}
+		return( $fwrite );
 	}
 	
 	/*
