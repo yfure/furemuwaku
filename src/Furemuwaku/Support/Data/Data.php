@@ -244,6 +244,18 @@ class Data implements DataInterface
 	}
 	
 	/*
+	 * Copy data value.
+	 *
+	 * @access Public
+	 *
+	 * @return Yume\Fure\Support\Data\DataInterface
+	 */
+	public function copy(): DataInterface
+	{
+		return( new Data( $this->__toArray() ) );
+	}
+	
+	/*
 	 * Return the total value of data.
 	 *
 	 * @access Public
@@ -323,20 +335,31 @@ class Data implements DataInterface
 		// Mapping data.
 		for( $i = 0; $i < $this->count(); $i++ )
 		{
-			$stack[$keys[$i]] = call_user_func(
+			// Check if element is exists.
+			if( isset( $keys[$i] ) )
+			{
+				// Get callback return value.
+				$stack[$keys[$i]] = call_user_func(
+					
+					// Callback handler.
+					$callback,
+					
+					// Index iteration.
+					$i,
+					
+					// Array index.
+					$keys[$i],
+					
+					// Array value.
+					$vals[$i]
+				);
 				
-				// Callback handler.
-				$callback,
-				
-				// Index iteration.
-				$i,
-				
-				// Array index.
-				$keys[$i],
-				
-				// Array value.
-				$vals[$i]
-			);
+				// Check if iteration is stop.
+				if( $stack[$keys[$i]] === STOP_ITERATION )
+				{
+					break;
+				}
+			}
 		}
 		
 		// Return new Data instance.
@@ -466,6 +489,18 @@ class Data implements DataInterface
 	public function values(): Array
 	{
 		return( array_values( $this->data ) );
+	}
+	
+	/*
+	 * Check if element exists by value.
+	 *
+	 * @access Public
+	 *
+	 * @return Bool
+	 */
+	public function valueExists( Mixed $value ): Bool
+	{
+		return( in_array( $value, $this->data ) );
 	}
 	
 }
