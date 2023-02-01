@@ -1,13 +1,13 @@
 <?php
 
-namespace Yume\Fure\App\Config;
+namespace Yume\Fure\Config;
 
-use Yume\Fure\Support\Services;
+use Yume\Fure\App;
 
 /*
  * ConfigTrait
  *
- * @package Yume\Fure\App\Config
+ * @package Yume\Fure\Config
  */
 trait ConfigTrait
 {
@@ -31,11 +31,11 @@ trait ConfigTrait
 	 *
 	 * @access Public Static
 	 *
-	 * @params String $name
+	 * @params Callable|String $name
 	 *
 	 * @return Mixed
 	 */
-	public static function config( ? String $name = Null ): Mixed
+	public static function config( Callable | Null | String $name = Null ): Mixed
 	{
 		// If the class configuration has not been imported.
 		if( self::$configs Instanceof Config === False )
@@ -47,12 +47,17 @@ trait ConfigTrait
 			$class = end( $split );
 			
 			// Get class configuration.
-			self::$configs = Services\Services::get( "app" )->config( $class );
+			self::$configs = App\App::self()->config( $class );
 		}
 		
 		// Check if `name` is not null type.
 		if( valueIsNotEmpty( $name ) )
 		{
+			// Check if name is Callable type.
+			if( is_callable( $name ) )
+			{
+				return( $name( self::$configs ) );
+			}
 			return( ify( $name, self::$configs ) );
 		}
 		return( self::$configs );
