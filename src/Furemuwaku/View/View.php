@@ -56,6 +56,9 @@ class View implements ViewInterface
 			// Create new template instance.
 			$this->template = new Template\Template(
 				
+				// View name.
+				self::path( $view ),
+				
 				// Reading file per-line.
 				File\File::readline(
 					
@@ -66,7 +69,7 @@ class View implements ViewInterface
 		}
 		catch( File\FileError $e )
 		{
-			throw new ViewError( $view, ViewError::NOT_FOUND_ERROR, $e );
+			throw new ViewError( $view, code: ViewError::NOT_FOUND_ERROR, previous: $e );
 		}
 	}
 	
@@ -89,7 +92,11 @@ class View implements ViewInterface
 			}
 			catch( Template\TemplateError $e )
 			{
-				throw new ViewError( $this->view, ViewError::PARSE_ERROR, $e );
+				// Get view fullname.
+				$view = self::path( $this->view );
+				
+				// Throw ViewError.
+				throw new ViewError( $view, $view, $e->getLine(), ViewError::PARSE_ERROR, $e );
 			}
 		}
 		return( $this )->templateParsed;

@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\View\Template;
 
+use Yume\Fure\Util\RegExp;
+
 /*
  * TemplateInterface
  *
@@ -35,9 +37,18 @@ interface TemplateInterface
 	 *
 	 * @access Public
 	 *
+	 * @return Yume\Fure\Util\RegExp\Pattern
+	 */
+	public function getPattern(): RegExp\Pattern;
+	
+	/*
+	 * Get pattern as string for capture syntax.
+	 *
+	 * @access Public
+	 *
 	 * @return String
 	 */
-	public function getPattern(): String;
+	public function getPatternAsString(): String;
 	
 	/*
 	 * Get raw template.
