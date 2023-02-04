@@ -315,7 +315,7 @@ abstract class ReflectClass
 		$parent = self::reflect( $class, $class, $reflect );
 		$parents = [];
 		
-		while( $parent = $class->getParentClass() )
+		while( $parent = $parent->getParentClass() )
 		{
 			$parents[] = $parent->getName();
 		}
@@ -986,7 +986,7 @@ abstract class ReflectClass
 		$class = is_object( $class ) ? $class::class : $class;
 		
 		// Check if `reflect` is instanceof ReflectionClass.
-		if( $reflect Instanceof ReflectionClass && $reflect->getClass() === $class )
+		if( $reflect Instanceof ReflectionClass && $reflect->name === $class )
 		{
 			return( $reflect );
 		}

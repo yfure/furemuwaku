@@ -158,10 +158,13 @@ abstract class Path
 		else {
 			
 			// Check if the path name has a prefix (e.g. php://).
-			if( RegExp\RegExp::test( "/^(?<name>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\:(?<separator>\/\/|\\\)/i", $path ) )
+			if( preg_match( "/^(?<name>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\:(?<separator>\/\/|\\\)/i", $path ) )
 			{
 				return( $path );
 			}
+			
+			// Check if thd path has prefix path.
+			if( strpos( $path, BASE_PATH ) !== False ) return( $path );
 			
 			// Add basepath into prefix pathname.
 			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, RegExp\RegExp::replace( "/\//", f( "{}/{}", BASE_PATH, $path ), DIRECTORY_SEPARATOR ) ) );
@@ -232,7 +235,7 @@ abstract class Path
 	}
 	
 	/*
-	 * Check if directory is writeable.
+	 * Check if directory is writable.
 	 *
 	 * @access Public Static
 	 *
@@ -240,9 +243,9 @@ abstract class Path
 	 *
 	 * @return Bool
 	 */
-	public static function writeable( String $file )
+	public static function writable( String $file )
 	{
-		return( is_writeable( self::path( $file ) ) );
+		return( is_writable( self::path( $file ) ) );
 	}
 	
 }

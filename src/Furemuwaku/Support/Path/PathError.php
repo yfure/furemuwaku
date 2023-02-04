@@ -46,9 +46,13 @@ class PathError extends Error\PermissionError
 	 *
 	 */
 	protected Array $flags = [
-		self::COPY_ERROR => "Failed copy directory to \"{}\" from \"{}\"",
-		self::MOVE_ERROR => "Failed move directory to \"{}\" from \"{}\"",
-		self::NOT_FOUND_ERROR => "No such directory \"{}\""
+		PathError::class => [
+			self::COPY_ERROR,
+			self::MOVE_ERROR,
+			self::NOT_FOUND_ERROR,
+			self::READ_ERROR,
+			self::WRITE_ERROR
+		]
 	];
 	
 }

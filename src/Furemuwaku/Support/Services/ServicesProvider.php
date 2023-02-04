@@ -2,17 +2,15 @@
 
 namespace Yume\Fure\Support\Services;
 
-use Yume\Fure\Support\Design;
+use Yume\Fure\App;
 use Yume\Fure\Util;
 
 /*
  * ServicesProvider
  *
  * @package Yume\Fure\Support\Services
- *
- * @extends Yume\Fure\Support\Design\Singleton
  */
-abstract class ServicesProvider extends Design\Singleton implements ServicesProviderInterface
+abstract class ServicesProvider implements ServicesProviderInterface
 {
 	
 	/*
@@ -29,36 +27,56 @@ abstract class ServicesProvider extends Design\Singleton implements ServicesProv
 	 *
 	 * @access Protected
 	 *
-	 * @params Object|String $name
+	 * @params Array|Object|String $name
 	 * @params Object|Callable $callback
 	 * @params Bool $override
 	 *
-	 * @return Static
+	 * @return Yume\Fure\Support\Services\ServicesProviderInterface
 	 */
-	protected function bind( Object | String $name, Callable | Object $callback, Bool $override = True ): ServicesProviderInterface
+	protected function bind( Array | Object | String $name, Callable | Object $callback, Bool $override = False ): ServicesProviderInterface
 	{
-		// Check if name is object type.
-		if( is_object( $name ) )
+		// Check if name is Array type.
+		if( is_array( $name ) )
 		{
-			$name = $name::class;
+			// Mapping service name.
+			Util\Arr::map( $name, function( Int $i, $idx, $name ) use( $callback, $override )
+			{
+				// Register services.
+				$this->bind( callback: $callback, override: $override, name: match( True )
+				{
+					// If service name is valid name.
+					is_object( $name ),
+					is_string( $name ) => $name,
+					
+					// If service name type is invalid.
+					default => throw new ServicesError( $name, ServiceError::NAME_ERROR )
+				});
+			});
 		}
-		
-		// Set services.
-		$this->services[$name] = [
-			"name" => $name,
-			"callback" => $callback,
-			"override" => $override
-		];
-		
+		else {
+			
+			// Check if name is Object type.
+			if( is_object( $name ) )
+			{
+				$name = $name::class;
+			}
+			
+			// Set services.
+			$this->services[$name] = [
+				"name" => $name,
+				"callback" => $callback,
+				"override" => $override
+			];
+		}
 		return( $this );
 	}
 	
 	/*
 	 * @inherit Yume\Fure\Support\Services\ServicesInterface
 	 */
-	public function boot(): Void
+	public function booting(): Void
 	{
-		Util\Arr::map( $this->services, fn( $i, $name, $service ) => Services::register( ...$services ) );
+		Util\Arr::map( $this->services, fn( $i, $name, $services ) => Services::register( ...$services ) );
 	}
 	
 }

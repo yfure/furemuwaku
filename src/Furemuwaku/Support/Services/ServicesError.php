@@ -24,6 +24,15 @@ class ServicesError extends Error\TypeError
 	public const LOOKUP_ERROR = 343567;
 	
 	/*
+	 * Error constant for invalid service name.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const NAME_ERROR = 34729;
+	
+	/*
 	 * Error constants for services that cannot be overridden.
 	 *
 	 * @access Public Static
@@ -37,8 +46,11 @@ class ServicesError extends Error\TypeError
 	 *
 	 */
 	protected Array $flags = [
-		self::LOOKUP_ERROR => "No service named \"{}\"",
-		self::OVERRIDE_ERROR => "Can't override service \"{}\""
+		ServicesError::class => [
+			self::LOOKUP_ERROR,
+			self::NAME_ERROR,
+			self::OVERRIDE_ERROR,
+		]
 	];
 	
 }

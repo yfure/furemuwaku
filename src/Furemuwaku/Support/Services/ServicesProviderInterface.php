@@ -20,7 +20,7 @@ interface ServicesProviderInterface
 	 *
 	 * @return Void
 	 */
-	public function boot(): Void;
+	public function booting(): Void;
 	
 	/*
 	 * Register new services.

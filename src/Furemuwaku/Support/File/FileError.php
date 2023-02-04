@@ -91,16 +91,18 @@ class FileError extends Error\PermissionError
 	 *
 	 */
 	protected Array $flags = [
-		self::COPY_ERROR => "Failed copy file from \"{}\" to \"{}\"",
-		self::FILE_ERROR => "Target file \"{}\" is not file type",
-		self::MOVE_ERROR => "Failed move file from \"{}\" to \"{}\"",
-		self::MODE_ERROR => "Failed open file \"{}\", invalid fopen mode for \"{}\"",
-		self::NAME_ERROR => "The file name \"{}\" is invalid",
-		self::NOT_FOUND_ERROR => "No such file \"{}\"",
-		self::OPEN_ERROR => "Failed open file \"{}\"",
-		self::PATH_ERROR => "Failed open file.\"{}\" because directory \"{}\" not found",
-		self::READ_ERROR => "An error occurred while reading the contents of the file \"{}\"",
-		self::WRITE_ERROR => "An error occurred while writing the contents of the file \"{}\""
+		FileError::class => [
+			self::COPY_ERROR,
+			self::FILE_ERROR,
+			self::MOVE_ERROR,
+			self::MODE_ERROR,
+			self::NAME_ERROR,
+			self::NOT_FOUND_ERROR,
+			self::OPEN_ERROR,
+			self::PATH_ERROR,
+			self::READ_ERROR,
+			self::WRITE_ERROR
+		]
 	];
 	
 }

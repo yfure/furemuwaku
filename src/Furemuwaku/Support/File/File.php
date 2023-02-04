@@ -7,6 +7,7 @@ use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Support\Path;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
+use Yume\Fure\Util\RegExp;
 
 /*
  * File
@@ -23,7 +24,7 @@ abstract class File
 	 *
 	 * @values String
 	 */
-	public const READABLE_MODES = "/r|a\+|ab\+|w\+|wb\+|x\+|xb\+|c\+|cb\+/";
+	public const READABLE_MODES = "/^(r|a\+|ab\+|w\+|wb\+|x\+|xb\+|c\+|cb\+)$/";
 	
 	/*
 	 * PHP Valid file open write modes.
@@ -32,7 +33,7 @@ abstract class File
 	 *
 	 * @values String
 	 */
-	public const WRITABLE_MODES = "/a|w|r\+|rb\+|rw|x|c/";
+	public const WRITABLE_MODES = "/^(a|w|r\+|rb\+|rw|x|c)$/";
 	
 	/*
 	 * PHP File open modes.
@@ -127,6 +128,34 @@ abstract class File
 	public static function exists( String $file ): Bool
 	{
 		return( file_exists( Path\Path::path( $file ) ) && is_file( Path\Path::path( $file ) ) );
+	}
+
+	/*
+	 * Check if file open mode is readable.
+	 * 
+	 * @access Public Static
+	 * 
+	 * @params String $mode
+	 * 
+	 * @return Bool
+	 */
+	public static function isReadableMode( String $mode ): Bool
+	{
+		return( RegExp\RegExp::test( self::READABLE_MODES, $mode ) );
+	}
+
+	/*
+	 * Return if file open is writable mode.
+	 * 
+	 * @access Public Static
+	 * 
+	 * @params String $mode
+	 * 
+	 * @return Bool
+	 */
+	public static function isWritableMode( String $mode ): Bool
+	{
+		return( RegExp\RegExp::test( self::WRITABLE_MODES, $mode ) );
 	}
 	
 	/*
@@ -268,7 +297,7 @@ abstract class File
 					}
 					
 					// Binary-safe file open.
-					$fopen = fopen( $file, "r" );
+					$fopen = fopen( Path\Path::path( $file ), "r" );
 				}
 				else {
 					throw new FileError( $file, FileError::READ_ERROR, new Path\PathError( $fpath, Path\PathError::READ_ERROR ) );
@@ -482,8 +511,8 @@ abstract class File
 				Path\Path::mkdir( $fpath );
 			}
 			
-			// Check if such directory is unwriteable.
-			if( Path\Path::writeable( $fpath ) === False )
+			// Check if such directory is unwritable.
+			if( Path\Path::writable( $fpath ) === False )
 			{
 				throw new Error\PermissionError( $fpath, Error\PermissionError::WRITE_ERROR );
 			}
@@ -491,8 +520,8 @@ abstract class File
 			// Check if such a file exists.
 			if( self::exists( $file ) )
 			{
-				// Check if such files are unwriteable.
-				if( self::writeable( $file ) === False )
+				// Check if such files are unwritable.
+				if( self::writable( $file ) === False )
 				{
 					throw new Error\PermissionError( $file, Error\PermissionError::WRITE_ERROR );
 				}
@@ -524,7 +553,7 @@ abstract class File
 	}
 	
 	/*
-	 * Check if file is writeable.
+	 * Check if file is writable.
 	 *
 	 * @access Public Static
 	 *
@@ -532,9 +561,9 @@ abstract class File
 	 *
 	 * @return Bool
 	 */
-	public static function writeable( String $file )
+	public static function writable( String $file )
 	{
-		return( is_writeable( Path\Path::path( $file ) ) );
+		return( is_writable( Path\Path::path( $file ) ) );
 	}
 	
 }

@@ -1,9 +1,12 @@
 <?php
 
+use Yume\Fure\App;
 use Yume\Fure\Config;
 use Yume\Fure\Database;
 use Yume\Fure\Error;
 use Yume\Fure\HTTP;
+use Yume\Fure\Locale;
+use Yume\Fure\Logger;
 use Yume\Fure\Support;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\File;
@@ -21,10 +24,10 @@ use Yume\Fure\View;
  */
 function config( String $name, Bool $import = False ): Mixed
 {
-	return( Services\Services::get( "app" ) )->config( $name, $import );
+	return( App\App::self() )->config( $name, $import );
 }
 
-function e( $e ): Void
+function e( Throwable $e ): Void
 {
 	if( $e->getPrevious() )
 	{
@@ -49,7 +52,19 @@ function e( $e ): Void
  */
 function env( String $env, Mixed $optional = Null )
 {
-	return( Env\Env::get( $env, $optional ) );
+	try
+	{
+		return( Env\Env::get( $env, $optional ) );
+	}
+	catch( Env\EnvError $e )
+	{
+		// Check if optional value is Callable type.
+		if( is_callable( $optional ) )
+		{
+			return( $optional() );
+		}
+		return( $optional );
+	}
 }
 
 /*
@@ -68,6 +83,16 @@ function executionTimeCompare( Float | String $start, Float | String $end ): Flo
 	
 	// Format a number with grouped thousands.
 	return( number_format( $timeEnd - $timeStart, 6 ) );
+}
+
+/*
+ * Get last execution time compared.
+ *
+ * @return Float|String
+ */
+function executionTimeCompareEnd(): Float | String
+{
+	return( executionTimeCompare( YUME_START, microtime( True ) ) );
 }
 
 /*
@@ -92,9 +117,39 @@ function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
  * @inherit Yume\Fure\Support\File\File
  *
  */
-function fsize( String $file, Int $optional = 0 ): Int
+function fsize( $file, Int | String $optional = 0 ): Int
 {
 	return( File\File::size( $file, $optional ) );
+}
+
+/*
+ * @inherit Yume\Fure\Locale\Language
+ *
+ */
+function lang( String $ify, Mixed ...$format ): String
+{
+	return( Locale\Locale::translate( $ify, ...$format ) ?? $ify );
+}
+
+/*
+ * Write new log or get Logger instance class.
+ *
+ * @params Int|String|Yume\Fure\Logger\LoggerLevel
+ * @params String $message
+ * @params Array $context
+ *
+ * @return Yume\Fure\Logger\LoggerInterface
+ */
+function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? String $message = Null, ? Array $context = Null ): ? Logger\LoggerInterface
+{
+	// If arguments given is not Null type.
+	if( $level !== Null &&
+		$message !== Null &&
+		$context !== Null )
+	{
+		return( Services\Services::get( Logger\Logger::class ) )->log( $level, $message, $context );
+	}
+	return( Services\Services::get( Logger\Logger::class ) );
 }
 
 /*
@@ -134,6 +189,23 @@ function puts( String $string, Mixed ...$format ): Void
 function tree( String $path, String $parent = "" ): Array | False
 {
 	return( Path\Path::tree( $path, $parent ) );
+}
+
+/*
+ * Get value type.
+ *
+ * @params Mixed $value
+ *
+ * @return String
+ */
+function type( Mixed $value ): String
+{
+	// Check if value is object type.
+	if( is_object( $value ) )
+	{
+		return( $value::class );
+	}
+	return( gettype( $value ) );
 }
 
 /*
@@ -181,6 +253,9 @@ function valueIsNotEmpty( Mixed $value ): Bool
 	return( valueIsEmpty( $value ) === False );
 }
 
-
+function view( String $view, Array $data = [] ): View\ViewInterface
+{
+	return( new View\View( $view, $data ) );
+}
 
 ?>
