@@ -17,7 +17,11 @@ class TemplateSyntaxPHP extends TemplateSyntax
 	 *
 	 */
 	protected Array | String $token = [
+		"break",
 		"catch",
+		"case",
+		"continue",
+		"default",
 		"do",
 		"elif",
 		"else",
@@ -27,34 +31,52 @@ class TemplateSyntaxPHP extends TemplateSyntax
 		"if",
 		"match",
 		"switch",
+		"throw",
 		"try",
 		"use",
 		"while"
 	];
 	
+	// Membutuhkan kondisi
 	public function isConditional( String $token ): Bool
 	{
-		return( in_array( strtolower( $token ), [ "elif", "for", "foreach", "if", "while" ] ) );
+		return( in_array( strtolower( $token ), [ "catch", "case", "elif", "elseif", "for", "foreach", "if", "match", "switch", "throw", "use", "while" ] ) );
 	}
 	
-	public function isSingle( String $token ): Bool
+	// Tidak membutuhkan kondisi
+	public function isUnconditional( String $token ): Bool
 	{
-		return( in_array( strtolower( $token ), [ "elif", "else", "elseif", "for", "foreach", "if", "while" ] ) );
+		return( in_array( strtolower( $token ), [ "break", "continue", "default", "do", "else", "try" ] ) );
 	}
 	
+	// Mendukung konten indentasi
+	public function isPaired( String $token ): Bool
+	{
+		return( in_array( strtolower( $token ), [ "catch", "case", "do", "elif", "else", "elseif", "for", "foreach", "if", "match", "switch", "try", "while" ] ) );
+	}
+	
+	// Tidak mendukung konten indentasi
 	public function isUnpaired( String $token ): Bool
 	{
-		return( in_array( strtolower( $token ), [ "use" ] ) );
+		return( in_array( strtolower( $token ), [ "break", "continue", "default", "throw", "use" ] ) );
 	}
 	
-	public function normalizeToken( String $token ): String
+	// Tidak & Mendukung konten indentasi
+	public function isMultipaired( String $token ): Bool
 	{
-		return( match( strtolower( $token ) )
-		{
-			"elif" => "else if",
-			
-			default => $token
-		});
+		return( in_array( strtolower( $token ), [ "catch", "case", "default", "elif", "else", "elseif", "for", "foreach", "if", "while" ] ) );
+	}
+	
+	// Mendukung satu baris
+	public function isInline( String $token ): Bool
+	{
+		return( in_array( strtolower( $token ), [ "break", "catch", "case", "continue", "default", "elif", "else", "elseif", "for", "foreach", "if", "throw", "use", "while" ] ) );
+	}
+	
+	// Tidak & Mendukung multibaris
+	public function isMultiline( String $token ): Bool
+	{
+		return( in_array( strtolower( $token ), [ "catch", "case", "default", "elif", "else", "elseif", "for", "foreach", "if", "while" ] ) );
 	}
 	
 	/*
@@ -63,47 +85,29 @@ class TemplateSyntaxPHP extends TemplateSyntax
 	 */
 	public function process( TemplateCaptured $captured ): String
 	{
-		// Check if token is unpaired type.
-		if( $this->isUnpaired( $captured->token ) )
+		echo $captured;
+		echo "\n\n";
+		
+		if( $captured->multiline )
 		{
-			// Check if closing symbol is valid.
-			if( $captured->symbol === ":" ) throw new TemplateSyntaxError( f( "Invalid closing symbol for unpaired token \"{}\" syntax", $captured->token ), $this->context->view, $captured->line, 0 );
-			
-			echo 89;
-		}
-		else {
-			
-			// Check if closing symbol is valid.
-			if( $captured->symbol === ";" ) throw new TemplateSyntaxError( f( "Invalid closing symbol for paired token \"{}\" syntax", $captured->token ), $this->context->view, $captured->line, 0 );
-			
-			// Check if outline is available.
-			if( valueIsNotEmpty( $captured->outline ) )
+			if( $this->isMultiline( $captured->token ) === False )
 			{
-				// Check if token is allowed single line.
+				echo 7;
+			}
+			
+			if( valueIsEmpty( $captured->children ) )
+			{
 				if( $this->isSingle( $captured->token ) )
-				{
-					// Check if token is required condition.
-					// But conditional value is empty.
-					if( valueIsEmpty( $captured->value ) && $this->isConditional( $captured->token ) )
-					{
-						throw new TemplateSyntaxError( f( "The \"{}\" syntax requires a conditional", $captured->token ), $this->context->view, $captured->line, 0 );
-					}
-					
-					// Normalize token name.
-					$captured->token = $this->normalizeToken( $captured->token );
-					
-					// Reparse outline content.
-					$captured->outline = $this->context->parseLine( $captured->outline );
-					
-					// Return formated syntax.
-					exit( htmlspecialchars( f( "{captured.indent.value}<?php {captured.token}( {captured.value} ) \{ ?> {captured.outline} <?php } ?>", captured: $captured ) ) );
-				}
-				throw new TemplateSyntaxError( f( "The \"{}\" syntax does not support single-line writing", $captured->token ), $this->context->view, $captured->line, 0 );
+				{}
 			}
 			else {
 				
 			}
 		}
+		else {
+			
+		}
+		exit;
 	}
 	
 }

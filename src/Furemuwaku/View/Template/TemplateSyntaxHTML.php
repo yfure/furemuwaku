@@ -226,7 +226,40 @@ class TemplateSyntaxHTML extends TemplateSyntax
 	 */
 	public function process( TemplateCaptured $captured ): String
 	{
-		// ...
+		if( $captured->colon )
+		{
+			if( $this->isUnpaired( $captured->token ) )
+			{
+				throw new TemplateSyntaxError( f( "\"{}\" is an unpaired tag and does not support single-line content and inner content", $captured->token ), $captured->view, $captured->line, 0 );
+			}
+			else {
+				if( $captured->children )
+				{
+					if( valueIsNotEmpty( $captured->outline ) )
+					{
+						return( f( "<{captured.inline}>{captured.outline}\n{captured.children}\n</{captured.token}>", captured: $captured ) );
+					}
+					echo "Has Children\n";
+				}
+				echo "No Children\n";
+			}
+		}
+		else {
+			if( $this->isPaired( $captured->token ) )
+			{
+				echo "Paired\n";
+			}
+			else {
+				if( valueIsNotEmpty( $captured->outline ) )
+				{
+					return( f( "<{captured.inline} />{captured.outline}", captured: $captured ) );
+				}
+				return( f( "<{captured.inline} />", captured: $captured ) );
+			}
+		}
+		echo "\n";
+		echo $captured;
+		exit;
 	}
 	
 }

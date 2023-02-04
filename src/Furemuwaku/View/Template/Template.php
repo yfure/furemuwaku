@@ -227,6 +227,20 @@ class Template implements TemplateInterface
 		return( $result );
 	}
 	
+	public function getInline( String $content ): False | Int
+	{
+		// Mapping template syntax.
+		foreach( $this->templateSplit As $i => $template )
+		{
+			// Check if content in position.
+			if( strpos( $template, $content ) !== False )
+			{
+				return( $i +1 );
+			}
+		}
+		return( False );
+	}
+	
 	/*
 	 * @inherit Yume\Fure\View\Template\TemplateInterface
 	 *
@@ -403,8 +417,12 @@ class Template implements TemplateInterface
 						}
 					}
 					else {
-						if( valueIsNotEmpty( $match['outline'] ) )
+						
+						// Check if outline value is not empty
+						// And outline is not comment syntax.
+						if( valueIsNotEmpty( $match['outline'] ) && $this->isComment( $match['outline'] ) === False )
 						{
+							// Check if syntax has inner content.
 							if( count( $content ) >= 1 ) throw new TemplateIndentationError( "*", $this->view, $i );
 						}
 					}
@@ -419,12 +437,12 @@ class Template implements TemplateInterface
 				// ...
 				if( $match['symbol'] === ":" )
 				{
-					if( valueIsNotEmpty( $match['outline'] ) )
+					// Check if outline value is not empty
+					// And outline is not comment syntax.
+					if( valueIsNotEmpty( $match['outline'] ) && $this->isComment( $match['outline'] ) === False )
 					{
-						if( count( $content ) >= 1 )
-						{
-							throw new TemplateIndentationError( "*", $this->view, $i );
-						}
+						// If syntax has inner content.
+						if( count( $content ) >= 1 ) throw new TemplateIndentationError( "*", $this->view, $i );
 					}
 				}
 			}
@@ -438,11 +456,29 @@ class Template implements TemplateInterface
 			$once = True;
 		}
 		
+		// Process matched closing syntax.
+		$closing =  $this->closing( $match, $closing );
+		
 		// Check if content is not empty.
 		if( count( $content ) !== 0 )
 		{
-			// Join newline into array contents.
-			$content = $this->reBuildSyntaxChild( $content );
+			// Check if last deep content is empty
+			// And syntax does not have closing.
+			if( end( $content ) === "" && $closing['valid'] === False )
+			{
+				// Unset last content.
+				array_pop( $content );
+			}
+			
+			// Re-Check if content is not empty.
+			if( count( $content ) !== 0 )
+			{
+				// Join newline into array contents.
+				$content = $this->reBuildSyntaxChild( $content );
+			}
+			else {
+				$content = Null;
+			}
 		}
 		else {
 			
@@ -507,21 +543,11 @@ class Template implements TemplateInterface
 				// Get outline values.
 				$outline = $match['outline'] ?? Null;
 				
-				// Process matched closing syntax.
-				$closing = $this->closing( $match, $closing );
-				
 				// Check if syntax is single line.
 				if( isset( $match['semicolon'] ) )
 				{
 					// Check if syntax has outline value.
 					if( valueIsNotEmpty( $outline ) && $this->isComment( $outline ) === False ) throw new TemplateSyntaxError( $outline, $this->view, $this->getLine( $begin ) );
-					
-					// Parser outline content.
-					$outline = $this->parseLine( $outline );
-				}
-				else {
-					
-					$outline = $this->parseLine( $outline );
 				}
 				
 				// Default indentation.
@@ -545,8 +571,7 @@ class Template implements TemplateInterface
 					closing: $closing
 				);
 				
-				// Process captured syntax.
-				$result = $this->process( new TemplateCaptured([
+				$captured = new TemplateCaptured([
 					"raw" => $raw,
 					"indent" => [
 						"value" => $indent,
@@ -559,11 +584,18 @@ class Template implements TemplateInterface
 					"inline" => $inline,
 					"outline" => $outline,
 					"children" => $children,
-					"closing" => $closing
-				]));
+					"closing" => $closing,
+					"multiline" => True,
+					"view" => $this->view,
+					"colon" => isset( $match['colon'] ),
+					"semicolon" => isset( $match['semicolon'] )
+				]);
+				
+				// Process captured syntax.
+				$result = $this->process( $captured );
 				
 				// Replace template.
-				$template = str_replace( $raw, f( "{}{}", $result, $match['symbol'] === ";" ? "\n" : "" ), $template );
+				$template = str_replace( $raw, f( "{}{}", $captured->indent->value, $result ), $template );
 			}
 			else {
 				throw new TemplateSyntaxError( $match['syntax'], $this->view, $this->getLine( $match['syntax'] ) );
@@ -646,8 +678,12 @@ class Template implements TemplateInterface
 			}
 			else {
 				
-				echo new TemplateCaptured([
-					"raw" => "",//$raw,
+				// Check if matched syntax has no token.
+				if( valueIsEmpty( $match['token'] ?? "" ) ) throw new TemplateSyntaxError( $match['matched'], $this->view, $this->getInline( $match['matched'] ) );
+				
+				// Create captured data.
+				$captured = new TemplateCaptured([
+					"raw" => $match['matched'],
 					"indent" => [
 						"value" => "",
 						"length" => 0
@@ -655,15 +691,21 @@ class Template implements TemplateInterface
 					"symbol" => $match['symbol'],
 					"token" => $match['token'],
 					"value" => $match['value'] ?? Null,
-					"begin" => "*",
+					"begin" => $match['matched'],
 					"inline" => $match['inline'] ?? Null,
 					"outline" => $match['outline'] ?? Null,
 					"children" => Null,
 					"closing" => [
 						"syntax" => Null,
 						"valid" => False
-					]
-				]);exit;
+					],
+					"multiline" => False,
+					"view" => $this->view,
+					"colon" => isset( $match['colon'] ),
+					"semicolon" => isset( $match['semicolon'] )
+				]);
+				
+				echo htmlspecialchars( $result = $this->process( $captured ) );
 			}
 			var_dump( RegExp\RegExp::clear( $match, True ) );
 			break;
@@ -683,7 +725,7 @@ class Template implements TemplateInterface
 	private function process( TemplateCaptured $captured ): String
 	{
 		// Get captured line.
-		$captured->line = $this->getLine( $captured->begin );
+		$captured->line = $captured->multiline ? $this->getLine( $captured->begin ) : $this->getInline( $captured->raw );
 		
 		// Mapping syntax processor groups.
 		foreach( $this->syntax As $group => $lists )
@@ -734,7 +776,7 @@ class Template implements TemplateInterface
 	 */
 	protected function reBuildSyntaxBegin( Array $match, Bool $outline = True ): String
 	{
-		return( Util\Str::fmt( "{ indent }@{ inline }{ symbol }{ outline }", indent: $this->removeLine( $match['indent'] ?? "" ), inline: $match['inline'] ?? "", symbol: $match['symbol'], outline: $match['outline'] ?? "" ) );
+		return( Util\Str::fmt( "{ indent }@{ inline }{ symbol }{ outline }", indent: $this->removeLine( $match['indent'] ?? "" ), inline: $match['inline'] ?? "", symbol: $match['symbol'], outline: str_replace( "\n", "", $match['outline'] ?? "" ) ) );
 	}
 	
 	/*
@@ -755,7 +797,17 @@ class Template implements TemplateInterface
 		{
 			return( Util\Str::fmt( "{begin}\n{children}\n{closing.syntax}", begin: $begin, children: $children ?? "", closing: $closing ) );
 		}
-		return( Util\Str::fmt( "{begin}\n{children}", begin: $begin, children: $children ?? "" ) );
+		else {
+			
+			// If children value is new line only.
+			if( $children === Null || RegExp\RegExp::test( "/\n/", $children ?? "" ) )
+			{
+				return( $begin );
+			}
+			else {
+				return( Util\Str::fmt( "{begin}\n{children}", begin: $begin, children: $children ?? "" ) );
+			}
+		}
 	}
 	
 	/*
