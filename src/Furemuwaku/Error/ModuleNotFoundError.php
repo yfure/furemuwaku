@@ -13,14 +13,26 @@ use Throwable;
  */
 class ModuleNotFoundError extends ModuleError
 {
+	
+	/*
+	 * @inherit Yume\Fure\Error\ModuleError
+	 *
+	 */
+	protected Array $flags = [
+		ModuleNotFoundError::class => [
+			self::NOT_FOUND_ERROR
+		]
+	];
+	
 	/*
 	 * @inherit Yume\Fure\Error\ModuleError
 	 *
 	 */
 	public function __construct( Array | Int | String $message, Int $code = parent::NOT_FOUND_ERROR, ? Throwable $previous = Null )
 	{
-		parent::__construct( ...func_get_args() );
+		parent::__construct( $message, $code, $previous );
 	}
+	
 }
 
 ?>

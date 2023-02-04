@@ -37,9 +37,11 @@ class PermissionError extends IOError
 	 *
 	 */
 	protected Array $flags = [
-		self::PERMISSION_ERROR => "Access denied for \"{}\"",
-		self::READ_ERROR => "Can't read \"{}\"",
-		self::WRITE_ERROR => "Can't write \"{}\""
+		PermissionError::class => [
+			self::PERMISSION_ERROR,
+			self::READ_ERROR,
+			self::WRITE_ERROR
+		]
 	];
 	
 	/*
@@ -48,7 +50,7 @@ class PermissionError extends IOError
 	 */
 	public function __construct( Array | Int | String $message, Int $code = self::PERMISSION_ERROR, ? Throwable $previous = Null )
 	{
-		parent::__construct( ...func_get_args() );
+		parent::__construct( $message, $code, $previous );
 	}
 	
 }

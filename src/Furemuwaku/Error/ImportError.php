@@ -13,14 +13,26 @@ use Throwable;
  */
 class ImportError extends ModuleError
 {
+	
 	/*
 	 * @inherit Yume\Fure\Error\ModuleError
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = parent::IMPORT_ERROR, ? Throwable $previous = Null )
+	protected Array $flags = [
+		ImportError::class => [
+			self::IMPORT_ERROR
+		]
+	];
+	
+	/*
+	 * @inherit Yume\Fure\Error\ModuleError
+	 *
+	 */
+	public function __construct( Array | Int | String $message, Int $code = self::IMPORT_ERROR, ? Throwable $previous = Null )
 	{
-		parent::__construct( ...func_get_args() );
+		parent::__construct( $message, $code, $previous );
 	}
+	
 }
 
 ?>

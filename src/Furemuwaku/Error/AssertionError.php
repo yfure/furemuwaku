@@ -26,7 +26,9 @@ class AssertionError extends BaseError
 	 *
 	 */
 	protected Array $flags = [
-		self::VALUE_ERROR => "Invalid value for \"{}\" values must be {} \"{}\" given"
+		AssertionError::class => [
+			self::VALUE_ERROR
+		]
 	];
 	
 }

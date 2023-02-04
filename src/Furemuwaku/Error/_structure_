@@ -2,7 +2,8 @@
 
 Error\BaseError
   ..Error\AssertionError +
-  ..Error\HTTPError
+  ..Error\HTTPError +
+  ..Error\Deprecated +
   ..Error\IOError +
   ..  ..Error\PermissionError +
   ..  ..  ..Support\Path\PathError +
@@ -18,17 +19,31 @@ Error\BaseError
   ..  ..  ..Error\KeyError +
   ..Error\RuntimeError +
   ..  ..Error\LogicError +
-  ..SecureError
+  ..Error\SyntaxError +
   ..Error\TriggerError +
   ..Error\TypeError +
-  ..  ..Error\ParameterError
-  ..  ..  ..Error\ArgumentError
+  ..  ..Cache\CacheError +
+  ..  ..Error\ClassError +
+  ..  ..  ..Error\ClassImplementationError +
+  ..  ..  ..Error\ClassInstanceError +
+  ..  ..  ..Error\ClassNameError +
   ..  ..Error\ModuleError +
   ..  ..  Error\ImportError +
   ..  ..  Error\ModuleNotFoundError +
+  ..  ..Error\ParameterError
+  ..  ..  ..Error\ArgumentError
+  ..  ..Logger\LoggerError +
+  ..  ..Secure\SecureError +
+  ..  ..  ..Secure\TokenError +
   ..  ..Support\Services\ServicesError +
-  ..  ..Util\Env\EnvError
-  ..  ..Util\RegExp\RegExpError
+  ..  ..Util\Env\EnvError +
+  ..  ..Util\RegExp\RegExpError +
+  ..  ..View\ViewError +
+  ..  ..  ..View\Template\TemplateError +
+  ..  ..  ..View\Template\TemplateClosingError +
+  ..  ..  ..View\Template\TemplateIndentationError +
+  ..  ..  ..View\Template\TemplateSyntaxError +
+  ..  ..  ..View\Template\TemplateTokenError +
   ..Error\ValueError +
   ..  ..Util\Json\JsonError +
   

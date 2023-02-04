@@ -5,7 +5,8 @@ namespace Yume\Fure\Error;
 use Error;
 use Throwable;
 
-use Yume\Fure\Support;
+use Yume\Fure\Locale;
+use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
 
 /*
@@ -19,7 +20,7 @@ class BaseError extends Error
 {
 	
 	/*
-	 * Value of flag (e.g...[ self::NAME_ERROR => "Name for {} is undefined" ])
+	 * Value of flag.
 	 *
 	 * @access Protected
 	 *
@@ -34,7 +35,7 @@ class BaseError extends Error
 	 *
 	 * @values String
 	 */
-	protected String $type = "None";
+	protected String $type = "NONE";
 	
 	/*
 	 * Construct method of class BaseError.
@@ -49,33 +50,34 @@ class BaseError extends Error
 	 */
 	public function __construct( Array | Int | String $message, Int $code = 0, ? Throwable $previous = Null )
 	{
-		// If the error thrown has a flag.
-		if( count( $this->flags ) > 0 && $code !== 0 )
+		// Get constant name.
+		$type = array_search( $code, Reflect\ReflectClass::getConstants( $this ) );
+		
+		// Get flags index.
+		$index = array_search( $code, $this->flags[$this::class] ?? [] );
+		
+		// If the flag is available.
+		if( $type !== False && $index !== False )
 		{
-			// If the flag is available.
-			if( isset( $this->flags[$code] ) )
+			// Set error type based on error contant name.
+			$this->type = $type;
+			
+			// Create ify for translation string.
+			$ify = Util\Str::fmt( "Error.{}.{}", Util\Str::end( $this::class, "\\" ), $type );
+			
+			// Check if message is Array type.
+			if( is_array( $message ) )
 			{
-				if( is_array( $message ) )
-				{
-					$message = Util\Str::fmt( $this->flags[$code], ...Util\Arr::map( $message, fn( $i, $k, $v ) => $v ?? "" ) );
-				}
-				else {
-					$message = Util\Str::fmt( $this->flags[$code], $message ?? "" );
-				}
+				// Mapping for change array null value to empty string.
+				// This is to avoid formatting errors.
+				$message = lang( $ify, ...Util\Arr::map( $message, fn( $i, $k, $v ) => $v ?? "" ) ) ?? $ify;
 			}
 			else {
-				$message = Util\Str::parse( $message );
+				$message = lang( $ify, $message ?? "" ) ?? $ify;
 			}
 		}
 		else {
 			$message = Util\Str::parse( $message );
-		}
-		
-		// Get constant name.
-		if( $type = array_search( $code, Support\Reflect\ReflectClass::getConstants( $this ) ) )
-		{
-			// Set error type based on constant name.
-			$this->type = $type;
 		}
 		
 		// Call parent constructor.

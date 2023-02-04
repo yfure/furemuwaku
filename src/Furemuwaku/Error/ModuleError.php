@@ -37,8 +37,10 @@ class ModuleError extends TypeError
 	 *
 	 */
 	protected Array $flags = [
-		self::IMPORT_ERROR => "Something wrong when import file \"{}\"",
-		self::NOT_FOUND_ERROR => "No module named \"{}\""
+		ModuleError::class => [
+			self::IMPORT_ERROR,
+			self::NOT_FOUND_ERROR
+		]
 	];
 	
 }

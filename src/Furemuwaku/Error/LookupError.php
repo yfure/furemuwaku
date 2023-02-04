@@ -35,8 +35,10 @@ class LookupError extends ReferenceError
 	 *
 	 */
 	protected Array $flags = [
-		self::INDEX_ERROR => "Index \"{}\" out of range",
-		self::KEY_ERROR => "Undefined key for \"{}\""
+		LookupError::class => [
+			self::INDEX_ERROR,
+			self::KEY_ERROR
+		]
 	];
 	
 }

@@ -26,7 +26,9 @@ class IOError extends BaseError
 	 *
 	 */
 	protected Array $flags = [
-		self::PERMISSION_ERROR => "Access denied for \"{}\""
+		IOError::class => [
+			self::PERMISSION_ERROR
+		]
 	];
 	
 }
