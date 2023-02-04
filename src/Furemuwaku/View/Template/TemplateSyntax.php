@@ -58,7 +58,7 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function getToken(): Array | String
+	final public function getToken(): Array | String
 	{
 		return( $this )->token;
 	}
@@ -67,7 +67,7 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function isMultipleToken(): Bool
+	final public function isMultipleToken(): Bool
 	{
 		return( is_array( $this->token ) );
 	}
@@ -76,7 +76,7 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function isSkip(): Bool
+	final public function isSkip(): Bool
 	{
 		return( $this )->skip;
 	}
@@ -85,7 +85,7 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function isSupportedToken( String $token ): Bool
+	final public function isSupportedToken( String $token ): Bool
 	{
 		// Normalize token name.
 		$token = strtolower( $token );
@@ -96,6 +96,26 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 			return( in_array( $token, $this->token ) );
 		}
 		return( $this->token === $token );
+	}
+	
+	protected function removeFirstLine( Array $content ): Array
+	{
+		if( isset( $content[0] ) )
+		{
+			// Get first content value.
+			$first = $content[0];
+			
+			// Check if first deep content is empty
+			if( $first === "" || $first === "\n" )
+			{
+				// Unset first content.
+				unset( $content[0] );
+				
+				// Looping!
+				$content = $this->removeFirstLine( $content );
+			}
+		}
+		return( $content );
 	}
 	
 }

@@ -226,6 +226,18 @@ class TemplateSyntaxHTML extends TemplateSyntax
 	 */
 	public function process( TemplateCaptured $captured ): String
 	{
+		if( $captured->children )
+		{
+			$children = $this->removeFirstLine( explode( "\n", $captured->children ) );
+			
+			if( count( $children ) !== 0 )
+			{
+				$captured->children = $this->context->parse( implode( "\n", $children ) );
+			}
+			else {
+				$captured->children = Null;
+			}
+		}
 		if( $captured->colon )
 		{
 			if( $this->isUnpaired( $captured->token ) )
@@ -237,29 +249,34 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				{
 					if( valueIsNotEmpty( $captured->outline ) )
 					{
-						return( f( "<{captured.inline}>{captured.outline}\n{captured.children}\n</{captured.token}>", captured: $captured ) );
+						return( f( "<{captured.token} {captured.value}>{captured.outline}\n{captured.children}\n{captured.indent.value}</{captured.token}>", captured: $captured ) );
 					}
-					echo "Has Children\n";
+					return( f( "<{captured.token} {captured.value}>\n{captured.children}\n{captured.indent.value}</{captured.token}>", captured: $captured ) );
 				}
-				echo "No Children\n";
+				if( valueIsNotEmpty( $captured->outline ) )
+				{
+					return( f( "<{captured.token} {captured.value}>{captured.outline}</{captured.token}>", captured: $captured ) );
+				}
+				return( f( "<{captured.token} {captured.value}></{captured.token}>", captured: $captured ) );
 			}
 		}
 		else {
 			if( $this->isPaired( $captured->token ) )
 			{
-				echo "Paired\n";
+				if( valueIsNotEmpty( $captured->outline ) )
+				{
+					return( f( "<{captured.token} {captured.value}>{captured.outline}</{captured.token}>", captured: $captured ) );
+				}
+				return( f( "<{captured.token} {captured.value}></{captured.token}>", captured: $captured ) );
 			}
 			else {
 				if( valueIsNotEmpty( $captured->outline ) )
 				{
-					return( f( "<{captured.inline} />{captured.outline}", captured: $captured ) );
+					return( f( "<{captured.token} {captured.value} />{captured.outline}", captured: $captured ) );
 				}
-				return( f( "<{captured.inline} />", captured: $captured ) );
+				return( f( "<{captured.token} {captured.value} />", captured: $captured ) );
 			}
 		}
-		echo "\n";
-		echo $captured;
-		exit;
 	}
 	
 }

@@ -13,6 +13,10 @@ use Yume\Fure\Util\RegExp;
 /*
  * Template
  *
+ * I have thanked you O Allah, thanks to you
+ * I can create and complete the PHP Template Engine
+ * that supports this Indentation O Allah.
+ *
  * @package Yume\Fure\View\Template
  */
 class Template implements TemplateInterface
@@ -113,7 +117,7 @@ class Template implements TemplateInterface
 		$this->pattern = new RegExp\Pattern( flags: "ms", pattern: implode( "", [
 			"^(?:",
 				"(?<matched>",
-					"(?<indent>\s\s+|\t+)*",
+					"(?<indent>\s\s\s\s+|\t+)*",
 					"(?:\@)",
 					"(?<inline>",
 						"(?<token>[a-zA-Z0-9]*)",
@@ -155,7 +159,7 @@ class Template implements TemplateInterface
 		if( isset( $match['indent'] ) )
 		{
 			// Get indentation length.
-			$indent = strlen( $this->removeLine( $match['indent'] ) );
+			$indent = strlen( $this->resolveIndent( $match['indent'] ) );
 		}
 		
 		// Check if closing is valid closing.
@@ -326,7 +330,7 @@ class Template implements TemplateInterface
 	 */
 	public function isComment( String $syntax ): Bool
 	{
-		return( RegExp\RegExp::test( "/[\s]*(?<!\\\)\#[^\n]*/", $syntax ) );
+		return( RegExp\RegExp::test( "/[\s]*((?<!\\\)\#[^\n]*|\<\!(--(.*?--\>)*)|(\+\+(.*?\+\+\>)*))/ms", $syntax ) );
 	}
 	
 	/*
@@ -368,7 +372,7 @@ class Template implements TemplateInterface
 		if( isset( $match['indent'] ) )
 		{
 			// Get indentation length.
-			$indent = strlen( $this->removeLine( $match['indent'] ) );
+			$indent = strlen( $this->resolveIndent( $match['indent'] ) );
 			
 			// Check if indentation is is valid.
 			if( Util\Number::isEven( $indent ) )
@@ -390,10 +394,10 @@ class Template implements TemplateInterface
 			if( $this->templateSplit[( $i -1 )] !== "" )
 			{
 				// Check if indentation is valid.
-				if( $valid = RegExp\RegExp::match( f( "/^[\s]\{{},}/", $indent ), $this->templateSplit[( $i -1 )] ) )
+				if( $valid = RegExp\RegExp::match( f( "/^[\s]\{{},\}/", $indent,), $this->templateSplit[( $i -1 )] ) )
 				{
 					// Check if indentation level is invalid.
-					if( Util\Number::isOdd( strlen( $this->removeLine( $valid[0] ) ) ) )
+					if( Util\Number::isOdd( strlen( $this->resolveIndent( $valid[0] ) ) ) )
 					{
 						throw new TemplateIndentationError( "*", $this->view, $i );
 					}
@@ -410,7 +414,7 @@ class Template implements TemplateInterface
 						else {
 							
 							// Check if value is not empty.
-							if( valueIsNotEmpty( $this->templateSplit[( $i -1 )] ) )
+							if( valueIsNotEmpty( $this->templateSplit[( $i -1 )] ) && $this->isComment( $this->templateSplit[( $i -1 )] ) === False )
 							{
 								throw new TemplateIndentationError( "*", $this->view, $i );
 							}
@@ -430,8 +434,25 @@ class Template implements TemplateInterface
 				}
 				else {
 					
-					// Set closing syntax and break the loop.
-					$closing = $this->templateSplit[( $i -1 )]; break;
+					// Re-Match indentation.
+					if( $valid = RegExp\RegExp::match( "/(^[\s]*)([^\n]*)/", $this->templateSplit[( $i -1 )] ) )
+					{
+						// Check if indentation level is invalid.
+						if( Util\Number::isOdd( strlen( $this->resolveIndent( $valid[1] ) ) ) )
+						{
+							throw new TemplateIndentationError( "*", $this->view, $i );
+						}
+						if( strlen( $this->resolveIndent( $valid[1] ) ) < $indent || $valid[2] )
+						{
+							$closing = $this->templateSplit[( $i -1 )]; break;
+						}
+						$content[] = $this->templateSplit[( $i -1 )];
+					}
+					else {
+						
+						// Set closing syntax and break the loop.
+						$closing = $this->templateSplit[( $i -1 )]; break;
+					}
 				}
 				
 				// ...
@@ -462,17 +483,19 @@ class Template implements TemplateInterface
 		// Check if content is not empty.
 		if( count( $content ) !== 0 )
 		{
-			// Check if last deep content is empty
-			// And syntax does not have closing.
-			if( end( $content ) === "" && $closing['valid'] === False )
-			{
-				// Unset last content.
-				array_pop( $content );
-			}
+			// Clear last line in content.
+			$content = $this->removeLastLine( $content, $closing['valid'] );
 			
 			// Re-Check if content is not empty.
 			if( count( $content ) !== 0 )
 			{
+				/*if( $match['token'] === "head" )
+				{
+					var_dump([
+						$content,
+						$closing
+					]);exit;
+				}*/
 				// Join newline into array contents.
 				$content = $this->reBuildSyntaxChild( $content );
 			}
@@ -516,12 +539,12 @@ class Template implements TemplateInterface
 	 */
 	public function parse( String $template ): String
 	{
-		// Push iteration.
-		$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
-		
 		// While syntax matched.
 		while( $match = $this->pattern->match( $template ) )
 		{
+			// Push iteration.
+			$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
+			
 			// Re-Build begin syntax.
 			$begin = $match['syntax'] = $this->reBuildSyntaxBegin( $match );
 			
@@ -558,10 +581,10 @@ class Template implements TemplateInterface
 				if( isset( $match['indent'] ) )
 				{
 					// Get indentation.
-					$indent = $match['indent'];
+					$indent = $this->resolveIndent( $match['indent'] );
 					
 					// Get indentation length.
-					$indentLength = strlen( $this->removeLine( $match['indent'] ) );
+					$indentLength = strlen( $indent );
 				}
 				
 				// Build full captured syntax.
@@ -593,9 +616,17 @@ class Template implements TemplateInterface
 				
 				// Process captured syntax.
 				$result = $this->process( $captured );
+				//$result = str_replace( "@", "", $begin );
+				//$result = str_replace( $begin, $result, $raw );
 				
 				// Replace template.
 				$template = str_replace( $raw, f( "{}{}", $captured->indent->value, $result ), $template );
+				/*if( $token === "div" )
+				{
+					echo htmlspecialchars( $template );
+					exit;
+				}*/
+				//exit( $captured );
 			}
 			else {
 				throw new TemplateSyntaxError( $match['syntax'], $this->view, $this->getLine( $match['syntax'] ) );
@@ -707,9 +738,7 @@ class Template implements TemplateInterface
 				
 				echo htmlspecialchars( $result = $this->process( $captured ) );
 			}
-			var_dump( RegExp\RegExp::clear( $match, True ) );
-			break;
-		}exit;
+		}
 		return( $template );
 	}
 	
@@ -776,7 +805,7 @@ class Template implements TemplateInterface
 	 */
 	protected function reBuildSyntaxBegin( Array $match, Bool $outline = True ): String
 	{
-		return( Util\Str::fmt( "{ indent }@{ inline }{ symbol }{ outline }", indent: $this->removeLine( $match['indent'] ?? "" ), inline: $match['inline'] ?? "", symbol: $match['symbol'], outline: str_replace( "\n", "", $match['outline'] ?? "" ) ) );
+		return( Util\Str::fmt( "{ indent }@{ inline }{ symbol }{ outline }", indent: $this->resolveIndent( $match['indent'] ?? "" ), inline: $match['inline'] ?? "", symbol: $match['symbol'], outline: str_replace( "\n", "", $match['outline'] ?? "" ) ) );
 	}
 	
 	/*
@@ -798,15 +827,11 @@ class Template implements TemplateInterface
 			return( Util\Str::fmt( "{begin}\n{children}\n{closing.syntax}", begin: $begin, children: $children ?? "", closing: $closing ) );
 		}
 		else {
-			
-			// If children value is new line only.
-			if( $children === Null || RegExp\RegExp::test( "/\n/", $children ?? "" ) )
+			if( $children !== Null )
 			{
-				return( $begin );
-			}
-			else {
 				return( Util\Str::fmt( "{begin}\n{children}", begin: $begin, children: $children ?? "" ) );
 			}
+			return( $begin );
 		}
 	}
 	
@@ -824,6 +849,27 @@ class Template implements TemplateInterface
 		return( implode( "\n", $children ) );
 	}
 	
+	protected function removeLastLine( Array $content, Bool $closing ): Array
+	{
+		if( count( $content ) !== 0 )
+		{
+			// Get last content value.
+			$last = end( $content );
+			
+			// Check if last deep content is empty
+			// And syntax does not have closing.
+			if( ( $last  === "" || $last === "\n" ) && $closing === False )
+			{
+				// Unset last content.
+				array_pop( $content );
+				
+				// Looping!
+				$content = $this->removeLastLine( $content, $closing );
+			}
+		}
+		return( $content );
+	}
+	
 	/*
 	 * Remove new line in indentation value.
 	 *
@@ -836,6 +882,15 @@ class Template implements TemplateInterface
 	protected function removeLine( String $indent ): String
 	{
 		return( str_replace( "\n", "", $indent ) );
+	}
+	
+	protected function resolveIndent( String $indent ): String
+	{
+		// Split indentation with new line.
+		$split = explode( "\n", $indent );
+		
+		// Get last splited indentation.
+		return( end( $split ) );
 	}
 	
 }
