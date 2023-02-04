@@ -48,6 +48,8 @@ class Pattern implements Stringable
 		if( $flags )
 		{
 			// Valid flags.
+			// To avoid collision flag
+			// checking must be case sensitive.
 			$valid = [
 				"i", // PCRE_CASELESS
 				"m", // PCRE_MULTILINE
@@ -59,7 +61,7 @@ class Pattern implements Stringable
 				"U", // PCRE_UNGREEDY
 				"X", // PCRE_EXTRA
 				"J", // PCRE_INFO_JCHANGED
-				"u" // PCRE_UTF8
+				"u"  // PCRE_UTF8
 			];
 			
 			// Split flags one caharacter.
@@ -88,7 +90,6 @@ class Pattern implements Stringable
 				}
 			}
 		}
-		
 		$this->flags = $flags;
 		$this->pattern = $pattern;
 	}

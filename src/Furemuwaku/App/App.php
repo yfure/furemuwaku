@@ -2,8 +2,15 @@
 
 namespace Yume\Fure\App;
 
+use Yume\App\Tests;
+
+use Yume\Fure\CLI;
 use Yume\Fure\Config;
 use Yume\Fure\Error;
+use Yume\Fure\Error\Handler As ErrorHandler;
+use Yume\Fure\HTTP;
+use Yume\Fure\Locale;
+use Yume\Fure\Secure;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Design;
 use Yume\Fure\Support\Package;
@@ -11,6 +18,7 @@ use Yume\Fure\Support\Reflect;
 use Yume\Fure\Support\Services;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
+use Yume\Fure\Util\Random;
 use Yume\Fure\Util\RegExp;
 
 /*
@@ -30,7 +38,7 @@ final class App extends Design\Singleton
 	 *
 	 * @values Yume\Fure\Support\Data\DataInterface
 	 */
-	private Data\DataInterface $configs;
+	private Readonly Data\DataInterface $configs;
 	
 	/*
 	 * Configuration path saved.
@@ -68,6 +76,9 @@ final class App extends Design\Singleton
 		// Parse environment file.
 		Env\Env::self();
 		
+		// Setup localization application.
+		Locale\Locale::self();
+		
 		// Get application environment.
 		$env = strtolower( env( "ENVIRONMENT" ) );
 		
@@ -96,35 +107,17 @@ final class App extends Design\Singleton
 			
 			// Import runtime settings file by environment.
 			Package\Package::import( Util\Str::fmt( "/app/Runtime/{}", $env ) );
-			
-			// Register application.
-			Services\Services::register( "app", $this, False );
-			Services\Services::register( $this, $this, False );
 		}
 		else {
 			throw new Error\LogicError( Util\Str::fmt( "The application environment must be development|production, \"{}\" given", $env ) );
 		}
 		
-		// Check if application has no error handler.
-		if( Env\Env::isset( "ERROR_HANDLER", False ) )
-		{
-			// Set default error handler into env file.
-			Env\Env::set( "ERROR_HANDLER", "Yume\\Fure\\Handler\\Error::handler" );
-		}
-		
-		// Check if application has no exception handler.
-		if( Env\Env::isset( "EXCEPTION_HANDLER", False ) )
-		{
-			Env\Env::set( "EXCEPTION_HANDLER", "Yume\\Fure\\Handler\\Exception::handler" );
-		}
-		
-		// Sets a user-defined error & exception handler function.
-		set_error_handler( env( "ERROR_HANDLER" ) );
-		set_exception_handler( env( "EXCEPTION_HANDLER" ) );
-		
-		// ...
+		// Set config collections.
 		$this->configs = new Data\Data([]);
 		$this->configPath = "/system/configs/{}";
+		
+		// Set error handler.
+		ErrorHandler\Handler::setup();
 	}
 	
 	/*
@@ -133,9 +126,12 @@ final class App extends Design\Singleton
 	 * @access Public
 	 *
 	 * @return Void
+	 *
+	 * @throws Yume\Fure\Error\RuntimeError
 	 */
 	public function run(): Void
 	{
+		echo "<pre>";
 		// Check if the application is running.
 		if( static::$run )
 		{
@@ -146,14 +142,15 @@ final class App extends Design\Singleton
 			// Set application as run.
 			static::$run = True;
 			
-			// Check if application is running on cli mode.
-			if( $this->isCli() )
-			{
-				echo 0;
-			}
-			else {
-				
-			}
+			// Setup application token.
+			Secure\Token::self();
+			
+			// Run application services.
+			Services\Services::self();
+			
+			// This is only testing!
+			$test = new Tests\Test();
+			$test->main();
 		}
 	}
 	
@@ -166,6 +163,8 @@ final class App extends Design\Singleton
 	 * @params Bool $import
 	 *
 	 * @return Mixed
+	 *
+	 * @throws Yume\Fure\Error\ValueError
 	 */
 	public function config( String $name, Bool $import = False ): Mixed
 	{
@@ -213,7 +212,7 @@ final class App extends Design\Singleton
 	}
 	
 	/*
-	 * Return if applicaion context is cli.
+	 * Return if application context is cli.
 	 *
 	 * @access Public
 	 *
@@ -225,7 +224,7 @@ final class App extends Design\Singleton
 	}
 	
 	/*
-	 * Return if applicaion context is cli server.
+	 * Return if application context is cli server.
 	 *
 	 * @access Public
 	 *
@@ -237,7 +236,7 @@ final class App extends Design\Singleton
 	}
 	
 	/*
-	 * Return if applicaion context is web.
+	 * Return if application context is web.
 	 *
 	 * @access Public
 	 *
@@ -258,6 +257,11 @@ final class App extends Design\Singleton
 	public function isRun(): Bool
 	{
 		return( $this )->run;
+	}
+	
+	public function generateToken(): String
+	{
+		// ...
 	}
 	
 }

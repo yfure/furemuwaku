@@ -5,6 +5,7 @@ namespace Yume\Fure\Util\Env;
 use Throwable;
 
 use Yume\Fure\Error;
+use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
 
 /*
@@ -17,23 +18,50 @@ use Yume\Fure\Util\RegExp;
 class EnvError extends Error\TypeError
 {
 	
+	/*
+	 * Error constant for invalid assigment symbol.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
 	public const ASSIGMENT_ERROR = 10238;
-	public const COMMENT_ERROR = 11428;
-	public const JSON_ERROR = 11725;
-	public const REFERENCE_ERROR = 13467;
-	public const SYNTAX_ERROR = 14829;
 	
 	/*
-	 * @inherit Yume\Fure\Error\TypeError
+	 * Error constant for invalid comment on value.
 	 *
+	 * @access Public Static
+	 *
+	 * @values Int
 	 */
-	protected Array $flags = [
-		self::ASSIGMENT_ERROR => "Invalid operator \"{}\" for assigment value to variable",
-		self::COMMENT_ERROR => "Value can't have \"{}\" comment syntax",
-		self::JSON_ERROR => "Invalid json string value in variable \"{}\"",
-		self::REFERENCE_ERROR => "Undefined environment variable \"{}\"",
-		self::SYNTAX_ERROR => "Invalid syntax \"{}\""
-	];
+	public const COMMENT_ERROR = 11428;
+	
+	/*
+	 * Error constant for invalid json strings.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const JSON_ERROR = 11725;
+	
+	/*
+	 * Error constant for undefined or unknown variable reference.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const REFERENCE_ERROR = 13467;
+	
+	/*
+	 * Error constant for invalid syntax.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const SYNTAX_ERROR = 14829;
 	
 	/*
 	 * @inherit Yume\Fure\Error\TypeError
@@ -48,7 +76,54 @@ class EnvError extends Error\TypeError
 		$this->line = $line ?: $this->line;
 		
 		// Call parent constructor.
-		parent::__construct( RegExp\RegExp::replace( "/^[\s\t]*/", $message, "" ), $code, $previous );
+		parent::__construct( code: $code, previous: $previous, message: match( $code )
+		{
+			self::ASSIGMENT_ERROR => $this->format( "Invalid operator {} for assigment value to variable", $message ),
+			self::COMMENT_ERROR => $this->format( "Value can't have {} comment syntax", $message ),
+			self::JSON_ERROR => $this->format( "Invalid json string value in variable {}", $message ),
+			self::REFERENCE_ERROR => $this->format( "Undefined environment variable {}", $message ),
+			self::SYNTAX_ERROR => $this->format( "Invalid syntax {}", $message ),
+			default => Util\Str::parse( $message )
+		});
+	}
+	
+	/*
+	 * Get formated error message.
+	 *
+	 * @access Private
+	 *
+	 * @params String $format
+	 * @params Array|Int|String $message
+	 *
+	 * @return String
+	 */
+	private function format( String $format, Array | Int | String $message ): String
+	{
+		// Check if message is Array type.
+		if( is_array( $message ) )
+		{
+			// Mapping messages.
+			$values = Util\Arr::map( $message, function( Int $i, $idx, $value )
+			{
+				// Check if message is String type.
+				if( is_string( $value ) )
+				{
+					return( RegExp\RegExp::replace( "/^[\s\t]*/", $value, "" ) );
+				}
+				return( $value );
+			});
+		}
+		else {
+			// Check if message is String type.
+			if( is_string( $message ) )
+			{
+				$message = RegExp\RegExp::replace( "/^[\s\t]*/", $message, "" );
+			}
+			$values = [ $message ];
+		}
+		
+		// Return formated message.
+		return( Util\Str::fmt( $format, ...$values ) );
 	}
 	
 }

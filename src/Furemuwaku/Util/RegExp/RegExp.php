@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util\RegExp;
 
+use Yume\Fure\Util;
+
 /*
  * RegExp
  *
@@ -49,30 +51,61 @@ abstract class RegExp
 		});
 	}
 	
+	/*
+	 * Clear match results, only keep result with key and value.
+	 * In there indexed array elements will be remove from array.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array $matchs
+	 * @params Bool $capture
+	 *
+	 * @return Array
+	 */
 	public static function clear( Array $matchs, Bool $capture = False ): Array
 	{
+		// Mapping all matched results.
 		foreach( $matchs As $i => $match )
 		{
+			// Check if key is Int type.
 			if( is_int( $i ) )
 			{
-				if( $i === 0 && $capture === False )
-				{
-					continue;
-				}
+				// Skip if all captured will be keep.
+				if( $i === 0 && $capture === False ) continue;
+				
+				// Unset captured match result.
 				unset( $matchs[$i] );
-			} else {
+			}
+			else {
+				
+				// Check if match value is Array.
 				if( is_array( $match ) )
 				{
-					foreach( $match As $u => $result )
-					{
-						$matchs[$i][$u] = $result !== "" ? $result : Null;
-					}
-				} else {
+					// Mapping all result match values.
+					Util\Arr::map( $match, fn( Int $i, Int $u, ? String $result ) => $matchs[$i][$u] = $result !== "" ? $result : Null );
+				}
+				else {
 					$matchs[$i] = $match !== "" ? $match : Null;
 				}
 			}
 		}
 		return( $matchs );
+	}
+	
+	/*
+	 * Return array entries that match the pattern.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $pattern
+	 * @params Array $array
+	 * @params Int $flags
+	 *
+	 * @return Array|False
+	 */
+	public static function grep( String $pattern, Array $array, Int $flags = 0 ): Array | False
+	{
+		// ...
 	}
 	
 	/*
@@ -148,29 +181,31 @@ abstract class RegExp
 	public static function replace( Array | String $pattern, Array | String $subject, Array | Callable | String $replace/*, Bool $clear = False */ ): Array | String
 	{
 		// Get types.
-		$patType = ucfirst( gettype( $pattern ) );
-		$subType = ucfirst( gettype( $subject ) );
-		$repType = ucfirst( gettype( $replace ) );
+		$patType = gettype( $pattern );
+		$subType = gettype( $subject );
+		$repType = gettype( $replace );
 		
 		// Arguments.
 		$args = [ $pattern, $subject, $replace ];
 		
 		// Match result.
-		$result = match( $subType )
+		if( $subType === "\x61\x72\x72\x61\x79" )
 		{
-			"Array" => match( $patType )
+			$result = match( $patType )
 			{
-				"Array" => $repType === "Array" ? self::__replaceMultipleSubjectPatternAndReplacement( ...$args ) : self::__replaceMultipleSubjectAndPattern( ...$args ),
-				"String" => $repType === "Array" ? self::__replaceMultipleSubjectAndReplacement( ...$args ) : self::__replaceMultipleSubject( ...$args )
-			},
-			"String" => match( True )
+				"\x61\x72\x72\x61\x79" => $repType === "\x61\x72\x72\x61\x79" ? self::__replaceMultipleSubjectPatternAndReplacement( ...$args ) : self::__replaceMultipleSubjectAndPattern( ...$args ),
+				"\x73\x74\x72\x69\x6e\x67" => $repType === "\x61\x72\x72\x61\x79" ? self::__replaceMultipleSubjectAndReplacement( ...$args ) : self::__replaceMultipleSubject( ...$args )
+			};
+		}
+		else {
+			$result = match( True )
 			{
-				$patType === "String" && ( $repType === "String" || $repType === "Object" ) => self::__replaceSingle( ...$args ),
-				$patType === "Array" && $repType === "Array" => self::__replaceMultiplePatternAndReplacement( ...$args ),
-				$patType === "Array" => self::__replaceMultiplePattern( ...$args ),
-				$repType === "Array" => self::__replaceMultipleReplacement( ...$args )
-			}
-		};
+				$patType === "\x73\x74\x72\x69\x6e\x67" && ( $repType === "\x73\x74\x72\x69\x6e\x67" || $repType === "\x6f\x62\x6a\x65\x63\x74" ) => self::__replaceSingle( ...$args ),
+				$patType === "\x61\x72\x72\x61\x79" && $repType === "\x61\x72\x72\x61\x79" => self::__replaceMultiplePatternAndReplacement( ...$args ),
+				$patType === "\x61\x72\x72\x61\x79" => self::__replaceMultiplePattern( ...$args ),
+				$repType === "\x61\x72\x72\x61\x79" => self::__replaceMultipleReplacement( ...$args )
+			};
+		}
 		
 		// Check if an error occurred.
 		if( self::errno() )

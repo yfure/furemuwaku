@@ -259,7 +259,7 @@ class EnvVariable
 		}
 		
 		// Return formated variable.
-		return( $this->format = Util\Str::fmt( "{ comments }{ commented }{ name } = { value };{ comment }", $params ) );
+		return( $this->format = Util\Str::fmt( "{ comments }{ commented }{ name } = { value };{ comment }", ...$params ) );
 	}
 	
 	/*

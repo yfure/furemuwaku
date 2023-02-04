@@ -1,0 +1,125 @@
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function close(): Void
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function detach()
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function eof(): Bool
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function getContents(): String
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function getMetadata( Mixed $key = null ): Mixed
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function getSize(): ? Int
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function isReadable(): Bool
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function isSeekable(): Bool
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function isWritable(): Bool
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function read( Int $length ): String
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function rewind(): Void
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function seek( Int $offset, Int $whence = SEEK_SET ): Void
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function tell(): Int
+	{
+		// ...
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 *
+	 */
+	public function write( String $string ): Int
+	{
+		// ...
+	}

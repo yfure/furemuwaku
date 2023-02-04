@@ -53,12 +53,11 @@ trait ConfigTrait
 		// Check if `name` is not null type.
 		if( valueIsNotEmpty( $name ) )
 		{
-			// Check if name is Callable type.
-			if( is_callable( $name ) )
-			{
-				return( $name( self::$configs ) );
-			}
-			return( ify( $name, self::$configs ) );
+			// If name is String type.
+			if( is_string( $name ) ) return( ify( $name, self::$configs ) );
+			
+			// Get return value from callback.
+			return( call_user_func( $name, self::$configs ) );
 		}
 		return( self::$configs );
 	}

@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\Util;
 
+use Yume\Fure\Error;
 use Yume\Fure\Util\RegExp;
 
 /*
@@ -56,6 +57,7 @@ abstract class Number
 	
 	/*
 	 * Generate random int.
+	 * This function has deprecated on Yume on v3.0.6
 	 *
 	 * @source http://stackoverflow.com/a/13733588/
 	 *
@@ -65,35 +67,12 @@ abstract class Number
 	 * @params Int $max
 	 *
 	 * @return Int
+	 *
+	 * @throws Yume\Fure\Error\DeprecatedError
 	 */
 	public static function random( Int $min, Int $max )
 	{
-		// Not so random...
-		if( ( $range = $max - $min ) < 0 )
-		{
-			return $min;
-		}
-		
-		// Length in bytes.
-		$bytes = ( Int ) ( ( $log = log( $range, 2 ) ) / 8 ) + 1;
-		
-		// Set all lower bits to 1.
-		$filter = ( Int ) ( 1 << ( $bits = ( Int ) $log + 1 ) ) - 1;
-		
-		do {
-			
-			$rnd = $bytes;
-			$rnd = openssl_random_pseudo_bytes( $rnd );
-			$rnd = bin2hex( $rnd );
-			$rnd = hexdec( $rnd );
-			
-			// Discard irrelevant bits.
-			$rnd = $rnd & $filter;
-			
-		}
-		while( $rnd >= $range );
-		
-		return( $min + $rnd );
+		throw new Error\DeprecatedError( f( "Method {} has been deprecated, instead use {}", __METHOD__, "Yume\Fure\Util\Random\Random::number" ) );
 	}
 	
 }

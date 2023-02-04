@@ -19,7 +19,7 @@ class EnvParser
 	// ^(?:(?:([\"\'])(?:(?:\\\2|(?!\2).)*)(?:\2[^\n]*)?\n)*?)((?:(?!\2)[^#\"\']*|(?:\2(?:[^\\]|\\.)*?\2))*)(#.*)
 	protected String $comment = "\#[\s\t]*[^\n]*";
 	
-	// (?s)((?:\((?:[^()]++|(?1))*+\)))
+	// (?s)((?:\((?:[^\(\)]++|(?1))*+\)))
 	protected String $bracket;
 	
 	// (?s)((?:\[(?:[^\[\]]++|(?1))*+\]))
@@ -236,12 +236,15 @@ class EnvParser
 	 */
 	private function findLine(): Int
 	{
+		// Remove all comments syntax.
+		$readed = RegExp\RegExp::replace( "/^\#[^\n]*/ms", $this->readed, "" );
+		
 		// Split readed file with newline.
-		$lines = explode( "\n", $this->readed );
+		$lines = explode( "\n", $readed );
 		
 		// Split raw content with newline.
 		$raw = explode( "\n", $this->raw );
-		$raw = array_pop( $raw );
+		$raw = array_shift( $raw );
 		
 		// Mapping readed file.
 		foreach( $lines As $line => $content )

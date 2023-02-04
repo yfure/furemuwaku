@@ -154,6 +154,12 @@ abstract class Arr
 				// Array value.
 				$array[$indexs[$i]]
 			);
+			
+			// Check if iteration is stop.
+			if( $stack[$indexs[$i]] === STOP_ITERATION )
+			{
+				break;
+			}
 		}
 		return( $stack );
 	}
