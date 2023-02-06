@@ -13,6 +13,17 @@ interface TemplateInterface
 {
 	
 	/*
+	 * Get line by string posotion.
+	 *
+	 * @access Public
+	 *
+	 * @params String $content
+	 *
+	 * @return False|Int
+	 */
+	public function getInline( String $content ): False | Int;
+	
+	/*
 	 * Get iteration count.
 	 *
 	 * @access Public

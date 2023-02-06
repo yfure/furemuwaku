@@ -2,9 +2,11 @@
 
 namespace Yume\Fure\View\Template;
 
+use Yume\Fure\Error;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
+use Yume\Fure\Util\RegExp;
 
 /*
  * TemplateSyntax
@@ -14,7 +16,14 @@ use Yume\Fure\Util;
 abstract class TemplateSyntax implements TemplateSyntaxInterface
 {
 	
-	protected Int $line = 0;
+	/*
+	 * Current view line.
+	 *
+	 * @access Protected
+	 *
+	 * @values False|Int
+	 */
+	protected False | Int $line = False;
 	
 	/*
 	 * Skip process.
@@ -48,7 +57,7 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	public function __construct( protected Readonly TemplateInterface $context, Array | Data\DataInterface $configs )
 	{
 		// Checks if the token property has not been initialized.
-		if( Reflect\ReflectProperty::isInitialized( $this, "token" ) === False )
+		if( $this->hasToken() === False )
 		{
 			throw new TemplateUninitializedTokenError( $this::class );
 		}
@@ -61,6 +70,15 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	final public function getToken(): Array | String
 	{
 		return( $this )->token;
+	}
+	
+	/*
+	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
+	 *
+	 */
+	final public function hasToken(): Bool
+	{
+		return( Reflect\ReflectProperty::isInitialized( $this, "token" ) );
 	}
 	
 	/*
@@ -96,6 +114,31 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 			return( in_array( $token, $this->token ) );
 		}
 		return( $this->token === $token );
+	}
+	
+	/*
+	 * Normalize captured content.
+	 * This will remove any backslash before the given characters.
+	 *
+	 * @access Public
+	 *
+	 * @params Bool|String $subject
+	 * @params Array $chars
+	 *
+	 * @return Bool|String
+	 *
+	 * @throws Yume\Fure\Error\ValueError
+	 */
+	final protected function normalize( Bool | String $subject, Array $chars ): Bool | String
+	{
+		// Check if subject is Boolean type.
+		if( is_bool( $subject ) ) return( $subject );
+		
+		// Check if character is empty.
+		if( count( $chars ) === 0 ) throw new Error\ValueError( "The character to be replaced cannot be empty" );
+		
+		// Returns replaced subject.
+		return( RegExp\RegExp::replace( f( "/\\\({implode(+)})/", [ "|", $chars ] ), $subject, "$1" ) );
 	}
 	
 	protected function removeFirstLine( Array $content ): Array

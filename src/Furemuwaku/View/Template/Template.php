@@ -114,21 +114,77 @@ class Template implements TemplateInterface
 		$this->templateLength = count( $this->templateSplit );
 		
 		// Set pattern.
-		$this->pattern = new RegExp\Pattern( flags: "ms", pattern: implode( "", [
-			"^(?:",
+		$this->pattern = new RegExp\Pattern( flags: "msJ", pattern: implode( "", [
+			"(?:",
 				"(?<matched>",
-					"(?<indent>\s\s\s\s+|\t+)*",
-					"(?:\@)",
-					"(?<inline>",
-						"(?<token>[a-zA-Z0-9]*)",
-						"(?:[\s\t]*)",
-						"(?<value>.*?)",
+					"(?<multiline>",
+						"^",
+						"(?<indent>\s\s\s\s+|\t+)*",
+						"(?:\@)",
+						"(?<inline>",
+							"(?<token>[a-zA-Z0-9]*)",
+							"(?:[\s\t]*)",
+							"(?<value>.*?)",
+						")",
+						"(?<!\\\)",
+						"(?<symbol>",
+							"(?<colon>\:)|(?<semicolon>\;)",
+						")",
+						"(?<outline>([^\n]*))",
+					")|",
+					"(?<oneline>",
+						"(?<!\\\)",
+						"(?:",
+							"(?<comment>",
+								"(?<taggar>\\#",
+									"(?:",
+										"(?<html>",
+											"\<(?<text>.*?)(?<!\\\)\>",
+										")",
+										"|",
+										"(?<text>[^\n]*)",
+									")",
+								")",
+								"|",
+								"(?<html>",
+									"\<\+\+(?<text>.*?)\+\+\>",
+								")",
+							")",
+							"|",
+							"(?<online>",
+								"(?:\@)",
+								"(?:",
+									"(?<with>",
+										"(?<inline>",
+											"(?<token>[a-zA-Z0-9]*)",
+											"(?:[\s\t]*)",
+											"(?<value>[^?<!\\\\:]*)",
+										")",
+										"(?<!\\\)",
+										"(?:\:)",
+										"(?:[\s\t]*)",
+										"(?<outline>[^?<!\\\\;]*)",
+										"(?<!\\\)",
+										"(?<symbol>",
+											"(?<semicolon>\;)",
+										")",
+									")",
+									"|",
+									"(?<without>",
+										"(?<inline>",
+											"(?<token>[a-zA-Z0-9]*)",
+											"(?:[\s\t]*)",
+											"(?<value>[^?<!\\\\:]*)",
+										")",
+										"(?<!\\\)",
+										"(?<symbol>",
+											"(?<semicolon>\;)",
+										")",
+									")",
+								")",
+							")",
+						")",
 					")",
-					"(?<!\\\)",
-					"(?<symbol>",
-						"(?<colon>\:)|(?<semicolon>\;)",
-					")",
-					"(?<outline>[^\n]*)",
 				")",
 			")"
 		]));
@@ -139,32 +195,24 @@ class Template implements TemplateInterface
 	 *
 	 * @access Protected
 	 *
-	 * @params Array $match
-	 * @params String $closing
+	 * @params Yume\Fure\View\TemplateCaptured $captured
 	 *
-	 * @return Array
+	 * @return Yume\Fure\Support\Data\DataInterface
 	 */
-	protected function closing( Array $match, ? String $closing ): ? Array
+	protected function closing( TemplateCaptured $captured ): Data\DataInterface
 	{
 		// Default result.
-		$result = [
-			"syntax" => $closing,
+		$captured->closing = [
+			"syntax" => $captured->closing,
 			"valid" => False
 		];
 		
-		// Default indentation length is zero.
-		$indent = 0;
-		
-		// Check if syntax has indentation.
-		if( isset( $match['indent'] ) )
-		{
-			// Get indentation length.
-			$indent = strlen( $this->resolveIndent( $match['indent'] ) );
-		}
-		
 		// Check if closing is valid closing.
-		if( $closing !== Null && $valid = RegExp\RegExp::match( f( "/(?<match>^[\s]\{{},}(?<!\\\)(?:@)(?<token>[a-zA-Z0-9]*)(?<closing>(?<!\\\)(?<dollar>\\$+)|(?<slash>\/+)(?<pass>[a-zA-Z0-9]*))*(?<outline>[^\n]*))/", $indent ), $closing ) )
+		if( $captured->closing->syntax && $valid = RegExp\RegExp::match( f( "/(?<match>^[\s]\{{},}(?<!\\\)(?:@)(?<token>[a-zA-Z0-9]*)(?<closing>(?<!\\\)(?<dollar>\\$+)|(?<slash>\/+)(?<pass>[a-zA-Z0-9]*))*(?<outline>[^\n]*))/", $captured->indent->length ), $captured->closing->syntax ) )
 		{
+			// Closing line number.
+			$captured->closing->line = $this->getLine( $captured->closing->syntax );
+			
 			// Check if closing is empty.
 			if( valueIsEmpty( $valid['closing'] ) )
 			{
@@ -175,10 +223,10 @@ class Template implements TemplateInterface
 					if( valueIsNotEmpty( $valid['outline'] ) && $this->isComment( $valid['outline'] ) === False ) throw new TemplateSyntaxError( $valid['outline'], $this->view, $this->getLine( $closing ) );
 					
 					// Push token.
-					$result['token'] = "pass";
+					$captured->closing->token = "pass";
 					
 					// Set as valid for closing.
-					$result['valid'] = True;
+					$captured->closing->valid = True;
 				}
 			}
 			
@@ -186,51 +234,56 @@ class Template implements TemplateInterface
 			else if( isset( $valid['dollar'] ) )
 			{
 				// Check if token is not equals.
-				if( strtolower( $valid['token'] ) !== strtolower( $match['token'] ) ) throw new TemplateSyntaxError( $valid['token'], $this->view, $this->getLine( $closing ) );
+				if( strtolower( $valid['token'] ) !== $captured->tokenLower ) throw new TemplateSyntaxError( $valid['token'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Check if dollar is more than one.
-				if( strlen( $valid['dollar'] ) > 1 ) throw new TemplateSyntaxError( $valid['dollar'], $this->view, $this->getLine( $closing ) );
+				if( strlen( $valid['dollar'] ) > 1 ) throw new TemplateSyntaxError( $valid['dollar'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Check if outline syntax is not empty && syntax is not comment type.
-				if( valueIsNotEmpty( $valid['outline'] ) && $this->isComment( $valid['outline'] ) === False ) throw new TemplateSyntaxError( $valid['outline'], $this->view, $this->getLine( $closing ) );
+				if( valueIsNotEmpty( $valid['outline'] ) && $this->isComment( $valid['outline'] ) === False ) throw new TemplateSyntaxError( $valid['outline'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Push token.
-				$result['token'] = "$";
+				$captured->closing->token = "$";
 				
 				// Set as valid for closing.
-				$result['valid'] = True;
+				$captured->closing->valid = True;
 			}
 			
 			// Check if closing is Slash type.
 			else if( isset( $valid['slash'] ) )
 			{
 				// Check if token is not equals.
-				if( strtolower( $valid['token'] ) !== strtolower( $match['token'] ) ) throw new TemplateSyntaxError( $valid['token'], $this->view, $this->getLine( $closing ) );
+				if( strtolower( $valid['token'] ) !== $captured->tokenLower ) throw new TemplateSyntaxError( $valid['token'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Check if pass is empty.
-				if( valueIsEmpty( $valid['pass'] ) ) throw new TemplateSyntaxError( $valid['closing'], $this->view, $this->getLine( $closing ) );
+				if( valueIsEmpty( $valid['pass'] ) ) throw new TemplateSyntaxError( $valid['closing'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Check if slash is more than one.
-				if( strlen( $valid['slash'] ) > 1 ) throw new TemplateSyntaxError( $valid['slash'], $this->view, $this->getLine( $closing ) );
+				if( strlen( $valid['slash'] ) > 1 ) throw new TemplateSyntaxError( $valid['slash'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Check if pass is not pass.
-				if( strtolower( $valid['pass'] ) !== "pass" ) throw new TemplateSyntaxError( $valid['pass'], $this->view, $this->getLine( $closing ) );
+				if( strtolower( $valid['pass'] ) !== "pass" ) throw new TemplateSyntaxError( $valid['pass'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Push token.
-				$result['token'] = $valid['closing'];
+				$captured->closing->token = $valid['closing'];
 				
 				// Set as valid for closing.
-				$result['valid'] = True;
+				$captured->closing->valid = True;
 			}
 		}
 		
 		// Check if syntax is not multiple line.
 		// But closing syntax is matched.
-		if( isset( $match['semicolon'] ) && $result['valid'] ) throw new TemplateClosingError( $result['syntax'], $this->view, $this->getLine( $closing ) );
+		if( $captured->semicolon && $captured->closing->valid ) throw new TemplateClosingError( $captured->closing->syntax, $this->view, $this->getLine( $captured->closing->syntax ) );
 		
-		return( $result );
+		// Return closing.
+		return( $captured->closing );
 	}
 	
+	/*
+	 * @inherit Yume\Fure\View\Template\TemplateInterface
+	 *
+	 */
 	public function getInline( String $content ): False | Int
 	{
 		// Mapping template syntax.
@@ -334,187 +387,6 @@ class Template implements TemplateInterface
 	}
 	
 	/*
-	 * Get deep contents.
-	 *
-	 * @access Public
-	 *
-	 * @params Array $match
-	 *
-	 * @return Array
-	 */
-	public function matchDeepContent( Array $match ): Array
-	{
-		// Build syntax.
-		$syntax = $match['syntax'] ?? $this->reBuildSyntax( $match );
-		
-		// Split syntax with newline.
-		$msplit = explode( "\n", $syntax );
-		
-		// Get splited syntax length.
-		$msplitl = count( $msplit );
-		
-		// Get default indentation.
-		$indent = config( "view.template.indent.length" );
-		
-		// Get line number of syntax.
-		$line = $this->getLine( $syntax );
-		
-		// ...
-		$once = False;
-		
-		// Deep content stack.
-		$content = [];
-		
-		// Closing content.
-		$closing = Null;
-		
-		// Check if syntax has indentation.
-		if( isset( $match['indent'] ) )
-		{
-			// Get indentation length.
-			$indent = strlen( $this->resolveIndent( $match['indent'] ) );
-			
-			// Check if indentation is is valid.
-			if( Util\Number::isEven( $indent ) )
-			{
-				$indent += 4;
-			}
-			else {
-				throw new TemplateIndentationError( "*", $this->view, $this->getLine( $msplit[0] ) );
-			}
-		}
-		
-		// Looping splited template from current line.
-		for( $i = $line + $msplitl; $i < $this->templateLength +1; $i++ )
-		{
-			// Check if line is not exists.
-			if( isset( $this->templateSplit[( $i -1 )] ) === False ) break;
-			
-			// Check if content is not empty value.
-			if( $this->templateSplit[( $i -1 )] !== "" )
-			{
-				// Check if indentation is valid.
-				if( $valid = RegExp\RegExp::match( f( "/^[\s]\{{},\}/", $indent,), $this->templateSplit[( $i -1 )] ) )
-				{
-					// Check if indentation level is invalid.
-					if( Util\Number::isOdd( strlen( $this->resolveIndent( $valid[0] ) ) ) )
-					{
-						throw new TemplateIndentationError( "*", $this->view, $i );
-					}
-					
-					// Check if symbol is semicolon.
-					if( $match['symbol'] === ";" )
-					{
-						// Check if iteration is once.
-						if( $once === True )
-						{
-							// Set closing syntax and break the loop.
-							$closing = $this->templateSplit[( $i -1 )]; break;
-						}
-						else {
-							
-							// Check if value is not empty.
-							if( valueIsNotEmpty( $this->templateSplit[( $i -1 )] ) && $this->isComment( $this->templateSplit[( $i -1 )] ) === False )
-							{
-								throw new TemplateIndentationError( "*", $this->view, $i );
-							}
-						}
-					}
-					else {
-						
-						// Check if outline value is not empty
-						// And outline is not comment syntax.
-						if( valueIsNotEmpty( $match['outline'] ) && $this->isComment( $match['outline'] ) === False )
-						{
-							// Check if syntax has inner content.
-							if( count( $content ) >= 1 ) throw new TemplateIndentationError( "*", $this->view, $i );
-						}
-					}
-					$content[] = $this->templateSplit[( $i -1 )];
-				}
-				else {
-					
-					// Re-Match indentation.
-					if( $valid = RegExp\RegExp::match( "/(^[\s]*)([^\n]*)/", $this->templateSplit[( $i -1 )] ) )
-					{
-						// Check if indentation level is invalid.
-						if( Util\Number::isOdd( strlen( $this->resolveIndent( $valid[1] ) ) ) )
-						{
-							throw new TemplateIndentationError( "*", $this->view, $i );
-						}
-						if( strlen( $this->resolveIndent( $valid[1] ) ) < $indent || $valid[2] )
-						{
-							$closing = $this->templateSplit[( $i -1 )]; break;
-						}
-						$content[] = $this->templateSplit[( $i -1 )];
-					}
-					else {
-						
-						// Set closing syntax and break the loop.
-						$closing = $this->templateSplit[( $i -1 )]; break;
-					}
-				}
-				
-				// ...
-				if( $match['symbol'] === ":" )
-				{
-					// Check if outline value is not empty
-					// And outline is not comment syntax.
-					if( valueIsNotEmpty( $match['outline'] ) && $this->isComment( $match['outline'] ) === False )
-					{
-						// If syntax has inner content.
-						if( count( $content ) >= 1 ) throw new TemplateIndentationError( "*", $this->view, $i );
-					}
-				}
-			}
-			else {
-				
-				// Empty content will be allowed.
-				$content[] = "";
-			}
-			
-			// Set once as True.
-			$once = True;
-		}
-		
-		// Process matched closing syntax.
-		$closing =  $this->closing( $match, $closing );
-		
-		// Check if content is not empty.
-		if( count( $content ) !== 0 )
-		{
-			// Clear last line in content.
-			$content = $this->removeLastLine( $content, $closing['valid'] );
-			
-			// Re-Check if content is not empty.
-			if( count( $content ) !== 0 )
-			{
-				/*if( $match['token'] === "head" )
-				{
-					var_dump([
-						$content,
-						$closing
-					]);exit;
-				}*/
-				// Join newline into array contents.
-				$content = $this->reBuildSyntaxChild( $content );
-			}
-			else {
-				$content = Null;
-			}
-		}
-		else {
-			
-			// Set content as Null.
-			$content = Null;
-		}
-		return([
-			$content,
-			$closing
-		]);
-	}
-	
-	/*
 	 * Normalize raw template.
 	 *
 	 * @access Protected
@@ -545,98 +417,327 @@ class Template implements TemplateInterface
 			// Push iteration.
 			$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
 			
-			// Re-Build begin syntax.
-			$begin = $match['syntax'] = $this->reBuildSyntaxBegin( $match );
-			
-			// Check if matched syntax has token.
-			if( valueIsNotEmpty( $match['token'] ?? "" ) )
+			// Check if captured syntax is multiline syntax.
+			if( isset( $match['multiline'] ) )
 			{
-				// Get deep and closing content.
-				[ $children, $closing ] = $this->matchDeepContent( $match );
-				
-				// Get token name.
-				$token = $match['token'];
-				
-				// Get value inline.
-				$value = $match['value'] ?? Null;
-				
-				// Get inline values.
-				$inline = $match['inline'] ?? Null;
-				
-				// Get outline values.
-				$outline = $match['outline'] ?? Null;
-				
-				// Check if syntax is single line.
-				if( isset( $match['semicolon'] ) )
+				// Check if matched syntax has token.
+				if( valueIsNotEmpty( $match['token'] ?? "" ) )
 				{
-					// Check if syntax has outline value.
-					if( valueIsNotEmpty( $outline ) && $this->isComment( $outline ) === False ) throw new TemplateSyntaxError( $outline, $this->view, $this->getLine( $begin ) );
-				}
-				
-				// Default indentation.
-				$indent = "";
-				$indentLength = 0;
-				
-				// Check if syntax has indentation.
-				if( isset( $match['indent'] ) )
-				{
-					// Get indentation.
-					$indent = $this->resolveIndent( $match['indent'] );
+					// Template captured data.
+					$captured = new TemplateCaptured;
 					
-					// Get indentation length.
-					$indentLength = strlen( $indent );
+					// Set Regular Expression matched results.
+					$captured->match = RegExp\RegExp::clear( $match, True );
+					
+					// Set token name.
+					$captured->token = $captured->match->token;
+					
+					// Set normalized token name.
+					$captured->tokenLower = strtolower( $captured->match->token );
+					$captured->tokenUpper = strtolower( $captured->match->token );
+					
+					// Set captured syntax as multiline.
+					$captured->multiline = True;
+					
+					// Set captured view name.
+					$captured->view = $this->view;
+					
+					// Set value inline.
+					$captured->value = $captured->match->value ?? Null;
+					
+					// Set inline values.
+					$captured->inline = $captured->match->inline ?? Null;
+					
+					// Set outline values.
+					$captured->outline = $captured->match->outline ?? Null;
+					
+					// Set symbol.
+					$captured->symbol = $captured->match->symbol;
+					
+					// Set symbol mode.
+					$captured->colon = isset( $match['colon'] );
+					$captured->semicolon = isset( $match['semicolon'] );
+					
+					// Default indentation.
+					$captured->indent = [
+						"value" => "",
+						"length" => 0
+					];
+					
+					// Check if syntax has indentation.
+					if( isset( $captured->match->indent ) )
+					{
+						// Set indentation.
+						$captured->indent->value = $this->resolveIndent( $captured->match->indent );
+						
+						// Set indentation length.
+						$captured->indent->length = strlen( $captured->indent->value );
+					}
+					
+					// Set line number of syntax.
+					$captured->line = $this->getLine(
+						
+						// Re-Build begin syntax.
+						$captured->begin = $this->reBuildSyntaxBegin( $captured )
+					);
+					
+					// Check if syntax is single line.
+					if( $captured->outline && $captured->semicolon )
+					{
+						// Check if syntax has outline value.
+						if( valueIsNotEmpty( $captured->outline ) && $this->isComment( $captured->outline ) === False )
+						{
+							throw new TemplateSyntaxError( $captured->outline, $this->view, $this->getLine( $captured->begin ) );
+						}
+					}
+					
+					// Capture deep and closing content.
+					$this->parseDeep( $captured );
+					
+					// Build full captured syntax.
+					$captured->raw = $this->reBuilSyntaxCapture( $captured );
+					
+					// Processing captured syntax.
+					$result = $this->processing( $captured );
+					
+					// Replace template.
+					$template = str_replace( $captured->raw, f( "{}{}", $captured->indent->value, $result ), $template );
+					
+					// Continue matching.
+					continue;
 				}
+				else {
+					throw new TemplateSyntaxError( $match['syntax'], $this->view, $this->getLine( $match['syntax'] ) );
+				}
+			}
+			
+			// Check if captured syntax is commented.
+			else if( isset( $match['comment'] ) )
+			{
+				// Default replacement is blank for comment.
+				$replace = "";
 				
-				// Build full captured syntax.
-				$raw = $this->reBuilSyntaxCapture(
-					begin: $begin,
-					children: $children,
-					closing: $closing
-				);
-				
-				$captured = new TemplateCaptured([
-					"raw" => $raw,
-					"indent" => [
-						"value" => $indent,
-						"length" => $indentLength
-					],
-					"symbol" => $match['symbol'],
-					"token" => $token,
-					"value" => $value,
-					"begin" => $begin,
-					"inline" => $inline,
-					"outline" => $outline,
-					"children" => $children,
-					"closing" => $closing,
-					"multiline" => True,
-					"view" => $this->view,
-					"colon" => isset( $match['colon'] ),
-					"semicolon" => isset( $match['semicolon'] )
-				]);
-				
-				// Process captured syntax.
-				$result = $this->process( $captured );
-				//$result = str_replace( "@", "", $begin );
-				//$result = str_replace( $begin, $result, $raw );
+				// Check if comment is taggar type.
+				if( isset( $match['taggar'] ) )
+				{
+					// Check if comment is html type.
+					if( isset( $match['html'] ) )
+					{
+						// Change to html comment only.
+						$replace = f( "<!--{}-->", $match['text'] ?? "" );
+					}
+					else {
+						
+						// Check if comment taggar is Doctument Type.
+						if( $taggar = RegExp\RegExp::match( "/^(?:\!DOCTYPE(?:\s*)\/(?:\s*)(?<type>[a-zA-Z0-9_\-]+))(?:[\s\t]*)$/i", $match['text'] ) ) $replace = f( "<!DOCTYPE {}>", $taggar['type'] );
+					}
+				}
+				else {
+					
+					// Change to html comment only.
+					$replace = f( "<!--{}-->", $match['text'] ?? "" );
+				}
 				
 				// Replace template.
-				$template = str_replace( $raw, f( "{}{}", $captured->indent->value, $result ), $template );
-				/*if( $token === "div" )
-				{
-					echo htmlspecialchars( $template );
-					exit;
-				}*/
-				//exit( $captured );
+				$template = str_replace( $match['comment'], $replace, $template );
+				
+				// Continue matching.
+				continue;
 			}
+			
+			// Only one line mode.
 			else {
-				throw new TemplateSyntaxError( $match['syntax'], $this->view, $this->getLine( $match['syntax'] ) );
+				
+				echo htmlspecialchars( json_encode( RegExp\RegExp::clear( $match, True ), JSON_PRETTY_PRINT ) );
+				exit;
 			}
+			break;
 		}
+		
+		// Return Replaced unmatched syntax.
+		//return( RegExp\RegExp::replace( "/\\\(\@|\<|\>|\-|\:|\;)/", $template, "$1" ) );
 		return( $template );
 	}
 	
 	/*
-	 * Parse raw template single line mode.
+	 * Parse deep contents.
+	 *
+	 * @access Public
+	 *
+	 * @params Yume\Fure\View\TemplateCaptured $match
+	 *
+	 * @return Yume\Fure\Support\Data\DataInterface
+	 */
+	public function parseDeep( TemplateCaptured $captured ): Data\DataInterface
+	{
+		// ...
+		$once = False;
+		
+		// Deep content stack.
+		$captured->children = [];
+		
+		// Closing content.
+		$captured->closing = Null;
+		
+		// Split syntax with newline.
+		$msplit = explode( "\n", $captured->begin );
+		
+		// Get splited syntax length.
+		$msplitl = count( $msplit );
+		
+		// Get default indentation.
+		$indent = config( "view.template.indent.length" );
+		
+		// Check if syntax has indentation.
+		if( $captured->indent->length !== 0 )
+		{
+			// Get indentation length.
+			$indent = $captured->indent->length;
+			
+			// Check if indentation is is valid.
+			if( Util\Number::isEven( $indent ) )
+			{
+				$indent += 4;
+			}
+			else {
+				throw new TemplateIndentationError( "*", $this->view, $this->getLine( $msplit[0] ) );
+			}
+		}
+		
+		// Looping splited template from current line.
+		for( $i = $captured->line + $msplitl; $i < $this->templateLength +1; $i++ )
+		{
+			// Check if line is not exists.
+			if( isset( $this->templateSplit[( $i -1 )] ) === False ) break;
+			
+			// Check if content is not empty value.
+			if( $this->templateSplit[( $i -1 )] !== "" )
+			{
+				// Check if indentation is valid.
+				if( $valid = RegExp\RegExp::match( f( "/^[\s]\{{},\}/", $indent,), $this->templateSplit[( $i -1 )] ) )
+				{
+					// Get indent length.
+					$validIndentLength = strlen( $this->resolveIndent( $valid[0] ) );
+					
+					// Check if indentation level is invalid.
+					if( Util\Number::isOdd( $validIndentLength ) )
+					{
+						throw new TemplateIndentationError( "*", $this->view, $i );
+					}
+					
+					// Check if symbol is semicolon.
+					if( $captured->semicolon )
+					{
+						// Check if iteration is once.
+						if( $once === True )
+						{
+							// Set closing syntax and break the loop.
+							$captured->closing = $this->templateSplit[( $i -1 )]; break;
+						}
+						else {
+							
+							// Check if value is not empty.
+							if( valueIsNotEmpty( $this->templateSplit[( $i -1 )] ) && $this->isComment( $this->templateSplit[( $i -1 )] ) === False )
+							{
+								throw new TemplateIndentationError( "*", $this->view, $i );
+							}
+						}
+					}
+					else {
+						
+						// Check if outline value is not empty
+						// And outline is not comment syntax.
+						if( valueIsNotEmpty( $captured->outline ) && $this->isComment( $captured->outline ) === False )
+						{
+							// Check if syntax has inner content.
+							if( count( $captured->children ) >= 1 ) throw new TemplateIndentationError( "*", $this->view, $i );
+						}
+					}
+					$captured->children[] = $this->templateSplit[( $i -1 )];
+				}
+				else {
+					
+					// Re-Match indentation.
+					if( $valid = RegExp\RegExp::match( "/(^[\s]*)([^\n]*)/", $this->templateSplit[( $i -1 )] ) )
+					{
+						// Get indent length.
+						$validIndentLength = strlen( $this->resolveIndent( $valid[1] ) );
+						
+						// Check if indentation level is invalid.
+						if( Util\Number::isOdd( $validIndentLength ) )
+						{
+							throw new TemplateIndentationError( "*", $this->view, $i );
+						}
+						if( $validIndentLength < $indent || $valid[2] )
+						{
+							$captured->closing = $this->templateSplit[( $i -1 )]; break;
+						}
+						$content[] = $this->templateSplit[( $i -1 )];
+					}
+					else {
+						
+						// Set closing syntax and break the loop.
+						$captured->closing = $this->templateSplit[( $i -1 )]; break;
+					}
+				}
+				
+				// Check if captured syntax use
+				// colon symbol for closing outline.
+				if( $captured->colon )
+				{
+					// Check if outline value is not empty
+					// And outline is not comment syntax.
+					if( valueIsNotEmpty( $captured->outline ) && $this->isComment( $captured->outline ) === False )
+					{
+						// If syntax has inner content.
+						if( count( $captured->children ) >= 1 ) throw new TemplateIndentationError( "*", $this->view, $i );
+					}
+				}
+			}
+			else {
+				
+				// Empty content will be allowed.
+				$captured->children[] = "";
+			}
+			
+			// Set once as True.
+			$once = True;
+		}
+		
+		// Process matched closing syntax.
+		$this->closing( $captured );
+		
+		// Check if content is not empty.
+		if( count( $captured->children ) !== 0 )
+		{
+			// Clear last line in content.
+			$captured->children = $this->removeLastLine( $captured->children->__toArray(), $captured->closing->valid );
+			
+			// Re-Check if content is not empty.
+			if( count( $captured->children ) !== 0 )
+			{
+				// Join newline into array contents.
+				$captured->children = $this->reBuildSyntaxChild( $captured->children->__toArray() );
+			}
+			else {
+				$captured->children = Null;
+			}
+		}
+		else {
+			
+			// Set content as Null.
+			$captured->children = Null;
+		}
+		
+		// Return children content & closing.
+		return( new Data\Data([
+			"children" => $captured->children,
+			"closing" => $captured->closing
+		]));
+	}
+	
+	/*
+	 * Parse raw template based on position captured.
 	 *
 	 * @access Public
 	 *
@@ -644,106 +745,12 @@ class Template implements TemplateInterface
 	 *
 	 * @return String
 	 */
-	public function parseLine( String $template ): String
+	public function parsePost( String $template ): String
 	{
-		$pattern = new RegExp\Pattern( flags: "msJ", pattern: implode( "", [
-			"(?:",
-				"(?<matched>",
-					"(?<!\\\)*",
-					"(?:",
-						"(?<comment>\\#",
-							"(?:",
-								"(?<html>",
-									"\<",
-									"(?<text>[^\>]*)",
-									"\>",
-								")",
-								"|",
-								"(?<text>[^\n]*)",
-							")",
-						")",
-						"|",
-						"(?:\@)",
-						"(?<inline>",
-							"(?<token>[a-zA-Z0-9]*)",
-							"(?:[\s\t]*)",
-							"(?<value>.*?)",
-						")",
-						"(?<!\\\)",
-						"(?:\:)",
-						"(?<outline>[^\n]*)",
-						"(?<symbol>",
-							"(?<semicolon>\;)",
-						")",
-						"|",
-						"(?:\@)",
-						"(?<inline>",
-							"(?<token>[a-zA-Z0-9]*)",
-							"(?:[\s\t]*)",
-							"(?<value>.*?)",
-						")",
-						"(?<!\\\)",
-						"(?<symbol>",
-							"(?<semicolon>\;)",
-						")",
-					")",
-				")",
-			")"
-		]));
-		
-		// While syntax matched.
-		while( $match = $pattern->match( $template ) )
-		{
-			// Check if matched syntax is comment type.
-			if( valueIsNotEmpty( $match['comment'] ) )
-			{
-				// Check if comment is html mode.
-				if( valueIsNotEmpty( $match['html'] ) )
-				{
-					// Build HTML comment syntax.
-					$comment = f( "<!-- {} -->", $match['text'] ?? "" );
-				}
-				
-				// Replace comment.
-				$template = str_replace( $match['matched'], $comment ?? "", $template );
-			}
-			else {
-				
-				// Check if matched syntax has no token.
-				if( valueIsEmpty( $match['token'] ?? "" ) ) throw new TemplateSyntaxError( $match['matched'], $this->view, $this->getInline( $match['matched'] ) );
-				
-				// Create captured data.
-				$captured = new TemplateCaptured([
-					"raw" => $match['matched'],
-					"indent" => [
-						"value" => "",
-						"length" => 0
-					],
-					"symbol" => $match['symbol'],
-					"token" => $match['token'],
-					"value" => $match['value'] ?? Null,
-					"begin" => $match['matched'],
-					"inline" => $match['inline'] ?? Null,
-					"outline" => $match['outline'] ?? Null,
-					"children" => Null,
-					"closing" => [
-						"syntax" => Null,
-						"valid" => False
-					],
-					"multiline" => False,
-					"view" => $this->view,
-					"colon" => isset( $match['colon'] ),
-					"semicolon" => isset( $match['semicolon'] )
-				]);
-				
-				echo htmlspecialchars( $result = $this->process( $captured ) );
-			}
-		}
-		return( $template );
 	}
 	
 	/*
-	 * Process captured syntax.
+	 * Processing captured syntax.
 	 *
 	 * @access Private
 	 *
@@ -751,11 +758,8 @@ class Template implements TemplateInterface
 	 *
 	 * @return String
 	 */
-	private function process( TemplateCaptured $captured ): String
+	private function processing( TemplateCaptured $captured ): String
 	{
-		// Get captured line.
-		$captured->line = $captured->multiline ? $this->getLine( $captured->begin ) : $this->getInline( $captured->raw );
-		
 		// Mapping syntax processor groups.
 		foreach( $this->syntax As $group => $lists )
 		{
@@ -785,6 +789,13 @@ class Template implements TemplateInterface
 				// Check if the syntax supports tokens.
 				if( $class->isSupportedToken( $captured->token ) )
 				{
+					// Check if syntax is skiped.
+					if( $class->isSkip() )
+					{
+						// Skip looping execution.
+						break;
+					}
+					
 					// Return the result of the syntax that has been processed.
 					return( $class->process( $captured ) );
 				}
@@ -798,14 +809,14 @@ class Template implements TemplateInterface
 	 *
 	 * @access Protected
 	 *
-	 * @params Array $match
+	 * @params Yume\Fure\View\Template\TemplateCaptured $match
 	 * @params Bool $outline
 	 *
 	 * @return String
 	 */
-	protected function reBuildSyntaxBegin( Array $match, Bool $outline = True ): String
+	protected function reBuildSyntaxBegin( TemplateCaptured $captured, Bool $outline = True ): String
 	{
-		return( Util\Str::fmt( "{ indent }@{ inline }{ symbol }{ outline }", indent: $this->resolveIndent( $match['indent'] ?? "" ), inline: $match['inline'] ?? "", symbol: $match['symbol'], outline: str_replace( "\n", "", $match['outline'] ?? "" ) ) );
+		return( Util\Str::fmt( "{ indent }@{ inline }{ symbol }{ outline }", indent: $captured->indent->value ?? "", inline: $captured->inline ?? "", symbol: $captured->symbol, outline: str_replace( "\n", "", $captured->outline ?? "" ) ) );
 	}
 	
 	/*
@@ -813,25 +824,30 @@ class Template implements TemplateInterface
 	 *
 	 * @access Protected
 	 *
-	 * @params String $begin
-	 * @params String $children
-	 * @params Array $closing
+	 * @params Yume\Fure\View\TemplateCaptured $captured
 	 *
 	 * @return String
 	 */
-	protected function reBuilSyntaxCapture( String $begin, ? String $children, Array $closing ): String
+	protected function reBuilSyntaxCapture( TemplateCaptured $captured ): String
 	{
 		// Check if closing syntax is allowed.
-		if( $closing['valid'] )
+		if( $captured->closing->valid )
 		{
-			return( Util\Str::fmt( "{begin}\n{children}\n{closing.syntax}", begin: $begin, children: $children ?? "", closing: $closing ) );
+			// Check if captured has children.
+			if( $captured->children !== Null )
+			{
+				return( Util\Str::fmt( "{begin}\n{children}\n{closing}", begin: $captured->begin, children: $captured->children, closing: $captured->closing->syntax ) );
+			}
+			return( Util\Str::fmt( "{begin}\n{closing}", begin: $captured->begin, closing: $captured->closing->syntax ) );
 		}
 		else {
-			if( $children !== Null )
+			
+			// Check if captured has children.
+			if( $captured->children !== Null )
 			{
-				return( Util\Str::fmt( "{begin}\n{children}", begin: $begin, children: $children ?? "" ) );
+				return( Util\Str::fmt( "{begin}\n{children}", begin: $captured->begin, children: $captured->children ) );
 			}
-			return( $begin );
+			return( $captured->begin );
 		}
 	}
 	
@@ -849,6 +865,16 @@ class Template implements TemplateInterface
 		return( implode( "\n", $children ) );
 	}
 	
+	/*
+	 * Remove all last line.
+	 *
+	 * @access Protected
+	 *
+	 * @params Array $content
+	 * @params Bool $closing
+	 *
+	 * @return Array
+	 */
 	protected function removeLastLine( Array $content, Bool $closing ): Array
 	{
 		if( count( $content ) !== 0 )
@@ -884,6 +910,15 @@ class Template implements TemplateInterface
 		return( str_replace( "\n", "", $indent ) );
 	}
 	
+	/*
+	 * Resolve indentation value.
+	 *
+	 * @access Protected
+	 *
+	 * @params String $indent
+	 *
+	 * @return String
+	 */
 	protected function resolveIndent( String $indent ): String
 	{
 		// Split indentation with new line.

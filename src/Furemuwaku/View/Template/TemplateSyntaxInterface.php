@@ -20,6 +20,15 @@ interface TemplateSyntaxInterface
 	public function getToken(): Array | String;
 	
 	/*
+	 * Return if the syntax has a token.
+	 *
+	 * @access Public
+	 *
+	 * @return Bool
+	 */
+	public function hasToken(): Bool;
+	
+	/*
 	 * Return if the syntax supports more than one token.
 	 *
 	 * @access Public
