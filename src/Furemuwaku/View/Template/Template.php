@@ -115,78 +115,76 @@ class Template implements TemplateInterface
 		
 		// Set pattern.
 		$this->pattern = new RegExp\Pattern( flags: "msJ", pattern: implode( "", [
-			"(?:",
-				"(?<matched>",
-					"(?<multiline>",
-						"^",
-						"(?<indent>\s\s\s\s+|\t+)*",
-						"(?:\@)",
-						"(?<inline>",
-							"(?<token>[a-zA-Z0-9]*)",
-							"(?:[\s\t]*)",
-							"(?<value>.*?)",
-						")",
-						"(?<!\\\)",
-						"(?<symbol>",
-							"(?<colon>\:)|(?<semicolon>\;)",
-						")",
-						"(?<outline>([^\n]*))",
-					")|",
-					"(?<oneline>",
-						"(?<!\\\)",
-						"(?:",
-							"(?<comment>",
-								"(?<taggar>\\#",
-									"(?:",
-										"(?<html>",
-											"\<(?<text>.*?)(?<!\\\)\>",
-										")",
-										"|",
-										"(?<text>[^\n]*)",
+			"(?<matched>",
+				"(?<multiline>",
+					"^",
+					"(?<indent>\s\s\s\s+|\t+)*",
+					"(?:\@)",
+					"(?<inline>",
+						"(?<token>[a-zA-Z0-9]*)",
+						"(?:[\s\t]*)",
+						"(?<value>.*?)",
+					")",
+					"(?<!\\\)",
+					"(?<symbol>",
+						"(?<colon>\:)|(?<semicolon>\;)",
+					")",
+					"(?<outline>([^\n]*))",
+				")|",
+				"(?<oneline>",
+					"(?<!\\\)",
+					"(?:",
+						"(?<comment>",
+							"(?<taggar>\\#",
+								"(?:",
+									"(?<html>",
+										"\<(?<text>.*?)(?<!\\\)\>",
 									")",
-								")",
-								"|",
-								"(?<html>",
-									"\<\+\+(?<text>.*?)\+\+\>",
+									"|",
+									"(?<text>[^\n]*)",
 								")",
 							")",
 							"|",
-							"(?<online>",
-								"(?:\@)",
-								"(?:",
-									"(?<with>",
-										"(?<inline>",
-											"(?<token>[a-zA-Z0-9]*)",
-											"(?:[\s\t]*)",
-											"(?<value>[^?<!\\\\:]*)",
-										")",
-										"(?<!\\\)",
-										"(?:\:)",
+							"(?<html>",
+								"\<\+\+(?<text>.*?)\+\+\>",
+							")",
+						")",
+						"|",
+						"(?<online>",
+							"(?:\@)",
+							"(?:",
+								"(?<with>",
+									"(?<inline>",
+										"(?<token>[a-zA-Z0-9]*)",
 										"(?:[\s\t]*)",
-										"(?<outline>[^?<!\\\\;]*)",
-										"(?<!\\\)",
-										"(?<symbol>",
-											"(?<semicolon>\;)",
-										")",
+										"(?<value>[^?<!\\\\:]*)",
 									")",
-									"|",
-									"(?<without>",
-										"(?<inline>",
-											"(?<token>[a-zA-Z0-9]*)",
-											"(?:[\s\t]*)",
-											"(?<value>[^?<!\\\\:]*)",
-										")",
-										"(?<!\\\)",
-										"(?<symbol>",
-											"(?<semicolon>\;)",
-										")",
+									"(?<!\\\)",
+									"(?:\:)",
+									"(?:[\s\t]*)",
+									"(?<outline>[^?<!\\\\;]*)",
+									"(?<!\\\)",
+									"(?<symbol>",
+										"(?<semicolon>\;)",
+									")",
+								")",
+								"|",
+								"(?<without>",
+									"(?<inline>",
+										"(?<token>[a-zA-Z0-9]*)",
+										"(?:[\s\t]*)",
+										"(?<value>[^?<!\\\\:]*)",
+									")",
+									"(?<!\\\)",
+									"(?<symbol>",
+										"(?<semicolon>\;)",
 									")",
 								")",
 							")",
 						")",
 					")",
 				")",
-			")"
+			")",
 		]));
 	}
 	
@@ -411,8 +409,8 @@ class Template implements TemplateInterface
 	 */
 	public function parse( String $template ): String
 	{
-		// While syntax matched.
-		while( $match = $this->pattern->match( $template ) )
+		// Matching syntax.
+		do
 		{
 			// Push iteration.
 			$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
@@ -499,6 +497,16 @@ class Template implements TemplateInterface
 					
 					// Processing captured syntax.
 					$result = $this->processing( $captured );
+
+					// ...
+					if( is_array( $result ) )
+					{
+						// ...
+						$captured->raw = $result['raw'] ?? $result [0];
+
+						// ...
+						$result = $result['result'] ?? $result [1];
+					}
 					
 					// Replace template.
 					$template = str_replace( $captured->raw, f( "{}{}", $captured->indent->value, $result ), $template );
@@ -546,16 +554,15 @@ class Template implements TemplateInterface
 			}
 			
 			// Only one line mode.
-			else {
-				
+			else if( isset( $match['oneline'] ) )
+			{
 				echo htmlspecialchars( json_encode( RegExp\RegExp::clear( $match, True ), JSON_PRETTY_PRINT ) );
-				exit;
+				//exit;
 			}
-			break;
 		}
+		while( $match = $this->pattern->match( $template ) );
 		
-		// Return Replaced unmatched syntax.
-		//return( RegExp\RegExp::replace( "/\\\(\@|\<|\>|\-|\:|\;)/", $template, "$1" ) );
+		// Return compiled syntax.
 		return( $template );
 	}
 	
@@ -756,9 +763,9 @@ class Template implements TemplateInterface
 	 *
 	 * @params Yume\Fure\View\Template\TemplateCaptured $captured
 	 *
-	 * @return String
+	 * @return Array|String
 	 */
-	private function processing( TemplateCaptured $captured ): String
+	private function processing( TemplateCaptured $captured ): Array | String
 	{
 		// Mapping syntax processor groups.
 		foreach( $this->syntax As $group => $lists )

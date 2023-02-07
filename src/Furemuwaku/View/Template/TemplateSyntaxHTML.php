@@ -174,6 +174,15 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		parent::__construct( $context, $configs );
 	}
 	
+	/*
+	 * HTML Attribute builder.
+	 *
+	 * @access Public
+	 *
+	 * @params Array $attr
+	 *
+	 * @return String
+	 */
 	public function builder( Array $attr ): String
 	{
 		// Copy object instance.
@@ -194,8 +203,8 @@ class TemplateSyntaxHTML extends TemplateSyntax
 					// Push attribute.
 					$stack[] = match( True )
 					{
-						$option['dynamic'] => f( "data-{}=\"<? {} ?>\"", $name, $option['value'] ),
-						$option['default'] => f( "data-{}=\"{}\"", $name, $option['value'] ),
+						$option['dynamic'] => f( "data-{}=\"<? {} ?>\"", $name, $option['values'] ),
+						$option['default'] => f( "data-{}=\"{}\"", $name, $option['values'] ),
 						defaut => f( "data-{}", $name )
 					};
 				});
@@ -205,8 +214,8 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				// Push attribute.
 				$stack[] = match( True )
 				{
-					$option['dynamic'] => f( "{}=\"<? {} ?>\"", $name, $option['value'] ),
-					$option['default'] => f( "{}=\"{}\"", $name, $option['value'] ),
+					$option['dynamic'] => f( "{}=\"<? {} ?>\"", $name, $option['values'] ),
+					$option['default'] => f( "{}=\"{}\"", $name, $option['values'] ),
 					defaut => $name
 				};
 			}
@@ -214,7 +223,17 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		return( implode( "\x20", $stack ) );
 	}
 	
-	public function extract( ? String $params, Bool $build = True )//: Array | String
+	/*
+	 * Extract html attributes.
+	 *
+	 * @access Public
+	 *
+	 * @params String $params
+	 * @params Bool $build
+	 *
+	 * @return Array|String
+	 */
+	public function extract( ? String $params, Bool $build = True ): Array | String
 	{
 		// Copy object instance.
 		$self = $this;
@@ -224,19 +243,10 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		$data = [];
 		
 		// Attribute regular expression.
-		$regexp = "/(?<matched>\b(?:(?<data>data)\-)*(?<name>[a-zA-Z\_\x80-\xff](?:[a-zA-Z0-9\_\-\x80-\xff]*[a-zA-Z\_\x80-\xff])*)(?:(?<dynamic>(?:\s*(?<!\\\)(\=)\s*)*(?:\[)(?<value>[^\]\\\]*(?:.[^\]\\\]*)*)(?:\]))|(?<default>(?:\s*(?<!\\\)(\=)\s*)(?:\"(?<value>[^\"\\\]*(?:\\.[^\"\\\]*)*)\"|\'(?<value>[^\'\\\]*(?:\\.[^\'\\\]*)*)\'|(?<value>[^\s\"\']+))))*)/msiJ";
+		$regexp = "/(?<matched>\b(?:(?<data>data)\-)*(?<name>[a-zA-Z\_\x80-\xff](?:[a-zA-Z0-9\_\-\x80-\xff]*[a-zA-Z\_\x80-\xff])*)(?:(?<dynamic>(?:\s*(?<!\\\)(\=)\s*)*(?:\[)(?<value>[^\]\\\]*(?:.[^\]\\\]*)*)(?:\]))|(?<default>(?:\s*(?<!\\\)(\=)\s*)(?:\"(?<value>.*?)(?<!\\\)\"|\'(?<value>[^\'\\\]*(?:\\.[^\'\\\]*)*)\'|(?<value>[^\s\"\']+))))*)/msiJ";
 		
-		/*
-		 * Capture and replace all attributes.
-		 * Keep in mind that not all html attribute
-		 * types can be captured here, because basically
-		 * HTML has a fairly complex attribute syntax.
-		 *
-		 * If there are characters that are still left
-		 * or not caught after being overwritten, it will
-		 * be considered as a syntax error.
-		 */
-		$replace = RegExp\RegExp::replace( $regexp, $params, static function( Array $match ) use( &$attr, &$data, $self )
+		// Capture and replace all valid attributes.
+		$replace = RegExp\RegExp::replace( $regexp, $params, function( Array $match ) use( &$attr, &$data, $self, $params )
 		{
 			// Clear match result.
 			$match = RegExp\RegExp::clear( $match );
@@ -244,33 +254,48 @@ class TemplateSyntaxHTML extends TemplateSyntax
 			// Get attribute name.
 			$name = strtolower( $match['name'] );
 			
-			// Get attribute value.
-			$value = match( True )
-			{
-				// If attribute is dynamically value.
-				isset( $match['dynamic'] ) => [
-					"dynamic" => True,
-					"default" => False,
-					"value" => $match['value'] ?? ""
-				],
-				
-				// If attribute is default typed.
-				isset( $match['default'] ) => [
-					"dynamic" => False,
-					"default" => True,
-					"value" => $match['value'] ?? ""
-				],
-				
-				// If attribute is only name.
-				default => [
-					"dynamic" => False,
-					"default" => False,
-					"value" => True
-				]
-			};
+			// Default attribute value.
+			$value = [
+				"dynamic" => False,
+				"default" => False,
+				"value" => True
+			];
 			
-			// Clear all backslash.
-			$value['value'] = $self->normalize( $value['value'], [ "\"", "\'", "\\[", "\\]", "\\:", "\\;", "\\=" ] );
+			// If attribute is dynamically value.
+			if( isset( $match['dynamic'] ) )
+			{
+				// Set value type as dynamic.
+				$value['dynamic'] = True;
+				
+				// Normalize dynamic value.
+				$value['values'] = $this->normalize( $match['value'] ?? "", [ "\"", "\'", "\\[", "\\]", "\\:", "\\;", "\\=" ] );
+			}
+			
+			// If attribute is default type.
+			else if( isset( $match['default'] ) )
+			{
+				// Checks if there are double quotes in the attribute value.
+				if( strpos( $match['value'] ?? "", "\"" ) === False )
+				{
+					// Set value type as default.
+					$value['default'] = True;
+					
+					// Normalize dynamic value.
+					$value['values'] = $this->normalize( $match['value'] ?? "", [ "\'", "\\[", "\\]", "\\:", "\\;", "\\=" ] );
+				}
+				else {
+					
+					/*
+					 * I don't know why PHP is not throwing
+					 * this error, if the error is thrown
+					 * it will just show a blank page,
+					 * I will fix this as soon as possible.
+					 *
+					 */
+					//throw new TemplateSyntaxError( "Non-dynamic HTML attribute values cannot contain double quotes", $this->context->view, $this->context->getInline( $params ), 0 );
+					$value['values'] = htmlspecialchars( $this->normalize( $match['value'] ?? "", [ "\"", "\'", "\\[", "\\]", "\\:", "\\;", "\\=" ] ) );
+				}
+			}
 			
 			// Check if attribute is data.
 			if( valueIsNotEmpty( $match['data'] ) )
@@ -283,10 +308,17 @@ class TemplateSyntaxHTML extends TemplateSyntax
 			}
 		});
 		
-		// Check if there are characters that are not caught.
+		/*
+		 * Check if there are characters that are not caught.
+		 *
+		 * And if after being replaced there are characters that
+		 * are not caught then these characters will be
+		 * considered invalid syntax.
+		 *
+		 */
 		if( $char = RegExp\RegExp::match( "/([^\s])/", $replace ) )
 		{
-			throw new TemplateSyntaxError( f( "Invalid \"{}\" character for attribute syntax", $char[0] ), $this->context->view, $this->context->getInline( $params ), 0 );
+			throw new TemplateSyntaxError( f( "Invalid \"{}\" character for attribute", $char[0] ), $this->context->view, $this->context->getInline( $params ), 0 );
 		}
 		else {
 			
@@ -330,7 +362,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function process( TemplateCaptured $captured ): String
+	public function process( TemplateCaptured $captured ): Array | String
 	{
 		// Check if tag has attributes.
 		if( valueIsNotEmpty( $captured->value ) )

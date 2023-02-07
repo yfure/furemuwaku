@@ -83,7 +83,7 @@ class TemplateSyntaxPHP extends TemplateSyntax
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function process( TemplateCaptured $captured ): String
+	public function process( TemplateCaptured $captured ): Array | String
 	{
 		echo $captured;
 		echo "\n\n";

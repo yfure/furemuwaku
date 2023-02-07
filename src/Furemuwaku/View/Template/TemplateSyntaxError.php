@@ -21,7 +21,6 @@ class TemplateSyntaxError extends TemplateError
 	public function __construct( Array | Int | String $message, ? String $file = Null, ? Int $line = Null, Int $code = self::SYNTAX_ERROR, ? Throwable $previous = Null )
 	{
 		// ...
-		
 		parent::__construct( $message, $file, $line, $code, $previous );
 	}
 	

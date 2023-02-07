@@ -66,9 +66,9 @@ interface TemplateSyntaxInterface
 	 *
 	 * @params Yume\Fure\View\Template\TemplateCaptured $captured
 	 *
-	 * @return String
+	 * @return Arraya|String
 	 */
-	public function process( TemplateCaptured $captured ): String;
+	public function process( TemplateCaptured $captured ): Array | String;
 	
 }
 
