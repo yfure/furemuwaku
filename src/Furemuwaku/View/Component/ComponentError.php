@@ -13,7 +13,19 @@ use Yume\Fure\View;
  */
 class ComponentError extends View\ViewError
 {
-	// ...
+	
+	public const NAME_ERROR = 65446;
+	
+	/*
+	 * @inherit Yume\Fure\View\ViewError
+	 *
+	 */
+	protected Array $flags = [
+		ComponentError::class => [
+			self::NAME_ERROR
+		]
+	];
+	
 }
 
 ?>

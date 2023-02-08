@@ -31,6 +31,8 @@ class Template implements TemplateInterface
 	 */
 	private ? Int $iteration = Null;
 	
+	private Readonly Data\DataInterface $matched;
+	
 	/*
 	 * Regular Expression Pattern.
 	 *
@@ -112,6 +114,20 @@ class Template implements TemplateInterface
 		
 		// Get splited length.
 		$this->templateLength = count( $this->templateSplit );
+		
+		// Set matched data.
+		$this->matched = new Data\Data([
+			"current" => [
+				"line" => 0,
+				"skip" => False,
+				"token" => False
+			],
+			"previous" => [
+				"line" => 0,
+				"skip" => False,
+				"token" => False
+			]
+		]);
 		
 		// Set pattern.
 		$this->pattern = new RegExp\Pattern( flags: "msJ", pattern: implode( "", [
@@ -218,7 +234,7 @@ class Template implements TemplateInterface
 				if( strtolower( $valid['token'] ) === "pass" )
 				{
 					// Check if outline syntax is not empty && syntax is not comment type.
-					if( valueIsNotEmpty( $valid['outline'] ) && $this->isComment( $valid['outline'] ) === False ) throw new TemplateSyntaxError( $valid['outline'], $this->view, $this->getLine( $closing ) );
+					if( valueIsNotEmpty( $valid['outline'] ) && $valid['outline'] !== ";" && $this->isComment( $valid['outline'] ) === False ) throw new TemplateSyntaxError( $valid['outline'], $this->view, $this->getLine( $captured->closing->syntax ) );
 					
 					// Push token.
 					$captured->closing->token = "pass";
@@ -238,7 +254,7 @@ class Template implements TemplateInterface
 				if( strlen( $valid['dollar'] ) > 1 ) throw new TemplateSyntaxError( $valid['dollar'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Check if outline syntax is not empty && syntax is not comment type.
-				if( valueIsNotEmpty( $valid['outline'] ) && $this->isComment( $valid['outline'] ) === False ) throw new TemplateSyntaxError( $valid['outline'], $this->view, $this->getLine( $captured->closing->syntax ) );
+				if( valueIsNotEmpty( $valid['outline'] ) && $valid['outline'] !== ";" && $this->isComment( $valid['outline'] ) === False ) throw new TemplateSyntaxError( $valid['outline'], $this->view, $this->getLine( $captured->closing->syntax ) );
 				
 				// Push token.
 				$captured->closing->token = "$";
@@ -361,6 +377,25 @@ class Template implements TemplateInterface
 		return( $this )->templateLength;
 	}
 	
+	public function getTemplateSLine( Int $line ): String
+	{
+		if( $line < 1 )
+		{
+			throw new Error\ValueError( f( "Value of argument \$line for {} must be more than one", __METHOD__ ) );
+		}
+		
+		$stack = [];
+		
+		foreach( $this->templateSplit As $i => $val )
+		{
+			if( $i +1 >= $line )
+			{
+				$stack[] = $val;
+			}
+		}
+		return( implode( "\n", $stack ) );
+	}
+	
 	/*
 	 * @inherit Yume\Fure\View\Template\TemplateInterface
 	 *
@@ -424,7 +459,7 @@ class Template implements TemplateInterface
 					// Template captured data.
 					$captured = new TemplateCaptured;
 					
-					// Set Regular Expression matched results.
+					// Set matched results.
 					$captured->match = RegExp\RegExp::clear( $match, True );
 					
 					// Set token name.
@@ -434,25 +469,12 @@ class Template implements TemplateInterface
 					$captured->tokenLower = strtolower( $captured->match->token );
 					$captured->tokenUpper = strtolower( $captured->match->token );
 					
-					// Set captured syntax as multiline.
 					$captured->multiline = True;
-					
-					// Set captured view name.
 					$captured->view = $this->view;
-					
-					// Set value inline.
 					$captured->value = $captured->match->value ?? Null;
-					
-					// Set inline values.
 					$captured->inline = $captured->match->inline ?? Null;
-					
-					// Set outline values.
 					$captured->outline = $captured->match->outline ?? Null;
-					
-					// Set symbol.
 					$captured->symbol = $captured->match->symbol;
-					
-					// Set symbol mode.
 					$captured->colon = isset( $match['colon'] );
 					$captured->semicolon = isset( $match['semicolon'] );
 					
@@ -557,7 +579,7 @@ class Template implements TemplateInterface
 			else if( isset( $match['oneline'] ) )
 			{
 				echo htmlspecialchars( json_encode( RegExp\RegExp::clear( $match, True ), JSON_PRETTY_PRINT ) );
-				//exit;
+				exit;
 			}
 		}
 		while( $match = $this->pattern->match( $template ) );
@@ -814,14 +836,14 @@ class Template implements TemplateInterface
 	/*
 	 * Re-Build syntax begin.
 	 *
-	 * @access Protected
+	 * @access Public
 	 *
 	 * @params Yume\Fure\View\Template\TemplateCaptured $match
 	 * @params Bool $outline
 	 *
 	 * @return String
 	 */
-	protected function reBuildSyntaxBegin( TemplateCaptured $captured, Bool $outline = True ): String
+	public function reBuildSyntaxBegin( TemplateCaptured $captured, Bool $outline = True ): String
 	{
 		return( Util\Str::fmt( "{ indent }@{ inline }{ symbol }{ outline }", indent: $captured->indent->value ?? "", inline: $captured->inline ?? "", symbol: $captured->symbol, outline: str_replace( "\n", "", $captured->outline ?? "" ) ) );
 	}
@@ -835,7 +857,7 @@ class Template implements TemplateInterface
 	 *
 	 * @return String
 	 */
-	protected function reBuilSyntaxCapture( TemplateCaptured $captured ): String
+	public function reBuilSyntaxCapture( TemplateCaptured $captured ): String
 	{
 		// Check if closing syntax is allowed.
 		if( $captured->closing->valid )
@@ -861,13 +883,13 @@ class Template implements TemplateInterface
 	/*
 	 * Re-Build syntax children.
 	 *
-	 * @access Protected
+	 * @access Public
 	 *
 	 * @params Array $children
 	 *
 	 * @return String
 	 */
-	protected function reBuildSyntaxChild( Array $children ): String
+	public function reBuildSyntaxChild( Array $children ): String
 	{
 		return( implode( "\n", $children ) );
 	}
@@ -875,14 +897,14 @@ class Template implements TemplateInterface
 	/*
 	 * Remove all last line.
 	 *
-	 * @access Protected
+	 * @access Public
 	 *
 	 * @params Array $content
 	 * @params Bool $closing
 	 *
 	 * @return Array
 	 */
-	protected function removeLastLine( Array $content, Bool $closing ): Array
+	public function removeLastLine( Array $content, Bool $closing ): Array
 	{
 		if( count( $content ) !== 0 )
 		{
@@ -906,13 +928,13 @@ class Template implements TemplateInterface
 	/*
 	 * Remove new line in indentation value.
 	 *
-	 * @access Protected
+	 * @access Public
 	 *
 	 * @params String $indent
 	 *
 	 * @return String
 	 */
-	protected function removeLine( String $indent ): String
+	public function removeLine( String $indent ): String
 	{
 		return( str_replace( "\n", "", $indent ) );
 	}
@@ -920,13 +942,13 @@ class Template implements TemplateInterface
 	/*
 	 * Resolve indentation value.
 	 *
-	 * @access Protected
+	 * @access Public
 	 *
 	 * @params String $indent
 	 *
 	 * @return String
 	 */
-	protected function resolveIndent( String $indent ): String
+	public function resolveIndent( String $indent ): String
 	{
 		// Split indentation with new line.
 		$split = explode( "\n", $indent );

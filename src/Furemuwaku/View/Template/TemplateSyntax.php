@@ -69,6 +69,15 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 */
 	final public function getToken(): Array | String
 	{
+		// Check if syntax is support multiple token.
+		if( $this->isMultipleToken() )
+		{
+			// Check if array is not List type.
+			if( array_is_list( $this->token ) === False )
+			{
+				return( array_keys( $this->token ) );
+			}
+		}
 		return( $this )->token;
 	}
 	
@@ -111,7 +120,12 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 		// Check if syntax is support multiple token.
 		if( $this->isMultipleToken() )
 		{
-			return( in_array( $token, $this->token ) );
+			// Check if array is List type.
+			if( array_is_list( $this->token ) )
+			{
+				return( in_array( $token, $this->token ) );
+			}
+			return( isset( $this->token[$token] ) );
 		}
 		return( $this->token === $token );
 	}

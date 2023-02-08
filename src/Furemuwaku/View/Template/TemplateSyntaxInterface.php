@@ -64,11 +64,11 @@ interface TemplateSyntaxInterface
 	 *
 	 * @access Public
 	 *
-	 * @params Yume\Fure\View\Template\TemplateCaptured $captured
+	 * @params Yume\Fure\View\Template\TemplateCaptured $syntax
 	 *
-	 * @return Arraya|String
+	 * @return Array|String
 	 */
-	public function process( TemplateCaptured $captured ): Array | String;
+	public function process( TemplateCaptured $syntax ): Array | String;
 	
 }
 

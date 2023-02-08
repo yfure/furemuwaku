@@ -362,59 +362,59 @@ class TemplateSyntaxHTML extends TemplateSyntax
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function process( TemplateCaptured $captured ): Array | String
+	public function process( TemplateCaptured $syntax ): Array | String
 	{
 		// Check if tag has attributes.
-		if( valueIsNotEmpty( $captured->value ) )
+		if( valueIsNotEmpty( $syntax->value ) )
 		{
 			// Get extracted attributes.
-			$attr = $this->extract( $captured->value );
+			$attr = $this->extract( $syntax->value );
 			
 			// Default captured attribute.
-			$captured->attr = "";
+			$syntax->attr = "";
 			
 			// Check if tag has attribute.
 			if( valueIsNotEmpty( $attr ) )
 			{
-				$captured->attr = "\x20$attr";
+				$syntax->attr = "\x20$attr";
 			}
 		}
 		
 		// Check if tag has inner content.
-		if( $captured->children )
+		if( $syntax->children )
 		{
 			// Remove all first empty line in content.
-			$children = $this->removeFirstLine( explode( "\n", $captured->children ) );
+			$children = $this->removeFirstLine( explode( "\n", $syntax->children ) );
 			
 			// Check if inner content is not empty.
 			if( count( $children ) !== 0 )
 			{
 				// Re-Parse inner content.
-				$captured->children = $this->context->parse( implode( "\n", $children ) );
+				$syntax->children = $this->context->parse( implode( "\n", $children ) );
 			}
 			else {
-				$captured->children = Null;
+				$syntax->children = Null;
 			}
 		}
 		
 		// Check if tag captured with colon symbol.
-		if( $captured->colon )
+		if( $syntax->colon )
 		{
 			// Check if tag is unpaired type.
-			if( $this->isUnpaired( $captured->token ) )
+			if( $this->isUnpaired( $syntax->token ) )
 			{
-				throw new TemplateSyntaxError( f( "\"{}\" is an unpaired tag and does not support single-line content and inner content", $captured->token ), $captured->view, $captured->line, 0 );
+				throw new TemplateSyntaxError( f( "\"{}\" is an unpaired tag and does not support single-line content and inner content", $syntax->token ), $syntax->view, $syntax->line, 0 );
 			}
 			else {
 				
 				// Check if tag has inner content.
-				if( $captured->children )
+				if( $syntax->children )
 				{
 					// Default format with inner content.
 					$format = "<{token}{attr}>\n{children}\n{indent}</{token}>";
 					
 					// Check if tag has outline content.
-					if( valueIsNotEmpty( $captured->outline ) )
+					if( valueIsNotEmpty( $syntax->outline ) )
 					{
 						// Add outline in tag inner.
 						$format = "<{token}{attr}>{outline}\n{children}\n{indent}</{token}>";
@@ -426,7 +426,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 					$format = "<{token}{attr}></{token}>";
 					
 					// Check if tag has outline content.
-					if( valueIsNotEmpty( $captured->outline ) )
+					if( valueIsNotEmpty( $syntax->outline ) )
 					{
 						// Add outline into inner content.
 						$format = "<{token}{attr}>{outline}</{token}>";
@@ -437,13 +437,13 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		else {
 			
 			// Check if tag is paired type.
-			if( $this->isPaired( $captured->token ) )
+			if( $this->isPaired( $syntax->token ) )
 			{
 				// Default format without outline content.
 				$format = "<{token}{attr}></{token}>";
 				
 				// Check if tag has outine content.
-				if( valueIsNotEmpty( $captured->outline ) )
+				if( valueIsNotEmpty( $syntax->outline ) )
 				{
 					// Add outline into inner content.
 					$format = "<{token}{attr}>{outline}</{token}>";
@@ -455,7 +455,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				$format = "<{token}{attr} />";
 				
 				// Check if tag has outine content.
-				if( valueIsNotEmpty( $captured->outline ) )
+				if( valueIsNotEmpty( $syntax->outline ) )
 				{
 					// Add outline into inner content.
 					$format = "<{token}{attr} />{outline}";
@@ -464,7 +464,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		}
 		
 		// Return formated content.
-		return( $this )->format( $format, $captured );
+		return( $this )->format( $format, $syntax );
 	}
 	
 	/*
