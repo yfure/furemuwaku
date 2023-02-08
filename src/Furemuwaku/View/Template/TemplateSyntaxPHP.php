@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\View\Template;
 
+use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
 
 /*
@@ -28,8 +29,49 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"continue",
 			"default",
 			"do",
-			"elif",
-			"else",
+			"elif" => [
+				"format" => [
+					"paired" => "{indent}<?php \} else if( {condition} ) \{ ?>\n{content}\n{indent}<?php \} ?>",
+					"unpaired" => "{indent}<?php \} else if( {condition} ) \{ ?>{content}<?php \} ?>",
+					"nextmatch" => "{indent}<?php \} else if( {condition} ) \{ ?>\n{content}\n{nextmatch}"
+				],
+				"inline" => [
+					"unpaired" => "<?php \} else if( {condition} ) \{ ?>{content}<?php \} ?>",
+					"nextmatch" => "<?php \} else if( {condition} ) \{ ?>\n{content}\n{nextmatch}"
+				],
+				"paired" => True,
+				"unpaired" => True,
+				"nextmatch" => [
+					"token" => [
+						"elif",
+						"else",
+						"elseif",
+						"empty",
+						"isset"
+					],
+					"require" => False
+				],
+				"condition" => [
+					"allow" => True,
+					"require" => True
+				]
+			],
+			"else" => [
+				"format" => [
+					"paired" => "{indent}<?php \} else \{ ?>\n{content}\n{indent}<?php } ?>",
+					"unpaired" => "{indent}<?php \} else \{ ?>{content}<?php } ?>",
+				],
+				"inline" => [
+					"unpaired" => "<?php \} else \{ ?>{content}<?php } ?>"
+				],
+				"paired" => True,
+				"unpaired" => True,
+				"nextmatch" => False,
+				"condition" => [
+					"allow" => False,
+					"require" => False
+				]
+			],
 			"elseif",
 			"empty",
 			"for",
@@ -38,11 +80,11 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 				"format" => [
 					"paired" => "<?php if( {condition} ) { ?>\n{content}\n{indent}<?php } ?>",
 					"unpaired" => "<?php if( {condition} ) { ?>{content}<?php } ?>",
-					"nextmatch" => "<?php if( {condition} ) { ?>\n{content}\n{closing}"
+					"nextmatch" => "<?php if( {condition} ) { ?>\n{content}\n{nextmatch}"
 				],
 				"inline" => [
 					"unpaired" => "<?php if( {condition} ) { ?>{content}<?php } ?>",
-					"nextmatch" => "<?php if( {condition} ) { ?>\n{content}\n{closing}"
+					"nextmatch" => "<?php if( {condition} ) { ?>\n{content}\n{nextmatch}"
 				],
 				"paired" => True,
 				"unpaired" => True,
@@ -198,14 +240,14 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 	
 	public function isMultimatchRequired( String $token ): Bool
 	{
-		return( $this )->token[strtolower( $token )]['nextmatch']['require'];
+		return( $this->isMultimatch( $token ) && $this->token[strtolower( $token )]['nextmatch']['require'] );
 	}
 	
 	/*
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function process( TemplateCaptured $syntax ): String
+	public function process( TemplateCaptured $syntax ): Array | String
 	{
 		// ...
 		$this->assert( $syntax );
@@ -222,10 +264,41 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			}
 		}
 		
-		echo $closing;
-		echo "\n\n";
-		echo $syntax;
-		exit;
+		if( $syntax->multiline )
+		{
+			if( $syntax->semicolon )
+			{
+				$format = $this->token[$syntax->token]['format']['unpaired'];
+			}
+			else {
+				
+				$format = $this->token[$syntax->token]['format']['paired'];
+				
+				if( $closing !== False )
+				{
+					$format = $this->token[$syntax->token]['format']['nextmatch'];
+				}
+				else {
+					// ...
+				}
+			}
+		}
+		else {
+			
+			$format = $this->token[$syntax->token]['inline']['unpaired'];
+			
+			if( $closing !== False )
+			{
+				$format = $this->token[$syntax->token]['inline']['nextmatch'];
+			}
+		}
+		
+		$format = $this->format( $format, $syntax );
+		
+		return([
+			"result" => $format,
+			"raw" => $syntax->raw
+		]);
 	}
 	
 	/*
@@ -284,8 +357,22 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 		}
 	}
 	
-	private function closing( TemplateCaptured $syntax )
+	/*
+	 * Re-Match closing syntax.
+	 *
+	 * @access Private
+	 *
+	 * @params Yume\Fure\Support\Data\DataInterface $syntax
+	 *
+	 * @return Array|False|String
+	 */
+	private function closing( TemplateCaptured $syntax ): Array | False | String
 	{
+		$syntax->closing->nextmatch = [
+			"syntax" => Null,
+			"captured" => Null
+		];
+		
 		if( $this->isMultimatch( $syntax->token ) )
 		{
 			// ...
@@ -295,79 +382,66 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			if( $syntax->closing->valid ) return( False );
 			
 			// ...
-			$regexp = f( "/^(?<matched>(?<indent>\s\{{},\})(?:\@)(?<inline>(?<token>(?:{implode(\{\})})\b)(?:[\s\t]*)(?<value>.*?))(?<!\\\)(?<symbol>(?<colon>\:)|(?<semicolon>\;))(?<outline>([^\n]*)))/ms", $syntax->indent->length, [ "|", $this->token[$syntax->tokenLower]['nextmatch']['token'] ] );
+			$regexp = f( "/^(?<matched>(?<multiline>(?<indent>\s\{{},\})(?:\@)(?<inline>(?<token>(?:{})\b)(?:[\s\t]*)(?<value>.*?))(?<!\\\)(?<symbol>(?<colon>\:)|(?<semicolon>\;))(?<outline>([^\n]*))))/ms", $syntax->indent->length, implode( "|", $this->token[$syntax->tokenLower]['nextmatch']['token'] ) );
 			
 			// ...
 			$content = $this->context->getTemplateSLine( $syntax->closing->line );
 			
+			// ....
 			if( $match = RegExp\RegExp::match( $regexp, $content ) )
 			{
-				// Template captured data.
-				$captured = new TemplateCaptured;
+				$capture = $this->context->captured( $match );
+				$process = $this->process( $capture );
 				
-				// Set matched results.
-				$captured->match = RegExp\RegExp::clear( $match, True );
-				
-				// Set token name.
-				$captured->token = $captured->match->token;
-				
-				// Set normalized token name.
-				$captured->tokenLower = strtolower( $captured->match->token );
-				$captured->tokenUpper = strtolower( $captured->match->token );
-				
-				$captured->multiline = True;
-				$captured->view = $syntax->view;
-				$captured->value = $captured->match->value ?? Null;
-				$captured->inline = $captured->match->inline ?? Null;
-				$captured->outline = $captured->match->outline ?? Null;
-				$captured->symbol = $captured->match->symbol;
-				$captured->colon = isset( $match['colon'] );
-				$captured->semicolon = isset( $match['semicolon'] );
-				
-				// Default indentation.
-				$captured->indent = [
-					"value" => "",
-					"length" => 0
-				];
-				
-				// Check if syntax has indentation.
-				if( isset( $captured->match->indent ) )
+				if( is_array( $process ) )
 				{
-					// Set indentation.
-					$captured->indent->value = $this->context->resolveIndent( $captured->match->indent );
-					
-					// Set indentation length.
-					$captured->indent->length = strlen( $captured->indent->value );
+					$syntax->closing->nextmatch->syntax = $process['result'] ?? $process[0];
+					$syntax->closing->nextmatch->captured = $process['raw'] ?? $process[1];
+				}
+				else {
+					$syntax->closing->nextmatch->syntax = $process;
+					$syntax->closing->nextmatch->captured = $capture->raw;
 				}
 				
-				// Set line number of syntax.
-				$captured->line = $this->context->getLine(
-					
-					// Re-Build begin syntax.
-					$captured->begin = $this->context->reBuildSyntaxBegin( $captured )
-				);
-				
-				// Check if syntax is single line.
-				if( $captured->outline && $captured->semicolon )
+				if( $capture->closing->nextmatch->syntax )
 				{
-					// Check if syntax has outline value.
-					if( valueIsNotEmpty( $captured->outline ) && $this->context->isComment( $captured->outline ) === False )
-					{
-						throw new TemplateSyntaxError( $captured->outline, $this->view, $this->context->getLine( $captured->begin ) );
-					}
+					$capture->closing->syntax = $capture->closing->nextmatch->captured;
+					$capture->closing->valid = True;
+					$capture->raw = $this->context->reBuilSyntaxCapture( $capture );
+					$syntax->closing->syntax = $capture->raw;
+					$syntax->closing->valid = True;
+					$syntax->raw = $this->context->reBuilSyntaxCapture( $syntax );
 				}
-				
-				// Capture deep and closing content.
-				$this->context->parseDeep( $captured );
-				
-				// Build full captured syntax.
-				$captured->raw = $this->context->reBuilSyntaxCapture( $captured );
-				
-				echo $captured;
+				else {
+					$syntax->closing->syntax = $capture->raw;
+					$syntax->closing->valid = True;
+					$syntax->raw = $this->context->reBuilSyntaxCapture( $syntax );
+				}
+				return( $process );
 			}
 		}
-		
 		return( False );
+	}
+	
+	/*
+	 * Format PHP Syntax.
+	 *
+	 * @access Private
+	 *
+	 * @params String $format
+	 * @params Yume\Fure\Support\Data\DataInterface $values
+	 *
+	 * @return String
+	 */
+	private function format( String $format, TemplateCaptured $syntax ): String
+	{
+		// Return formated syntax.
+		return( f( $format, ...[
+			"nextmatch" => $syntax->closing->nextmatch->syntax ?? "",
+			"condition" => $syntax->value ?? "",
+			"content" => $syntax->children ?? "",
+			"indent" => $syntax->indent->value
+		]));
 	}
 	
 }

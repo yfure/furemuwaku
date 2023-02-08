@@ -205,6 +205,87 @@ class Template implements TemplateInterface
 	}
 	
 	/*
+	 * Handle captured syntax.
+	 *
+	 * @access Public
+	 *
+	 * @params Array $match
+	 *
+	 * @return Yume\Fure\View\Template\TemplateCaptured
+	 */
+	public function captured( Array $match ): TemplateCaptured
+	{
+		if( isset( $match['multiline'] ) )
+		{
+			// Template captured data.
+			$captured = new TemplateCaptured;
+			
+			// Set matched results.
+			$captured->match = RegExp\RegExp::clear( $match, True );
+			
+			// Set token name.
+			$captured->token = $captured->match->token;
+			
+			// Set normalized token name.
+			$captured->tokenLower = strtolower( $captured->match->token );
+			$captured->tokenUpper = strtolower( $captured->match->token );
+			
+			$captured->multiline = True;
+			$captured->view = $this->view;
+			$captured->value = $captured->match->value ?? Null;
+			$captured->inline = $captured->match->inline ?? Null;
+			$captured->outline = $captured->match->outline ?? Null;
+			$captured->symbol = $captured->match->symbol;
+			$captured->colon = isset( $match['colon'] );
+			$captured->semicolon = isset( $match['semicolon'] );
+			
+			// Default indentation.
+			$captured->indent = [
+				"value" => "",
+				"length" => 0
+			];
+			
+			// Check if syntax has indentation.
+			if( isset( $captured->match->indent ) )
+			{
+				// Set indentation.
+				$captured->indent->value = $this->resolveIndent( $captured->match->indent );
+				
+				// Set indentation length.
+				$captured->indent->length = strlen( $captured->indent->value );
+			}
+			
+			// Set line number of syntax.
+			$captured->line = $this->getLine(
+				
+				// Re-Build begin syntax.
+				$captured->begin = $this->reBuildSyntaxBegin( $captured )
+			);
+			
+			// Check if syntax is single line.
+			if( $captured->outline && $captured->semicolon )
+			{
+				// Check if syntax has outline value.
+				if( valueIsNotEmpty( $captured->outline ) && $this->isComment( $captured->outline ) === False )
+				{
+					throw new TemplateSyntaxError( $captured->outline, $this->view, $this->getLine( $captured->begin ) );
+				}
+			}
+			
+			// Capture deep and closing content.
+			$this->parseDeep( $captured );
+			
+			// Build full captured syntax.
+			$captured->raw = $this->reBuilSyntaxCapture( $captured );
+			
+			return( $captured );
+		}
+		else {
+			
+		}
+	}
+	
+	/*
 	 * Process matched closing syntax.
 	 *
 	 * @access Protected
@@ -445,87 +526,30 @@ class Template implements TemplateInterface
 	public function parse( String $template ): String
 	{
 		// Matching syntax.
+		$match = $this->pattern->match( $template );
+		
 		do
 		{
-			// Push iteration.
-			$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
-			
-			// Check if captured syntax is multiline syntax.
-			if( isset( $match['multiline'] ) )
+			if( $match )
 			{
+				// Push iteration.
+				$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
+				
 				// Check if matched syntax has token.
 				if( valueIsNotEmpty( $match['token'] ?? "" ) )
 				{
-					// Template captured data.
-					$captured = new TemplateCaptured;
-					
-					// Set matched results.
-					$captured->match = RegExp\RegExp::clear( $match, True );
-					
-					// Set token name.
-					$captured->token = $captured->match->token;
-					
-					// Set normalized token name.
-					$captured->tokenLower = strtolower( $captured->match->token );
-					$captured->tokenUpper = strtolower( $captured->match->token );
-					
-					$captured->multiline = True;
-					$captured->view = $this->view;
-					$captured->value = $captured->match->value ?? Null;
-					$captured->inline = $captured->match->inline ?? Null;
-					$captured->outline = $captured->match->outline ?? Null;
-					$captured->symbol = $captured->match->symbol;
-					$captured->colon = isset( $match['colon'] );
-					$captured->semicolon = isset( $match['semicolon'] );
-					
-					// Default indentation.
-					$captured->indent = [
-						"value" => "",
-						"length" => 0
-					];
-					
-					// Check if syntax has indentation.
-					if( isset( $captured->match->indent ) )
-					{
-						// Set indentation.
-						$captured->indent->value = $this->resolveIndent( $captured->match->indent );
-						
-						// Set indentation length.
-						$captured->indent->length = strlen( $captured->indent->value );
-					}
-					
-					// Set line number of syntax.
-					$captured->line = $this->getLine(
-						
-						// Re-Build begin syntax.
-						$captured->begin = $this->reBuildSyntaxBegin( $captured )
-					);
-					
-					// Check if syntax is single line.
-					if( $captured->outline && $captured->semicolon )
-					{
-						// Check if syntax has outline value.
-						if( valueIsNotEmpty( $captured->outline ) && $this->isComment( $captured->outline ) === False )
-						{
-							throw new TemplateSyntaxError( $captured->outline, $this->view, $this->getLine( $captured->begin ) );
-						}
-					}
-					
-					// Capture deep and closing content.
-					$this->parseDeep( $captured );
-					
-					// Build full captured syntax.
-					$captured->raw = $this->reBuilSyntaxCapture( $captured );
+					// Process captured syntax.
+					$captured = $this->captured( $match );
 					
 					// Processing captured syntax.
 					$result = $this->processing( $captured );
-
+					
 					// ...
 					if( is_array( $result ) )
 					{
 						// ...
 						$captured->raw = $result['raw'] ?? $result [0];
-
+					
 						// ...
 						$result = $result['result'] ?? $result [1];
 					}
@@ -537,50 +561,46 @@ class Template implements TemplateInterface
 					continue;
 				}
 				else {
-					throw new TemplateSyntaxError( $match['syntax'], $this->view, $this->getLine( $match['syntax'] ) );
-				}
-			}
-			
-			// Check if captured syntax is commented.
-			else if( isset( $match['comment'] ) )
-			{
-				// Default replacement is blank for comment.
-				$replace = "";
-				
-				// Check if comment is taggar type.
-				if( isset( $match['taggar'] ) )
-				{
-					// Check if comment is html type.
-					if( isset( $match['html'] ) )
+					
+					// Check if captured syntax is commented.
+					if( isset( $match['comment'] ) )
 					{
-						// Change to html comment only.
-						$replace = f( "<!--{}-->", $match['text'] ?? "" );
+						// Default replacement is blank for comment.
+						$replace = "";
+						
+						// Check if comment is taggar type.
+						if( isset( $match['taggar'] ) )
+						{
+							// Check if comment is html type.
+							if( isset( $match['html'] ) )
+							{
+								// Change to html comment only.
+								$replace = f( "<!--{}-->", $match['text'] ?? "" );
+							}
+							else {
+								
+								// Check if comment taggar is Doctument Type.
+								if( $taggar = RegExp\RegExp::match( "/^(?:\!DOCTYPE(?:\s*)\/(?:\s*)(?<type>[a-zA-Z0-9_\-]+))(?:[\s\t]*)$/i", $match['text'] ) ) $replace = f( "<!DOCTYPE {}>", $taggar['type'] );
+							}
+						}
+						else {
+							
+							// Change to html comment only.
+							$replace = f( "<!--{}-->", $match['text'] ?? "" );
+						}
+						
+						// Replace template.
+						$template = str_replace( $match['comment'], $replace, $template );
+						
+						// Continue matching.
+						continue;
 					}
 					else {
-						
-						// Check if comment taggar is Doctument Type.
-						if( $taggar = RegExp\RegExp::match( "/^(?:\!DOCTYPE(?:\s*)\/(?:\s*)(?<type>[a-zA-Z0-9_\-]+))(?:[\s\t]*)$/i", $match['text'] ) ) $replace = f( "<!DOCTYPE {}>", $taggar['type'] );
+						throw new TemplateSyntaxError( $match['syntax'], $this->view, $this->getLine( $match['syntax'] ) );
 					}
 				}
-				else {
-					
-					// Change to html comment only.
-					$replace = f( "<!--{}-->", $match['text'] ?? "" );
-				}
-				
-				// Replace template.
-				$template = str_replace( $match['comment'], $replace, $template );
-				
-				// Continue matching.
-				continue;
 			}
-			
-			// Only one line mode.
-			else if( isset( $match['oneline'] ) )
-			{
-				echo htmlspecialchars( json_encode( RegExp\RegExp::clear( $match, True ), JSON_PRETTY_PRINT ) );
-				exit;
-			}
+			break;
 		}
 		while( $match = $this->pattern->match( $template ) );
 		
