@@ -203,7 +203,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 					// Push attribute.
 					$stack[] = match( True )
 					{
-						$option['dynamic'] => f( "data-{}=\"<? {} ?>\"", $name, $option['values'] ),
+						$option['dynamic'] => f( "data-{}=\"<?= {} ?>\"", $name, $option['values'] ),
 						$option['default'] => f( "data-{}=\"{}\"", $name, $option['values'] ),
 						defaut => f( "data-{}", $name )
 					};
@@ -214,7 +214,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				// Push attribute.
 				$stack[] = match( True )
 				{
-					$option['dynamic'] => f( "{}=\"<? {} ?>\"", $name, $option['values'] ),
+					$option['dynamic'] => f( "{}=\"<?= {} ?>\"", $name, $option['values'] ),
 					$option['default'] => f( "{}=\"{}\"", $name, $option['values'] ),
 					defaut => $name
 				};

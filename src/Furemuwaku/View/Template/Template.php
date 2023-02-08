@@ -134,7 +134,7 @@ class Template implements TemplateInterface
 			"(?<matched>",
 				"(?<multiline>",
 					"^",
-					"(?<indent>\s\s\s\s+|\t+)*",
+					"(?<indent>\s\s\s\s+)*",
 					"(?:\@)",
 					"(?<inline>",
 						"(?<token>[a-zA-Z0-9]*)",
@@ -215,6 +215,9 @@ class Template implements TemplateInterface
 	 */
 	public function captured( Array $match ): TemplateCaptured
 	{
+		// Push iteration.
+		$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
+		
 		if( isset( $match['multiline'] ) )
 		{
 			// Template captured data.
@@ -532,9 +535,6 @@ class Template implements TemplateInterface
 		{
 			if( $match )
 			{
-				// Push iteration.
-				$this->iteration = $this->iteration !== Null ? $this->iteration +1 : 1;
-				
 				// Check if matched syntax has token.
 				if( valueIsNotEmpty( $match['token'] ?? "" ) )
 				{
