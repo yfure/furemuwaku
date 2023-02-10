@@ -130,7 +130,7 @@ class Data implements DataInterface
 	 */
 	public function __get( String $name ): Mixed
 	{
-		return( $this->__isset( $name ) ? $this->data[$name] : False );
+		return( $this->data[$name] ?? Null );
 	}
 	
 	/*

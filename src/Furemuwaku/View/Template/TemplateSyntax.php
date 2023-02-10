@@ -63,6 +63,11 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 		}
 	}
 	
+	final public function clear( String $value ): String
+	{
+		return( RegExp\RegExp::replace( "/^\s+|\s+$/", $value, "" ) );
+	}
+	
 	/*
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *

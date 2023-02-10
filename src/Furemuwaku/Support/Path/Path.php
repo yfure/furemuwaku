@@ -153,7 +153,7 @@ abstract class Path
 		// Remove all basepath in string.
 		if( $remove )
 		{
-			return( str_replace( [ RegExp\RegExp::replace( "/\//", BASE_PATH, DIRECTORY_SEPARATOR ), RegExp\RegExp::replace( "/\//", BASE_PATH, "\\" . DIRECTORY_SEPARATOR ) ], "", $path ) );
+			return( str_replace( [ preg_replace( "/\//", DIRECTORY_SEPARATOR, BASE_PATH ), preg_replace( "/\//", "\\" . DIRECTORY_SEPARATOR, BASE_PATH ) ], "", $path ) );
 		}
 		else {
 			
@@ -167,7 +167,7 @@ abstract class Path
 			if( strpos( $path, BASE_PATH ) !== False ) return( $path );
 			
 			// Add basepath into prefix pathname.
-			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, RegExp\RegExp::replace( "/\//", f( "{}/{}", BASE_PATH, $path ), DIRECTORY_SEPARATOR ) ) );
+			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, preg_replace( "/\//", DIRECTORY_SEPARATOR, f( "{}/{}", BASE_PATH, $path ) ) ) );
 		}
 	}
 	

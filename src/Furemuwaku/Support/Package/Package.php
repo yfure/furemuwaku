@@ -74,8 +74,8 @@ class Package extends Design\Singleton
 	 */
 	public static function import( String $package ): Mixed
 	{
-		// Replace package namespace.
-		$name = RegExp\RegExp::replace( "/^\\\*Yume\\\(App|Fure)\b/i", $package, fn( Array $match ) => $match[1] === "Fure" || $match[1] === "fure" ? "system/furemu" : "app" );
+		// Get package name.
+		$name = self::name( $package );
 		
 		// Create file name.
 		$file = f( "{}{}", $name, substr( $name, -4 ) !== ".php" ? ".php" : "" );
@@ -92,6 +92,21 @@ class Package extends Design\Singleton
 			}
 		}
 		throw new Error\ModuleNotFoundError( $name );
+	}
+	
+	/*
+	 * Create filename from package name.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $package
+	 *
+	 * @return String
+	 */
+	public static function name( String $package ): String
+	{
+		// Replace package namespace.
+		return( RegExp\RegExp::replace( "/^\\\*Yume\\\(App|Fure)\b/i", $package, fn( Array $match ) => $match[1] === "Fure" || $match[1] === "fure" ? "system/furemu" : "app" ) );
 	}
 	
 }

@@ -61,7 +61,7 @@ function env( String $env, Mixed $optional = Null )
 		// Check if optional value is Callable type.
 		if( is_callable( $optional ) )
 		{
-			return( $optional() );
+			return( call_user_func( $optional ) );
 		}
 		return( $optional );
 	}

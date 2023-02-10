@@ -6,11 +6,11 @@ use Yume\Fure\Support\Design;
 use Yume\Fure\Util;
 
 /*
- * ServicesProviderInterface
+ * ServiceProviderInterface
  *
  * @package Yume\Fure\Support\Services
  */
-interface ServicesProviderInterface
+interface ServiceProviderInterface
 {
 	
 	/*

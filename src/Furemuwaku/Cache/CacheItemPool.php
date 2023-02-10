@@ -14,13 +14,25 @@ class CacheItemPool implements CacheItemPoolInterface
 {
 	
 	/*
-	 * Cache item lists.
+	 * Instance of class Cache Item Pool Driver.
 	 *
 	 * @access Private
 	 *
-	 * @values Array
+	 * @values Yume\Fure\Cache\CacheItemPoolInterface
 	 */
-	private Array $items = [];
+	private CacheItemPoolInterface $drivers;
+	
+	/*
+	 * Construct method of class CacheItem
+	 *
+	 * @access Public Instance
+	 *
+	 * @return Void
+	 */
+	public function __construct()
+	{
+		// ...
+	}
 	
 	/*
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface
@@ -28,8 +40,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function clear(): Bool
 	{
-		$this->items = [];
-		return( True );
+		return( $this )->driver->clear();
 	}
 	
 	/*
@@ -38,7 +49,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function commit(): Bool
 	{
-		// ...
+		return( $this )->driver->commit();
 	}
 	
 	/*
@@ -47,7 +58,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function deleteItem( String $key ): Bool
 	{
-		// ...
+		return( $this )->driver->deleteItem( $key );
 	}
 	
 	/*
@@ -56,7 +67,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function deleteItems( Array $keys ): Bool
 	{
-		// ...
+		return( $this )->driver->deleteItems( $keys );
 	}
 	
 	/*
@@ -65,12 +76,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function getItem( String $key ): CacheItemInterface
 	{
-		// Check if cache key is exists.
-		if( isset( $this->items[$key] ) === False )
-		{
-			return( new CacheItem( $key ) );
-		}
-		return( $this->items )[$key];
+		return( $this )->driver->getItem( $key );
 	}
 	
 	/*
@@ -79,14 +85,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function getItems( Array $keys = [] ): Data\DataInterface
 	{
-		// Cache stacks.
-		$items = new Data\Data([]);
-		
-		// Mapping cache keys.
-		Util\Arr::map( $keys, fn( $i, $idx, $key ) => $items[] = $this->getItem( $key ) );
-		
-		// Return items.
-		return( $items );
+		return( $this )->driver->getItems( $keys );
 	}
 	
 	/*
@@ -95,7 +94,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function hasItem( String $key ): Bool
 	{
-		return( isset( $this->items[$key] ) );
+		return( $this )->driver->hasItem( $key );
 	}
 	
 	/*
@@ -104,7 +103,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function save( CacheItemInterface $item ): Bool
 	{
-		// ...
+		return( $this )->driver->save( $item );
 	}
 	
 	/*
@@ -113,7 +112,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function saveDeferred( CacheItemInterface $item ): Bool
 	{
-		// ...
+		return( $this )->driver->saveDeferred( $item );
 	}
 	
 }

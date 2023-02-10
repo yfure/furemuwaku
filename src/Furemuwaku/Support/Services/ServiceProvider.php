@@ -6,11 +6,11 @@ use Yume\Fure\App;
 use Yume\Fure\Util;
 
 /*
- * ServicesProvider
+ * ServiceProvider
  *
  * @package Yume\Fure\Support\Services
  */
-abstract class ServicesProvider implements ServicesProviderInterface
+abstract class ServiceProvider implements ServiceProviderInterface
 {
 	
 	/*
@@ -31,9 +31,9 @@ abstract class ServicesProvider implements ServicesProviderInterface
 	 * @params Object|Callable $callback
 	 * @params Bool $override
 	 *
-	 * @return Yume\Fure\Support\Services\ServicesProviderInterface
+	 * @return Yume\Fure\Support\Services\ServiceProviderInterface
 	 */
-	protected function bind( Array | Object | String $name, Callable | Object $callback, Bool $override = False ): ServicesProviderInterface
+	protected function bind( Array | Object | String $name, Callable | Object $callback, Bool $override = False ): ServiceProviderInterface
 	{
 		// Check if name is Array type.
 		if( is_array( $name ) )

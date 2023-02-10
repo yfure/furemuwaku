@@ -192,20 +192,20 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		$stack = [];
 		
 		// Mapping attributes.
-		Util\Arr::map( $attr, static function( Int $i, String $name, Mixed $option ) use( &$stack )
+		Util\Arr::map( $attr, static function( Int $i, String $name, Mixed $option ) use( &$stack, $self )
 		{
 			// Check attribute is data.
 			if( $name === "data" )
 			{
 				// Mapping datasets.
-				Util\Arr::map( $option, static function( Int $i, String $name, Mixed $option ) use( &$stack )
+				Util\Arr::map( $option, static function( Int $i, String $name, Mixed $option ) use( &$stack, $self )
 				{
 					// Push attribute.
 					$stack[] = match( True )
 					{
-						$option['dynamic'] => f( "data-{}=\"<?= {} ?>\"", $name, $option['values'] ),
+						$option['dynamic'] => f( valueIsNotEmpty( $option['values'] ) ? "data-{}=\"<?= {} ?>\"" : "data-{}=\"\"", $name, $self->clear( $option['values'] ) ),
 						$option['default'] => f( "data-{}=\"{}\"", $name, $option['values'] ),
-						defaut => f( "data-{}", $name )
+						default => f( "data-{}", $name )
 					};
 				});
 			}
@@ -214,9 +214,9 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				// Push attribute.
 				$stack[] = match( True )
 				{
-					$option['dynamic'] => f( "{}=\"<?= {} ?>\"", $name, $option['values'] ),
+					$option['dynamic'] => f( valueIsNotEmpty( $option['values'] ) ? "{}=\"<?= {} ?>\"" : "{}=\"\"", $name, $self->clear( $option['values'] ) ),
 					$option['default'] => f( "{}=\"{}\"", $name, $option['values'] ),
-					defaut => $name
+					default => $name
 				};
 			}
 		});

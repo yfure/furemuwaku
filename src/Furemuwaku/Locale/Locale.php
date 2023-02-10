@@ -10,6 +10,7 @@ use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Locale\Language;
 use Yume\Fure\Support\Design;
 use Yume\Fure\Support\Package;
+use Yume\Fure\Support\Path;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
 
@@ -219,7 +220,7 @@ class Locale extends Design\Singleton
 		try
 		{
 			// Import language file.
-			self::$language = Package\Package::import( sprintf( "/app/Translation/%s", $language ??= self::$defaultLanguage ) );
+			self::$language = Package\Package::import( sprintf( "/%s/%s", Path\PathName::APP_LANG->value, $language ??= self::$defaultLanguage ) );
 		}
 		catch( Throwable $e )
 		{

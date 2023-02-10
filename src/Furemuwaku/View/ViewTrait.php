@@ -13,6 +13,8 @@ use Yume\Fure\Util;
 trait ViewTrait
 {
 	
+	use \Yume\Fure\Config\ConfigTrait;
+	
 	/*
 	 * Return if views is exists.
 	 *

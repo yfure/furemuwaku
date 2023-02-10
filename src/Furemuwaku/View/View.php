@@ -37,7 +37,6 @@ class View implements ViewInterface
 	 */
 	protected ? String $templateParsed = Null;
 	
-	use \Yume\Fure\Config\ConfigTrait;
 	use \Yume\Fure\View\ViewTrait;
 	
 	/*
@@ -51,26 +50,16 @@ class View implements ViewInterface
 	 */
 	public function __construct( protected Readonly String $view )
 	{
-		try
+		// Check if template file doesn't exists.
+		if( self::exists( $view ) === False )
 		{
-			// Create new template instance.
-			$this->template = new Template\Template(
-				
-				// View name.
-				self::path( $view ),
-				
-				// Reading file per-line.
-				File\File::readline(
-					
-					// Get view pathname.
-					self::path( $view )
-				)
-			);
+			throw new ViewError( $view, code: ViewError::NOT_FOUND_ERROR );
 		}
-		catch( File\FileError $e )
-		{
-			throw new ViewError( $view, code: ViewError::NOT_FOUND_ERROR, previous: $e );
-		}
+	}
+	
+	public function hasCached(): Bool
+	{
+		
 	}
 	
 	public function hasParsed(): Bool
@@ -80,26 +69,7 @@ class View implements ViewInterface
 	
 	public function render()//: Response\ResponseInterface
 	{
-		// Checks if the template has not been parsed.
-		if( $this->hasParsed() === False )
-		{
-			try
-			{
-				// Try to parsing template.
-				$this->templateParsed = $this->template->parse(
-					$this->template->getTemplate()
-				);
-			}
-			catch( Template\TemplateError $e )
-			{
-				// Get view fullname.
-				$view = self::path( $this->view );
-				
-				// Throw ViewError.
-				throw new ViewError( $view, $view, $e->getLine(), ViewError::PARSE_ERROR, $e );
-			}
-		}
-		return( $this )->templateParsed;
+		
 	}
 	
 	public function with( String $name, Mixed $value ): ViewInterface

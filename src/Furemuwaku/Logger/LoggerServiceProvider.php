@@ -5,17 +5,17 @@ namespace Yume\Fure\Logger;
 use Yume\Fure\Support\Services;
 
 /*
- * LoggerServicesProvider
+ * LoggerServiceProvider
  *
  * @package Yume\Fure\Logger
  *
- * @extends Yume\Fure\Support\ServicesProvider
+ * @extends Yume\Fure\Support\ServiceProvider
  */
-class LoggerServicesProvider extends Services\ServicesProvider
+class LoggerServiceProvider extends Services\ServiceProvider
 {
 	
 	/*
-	 * @inherit Yume\Fure\Support\ServicesProvider
+	 * @inherit Yume\Fure\Support\ServiceProvider
 	 *
 	 */
 	public function register(): Void

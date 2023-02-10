@@ -51,7 +51,7 @@ final class Services extends Design\Singleton
 			Util\Arr::map( $services, function( Int $i, Int $idx, $service )
 			{
 				// Check if service class is implement ServiceProviderInterface.
-				if( Reflect\ReflectClass::isImplements( $service, ServicesProviderInterface::class, $reflect ) )
+				if( Reflect\ReflectClass::isImplements( $service, ServiceProviderInterface::class, $reflect ) )
 				{
 					// Get services provide instance.
 					static::$provides[] = $reflect->newInstance();
