@@ -14,6 +14,7 @@ use Yume\Fure\Secure;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Design;
 use Yume\Fure\Support\Package;
+use Yume\Fure\Support\Path;
 use Yume\Fure\Support\Reflect;
 use Yume\Fure\Support\Services;
 use Yume\Fure\Util;
@@ -106,7 +107,7 @@ final class App extends Design\Singleton
 			define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
 			
 			// Import runtime settings file by environment.
-			Package\Package::import( Util\Str::fmt( "/app/Runtime/{}", $env ) );
+			Package\Package::import( Util\Str::fmt( "{}/{}", Path\PathName::SYSTEM_BOOTING->value, $env ) );
 		}
 		else {
 			throw new Error\LogicError( Util\Str::fmt( "The application environment must be development|production, \"{}\" given", $env ) );
@@ -114,7 +115,7 @@ final class App extends Design\Singleton
 		
 		// Set config collections.
 		$this->configs = new Data\Data([]);
-		$this->configPath = "/system/configs/{}";
+		$this->configPath = f( "{}/\{\}", Path\PathName::SYSTEM_CONFIG->value );
 		
 		// Set error handler.
 		ErrorHandler\Handler::setup();
@@ -131,8 +132,6 @@ final class App extends Design\Singleton
 	 */
 	public function run(): Void
 	{
-		echo "<pre>";
-		// Check if the application is running.
 		if( static::$run )
 		{
 			throw new Error\RuntimeError( "Unable to run the currently running application" );
@@ -257,11 +256,6 @@ final class App extends Design\Singleton
 	public function isRun(): Bool
 	{
 		return( $this )->run;
-	}
-	
-	public function generateToken(): String
-	{
-		// ...
 	}
 	
 }
