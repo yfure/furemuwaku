@@ -18,7 +18,12 @@ use Yume\Fure\Support\Path;
  */
 class MemcachedAdapter extends BaseAdapter
 {
-	// ...
+	
+	/*
+	 * This functionality is coming soon.
+	 *
+	 */
+	
 }
 
 ?>
