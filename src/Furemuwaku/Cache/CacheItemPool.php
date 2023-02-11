@@ -2,7 +2,10 @@
 
 namespace Yume\Fure\Cache;
 
+use Yume\Fure\Cache\Adapter;
+use Yume\Fure\Error;
 use Yume\Fure\Support\Data;
+use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
 
 /*
@@ -14,24 +17,48 @@ class CacheItemPool implements CacheItemPoolInterface
 {
 	
 	/*
-	 * Instance of class Cache Item Pool Driver.
+	 * Instance of class Cache Adapter.
 	 *
 	 * @access Private
 	 *
 	 * @values Yume\Fure\Cache\CacheItemPoolInterface
 	 */
-	private CacheItemPoolInterface $drivers;
+	private CacheItemPoolInterface $adapter;
 	
 	/*
-	 * Construct method of class CacheItem
+	 * Construct method of class CacheItemPool
 	 *
 	 * @access Public Instance
 	 *
+	 * @params String|Yume\Fure\Cache\CacheItemPoolInterface $adapter
+	 *
 	 * @return Void
 	 */
-	public function __construct()
+	public function __construct( Null | String | CacheItemPoolInterface $adapter = Null )
 	{
-		// ...
+		// If adapter is not available.
+		if( $adapter === Null )
+			
+			/*
+			 * Just only use default adapter in configuration set.
+			 *
+			 * @see system/configs/cache
+			 */
+			$adapter = config( "cache" )->adapter->default;
+		
+		// If adapter is String type.
+		if( is_string( $adapter ) )
+		{
+			// Check if adapter class is implements CacheItemPoolInterface.
+			if( Reflect\ReflectClass::isImplements( $adapter, CacheItemPoolInterface::class, $reflect ) )
+			{
+				$adapter = $reflect->newInstance( config( "cache" )->adapter[$adapter] );
+			}
+			else {
+				throw new Error\ClassImplementationError([ $adapter, CacheItemPoolInterface::class ]);
+			}
+		}
+		$this->adapter = $adapter;
 	}
 	
 	/*
@@ -40,7 +67,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function clear(): Bool
 	{
-		return( $this )->driver->clear();
+		return( $this )->adapter->clear();
 	}
 	
 	/*
@@ -49,7 +76,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function commit(): Bool
 	{
-		return( $this )->driver->commit();
+		return( $this )->adapter->commit();
 	}
 	
 	/*
@@ -58,7 +85,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function deleteItem( String $key ): Bool
 	{
-		return( $this )->driver->deleteItem( $key );
+		return( $this )->adapter->deleteItem( $key );
 	}
 	
 	/*
@@ -67,7 +94,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function deleteItems( Array $keys ): Bool
 	{
-		return( $this )->driver->deleteItems( $keys );
+		return( $this )->adapter->deleteItems( $keys );
 	}
 	
 	/*
@@ -76,7 +103,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function getItem( String $key ): CacheItemInterface
 	{
-		return( $this )->driver->getItem( $key );
+		return( $this )->adapter->getItem( $key );
 	}
 	
 	/*
@@ -85,7 +112,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function getItems( Array $keys = [] ): Data\DataInterface
 	{
-		return( $this )->driver->getItems( $keys );
+		return( $this )->adapter->getItems( $keys );
 	}
 	
 	/*
@@ -94,7 +121,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function hasItem( String $key ): Bool
 	{
-		return( $this )->driver->hasItem( $key );
+		return( $this )->adapter->hasItem( $key );
 	}
 	
 	/*
@@ -103,7 +130,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function save( CacheItemInterface $item ): Bool
 	{
-		return( $this )->driver->save( $item );
+		return( $this )->adapter->save( $item );
 	}
 	
 	/*
@@ -112,7 +139,7 @@ class CacheItemPool implements CacheItemPoolInterface
 	 */
 	public function saveDeferred( CacheItemInterface $item ): Bool
 	{
-		return( $this )->driver->saveDeferred( $item );
+		return( $this )->adapter->saveDeferred( $item );
 	}
 	
 }

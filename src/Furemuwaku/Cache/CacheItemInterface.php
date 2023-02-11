@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\Cache;
 
+use DateInterval;
 use DateTimeInterface;
 
 /*
