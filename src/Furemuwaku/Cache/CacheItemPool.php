@@ -44,7 +44,7 @@ class CacheItemPool implements CacheItemPoolInterface
 			 *
 			 * @see system/configs/cache
 			 */
-			$adapter = config( "cache" )->adapter->default;
+			$adapter = config( "cache" )->default;
 		
 		// If adapter is String type.
 		if( is_string( $adapter ) )

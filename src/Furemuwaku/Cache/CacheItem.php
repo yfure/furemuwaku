@@ -126,6 +126,18 @@ class CacheItem implements CacheItemInterface
 	}
 	
 	/*
+	 * Get cache expiration time.
+	 *
+	 * @access Public
+	 *
+	 * @return Int
+	 */
+	public function getExpires(): ? Int
+	{
+		return( $this )->expires;
+	}
+	
+	/*
 	 * @inherit Yume\Fure\Cache\CacheInterface
 	 *
 	 */
@@ -148,7 +160,7 @@ class CacheItem implements CacheItemInterface
 			{
 				return( True );
 			}
-			return( $this->expires - $this->clock->now()->getTimestamp() > 0 );
+			return( $this->expires < $this->clock->now()->getTimestamp() );
 		}
 		return( False );
 	}
@@ -173,7 +185,7 @@ class CacheItem implements CacheItemInterface
 	 */
 	public function setHit( Bool $hit ): CacheItemInterface
 	{
-		return([ $this, $this->hist = $hit ][0]);
+		return([ $this, $this->hit = $hit ][0]);
 	}
 	
 }

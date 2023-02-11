@@ -5,6 +5,7 @@ namespace Yume\Fure\Cache\Adapter;
 use Yume\Fure\Cache;
 use Yume\Fure\Config;
 use Yume\Fure\Locale;
+use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\File;
 use Yume\Fure\Support\Path;
@@ -125,6 +126,8 @@ class FileSystemAdapter extends BaseAdapter
 		// Get path with key name.
 		$path = $this->path( $key );
 		
+		$cache = new Cache\CacheItem( $key, Null, False );
+		
 		// Check if cache is exists.
 		if( self::hasItem( $key ) )
 		{
@@ -141,8 +144,11 @@ class FileSystemAdapter extends BaseAdapter
 					"value" => $data['value'] ?? Null
 				];
 				
+				// Get current timestamp.
+				$time = Locale\Locale::getDateTime()->getTimestamp();
+				
 				// Check if cache has expired.
-				if( $data['time'] + $data['live'] < Locale\Locale::getDateTime()->getTimestamp() )
+				if( $data['time'] + $data['live'] < $time )
 				{
 					// Remove expired cache.
 					File\File::unlink( $path );
@@ -153,10 +159,15 @@ class FileSystemAdapter extends BaseAdapter
 					// Set cache as hit.
 					$isHit = True;
 				}
+				else {
+					$time = $data['time'] + $data['live'];
+				}
+				$cache->set( $data['value'] );
+				$cache->setHit( $isHit );
+				$cache->expiresAt( ( new DateTime\DateTime )->setTimestamp( $time ) );
 			}
-			return( new Cache\CacheItem( $key, $data['value'], $isHit ) );
 		}
-		return( new Cache\CacheItem( $key, Null, False ) );
+		return( $cache );
 	}
 	
 	/*
@@ -206,18 +217,36 @@ class FileSystemAdapter extends BaseAdapter
 		// Get path with key name.
 		$path = $this->path( $item->getkey() );
 		
+		// Get cache expiration time.
+		$time = $item->getExpires();
+		
+		// Get default cache live time.
+		$live = config( "cache" )->time->live;
+		
+		// Check if cache is Hit.
+		if( $item->isHit() )
+		{
+			// Current date timestamp.
+			$time = Locale\Locale::getDateTime()->getTimestamp();
+			$live = 0;
+		}
+		
 		// Serializing contents.
 		$save = serialize([
-			"now" => Locale\Locale::getDateTime()->getTimestamp(),
-			"live" => config( "cache" )->time->live,
-			"values" => $item->get()
+			"time" => $time,
+			"live" => $live,
+			"value" => $item->get()
 		]);
 		
 		try
 		{
 			if( File\File::write( $path, $save ) )
 			{
-				return( File\File::chmod( $path, $this->permission ) );
+				if( File\File::chmod( $path, $this->permission ) )
+				{
+					return( True );
+				}
+				logger( "debug", "Failed set permission for cache {}", [ $item->getkey() ] );
 			}
 			else {
 				logger( "debug", "Failed save cache {}", [ $item->getkey() ] );
@@ -225,7 +254,7 @@ class FileSystemAdapter extends BaseAdapter
 		}
 		catch( Throwable $e )
 		{
-			logger( "debug", "Failed set permission for cache {}", [ $item->getkey() ] );
+			logger( "debug", "{}: {} when save cache {}", [ $e::class, $e->getMessage(), $item->getkey() ] );
 		}
 		return( False );
 	}
