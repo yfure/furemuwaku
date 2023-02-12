@@ -696,7 +696,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 		return( f( $format, ...[
 			"nextmatch" => $syntax->closing->nextmatch->syntax ?? "",
 			"condition" => $this->normalize( $syntax->value ?? "", [ "\\:", "\\;" ] ),
-			"content" => $syntax->children ?? "",
+			"content" => $this->context->parse( $syntax->children ?? "" ),
 			"indent" => $syntax->indent->value
 		]));
 	}

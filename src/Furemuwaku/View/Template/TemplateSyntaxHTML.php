@@ -483,8 +483,10 @@ class TemplateSyntaxHTML extends TemplateSyntax
 			"attr" => $values->attr ?? "",
 			"token" => $values->token ?? "",
 			"indent" => $values->indent->value,
-			"outline" => $values->outline ?? "",
-			"children" => $values->children ?? ""
+			"outline" => $this->clear(
+				$this->context->parse( $values->outline ?? "" )
+			),
+			"children" => $this->context->parse( $values->children ?? "" )
 		]));
 	}
 	

@@ -2,11 +2,13 @@
 
 namespace Yume\Fure\View;
 
+use Throwable;
+
 use Yume\Fure\Cache;
 use Yume\Fure\HTTP\Response;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\File;
-use Yume\Fure\Support\Package;
+use Yume\Fure\Support\Services;
 use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
 use Yume\Fure\View\Template;
@@ -19,59 +21,30 @@ use Yume\Fure\View\Template;
 class View implements ViewInterface
 {
 	
-	/*
-	 * Instance of class Template.
-	 *
-	 * @access Protected Readonly
-	 *
-	 * @values Yume\Fure\View\Template\TemplateInterface
-	 */
-	protected Readonly Template\TemplateInterface $template;
+	protected Readonly Data\DataInterface $data;
 	
-	/*
-	 * Template parsed.
-	 *
-	 * @access Protected
-	 *
-	 * @values String
-	 */
-	protected ? String $templateParsed = Null;
-	
-	use \Yume\Fure\View\ViewTrait;
-	
-	/*
-	 * Construct method of class View.
-	 *
-	 * @access Public Instance
-	 *
-	 * @params Protected Readonly String $view
-	 *
-	 * @return Void
-	 */
-	public function __construct( protected Readonly String $view )
+	public function __construct( public Readonly String $view, Array | Data\DataInterface $data )
 	{
-		// Check if template file doesn't exists.
-		if( self::exists( $view ) === False )
-		{
-			throw new ViewError( $view, code: ViewError::NOT_FOUND_ERROR );
-		}
+		$this->data = new Data\Data( $data );
 	}
 	
-	public function hasCached(): Bool
+	public function render()//: String
 	{
+		// Compile view contents.
+		Services\Services::get( "template" )->compile( $this->view );
 		
 	}
 	
-	public function hasParsed(): Bool
-	{
-		return( $this->templateParsed !== Null );
-	}
-	
-	public function render()//: Response\ResponseInterface
-	{
-		
-	}
-	
+	/*
+	 * Set var.
+	 *
+	 * @access Public
+	 *
+	 * @params String $name
+	 * @params Mixed $value
+	 *
+	 * @return Yume\Fure\View\ViewInterface
+	 */
 	public function with( String $name, Mixed $value ): ViewInterface
 	{
 		return([ $this, $this->data[$name] = $value ][0]);

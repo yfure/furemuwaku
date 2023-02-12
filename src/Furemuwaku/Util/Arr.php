@@ -51,6 +51,9 @@ abstract class Arr
 			}
 			else {
 				
+				// Skip if values is empty.
+				if( $index === "" ) continue;
+				
 				// Decode Hexadecimal strings.
 				$index = RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $index, fn( $m ) => hex2bin( $m[1] ) );
 			}

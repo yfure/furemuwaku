@@ -21,12 +21,13 @@ trait ViewTrait
 	 * @access Public Static
 	 *
 	 * @params String $view
+	 * @params Bool $cache
 	 *
 	 * @return Bool
 	 */
-	public static function exists( String $view ): Bool
+	public static function exists( String $view, Bool $cache = False ): Bool
 	{
-		return( File\File::exists( self::path( $view ) ) );
+		return( File\File::exists( self::path( $view, $cache ) ) );
 	}
 	
 	/*
@@ -35,24 +36,23 @@ trait ViewTrait
 	 * @access Public Static
 	 *
 	 * @params String $view
+	 * @params Bool $cache
 	 *
 	 * @return String
 	 */
-	public static function path( String $view ): String
+	public static function path( String $view, Bool $cache = False ): String
 	{
-		return(
-			Util\Str::fmt( "{p}/{v}.{e}.php", 
-				
-				// View filename.
-				v: $view,
-				
-				// Get views pathname.
-				p: self::config( "path" ),
-				
-				// Get views extension name.
-				e: self::config( "extension" )
-			)
-		);
+		$params = [
+			
+			"view" => $view,
+			
+			// Get view pathname.
+			"path" => self::config( $cache ? "[path.cache]" : "path" ),
+			
+			// Get views extension name.
+			"extension" => self::config( $cache ? "[extension.cache]" : "extension" )
+		];
+		return( Util\Str::fmt( $cache ? "{path}/{view}.{extension}.php" : "{path}/{view}.{extension}", ...$params ) );
 	}
 	
 }

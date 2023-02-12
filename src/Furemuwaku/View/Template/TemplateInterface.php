@@ -20,7 +20,7 @@ interface TemplateInterface
 	 * @params String $content
 	 *
 	 * @return False|Int
-	 */
+	 *
 	public function getInline( String $content ): False | Int;
 	
 	/*
@@ -29,7 +29,7 @@ interface TemplateInterface
 	 * @access Public
 	 *
 	 * @return Int
-	 */
+	 *
 	public function getIteration(): ? Int;
 	
 	/*
@@ -40,7 +40,7 @@ interface TemplateInterface
 	 * @params String $content
 	 *
 	 * @return False|Int
-	 */
+	 *
 	public function getLine( String $content ): False | Int;
 	
 	/*
@@ -49,7 +49,7 @@ interface TemplateInterface
 	 * @access Public
 	 *
 	 * @return Yume\Fure\Util\RegExp\Pattern
-	 */
+	 *
 	public function getPattern(): RegExp\Pattern;
 	
 	/*
@@ -58,7 +58,7 @@ interface TemplateInterface
 	 * @access Public
 	 *
 	 * @return String
-	 */
+	 *
 	public function getPatternAsString(): String;
 	
 	/*
@@ -67,7 +67,7 @@ interface TemplateInterface
 	 * @access Public
 	 *
 	 * @return String
-	 */
+	 *
 	public function getTemplate(): String;
 	
 	/*
@@ -76,7 +76,7 @@ interface TemplateInterface
 	 * @access Public
 	 *
 	 * @return Int
-	 */
+	 *
 	public function getTemplateLength(): Int;
 	
 	/*
@@ -85,9 +85,9 @@ interface TemplateInterface
 	 * @access Public
 	 *
 	 * @return Array
-	 */
+	 *
 	public function getTemplateSplit(): Array;
-	
+	*/
 }
 
 ?>

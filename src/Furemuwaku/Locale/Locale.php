@@ -2,10 +2,12 @@
 
 namespace Yume\Fure\Locale;
 
+use DateTimeInterface;
 use DateTimeZone;
 use Throwable;
 
 use Yume\Fure\Error;
+use Yume\Fure\Locale\Clock;
 use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Locale\Language;
 use Yume\Fure\Support\Design;
@@ -70,45 +72,16 @@ class Locale extends Design\Singleton
 	protected static String $defaultTimezone = "Asia/Jakarta";
 	
 	/*
-	 * Environment Variables.
-	 *
-	 * @access Protected
-	 *
-	 * @values Array
-	 */
-	protected static Array $vars = [
-		"LOCALE_LANGUAGE",
-		"LOCALE_DATE_TIMEZONE"
-	];
-	
-	/*
 	 * @inherit Yume\Fure\Support\Design\Singleton
 	 *
 	 */
 	protected function __construct()
 	{
-		// Default value.
-		$locale = [
-			"LOCALE_LANGUAGE" => self::$defaultLanguage,
-			"LOCALE_DATE_TIMEZONE" => self::$defaultTimezone
-		];
-		
-		// Mapping environment variables.
-		Util\Arr::map( self::$vars, function( Int $i, Int $idx, String $var ) use( &$locale )
-		{
-			// Check if environment variable is exists.
-			if( Env\Env::isset( $var ) )
-			{
-				// Set environment variable.
-				$locale[$var] = Env\Env::get( $var );
-			}
-		});
-		
 		// Set Application Language.
-		self::setLanguage( language: $locale['LOCALE_LANGUAGE'] );
+		self::setLanguage();
 		
 		// Set Application DateTime.
-		self::setDateTime( timezone: $locale['LOCALE_DATE_TIMEZONE'] );
+		self::setDateTime();
 	}
 	
 	/*
@@ -134,6 +107,12 @@ class Locale extends Design\Singleton
 	 */
 	public static function getDateTime(): ? DateTime\DateTime
 	{
+		if( self::$datetime === Null )
+		{
+			self::setDateTime(
+				"now", self::getTimeZone()
+			);
+		}
 		return( self::$datetime );
 	}
 	
@@ -144,9 +123,27 @@ class Locale extends Design\Singleton
 	 *
 	 * @return Yume\Fure\Locale\Language\Language
 	 */
-	public static function getLanguage(): ? Language\Language
+	public static function getLanguage(): Language\Language
 	{
+		if( self::$language === Null )
+		{
+			self::setLanguage(
+				env( "LOCALE_LANGUAGE", self::$defaultLanguage )
+			);
+		}
 		return( self::$language );
+	}
+	
+	/*
+	 * Get language as string.
+	 *
+	 * @access Public Static
+	 *
+	 * @return String
+	 */
+	public static function getLanguageName(): String
+	{
+		return( self::getLanguage() )->getLanguage();
 	}
 	
 	/*
@@ -156,8 +153,14 @@ class Locale extends Design\Singleton
 	 *
 	 * @return DateTimeZone
 	 */
-	public static function getTimeZone(): ? DateTimeZone
+	public static function getTimeZone(): DateTimeZone
 	{
+		if( self::$timezone === Null )
+		{
+			self::setTimeZone(
+				env( "LOCALE_DATE_TIMEZOBE", self::$defaultTimeZone )
+			);
+		}
 		return( self::$timezone );
 	}
 	
