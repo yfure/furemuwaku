@@ -20,7 +20,7 @@ It already provides several built-in packages that are ready to use but some pac
 * Stream
 
 ## Contribute
-[hxAri](https://github.com/hxAri) is the developer and creator of this framework, and i am very grateful to anyone who has contributed to this project, please see the Contribution rules to participate.
+[hxAri](https://github.com/hxAri) is the developer and creator of this framework, and i am very grateful to anyone who has contributed to this project, please see the [Contribution](https://github.com/yfure/framework/blob/main/.github/CONTRIBUTION.md) rules to participate.
 
 ## Donate
 Give spirit to the developer, no matter how many donations given will still be accepted<br/>
