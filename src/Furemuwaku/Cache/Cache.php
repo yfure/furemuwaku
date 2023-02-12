@@ -3,6 +3,7 @@
 namespace Yume\Fure\Cache;
 
 use Yume\Fure\Support\Design;
+use Yume\Fure\Support\Services;
 
 /*
  * Cache
@@ -29,7 +30,30 @@ class Cache extends Design\Singleton
 	 */
 	protected function __construct()
 	{
-		static::$pool = new CacheItemPool( config( "cache" )->default );
+		// Check if cache has services.
+		if( Services\Services::available( "cache" ) )
+		{
+			$pool = Services\Services::get( "cache" );
+		}
+		else {
+			$pool = new CacheItemPool( config( "cache" )->default );
+		}
+		static::$pool = $pool;
+	}
+	
+	public static function get( String $key ): CacheItemInterface
+	{
+		return( self::self() )->pool->getItem( $key );
+	}
+	
+	public static function pool(): CacheItemPoolInterface
+	{
+		return( Clone self::self()->pool );
+	}
+	
+	public static function save( CacheItemInterface $item ): Bool
+	{
+		return( self::self() )->pool->save( $item );
 	}
 	
 }

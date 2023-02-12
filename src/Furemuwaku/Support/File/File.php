@@ -3,6 +3,8 @@
 namespace Yume\Fure\Support\File;
 
 use Yume\Fure\Error;
+use Yume\Fure\Http\Stream;
+use Yume\Fure\Locale;
 use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Support\Path;
 use Yume\Fure\Util;
@@ -184,16 +186,14 @@ abstract class File
 	 *
 	 * @return Bool
 	 */
-	public static function modified( String $file ): Bool
+	public static function modified( String $file, Int $long = 60 ): Bool
 	{
-		// ...
-		$time = self::time( $file );
-		
-		// ...
-		clearstatcache();
-		
-		// ...
-		return( $time->getTimestamp() != self::time( $file )->getTimestamp() );
+		// If file is exists.
+		if( self::exists( $file ) )
+		{
+			return( Locale\Locale::getDateTime()->getTimestamp() - self::mtime( $file )->getTimestamp() <= $long );
+		}
+		return( False );
 	}
 	
 	/*
@@ -428,7 +428,8 @@ abstract class File
 	}
 	
 	/*
-	 * Get last file modified timestamp.
+	 * Get file created timestamp.
+	 *
 	 * This method DateTime class instance from file.
 	 *
 	 * @access Public Static
@@ -439,16 +440,49 @@ abstract class File
 	 *
 	 * @throws Yume\Fure\Support\File\FileNotFoundError
 	 */
-	public static function time( String $file ): DateTime
+	public static function ctime( String $file ): DateTime\DateTime
 	{
 		// Check if such a file exists.
 		if( self::exists( $file, True ) )
 		{
-			// Get timestamp value from file.
+			clearstatcache();
+			
+			// Get timestamp from file created.
+			$time = filectime( Path\Path::path( $file ) );
+			
+			$date = new DateTime\DateTime;
+			$date->setTimestamp( $time );
+			
+			// Return DateTime instance.
+			return( $date );
+		}
+		throw new FileNotFoundError( $file );
+	}
+	
+	/*
+	 * Get file last modification timestamp.
+	 *
+	 * This method DateTime class instance from file.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $file
+	 *
+	 * @return Yume\Fure\Locale\DateTime\DateTime
+	 *
+	 * @throws Yume\Fure\Support\File\FileNotFoundError
+	 */
+	public static function mtime( String $file ): DateTime\DateTime
+	{
+		// Check if such a file exists.
+		if( self::exists( $file, True ) )
+		{
+			clearstatcache();
+			
+			// Get timestamp from last modification.
 			$time = filemtime( Path\Path::path( $file ) );
 			
-			// Create new instance of DateTime class.
-			$date = new DateTime;
+			$date = new DateTime\DateTime;
 			$date->setTimestamp( $time );
 			
 			// Return DateTime instance.
@@ -466,7 +500,7 @@ abstract class File
 	 *
 	 * @return Bool
 	 */
-	public static function unlink(): Bool
+	public static function unlink( String $file ): Bool
 	{
 		return( unlink( Path\Path::path( $file ) ) );
 	}
@@ -508,6 +542,7 @@ abstract class File
 			// Check if such a directory exists.
 			if( Path\Path::exists( $fpath ) === False )
 			{
+				echo 8;
 				Path\Path::mkdir( $fpath );
 			}
 			

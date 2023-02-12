@@ -1,6 +1,7 @@
 <?php
 
 use Yume\Fure\App;
+use Yume\Fure\Cache;
 use Yume\Fure\Config;
 use Yume\Fure\Database;
 use Yume\Fure\Error;
@@ -17,6 +18,23 @@ use Yume\Fure\Util\Env;
 use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
 use Yume\Fure\View;
+use Yume\Fure\View\Template;
+
+/*
+ * Get cache item or cache item pool
+ *
+ * @params String $key
+ *
+ * @return Yume\Fure\Cache\CacheItemInterface|Yume\Fure\Cache\CacheItemPoolInterface|
+ */
+function cache( ? String $key = Null ): Cache\CacheItemInterface | Cache\CacheItemPoolInterface
+{
+	if( valueIsNotEmpty( $key ) )
+	{
+		return( Cache\Cache::get( $key ) );
+	}
+	return( Cache\Cache::pool() );
+}
 
 /*
  * @inherit Yume\Fure\Config\Config
@@ -83,6 +101,34 @@ function executionTimeCompare( Float | String $start, Float | String $end ): Flo
 	
 	// Format a number with grouped thousands.
 	return( number_format( $timeEnd - $timeStart, 6 ) );
+}
+
+function executionTimeCompare2x( $start, $end )
+{
+	//$start = array_sum( explode( "\x20", $start ) );
+	//$end = array_sum( explode( "\x20", $end ) );
+	
+	$time = $end - $start;
+	
+	$formatted_time_ms = number_format($time * 1000, 4);
+	$formatted_time_s = number_format($time, 4);
+	$formatted_time_m = number_format($time / 60, 4);
+	
+	$time_unit = "ms";
+	
+	if ($formatted_time_ms >= 1000)
+	{
+		$formatted_time_ms = round($formatted_time_ms / 1000, 2);
+		return( f( "{}s", $formatted_time_ms ) );
+	}
+	
+	if ($formatted_time_s >= 60)
+	{
+		return( f( "{}m", $formatted_time_m ) );
+	}
+	
+	//return [$formatted_time_ms, $formatted_time_s, $formatted_time_m, $time_unit];
+	return( f( "{}ms", $formatted_time_s ) );
 }
 
 /*
@@ -253,8 +299,15 @@ function valueIsNotEmpty( Mixed $value ): Bool
 	return( valueIsEmpty( $value ) === False );
 }
 
-function view( String $view, Array $data = [] ): View\ViewInterface
+function view( String $view, Array | Data\DataInterface $data = [] )//: View\ViewInterface
 {
+	// Check wheter Template Services is unavailable.
+	if( Services\Services::available( "template", False ) )
+		
+		// Set new Template Services.
+		Services\Services::register( "template", new Template\Template, False );
+	
+	// Return view instance.
 	return( new View\View( $view, $data ) );
 }
 

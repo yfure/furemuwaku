@@ -91,22 +91,23 @@ abstract class Path
 	 * @access Public Static
 	 *
 	 * @params String $path
+	 * @params Int $permissions
 	 *
 	 * @return Void
 	 */
-	public static function mkdir( String $path ): Void
+	public static function mkdir( String $path, Int $permissions = 0777 ): Void
 	{
 		// Directory stack.
 		$stack = "";
 		
 		// Mapping dir.
-		Util\Arr::map( explode( "/", $path ), function( $dir ) use( &$stack )
+		Util\Arr::map( explode( "/", $path ), function( Int $i, Int $idx, String $dir ) use( &$stack, $permissions )
 		{
-			// Check if directory is exists.
-			if( self::exists( $stack = Util\Str::fmt( "{}{}/", $stack, $dir ) ) === False )
+			// Check if directory doesn't exists.
+			if( self::exists( $stack = sprintf( "%s%s/", $stack, $dir ) ) === False )
 			{
-				// Create new directory.
-				mkdir( path( $stack ) );
+				// If failed create directory.
+				if( mkdir( path( $stack ), $permissions ) === False ) return( STOP_ITERATION );
 			}
 		});
 	}
@@ -183,6 +184,37 @@ abstract class Path
 	public static function readable( String $file ): Bool
 	{
 		return( is_readable( self::path( $file ) ) );
+	}
+	
+	public static function remove( String $path, String $pattern = "/*", Bool $onlyFile = False )
+	{
+		// Check if path is exists.
+		if( self::exists( $path, True ) )
+		{
+			// Find pathnames matching a pattern.
+			$files = glob( sprintf( "%s%s", $path, $pattern ) );
+			
+			foreach( $files !== False ? $files : [] as $file )
+			{
+				if( is_file( self::path( $file ) ) )
+				{
+					// If one file fails to delete then
+					// the entire queue below it will not be deleted.
+					if( unlink( self::path( $file ) ) === False ) return( False );
+				}
+				else {
+					self::remove( $file, $pattern, $onlyFile );
+				}
+			}
+			
+			// If path is allowed for delete.
+			if( $onlyFile === False )
+			{
+				return( rmdir( $path ) );
+			}
+			return( True );
+		}
+		throw new PathNotFoundError( $path );
 	}
 	
 	/*

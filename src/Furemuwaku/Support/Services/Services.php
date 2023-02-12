@@ -68,6 +68,29 @@ final class Services extends Design\Singleton
 	}
 	
 	/*
+	 * Return if services is available.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $name
+	 *
+	 * @return Bool
+	 */
+	public static function available( Object | String $name, ? Bool $optional = Null ): Bool
+	{
+		// Check if name is object type.
+		if( is_object( $name ) )
+		{
+			$name = $name::class;
+		}
+		
+		// Check if service is available.
+		$available = isset( static::$services[$name] );
+		
+		return( $optional === Null ? $available : $available === $optional );
+	}
+	
+	/*
 	 * Get services.
 	 *
 	 * @access Public Static

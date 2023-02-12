@@ -31,7 +31,7 @@ enum PathName: String
 	 */
 	case ASSET = "assets";
 	case ASSET_CACHE = "assets/caches";
-	case ASSET_CACHE_ROUTING = "assets/caches/routing";
+	//case ASSET_CACHE_ROUTING = "assets/caches/routing";
 	case ASSET_CACHE_VIEW = "assets/caches/views";
 	case ASSET_COOKIE = "assets/cookies";
 	case ASSET_COOKIE_SESSION = "assets/cookies/session";
