@@ -34,7 +34,7 @@ Please make sure your pull request follows the coding conventions used in the re
 
 ## Code of Conduct
 
-We want to create a welcoming and inclusive environment for everyone who participates in the Yume community. Please follow the [Code of Conduct](https://github.com/yfure/framework/blob/main/CONDUCT.md) when participating in this project.
+We want to create a welcoming and inclusive environment for everyone who participates in the Yume community. Please follow the [Code of Conduct](https://github.com/yfure/framework/blob/main/.github/CONDUCT.md) when participating in this project.
 
 ## License
 
