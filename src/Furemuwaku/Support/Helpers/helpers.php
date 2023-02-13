@@ -199,7 +199,7 @@ function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? Strin
 }
 
 /*
- * @inherit Yume\Fure\Support\Path\Path
+ * @inherit Yume\Fure\Support\Path\Path::ls
  *
  */
 function ls( String $path ): Array | Bool
@@ -208,11 +208,11 @@ function ls( String $path ): Array | Bool
 }
 
 /*
- * @inherit Yume\Fure\Support\Path\Path
+ * @inherit Yume\Fure\Support\Path\Path::path
  */
-function path( String $path, Bool $remove = False ): String
+function path( String $path, Bool | Path\PathName $prefix_or_remove = False ): String
 {
-	return( Path\Path::path( $path, $remove ) );
+	return( Path\Path::path( $path, $prefix_or_remove ) );
 }
 
 /*
@@ -229,7 +229,7 @@ function puts( String $string, Mixed ...$format ): Void
 }
 
 /*
- * @inherit Yume\Fure\Support\Path\Path
+ * @inherit Yume\Fure\Support\Path\Path::tree
  *
  */
 function tree( String $path, String $parent = "" ): Array | False
@@ -263,28 +263,25 @@ function type( Mixed $value ): String
  */
 function valueIsEmpty( Mixed $value ): Bool
 {
-	switch( True )
+	return( match( True )
 	{
 		// If `value` is Int type.
-		case is_int( $value ):
-			return( $value === 0 );
-			
+		is_int( $value ) => $value === 0,
+		
 		// If `value` is Null type.
-		case is_null( $value ): return( True );
+		is_null( $value ) => True,
 		
 		// If `value` is Bool type.
-		case is_bool( $value ):
-			return( $value === False );
+		is_bool( $value ) => $value === False,
 		
 		// If `value` is Array type.
-		case is_array( $value ):
-			return( count( $value ) === 0 );
-			
+		is_array( $value ) => count( $value ) === 0,
+		
 		// If `value` is String type.
-		case is_string( $value ):
-			return( RegExp\RegExp::test( "/^([\s\t\n]*)$/", $value ) );
-	}
-	return( False );
+		is_string( $value ) => preg_match( "/^([\r\t\n\s]*)$/", $value ),
+		
+		default => False
+	});
 }
 
 /*
@@ -305,7 +302,7 @@ function view( String $view, Array | Data\DataInterface $data = [] )//: View\Vie
 	if( Services\Services::available( "template", False ) )
 		
 		// Set new Template Services.
-		Services\Services::register( "template", new Template\Template, False );
+		Services\Services::register( [ Template\Template::class, "Template", "template" ], new Template\Template, False );
 	
 	// Return view instance.
 	return( new View\View( $view, $data ) );
