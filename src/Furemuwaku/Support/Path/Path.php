@@ -145,14 +145,14 @@ abstract class Path
 	 * Get fullpath name or remove basepath name.
 	 *
 	 * @params String $path
-	 * @params Bool $remove
+	 * @params Bool|Yume\Fure\Support\Path\PathName $prefix_or_remove
 	 *
 	 * @return String
 	 */
-	public static function path( String $path, Bool $remove = False ): String
+	public static function path( String $path, Bool | PathName $prefix_or_remove = False ): String
 	{
 		// Remove all basepath in string.
-		if( $remove )
+		if( $prefix_or_remove === True )
 		{
 			return( str_replace( [ preg_replace( "/\//", DIRECTORY_SEPARATOR, BASE_PATH ), preg_replace( "/\//", "\\" . DIRECTORY_SEPARATOR, BASE_PATH ) ], "", $path ) );
 		}
@@ -166,6 +166,9 @@ abstract class Path
 			
 			// Check if thd path has prefix path.
 			if( strpos( $path, BASE_PATH ) !== False ) return( $path );
+			
+			// Check if path has prefix.
+			if( $prefix_or_remove Instanceof PathName ) $path = sprintf( "%s/%s", $prefix_or_remove->value, $path );
 			
 			// Add basepath into prefix pathname.
 			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, preg_replace( "/\//", DIRECTORY_SEPARATOR, f( "{}/{}", BASE_PATH, $path ) ) ) );
