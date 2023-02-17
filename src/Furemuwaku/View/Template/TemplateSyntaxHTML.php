@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\View\Template;
 
+use Yume\Fure\Config;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
@@ -157,7 +158,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 	 * @inherit Yume\Fure\View\Template\TemplateSyntax
 	 *
 	 */
-	public function __construct( TemplateInterface $context, Array | Data\DataInterface $configs )
+	public function __construct( Template $engine, Config\Config $configs )
 	{
 		// Checks if the constructor is called from the child class
 		// And if the child class doesn't define a token.
@@ -171,7 +172,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		}
 		
 		// Call parent constructor.
-		parent::__construct( $context, $configs );
+		parent::__construct( $engine );
 	}
 	
 	/*
@@ -203,8 +204,8 @@ class TemplateSyntaxHTML extends TemplateSyntax
 					// Push attribute.
 					$stack[] = match( True )
 					{
-						$option['dynamic'] => f( valueIsNotEmpty( $option['values'] ) ? "data-{}=\"<?= {} ?>\"" : "data-{}=\"\"", $name, $self->clear( $option['values'] ) ),
-						$option['default'] => f( "data-{}=\"{}\"", $name, $option['values'] ),
+						$option['dynamic'] => sprintf( valueIsNotEmpty( $option['values'] ) ? "data-%s=\"<?= %s ?>\"" : "data-%s=\"\"", $name, $self->unclean( $self->clear( $option['values'] ) ) ),
+						$option['default'] => sprintf( "data-%s=\"%s\"", $name, $self->unclean( $self->clear( $option['values'] ) ) ),
 						default => f( "data-{}", $name )
 					};
 				});
@@ -214,8 +215,8 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				// Push attribute.
 				$stack[] = match( True )
 				{
-					$option['dynamic'] => f( valueIsNotEmpty( $option['values'] ) ? "{}=\"<?= {} ?>\"" : "{}=\"\"", $name, $self->clear( $option['values'] ) ),
-					$option['default'] => f( "{}=\"{}\"", $name, $option['values'] ),
+					$option['dynamic'] => sprintf( valueIsNotEmpty( $option['values'] ) ? "%s=\"<?= %s ?>\"" : "%s=\"\"", $name, $self->unclean( $self->clear( $option['values'] ) ) ),
+					$option['default'] => sprintf( "%s=\"%s\"", $name, $self->unclean( $self->clear( $option['values'] ) ) ),
 					default => $name
 				};
 			}
@@ -292,8 +293,8 @@ class TemplateSyntaxHTML extends TemplateSyntax
 					 * I will fix this as soon as possible.
 					 *
 					 */
-					//throw new TemplateSyntaxError( "Non-dynamic HTML attribute values cannot contain double quotes", $this->context->view, $this->context->getInline( $params ), 0 );
-					$value['values'] = htmlspecialchars( $this->normalize( $match['value'] ?? "", [ "\"", "\'", "\\[", "\\]", "\\:", "\\;", "\\=" ] ) );
+					throw new TemplateSyntaxError( "Non-dynamic HTML attribute values cannot contain double quotes", $this->getCurrentViewName(), $this->getCurrentLine(), 0 );
+					//$value['values'] = htmlspecialchars( $this->normalize( $match['value'] ?? "", [ "\"", "\'", "\\[", "\\]", "\\:", "\\;", "\\=" ] ) );
 				}
 			}
 			
@@ -318,7 +319,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		 */
 		if( $char = RegExp\RegExp::match( "/([^\s])/", $replace ) )
 		{
-			throw new TemplateSyntaxError( f( "Invalid \"{}\" character for attribute", $char[0] ), $this->context->view, $this->context->getInline( $params ), 0 );
+			throw new TemplateSyntaxError( f( "Invalid \"{}\" character for attribute, in {}", $char[0], $this->unclean( $params ) ), $this->getCurrentViewName(), $this->getCurrentLine(), 0 );
 		}
 		else {
 			
@@ -362,7 +363,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
-	public function process( TemplateCaptured $syntax ): Array | String
+	public function process( Data\DataInterface $syntax ): Array | String
 	{
 		// Check if tag has attributes.
 		if( valueIsNotEmpty( $syntax->value ) )
@@ -384,13 +385,14 @@ class TemplateSyntaxHTML extends TemplateSyntax
 		if( $syntax->children )
 		{
 			// Remove all first empty line in content.
-			$children = $this->removeFirstLine( explode( "\n", $syntax->children ) );
+			$children = $this->removeFirstLine( explode( "\x0a", $syntax->children ) );
 			
 			// Check if inner content is not empty.
 			if( count( $children ) !== 0 )
 			{
 				// Re-Parse inner content.
-				$syntax->children = $this->context->parse( implode( "\n", $children ) );
+				//$syntax->children = $this->match( implode( "\x0a", $children ) );
+				$syntax->children = implode( "\x0a", $children );
 			}
 			else {
 				$syntax->children = Null;
@@ -403,7 +405,7 @@ class TemplateSyntaxHTML extends TemplateSyntax
 			// Check if tag is unpaired type.
 			if( $this->isUnpaired( $syntax->token ) )
 			{
-				throw new TemplateSyntaxError( f( "\"{}\" is an unpaired tag and does not support single-line content and inner content", $syntax->token ), $syntax->view, $syntax->line, 0 );
+				throw new TemplateSyntaxError( f( "\"{}\" is an unpaired tag and does not support single-line content and inner content", $syntax->token ), $syntax->view->name, $syntax->line, 0 );
 			}
 			else {
 				
@@ -411,13 +413,13 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				if( $syntax->children )
 				{
 					// Default format with inner content.
-					$format = "<{token}{attr}>\n{children}\n{indent}</{token}>";
+					$format = "<{token}{attr}>\x0a{children}\x0a{indent}</{token}>";
 					
 					// Check if tag has outline content.
 					if( valueIsNotEmpty( $syntax->outline ) )
 					{
 						// Add outline in tag inner.
-						$format = "<{token}{attr}>{outline}\n{children}\n{indent}</{token}>";
+						$format = "<{token}{attr}>{outline}\x0a{children}\x0a{indent}</{token}>";
 					}
 				}
 				else {
@@ -442,17 +444,23 @@ class TemplateSyntaxHTML extends TemplateSyntax
 				// Default format without outline content.
 				$format = "<{token}{attr}></{token}>";
 				
-				// Check if tag has outine content.
-				if( valueIsNotEmpty( $syntax->outline ) )
+				// Check if tag has inner content.
+				if( valueIsNotEmpty( $syntax->children ) )
 				{
 					// Add outline into inner content.
-					$format = "<{token}{attr}>{outline}</{token}>";
+					$format = "<{token}{attr}>{outline}{children}</{token}>";
 				}
 			}
 			else {
 				
 				// Default format without outline content.
 				$format = "<{token}{attr} />";
+				
+				// Check if tag has inner content.
+				if( valueIsNotEmpty( $syntax->children ) )
+				{
+					throw new TemplateSyntaxError( f( "\"{}\" is an unpaired tag and does not support single-line content and inner content", $syntax->token ), $syntax->view->name, $syntax->line, 0 );
+				}
 				
 				// Check if tag has outine content.
 				if( valueIsNotEmpty( $syntax->outline ) )
@@ -483,10 +491,8 @@ class TemplateSyntaxHTML extends TemplateSyntax
 			"attr" => $values->attr ?? "",
 			"token" => $values->token ?? "",
 			"indent" => $values->indent->value,
-			"outline" => $this->clear(
-				$this->context->parse( $values->outline ?? "" )
-			),
-			"children" => $this->context->parse( $values->children ?? "" )
+			"outline" => $this->clear( $values->outline ?? "" ),
+			"children" => $values->children ?? ""
 		]));
 	}
 	

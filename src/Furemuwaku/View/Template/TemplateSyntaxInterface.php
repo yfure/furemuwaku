@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\View\Template;
 
+use Yume\Fure\Support\Data;
+
 /*
  * TemplateSyntaxInterface
  *
@@ -64,11 +66,11 @@ interface TemplateSyntaxInterface
 	 *
 	 * @access Public
 	 *
-	 * @params Yume\Fure\View\Template\TemplateCaptured $syntax
+	 * @params Yume\Fure\Support\Data\DataInterface $syntax
 	 *
 	 * @return Array|String
 	 */
-	public function process( TemplateCaptured $syntax ): Array | String;
+	public function process( Data\DataInterface $syntax ): Array | String;
 	
 }
 

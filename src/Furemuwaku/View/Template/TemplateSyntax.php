@@ -48,24 +48,43 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 *
 	 * @access Public Instance
 	 *
-	 * @params Protected Readonly Yume\Fure\View\Template\TemplateInterface $context
+	 * @params Yume\Fure\View\Template\Template $utils
 	 *
 	 * @return Void
 	 *
 	 * @throw Yume\Fure\View\Template\TemplateUninitializedTokenError
 	 */
-	public function __construct( protected Readonly TemplateInterface $context, Array | Data\DataInterface $configs )
+	public function __construct( private Readonly Template $engine, /** Config\Config $configs */ )
 	{
-		// Checks if the token property has not been initialized.
+		/*
+		 * Checks if the token property
+		 * has not been initialized.
+		 *
+		 */
 		if( $this->hasToken() === False )
 		{
 			throw new TemplateUninitializedTokenError( $this::class );
 		}
 	}
 	
-	final public function clear( String $value ): String
+	/*
+	 * Call method from engine.
+	 *
+	 * @access Public
+	 *
+	 * @params String $util
+	 * @params Mixed $args
+	 *
+	 * @return Mixed
+	 */
+	final public function __call( String $method, Mixed $args ): Mixed
 	{
-		return( RegExp\RegExp::replace( "/^\s+|\s+$/", $value, "" ) );
+		// Check if engine has called method.
+		if( method_exists( $this->engine, $method ) )
+		{
+			return( call_user_func( [ $this->engine, $method ], ...$args ) );
+		}
+		throw new Error\MethodError( [ $this::class, $method ], Error\MethodError::NAME_ERROR );
 	}
 	
 	/*
@@ -148,7 +167,7 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 *
 	 * @throws Yume\Fure\Error\ValueError
 	 */
-	final protected function normalize( Bool | String $subject, Array $chars ): Bool | String
+	protected function normalize( Bool | String $subject, Array $chars ): Bool | String
 	{
 		// Check if subject is Boolean type.
 		if( is_bool( $subject ) ) return( $subject );
@@ -158,26 +177,6 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 		
 		// Returns replaced subject.
 		return( RegExp\RegExp::replace( f( "/\\\({implode(+)})/", [ "|", $chars ] ), $subject, "$1" ) );
-	}
-	
-	protected function removeFirstLine( Array $content ): Array
-	{
-		if( isset( $content[0] ) )
-		{
-			// Get first content value.
-			$first = $content[0];
-			
-			// Check if first deep content is empty
-			if( $first === "" || $first === "\n" )
-			{
-				// Unset first content.
-				unset( $content[0] );
-				
-				// Looping!
-				$content = $this->removeFirstLine( $content );
-			}
-		}
-		return( $content );
 	}
 	
 }

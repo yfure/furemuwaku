@@ -17,6 +17,7 @@ class ViewError extends Error\TypeError
 {
 	
 	public const NOT_FOUND_ERROR = 46288;
+	public const OUTPUT_ERROR = 57667;
 	public const PARSE_ERROR = 57858;
 	
 	/*
@@ -26,6 +27,7 @@ class ViewError extends Error\TypeError
 	protected Array $flags = [
 		ViewError::class => [
 			self::NOT_FOUND_ERROR,
+			self::OUTPUT_ERROR,
 			self::PARSE_ERROR
 		]
 	];
