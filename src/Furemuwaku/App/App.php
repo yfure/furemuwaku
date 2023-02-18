@@ -74,51 +74,54 @@ final class App extends Design\Singleton
 	 */
 	protected function __construct()
 	{
-		// Parse environment file.
-		Env\Env::self();
-		
-		// Setup localization application.
-		Locale\Locale::self();
-		
-		// Get application environment.
-		$env = strtolower( env( "ENVIRONMENT" ) );
-		
-		// Check if valid application environment.
-		if( $env === "development" || $env === "production" )
+		Util\Timer::calculate( "booting", function()
 		{
-			// Check if application has context.
-			if( defined( "YUME_CONTEXT" ) )
+			// Parse environment file.
+			Env\Env::self();
+			
+			// Setup localization application.
+			Locale\Locale::self();
+			
+			// Get application environment.
+			$env = strtolower( env( "ENVIRONMENT" ) );
+			
+			// Check if valid application environment.
+			if( $env === "development" || $env === "production" )
 			{
-				// Set application context.
-				$this->context = match( True )
+				// Check if application has context.
+				if( defined( "YUME_CONTEXT" ) )
 				{
-					YUME_CONTEXT_CLI => "cli",
-					YUME_CONTEXT_CLI_SERVER => "cli-server",
-					YUME_CONTEXT_WEB => "web",
-					
-					default => throw new Error\LogicError( Util\Str::fmt( "Unknown application context for \"{}\"", YUME_CONTEXT ) )
-				};
+					// Set application context.
+					$this->context = match( True )
+					{
+						YUME_CONTEXT_CLI => "cli",
+						YUME_CONTEXT_CLI_SERVER => "cli-server",
+						YUME_CONTEXT_WEB => "web",
+						
+						default => throw new Error\LogicError( Util\Str::fmt( "Unknown application context for \"{}\"", YUME_CONTEXT ) )
+					};
+				}
+				else {
+					throw new Error\LogicError( "The application has no context" );
+				}
+				
+				// Define application evironment.
+				define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
+				
+				// Import runtime settings file by environment.
+				Package\Package::import( Util\Str::fmt( "{}/{}", Path\PathName::SYSTEM_BOOTING->value, $env ) );
 			}
 			else {
-				throw new Error\LogicError( "The application has no context" );
+				throw new Error\LogicError( Util\Str::fmt( "The application environment must be development|production, \"{}\" given", $env ) );
 			}
 			
-			// Define application evironment.
-			define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
+			// Set config collections.
+			$this->configs = new Data\Data([]);
+			$this->configPath = f( "{}/\{\}", Path\PathName::SYSTEM_CONFIG->value );
 			
-			// Import runtime settings file by environment.
-			Package\Package::import( Util\Str::fmt( "{}/{}", Path\PathName::SYSTEM_BOOTING->value, $env ) );
-		}
-		else {
-			throw new Error\LogicError( Util\Str::fmt( "The application environment must be development|production, \"{}\" given", $env ) );
-		}
-		
-		// Set config collections.
-		$this->configs = new Data\Data([]);
-		$this->configPath = f( "{}/\{\}", Path\PathName::SYSTEM_CONFIG->value );
-		
-		// Set error handler.
-		ErrorHandler\Handler::setup();
+			// Set error handler.
+			ErrorHandler\Handler::setup();
+		});
 	}
 	
 	/*
