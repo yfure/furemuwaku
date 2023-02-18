@@ -48,7 +48,7 @@ abstract class TemplateSyntax implements TemplateSyntaxInterface
 	 *
 	 * @access Public Instance
 	 *
-	 * @params Yume\Fure\View\Template\Template $utils
+	 * @params Private Readonly Yume\Fure\View\Template\Template $engine
 	 *
 	 * @return Void
 	 *

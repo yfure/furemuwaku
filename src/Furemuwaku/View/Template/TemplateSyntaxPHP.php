@@ -2,8 +2,11 @@
 
 namespace Yume\Fure\View\Template;
 
+use ReflectionMethod;
+
 use Yume\Fure\Config;
 use Yume\Fure\Support\Data;
+use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
 
@@ -18,6 +21,15 @@ use Yume\Fure\Util\RegExp;
  */
 final class TemplateSyntaxPHP extends TemplateSyntax
 {
+	
+	/*
+	 * Instance of class ReflectionMethod.
+	 *
+	 * @access Private Readonly
+	 *
+	 * @values ReflectionMethod
+	 */
+	private Readonly ReflectionMethod $indent;
 	
 	/*
 	 * @inherit Yume\Fure\View\Template\TemplateSyntax
@@ -41,7 +53,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"format" => [
 				"paired" => "<?php \} catch( {condition} ) \{ ?>\x0a{content}\x0a{indent}<?php \} ?>",
 				"unpaired" => "<?php \} catch( {condition} ) \{ ?>{content}<?php \} ?>",
-				"nextmatch" => "<?php \} catch( {condition} ) \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php \} catch( {condition} ) \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => [
 				"unpaired" => "<?php \} catch( {condition} ) \{ ?>{content}<?php \} ?>",
@@ -78,7 +90,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 		"default",
 		"do" => [
 			"format" => [
-				"nextmatch" => "<?php do \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php do \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => False,
 			"paired" => True,
@@ -98,7 +110,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"format" => [
 				"paired" => "<?php \} else if( {condition} ) \{ ?>\x0a{content}\x0a{indent}<?php \} ?>",
 				"unpaired" => "<?php \} else if( {condition} ) \{ ?>{content}<?php \} ?>",
-				"nextmatch" => "<?php \} else if( {condition} ) \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php \} else if( {condition} ) \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => [
 				"unpaired" => "<?php \} else if( {condition} ) \{ ?>{content}<?php \} ?>",
@@ -139,7 +151,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"format" => [
 				"paired" => "<?php \} else if( {condition} ) \{ ?>\x0a{content}\x0a{indent}<?php \} ?>",
 				"unpaired" => "<?php \} else if( {condition} ) \{ ?>{content}<?php \} ?>",
-				"nextmatch" => "<?php \} else if( {condition} ) \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php \} else if( {condition} ) \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => [
 				"unpaired" => "<?php \} else if( {condition} ) \{ ?>{content}<?php \} ?>",
@@ -164,7 +176,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"format" => [
 				"paired" => "<?php if( empty( {condition} ) ) \{ ?>\x0a{content}\x0a{indent}<?php \} ?>",
 				"unpaired" => "<?php if( empty( {condition} ) ) \{ ?>{content}<?php \} ?>",
-				"nextmatch" => "<?php if( empty( {condition} ) ) \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php if( empty( {condition} ) ) \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => [
 				"unpaired" => "<?php if( empty( {condition} ) ) \{ ?>{content}<?php \} ?>",
@@ -237,7 +249,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"format" => [
 				"paired" => "<?php if( {condition} ) \{ ?>\x0a{content}\x0a{indent}<?php \} ?>",
 				"unpaired" => "<?php if( {condition} ) \{ ?>{content}<?php \} ?>",
-				"nextmatch" => "<?php if( {condition} ) \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php if( {condition} ) \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => [
 				"unpaired" => "<?php if( {condition} ) \{ ?>{content}<?php \} ?>",
@@ -262,7 +274,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"format" => [
 				"paired" => "<?php if( isset( {condition} ) ) \{ ?>\x0a{content}\x0a{indent}<?php \} ?>",
 				"unpaired" => "<?php if( isset( {condition} ) ) \{ ?>{content}<?php \} ?>",
-				"nextmatch" => "<?php if( isset( {condition} ) ) \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php if( isset( {condition} ) ) \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => [
 				"unpaired" => "<?php if( isset( {condition} ) ) \{ ?>{content}<?php \} ?>",
@@ -313,7 +325,7 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 		],
 		"try" => [
 			"format" => [
-				"nextmatch" => "<?php try \{ ?>\x0a{content}\x0a{indent}{nextmatch}"
+				"nextmatch" => "<?php try \{ ?>\x0a{content}\x0a{nextmatch}"
 			],
 			"inline" => False,
 			"paired" => True,
@@ -365,8 +377,11 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 	 * @inherit Yume\Fure\View\Template\TemplateSyntax
 	 *
 	 */
-	public function __construct( Template $engine, Config\Config $configs )
+	public function __construct( private Readonly Template $engine, Config\Config $configs )
 	{
+		// Create reflection for `matchIndent` method.
+		$this->indent = new ReflectionMethod( $engine, "matchIndented" );
+		
 		// Call parent constructor.
 		parent::__construct( $engine );
 	}
@@ -498,6 +513,15 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 	}
 	
 	/*
+	 * @inherit Yume\Fure\View\Template\Template::matchIndented
+	 *
+	 */
+	private function matchIndented( Data\DataInterface $syntax ): Void
+	{
+		Reflect\ReflectMethod::invoke( $this->engine, "matchIndented", [$syntax], $this->indent );
+	}
+	
+	/*
 	 * @inherit Yume\Fure\View\Template\TemplateSyntaxInterface
 	 *
 	 */
@@ -535,14 +559,21 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 						echo "\x0a\x0a";
 						echo "Has Closing, No Content >> ";
 						echo $syntax->token;
+						echo "\n";
+						echo $syntax->begin;
 						echo "\x0a\x0a";
 					}
 				}
 				else {
-					echo "\n\n";
-					echo "No Closing, No Content >> ";
-					echo $syntax->token;
-					echo "\n\n";
+					if( $syntax->children === Null )
+					{
+						echo "\n\n";
+						echo "No Closing, No Content >> ";
+						echo $syntax->token;
+						echo "\n";
+						echo $syntax->begin;
+						echo "\n\n";
+					}
 				}
 			}
 		}
@@ -558,11 +589,11 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			}
 		}
 		
-		$format = $this->format( $format, $syntax );
+		$result = $this->format( $format, $syntax );
 		
 		return([
-			"result" => $format,
-			"raw" => $syntax->raw
+			"raw" => $syntax->raw,
+			"result" => $result
 		]);
 	}
 	
@@ -631,9 +662,9 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 			"syntax" => Null,
 			"captured" => Null
 		];
-		
 		if( $this->isMultimatch( $syntax->token ) )
 		{
+			// Check if syntax has no contents in closing.
 			if( valueIsEmpty( $syntax->closing->syntax ) ) return( False );
 			
 			// If closing syntax is valid.
@@ -644,9 +675,14 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 				// Regular Expression for capture next match syntax.
 				$regexp = f( "/^(?<matched>(?<multiline>(?<indent>\s\{{},\})(?:\@)(?<inline>(?<token>(?:{})\b)(?:[\s\t]*)(?<value>.*?))(?<!\\\)(?<symbol>(?<colon>\:)|(?<semicolon>\;))(?<outline>([^\x0a]*))))/ms", $syntax->indent->length, implode( "|", $this->token[$syntax->tokenLower]['nextmatch']['token'] ) );
 				
+				// Get splited line.
 				$content = $this->getSLine( $syntax->view->name, $syntax->closing->line );
 				
-				// If syntax matched.
+				// Split content with newline.
+				$contentSplit = explode( "\x0a", $content );
+				$contentLength = count( $contentSplit );
+				
+				// If closing syntax matched.
 				if( preg_match( $regexp, $content, $match ) )
 				{
 					$capture = $this->handle( ...[
@@ -658,17 +694,9 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 						$syntax->view->split->__toArray(),
 						$syntax->view->length
 					]);
-					$process = $this->process( $capture );
 					
-					if( is_array( $process ) )
-					{
-						$syntax->closing->nextmatch->syntax = $process['result'] ?? $process[0];
-						$syntax->closing->nextmatch->captured = $process['raw'] ?? $process[1];
-					}
-					else {
-						$syntax->closing->nextmatch->syntax = $process;
-						$syntax->closing->nextmatch->captured = $capture->raw;
-					}
+					$syntax->closing->nextmatch->syntax = $capture->result;
+					$syntax->closing->nextmatch->captured = $capture->raw;
 					
 					if( $capture->closing->nextmatch->syntax )
 					{
@@ -684,7 +712,10 @@ final class TemplateSyntaxPHP extends TemplateSyntax
 						$syntax->closing->valid = True;
 						$syntax->raw = $this->reBuildSyntaxCapture( $syntax );
 					}
-					return( $process );
+					return([
+						"raw" => $capture->raw,
+						"result" => $capture->result
+					]);
 				}
 			}
 			else {

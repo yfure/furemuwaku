@@ -450,10 +450,9 @@ class Template
 	{
 		$template = match( True )
 		{
-			/*
 			$this->match->current->view->name === $view => $this->match->current->view->split->__toArray(),
 			$this->match->previous->view->name === $view => $this->match->previous->view->split->__toArray(),
-			*/
+			
 			default => File\File::readline( $view )
 		};
 		
@@ -575,8 +574,8 @@ class Template
 		$stack = [];
 		$split = match( True )
 		{
-			$this->match->current->view->name === $view => $this->match->current->view->split,
-			$this->match->previous->view->name === $view => $this->match->previous->view->split,
+			$this->match->current->view->name === $view => $this->match->current->view->split->__toArray(),
+			$this->match->previous->view->name === $view => $this->match->previous->view->split->__toArray(),
 			
 			default => File\File::readline( $view )
 		};
@@ -585,7 +584,11 @@ class Template
 		{
 			if( $i +1 >= $line )
 			{
-				$stack[] = $val;
+				$stack = $split;
+				break;
+			}
+			else {
+				unset( $split[$i] );
 			}
 		}
 		return( implode( "\x0a", $stack ) );
@@ -630,7 +633,7 @@ class Template
 		// Check if syntax indentation is invalid.
 		if( Util\Number::isOdd( $syntax->indent->length ) )
 		{
-			throw new TemplateIndentationError( "*", $syntax->view->name, $this->getLine( $syntax->view->name, $syntax->raw ) );
+			throw new TemplateIndentationError( $syntax->begin, $syntax->view->name, $this->getLine( $syntax->view->name, $syntax->raw ) );
 		}
 		
 		// Get result processed syntax.
@@ -1039,7 +1042,7 @@ class Template
 				$indent += 4;
 			}
 			else {
-				throw new TemplateIndentationError( "*", $syntax->view->name, $this->getLine( $syntax->view->name, $msplit[0] ) );
+				throw new TemplateIndentationError( $syntax->begin, $syntax->view->name, $this->getLine( $syntax->view->name, $msplit[0] ) );
 			}
 		}
 		
@@ -1064,7 +1067,7 @@ class Template
 					// Check if indentation level is invalid.
 					if( Util\Number::isOdd( $validIndentLength ) )
 					{
-						throw new TemplateIndentationError( "*", $syntax->view->name, $i );
+						throw new TemplateIndentationError( $line, $syntax->view->name, $i );
 					}
 					
 					// Check if symbol is semicolon.
@@ -1081,7 +1084,7 @@ class Template
 							// Check if value is not empty.
 							if( valueIsNotEmpty( $line ) && $this->isComment( $line ) === False )
 							{
-								throw new TemplateIndentationError( "*", $syntax->view->name, $i );
+								throw new TemplateIndentationError( $line, $syntax->view->name, $i );
 							}
 						}
 					}
@@ -1092,7 +1095,7 @@ class Template
 						if( valueIsNotEmpty( $syntax->outline ) && $this->isComment( $syntax->outline ) === False )
 						{
 							// Check if syntax has inner content.
-							if( count( $syntax->children ) >= 1 ) throw new TemplateIndentationError( "*", $syntax->view->name, $i );
+							if( count( $syntax->children ) >= 1 ) throw new TemplateIndentationError( $line, $syntax->view->name, $i );
 						}
 					}
 					$syntax->children[] = $line;
@@ -1108,7 +1111,7 @@ class Template
 						// Check if indentation level is invalid.
 						if( Util\Number::isOdd( $validIndentLength ) )
 						{
-							throw new TemplateIndentationError( "*", $syntax->view->name, $i );
+							throw new TemplateIndentationError( $line, $syntax->view->name, $i );
 						}
 						if( $validIndentLength < $indent || $valid[2] )
 						{
@@ -1132,7 +1135,7 @@ class Template
 					if( valueIsNotEmpty( $syntax->outline ) && $this->isComment( $syntax->outline ) === False )
 					{
 						// If syntax has inner content.
-						if( count( $syntax->children ) >= 1 ) throw new TemplateIndentationError( "*", $syntax->view->name, $i );
+						if( count( $syntax->children ) >= 1 ) throw new TemplateIndentationError( $syntax->begin, $syntax->view->name, $i );
 					}
 				}
 			}
