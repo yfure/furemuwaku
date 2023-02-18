@@ -126,9 +126,11 @@ class Sutakku implements SutakkuInterface
 		$fline = [
 			[
 				"line" => $line,
-				"content" => $split[( $line -1 >= 0 ? $line -1 : $line )]
+				"content" => $split[( $line -1 >= 0 ? $line -1 : $line )] ?? Null
 			]
 		];
+		
+		if( $fline[0]['content'] === Null ) return( $fline );
 		
 		// Looping for previous error line.
 		for( $i = 2; $i < 6; $i++ )
@@ -294,7 +296,7 @@ class Sutakku implements SutakkuInterface
 								if( isset( $trace['file'] ) )
 								{
 									// Read trace error file.
-									$trace['read'] = $self->read( $trace['file'], $trace['line'] );
+									//$trace['read'] = $self->read( $trace['file'], $trace['line'] );
 									
 									// Clear field names from BASE PATH.
 									$trace['file'] = path( $trace['file'], True );

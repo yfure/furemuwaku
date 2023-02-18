@@ -35,7 +35,7 @@ trait ConfigTrait
 	 *
 	 * @return Mixed
 	 */
-	public static function config( Callable | Null | String $name = Null ): Mixed
+	final public static function config( Callable | Null | String $name = Null ): Mixed
 	{
 		// If the class configuration has not been imported.
 		if( self::$configs Instanceof Config === False )
