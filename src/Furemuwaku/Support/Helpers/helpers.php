@@ -296,15 +296,16 @@ function valueIsNotEmpty( Mixed $value ): Bool
 	return( valueIsEmpty( $value ) === False );
 }
 
+/*
+ * Return view contents.
+ *
+ * @params String $view
+ * @params Array|Yume\Fure\Support\Data\DataInterface $data
+ *
+ * @return
+ */
 function view( String $view, Array | Data\DataInterface $data = [] )//: View\ViewInterface
 {
-	// Check wheter Template Services is unavailable.
-	if( Services\Services::available( "template", False ) )
-		
-		// Set new Template Services.
-		Services\Services::register( [ Template\Template::class, "Template", "template" ], new Template\Template, False );
-	
-	// Return view instance.
 	return( new View\View( $view, $data ) );
 }
 

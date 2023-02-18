@@ -43,6 +43,12 @@ class Data implements DataInterface
 	 */
 	public function __construct( Array | DataInterface $data = [] )
 	{
+		// Check if data is DataInterface.
+		if( $data Instanceof DataInterface )
+		{
+			$data = $data->__toArray();
+		}
+		
 		// Mapping data.
 		Util\Arr::map( $data, function( $i, $key, $value )
 		{
