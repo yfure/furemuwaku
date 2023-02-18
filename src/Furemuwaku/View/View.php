@@ -9,7 +9,6 @@ use Yume\Fure\Config;
 use Yume\Fure\HTTP\Response;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\File;
-use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
 use Yume\Fure\View\Template;
 
@@ -98,11 +97,11 @@ class View implements ViewInterface
 	 */
 	public function __construct( private String $view, Array | Data\DataInterface $data = [] )
 	{
-		// Set view data.
 		$this->data = new Data\Data( $data );
+		$this->template = new Template\Template;
 		
 		// Set view configuration.
-		$configs = self::config( function( Config\Config $configs )
+		self::config( function( Config\Config $configs )
 		{
 			$this->extension = $configs['extension'];
 			$this->extensionCache = $configs['extension.cache'];
@@ -135,10 +134,6 @@ class View implements ViewInterface
 	{
 		try
 		{
-			if( Reflect\ReflectProperty::isInitialized( $this, "template" ) === False )
-			{
-				$this->template = new Template\Template;
-			}
 			$this->fcSave( $this->view,
 				$this->template->clean(
 					$this->template->parse(
@@ -147,16 +142,6 @@ class View implements ViewInterface
 					)
 				)
 			);
-			return;
-			//$this->fcSave( $this->view,
-			echo htmlspecialchars(	$this->template->clean(
-					$this->template->parse(
-						$this->fpName( $this->view ),
-						$this->fvRead( $this->view )
-					)
-				)
-			);
-			exit;
 		}
 		catch( Template\TemplateError $e )
 		{
@@ -174,42 +159,6 @@ class View implements ViewInterface
 	public function getView(): String
 	{
 		return( $this )->view;
-	}
-	
-	/*
-	 * Render view contents.
-	 *
-	 * @access Public
-	 *
-	 * @params Array $data
-	 *
-	 * @return String
-	 */
-	public function render( Array | Data\DataInterface $data = [] ): String
-	{
-		// Mapping data passed.
-		Util\Arr::map( $data, fn( Int $i, Int | String $key, Mixed $value ) => $this->with( $key, $value ) );
-		Util\Timer::calculate( "render", function()
-		{
-			// If view has cached.
-			if( $this->hasCached() )
-			{
-				// If view file has modifiy under time set.
-				if( $this->hasModify() )
-				{
-					$this->compile();
-				}
-			}
-			else {
-				$this->compile();
-			}
-		});
-		
-		// Set times.
-		$this->data->times = Util\Timer::get();
-		
-		// Return output buffering.
-		return( $this )->output();
 	}
 	
 	/*
@@ -299,6 +248,42 @@ class View implements ViewInterface
 	public function hasModify( ? String $view = Null ): Bool
 	{
 		return( File\File::modified( $this->fpName( $view ?? $this->view ), $this->modify ?: 60 ) );
+	}
+	
+	/*
+	 * Render view contents.
+	 *
+	 * @access Public
+	 *
+	 * @params Array $data
+	 *
+	 * @return String
+	 */
+	public function render( Array | Data\DataInterface $data = [] ): String
+	{
+		// Mapping data passed.
+		Util\Arr::map( $data, fn( Int $i, Int | String $key, Mixed $value ) => $this->with( $key, $value ) );
+		Util\Timer::calculate( "render", function()
+		{
+			// If view has cached.
+			if( $this->hasCached() )
+			{
+				// If view file has modifiy under time set.
+				if( $this->hasModify() )
+				{
+					$this->compile();
+				}
+			}
+			else {
+				$this->compile();
+			}
+		});
+		
+		// Set times.
+		$this->data->times = Util\Timer::get();
+		
+		// Return output buffering.
+		return( $this )->output();
 	}
 	
 	/*

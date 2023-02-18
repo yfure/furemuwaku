@@ -2,10 +2,12 @@
 
 namespace Yume\Fure\Util\Env;
 
+use Yume\Fure\App;
 use Yume\Fure\Error;
 use Yume\Fure\Support\Design;
 use Yume\Fure\Support\File;
 use Yume\Fure\Support\Reflect;
+use Yume\Fure\Util;
 
 /*
  * Env
@@ -43,7 +45,9 @@ class Env extends Design\Singleton
 	{
 		// Create new Environment Parser instance.
 		$this->parser = new EnvParser( ".env" );
-		$this->parser->parse();
+		
+		// Starting parsing environment variable.
+		Util\Timer::calculate( "env", fn() => $this->parser->parse() );
 		
 		// Get all parsed Environment Variables.
 		$this->vars = $this->parser->getVars();
