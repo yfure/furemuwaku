@@ -2,63 +2,82 @@
 
 namespace Yume\Fure\CLI;
 
+use Yume\Fure\Util\Json;
+use Yume\Fure\Util\RegExp;
+
 /*
- * CLIArgumentParser
+ * Argument
  *
  * @package Yume\Fure\CLI
  */
-abstract class CLIArgumentParser
+class Argument
 {
 	
 	/*
 	 * Argument values parsed.
 	 *
-	 * @access Static Private
+	 * @access Private
 	 *
 	 * @values Array
 	 */
-	static private Array $args = [];
+	private Array $args = [];
+	
+	/*
+	 * Construct method of class Argument.
+	 *
+	 * @access Public Instance
+	 *
+	 * @params Array $argv
+	 *
+	 * @return Void
+	 */
+	public function __construct( ? Array $argv = Null )
+	{
+		$this->parse();
+	}
 	
 	/*
 	 * Get value.
 	 *
-	 * @access Public Static
+	 * @access Public
 	 *
 	 * @params String $arg
 	 * @params Mixed $default
 	 *
 	 * @return Mixed
 	 */
-	public static function get( String $arg, Mixed $default = Null ): Mixed
+	public function get( String $arg, Mixed $default = Null ): Mixed
 	{
-		return( static::$args[$arg] ?? $default );
+		return( $this->args[$arg] ?? $default );
 	}
 	
 	/*
 	 * Has argument.
 	 *
-	 * @access Public Static
+	 * @access Public
 	 *
 	 * @params String $arg
 	 *
 	 * @return Bool
 	 */
-	public static function has( String $arg ): Bool
+	public function has( String $arg ): Bool
 	{
-		return( isset( static::$args[$arg] ) );
+		return( isset( $this->args[$arg] ) );
 	}
 	
 	/*
 	 * Parse command line argument values.
 	 *
-	 * @access Public Static
+	 * @access Private
+	 *
+	 * @params Array $argv
 	 *
 	 * @return Void
 	 */
-	public static function parse()
+	private function parse( ? Array $argv = Null )
 	{
 		// Get argument values.
-		$argv = $_SERVER['argv'] ?? [];
+		$argv = $argv ?? $_SERVER['argv'] ?? [];
 		
 		// Remove filename from argument values.
 		array_shift( $argv );
@@ -73,14 +92,14 @@ abstract class CLIArgumentParser
 				$eqPos = strpos( $arg, "=" );
 				
 				// If argument has no equal symbol.
-				if( $eqPos === false)
+				if( $eqPos === False )
 				{
 					$key = substr( $arg,2 );
-					static::$args[$key] = isset( static::$args[$key] ) ? static::$args[$key] : True;
+					$this->args[$key] = isset( $this->args[$key] ) ? $this->args[$key] : True;
 				}
 				else {
 					$key = substr( $arg, 2, $eqPos -2 );
-					static::$args[$key] = substr( $arg, $eqPos +1 );
+					$this->args[$key] = substr( $arg, $eqPos +1 );
 				}
 			}
 			
@@ -91,19 +110,20 @@ abstract class CLIArgumentParser
 				if( substr( $arg, 2, 1 ) == "=" )
 				{
 					$key = substr( $arg, 1, 1 );
-					static::$args[$key] = substr( $arg, 3 );
+					$this->args[$key] = substr( $arg, 3 );
 				}
 				else {
+					
 					$chars = str_split( substr( $arg, 1 ) );
-					foreach( $chars as $char )
+					foreach( $chars As $char )
 					{
 						$key = $char;
-						static::$args[$key] = isset( static::$args[$key] ) ? static::$args[$key] : True;
+						$this->args[$key] = isset( $this->args[$key] ) ? $this->args[$key] : True;
 					}
 				}
 			}
 			else {
-				static::$args[] = $arg;
+				$this->args[$arg] = True;
 			}
 		}
 	}
