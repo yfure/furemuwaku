@@ -1,6 +1,6 @@
 <?php
 
-namespace Yume\Fure\CLI;
+namespace Yume\Fure\CLI\Argument;
 
 use UnhandledMatchError;
 
@@ -10,7 +10,7 @@ use Yume\Fure\Util\RegExp;
 /*
  * Argument
  *
- * @package Yume\Fure\CLI
+ * @package Yume\Fure\CLI\Argument
  */
 class Argument
 {
@@ -58,7 +58,7 @@ class Argument
 	 *
 	 * @return Array
 	 *
-	 * @throws Yume\Fure\CLI\CLIJsonValueError
+	 * @throws Yume\Fure\CLI\Argument\ArgumentJsonValueError
 	 */
 	private function build( Int | String $name, Mixed $value, Bool $long = False ): Array
 	{
@@ -68,7 +68,7 @@ class Argument
 		}
 		catch( Json\JsonError $e )
 		{
-			throw new CLIJsonValueError( $name, previous: $e );
+			throw new ArgumentJsonValueError( $name, previous: $e );
 		}
 		return([
 			"name" => $name,
@@ -124,7 +124,7 @@ class Argument
 	 *
 	 * @return Void
 	 *
-	 * @throws Yume\Fure\CLI\CLIShortOptionError
+	 * @throws Yume\Fure\CLI\Argument\ShortOptionError
 	 */
 	private function parse( ? Array $argv = Null )
 	{
@@ -217,7 +217,7 @@ class Argument
 						$args[$key] = $this->build( $key, $val, False );
 					}
 					else {
-						throw new CLIShortOptionError( $arg );
+						throw new ArgumentShortOptionError( $arg );
 					}
 				}
 				else {

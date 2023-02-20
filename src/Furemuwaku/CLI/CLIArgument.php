@@ -8,11 +8,11 @@ use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
 
 /*
- * Argument
+ * CLIArgument
  *
  * @package Yume\Fure\CLI
  */
-class Argument
+class CLIArgument
 {
 	
 	/*
