@@ -20,11 +20,30 @@ use Yume\Fure\Support\Reflect;
 final class CLI extends Design\Singleton
 {
 	
+	/*
+	 * Instance of class Argument.
+	 *
+	 * @access Private Readonly
+	 *
+	 * @values Yume\Fure\CLI\Argument\Argument
+	 */
 	private Readonly Argument\Argument $argument;
+	
+	/*
+	 * Instance of class Commands.
+	 *
+	 * @access Private Readonly
+	 *
+	 * @values Yume\Fure\CLI\Command\Commands
+	 */
 	private Readonly Command\Commands $commands;
 	
 	use \Yume\Fure\Config\ConfigTrait;
 	
+	/*
+	 * @inherit Yume\Fure\Support\Design\Singleton::__construct
+	 *
+	 */
 	protected function __construct()
 	{
 		$this->argument = new Argument\Argument;
@@ -32,11 +51,23 @@ final class CLI extends Design\Singleton
 		$this->prepare();
 	}
 	
+	/*
+	 * Coming soon!
+	 *
+	 * @access Private
+	 *
+	 * @return Void
+	 */
 	private function prepare(): Void
-	{
-		// ...
-	}
+	{}
 	
+	/*
+	 * Starting command line interface.
+	 *
+	 * @access Public
+	 *
+	 * @return Void
+	 */
 	public function start(): Void
 	{
 		$this->commands->run(
@@ -45,8 +76,17 @@ final class CLI extends Design\Singleton
 		);
 	}
 	
+	/*
+	 * Closing command line interface.
+	 *
+	 * @access Public
+	 *
+	 * @return Void
+	 */
 	public function stop(): Void
-	{}
+	{
+		puts( "{}: Finsih\n", $this->argument->file );
+	}
 	
 }
 

@@ -27,11 +27,11 @@ class Argument implements ArrayAccess
 	/*
 	 * File name.
 	 *
-	 * @access Private Readonly
+	 * @access Public Readonly
 	 *
 	 * @values String
 	 */
-	private Readonly String $file;
+	public Readonly String $file;
 	
 	/*
 	 * Construct method of class Argument.

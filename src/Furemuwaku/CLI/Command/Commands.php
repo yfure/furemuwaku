@@ -76,8 +76,22 @@ class Commands
 		);
 	}
 	
-	public function has( String $command ): Bool
+	/*
+	 * Return if command is exists.
+	 *
+	 * @access Public
+	 *
+	 * @params String $command
+	 * @params Bool $optional
+	 *
+	 * @return Bool
+	 */
+	public function has( String $command, ? Bool $optional = Null ): Bool
 	{
+		if( $optional !== Null )
+		{
+			return( $this )->has( $command ) === $optional;
+		}
 		return( $this )->commands->__isset( $command );
 	}
 	
@@ -94,15 +108,22 @@ class Commands
 	public function run( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void
 	{
 		// When command value is ArgumentValue class.
-		if( $command Instanceof Argument\ArgumentValue ) $command = $command->name;
-		
-		// Check command is exists.
-		if( $this->exists( $command ) )
+		if( $command Instanceof Argument\ArgumentValue )
 		{
-			
+			// If command is not option e.g -x | --xx
+			if( is_int( $command->name ) )
+			{
+				$command = $command->value;
+			}
+			else{
+				$command = $command->name;
+			}
 		}
-		else {
-			// ...
+		
+		// Check command is not exists.
+		if( $this->has( $command, False ) )
+		{
+			puts( "{}: {}: Command not found\n", $argument->file, $command );
 		}
 	}
 	
