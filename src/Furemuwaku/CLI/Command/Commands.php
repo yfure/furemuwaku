@@ -3,8 +3,10 @@
 namespace Yume\Fure\CLI\Command;
 
 use Yume\Fure\CLI;
+use Yume\Fure\CLI\Argument;
 use Yume\Fure\Config;
 use Yume\Fure\Error;
+use Yume\Fure\Logger;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Reflect;
 
@@ -15,23 +17,41 @@ use Yume\Fure\Support\Reflect;
  *
  * @extends Yume\Fure\Support\Data\Data
  */
-class Commands extends Data\Data
+class Commands
 {
 	
 	/*
-	 * @inherit Yume\Fure\Support\Data\Data
+	 * Command Collections.
 	 *
+	 * @access Private Readonly
+	 *
+	 * @values Yume\Fure\Support\Data\DataInterface
 	 */
-	final public function __construct()
+	private Readonly Data\DataInterface $commands;
+	
+	/*
+	 * Construct method of class Commands.
+	 *
+	 * @access Public Instance
+	 *
+	 * @params Protected Readonly Yume\Fure\Logger\LoggerInterface $logger
+	 *
+	 * @return Void
+	 */
+	public function __construct( protected Readonly Logger\LoggerInterface $logger )
 	{
-		CLI\CLI::config( fn( Config\Config $configs ) => $configs->commands->map(
+		// Make command collections.
+		$this->commands = new Data\Data;
+		
+		// Mapping all defined commands.
+		config( "cli" )->commands->map(
 			
 			/*
 			 * Handle mapping command will be register.
 			 *
 			 * @params Int $i
 			 * @params String $class
-			 * @params Yume\Fure\Config\Config
+			 * @params Yume\Fure\Config\Config $config
 			 *
 			 * @return Void
 			 *
@@ -43,13 +63,47 @@ class Commands extends Data\Data
 				if( Reflect\ReflectClass::isImplements( $class, CommandInterface::class, $reflect ) )
 				{
 					// Create new Command instance.
-					$this->data[] = $reflect->newInstance( $configs );
+					$command = $reflect->newInstance( $this, $this->logger, $config );
+					$commandName = $command->name;
+					
+					// Push command.
+					$this->commands[$commandName] = $command;
 				}
 				else {
 					throw new Error\ClassImplementationError([ $class, CommandInterface::class ]);
 				}
 			}
-		));
+		);
+	}
+	
+	public function has( String $command ): Bool
+	{
+		return( $this )->commands->__isset( $command );
+	}
+	
+	/*
+	 * Running command.
+	 *
+	 * @access Public
+	 *
+	 * @params String|Yume\Fure\CLI\Argument\ArgumentValue $command
+	 * @params Yume\Fure\CLI\Argument\Argument $argument
+	 *
+	 * @return Void
+	 */
+	public function run( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void
+	{
+		// When command value is ArgumentValue class.
+		if( $command Instanceof Argument\ArgumentValue ) $command = $command->name;
+		
+		// Check command is exists.
+		if( $this->exists( $command ) )
+		{
+			
+		}
+		else {
+			// ...
+		}
 	}
 	
 }

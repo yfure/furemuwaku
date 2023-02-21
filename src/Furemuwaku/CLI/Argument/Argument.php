@@ -2,7 +2,7 @@
 
 namespace Yume\Fure\CLI\Argument;
 
-use UnhandledMatchError;
+use ArrayAccess;
 
 use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
@@ -12,7 +12,7 @@ use Yume\Fure\Util\RegExp;
  *
  * @package Yume\Fure\CLI\Argument
  */
-class Argument
+class Argument implements ArrayAccess
 {
 	
 	/*
@@ -44,7 +44,7 @@ class Argument
 	 */
 	public function __construct( ? Array $argv = Null )
 	{
-		$this->parse( );
+		$this->parse( $argv );
 	}
 	
 	/*
@@ -56,11 +56,11 @@ class Argument
 	 * @params Mixed $value
 	 * @params Bool $long
 	 *
-	 * @return Array
+	 * @return Yume\Fure\CLI\Argument\ArgumentValue
 	 *
 	 * @throws Yume\Fure\CLI\Argument\ArgumentJsonValueError
 	 */
-	private function build( Int | String $name, Mixed $value, Bool $long = False ): Array
+	private function build( Int | String $name, Mixed $value, Bool $long = False ): ArgumentValue
 	{
 		try
 		{
@@ -70,11 +70,11 @@ class Argument
 		{
 			throw new ArgumentJsonValueError( $name, previous: $e );
 		}
-		return([
+		return( new ArgumentValue( ...[
 			"name" => $name,
 			"long" => $long,
 			...$value
-		]);
+		]));
 	}
 	
 	/*
@@ -82,14 +82,26 @@ class Argument
 	 *
 	 * @access Public
 	 *
-	 * @params String $arg
+	 * @params Int|String $arg
 	 * @params Mixed $default
 	 *
 	 * @return Mixed
 	 */
-	public function get( String $arg, Mixed $default = Null ): Mixed
+	public function get( Int | String $arg, Mixed $default = Null ): Mixed
 	{
-		return( $this->args[$arg] ?? $default );
+		return( $this )->args[$arg] ?? $default;
+	}
+	
+	/*
+	 * Get filename.
+	 *
+	 * @access Public
+	 *
+	 * @return String
+	 */
+	public function getFileName(): String
+	{
+		return( $this )->file;
 	}
 	
 	/*
@@ -97,13 +109,74 @@ class Argument
 	 *
 	 * @access Public
 	 *
-	 * @params String $arg
+	 * @params Int|String $arg
 	 *
 	 * @return Bool
 	 */
-	public function has( String $arg ): Bool
+	public function has( Int | String $arg ): Bool
 	{
 		return( isset( $this->args[$arg] ) );
+	}
+	
+	/*
+	 * Whether or not an offset exists.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $offset
+	 *
+	 * @return Bool
+	 */
+	public function offsetExists( Mixed $offset ): Bool
+	{
+		return( isset( $this->args[$offset] ) );
+	}
+	
+	/*
+	 * Returns the value at specified offset.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $offset
+	 *
+	 * @return Mixed
+	 */
+	public function offsetGet( Mixed $offset ): Mixed
+	{
+		return( $this->offsetExists( $offset ) ? $this->args[$offset] : Null );
+	}
+	
+	/*
+	 * Assigns a value to the specified offset.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $offset
+	 * @params Mixed $value
+	 *
+	 * @return Void
+	 *
+	 * @throws Yume\Fure\CLI\Argument\ArgumentError
+	 */
+	public function offsetSet( Mixed $offset, Mixed $value ): Void
+	{
+		throw new ArgumentError( $offset, ArgumentError::SET_ERROR );
+	}
+	
+	/*
+	 * Unsets an offset.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $offset
+	 *
+	 * @return Void
+	 *
+	 * @throws Yume\Fure\CLI\Argument\ArgumentError
+	 */
+	public function offsetUnset( Mixed $offset ): Void
+	{
+		throw new ArgumentError( $offset, ArgumentError::UNSET_ERROR );
 	}
 	
 	/*
@@ -116,7 +189,7 @@ class Argument
 	 * @author Patrick Fisher
 	 * @source https://github.com/pwfisher/CommandLine.php
 	 *
-	 * @remake Ari Setiawan (hxAri)
+	 * @modify Ari Setiawan (hxAri)
 	 *
 	 * @access Private
 	 *
@@ -156,7 +229,7 @@ class Argument
 			if( $arg !== "" )
 			{
 				// If argument value is long option.
-				if( substr( $arg, 0, 2 ) == "--" )
+				if( substr( $arg, 0, 2 ) === "--" )
 				{
 					// Get position equal symbol position.
 					$eqPost = strpos( $arg, "=" );
@@ -173,7 +246,7 @@ class Argument
 						$key = substr( $arg, 2 );
 						
 						// Index value.
-						$val = $argv[$idx];
+						$val = $argv[$idx] ?? "";
 						
 						// If argument value is not enclosed empty string.
 						if( $val !== "" )
@@ -206,10 +279,10 @@ class Argument
 				}
 				
 				// If argument value is short option.
-				else if( substr( $arg, 0, 1 ) == "-" )
+				else if( substr( $arg, 0, 1 ) === "-" )
 				{
 					// If position 2 has equal symbol.
-					if( substr( $arg, 2, 1 ) == "=" )
+					if( substr( $arg, 2, 1 ) === "=" )
 					{
 						$key = substr( $arg, 1, 1 );
 						$val = substr( $arg, 3 );
@@ -233,7 +306,7 @@ class Argument
 		foreach( $args As $name => $value )
 		{
 			// Skip if value has builded.
-			if( is_array( $value ) ) continue;
+			if( $value Instanceof ArgumentValue ) continue;
 			
 			// Build value.
 			$args[$name] = $this->build( $name, $value, False );
@@ -264,7 +337,7 @@ class Argument
 		{
 			$value = match( ucfirst( strtolower( $value ) ) )
 			{
-				// Nullable.
+				// Nullable
 				"?", "None", "Null" => Null,
 				
 				// Boolean (True)

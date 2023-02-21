@@ -28,19 +28,21 @@ final class CLI extends Design\Singleton
 	protected function __construct()
 	{
 		$this->argument = new Argument\Argument;
-		$this->commands = new Command\Commands;
+		$this->commands = new Command\Commands( logger() );
 		$this->prepare();
 	}
 	
 	private function prepare(): Void
 	{
 		// ...
-		var_dump( $this->commands );
 	}
 	
 	public function start(): Void
 	{
-		// ...
+		$this->commands->run(
+			$this->argument[0] ?? "help",
+			$this->argument
+		);
 	}
 	
 	public function stop(): Void
