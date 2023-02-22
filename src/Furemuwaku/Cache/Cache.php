@@ -30,15 +30,12 @@ class Cache extends Design\Singleton
 	 */
 	protected function __construct()
 	{
-		// Check if cache has services.
-		if( Services\Services::available( "cache" ) )
+		// Check if cache doesn't available.
+		if( Services\Services::available( "cache", False ) )
 		{
-			$pool = Services\Services::get( "cache" );
+			Services\Services::register( "cache", $pool = new CacheItemPool( config( "cache" )->default ) );
 		}
-		else {
-			$pool = new CacheItemPool( config( "cache" )->default );
-		}
-		static::$pool = $pool;
+		static::$pool = Services\Services::get( "cache" );
 	}
 	
 	public static function get( String $key ): CacheItemInterface
