@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\Support\Services;
 
+use Yume\Fure\App;
 use Yume\Fure\Error;
 use Yume\Fure\Config;
 use Yume\Fure\Support\Design;
@@ -19,22 +20,13 @@ final class Services extends Design\Singleton
 {
 	
 	/*
-	 * Provide instances.
+	 * Provider container.
 	 *
-	 * @access Static Private
-	 *
-	 * @values Array
-	 */
-	static private Array $provides = [];
-	
-	/*
-	 * Services instances.
-	 *
-	 * @access Static Private
+	 * @access Private Readonly
 	 *
 	 * @values Array
 	 */
-	static private Array $services = [];
+	private Readonly Array $providers;
 	
 	use \Yume\Fure\Config\ConfigTrait;
 	
@@ -42,29 +34,12 @@ final class Services extends Design\Singleton
 	 * @inherit Yume\Fure\Support\Design\Singleton
 	 *
 	 */
-	protected function __construct()
+	protected function __construct( Bool $booting = False )
 	{
-		// Getting Services Provider.
-		self::config( function( Config\Config $services )
+		if( $booting )
 		{
-			// Mapping Services Provider.
-			Util\Arr::map( $services, function( Int $i, Int $idx, $service )
-			{
-				// Check if service class is implement ServiceProviderInterface.
-				if( Reflect\ReflectClass::isImplements( $service, ServiceProviderInterface::class, $reflect ) )
-				{
-					// Get services provide instance.
-					static::$provides[] = $reflect->newInstance();
-					
-					// Call register and booting methods.
-					Reflect\ReflectMethod::invoke( end( static::$provides ), "register" );
-					Reflect\ReflectMethod::invoke( end( static::$provides ), "booting" );
-				}
-				else {
-					throw new ClassError( [ $service ] );
-				}
-			});
-		});
+			$this->booting();
+		}
 	}
 	
 	/*
@@ -73,21 +48,52 @@ final class Services extends Design\Singleton
 	 * @access Public Static
 	 *
 	 * @params Object|String $name
+	 * @params Bool $optional
 	 *
 	 * @return Bool
 	 */
 	public static function available( Object | String $name, ? Bool $optional = Null ): Bool
 	{
-		// Check if name is object type.
-		if( is_object( $name ) )
+		return( $optional === Null ? ( Bool ) App\App::service( $name ) : ( Bool ) App\App::service( $name ) === $optional );
+	}
+	
+	/*
+	 * Booting all Service Providers defined.
+	 *
+	 * @access Public
+	 *
+	 * @return Void
+	 */
+	public function booting(): Void
+	{
+		// Check if providers has initialized.
+		if( Reflect\ReflectProperty::isInitialized( $this, "providers" ) ) return;
+		
+		$providers = [];
+		
+		// Getting Services Provider.
+		self::config( function( Config\Config $services )
 		{
-			$name = $name::class;
-		}
-		
-		// Check if service is available.
-		$available = isset( static::$services[$name] );
-		
-		return( $optional === Null ? $available : $available === $optional );
+			// Mapping Services Provider.
+			Util\Arr::map( $services, function( Int $i, Int $idx, $service ) use( &$providers )
+			{
+				// Check if service class is implement ServiceProviderInterface.
+				if( Reflect\ReflectClass::isImplements( $service, ServiceProviderInterface::class, $reflect ) )
+				{
+					// Get services provide instance.
+					$provider = $reflect->newInstance();
+					
+					// Call register and booting methods.
+					Reflect\ReflectMethod::invoke( $provider, "register" );
+					Reflect\ReflectMethod::invoke( $provider, "booting" );
+				}
+				else {
+					throw new Error\ClassImplementationError([ $service, ServiceProviderInterface::class ]);
+				}
+				$providers[] = $provider;
+			});
+		});
+		$this->providers = $providers;
 	}
 	
 	/*
@@ -103,26 +109,15 @@ final class Services extends Design\Singleton
 	 */
 	public static function get( Object | String $name ): Object
 	{
-		// Check if name is object type.
-		if( is_object( $name ) )
+		if( $service = App\App::service( $name ) )
 		{
-			$name = $name::class;
-		}
-		
-		// Check if services is exists.
-		if( isset( static::$services[$name] ) )
-		{
-			// Get service callback value.
-			$service = static::$services[$name]['callback'];
-			
-			// Check if services is callable.
 			if( is_callable( $service ) )
 			{
-				return( call_user_func( $service ) );
+				return( call_user_func( $service['callback'] ) );
 			}
-			return( $service );
+			return( $service['callback'] );
 		}
-		throw new ServicesLookupError( $name );
+		throw new ServicesLookupError( is_object( $name ) ? $name::class : $name );
 	}
 	
 	/*
@@ -131,23 +126,23 @@ final class Services extends Design\Singleton
 	 * @access Public Static
 	 *
 	 * @params Array|Object|String $name
-	 * @params Object|Callable $callback
+	 * @params Object $callback
 	 * @params Bool $override
 	 *
 	 * @return Void
 	 *
-	 * @throws Yume\Fure\Support\Services\ServicesError
+	 * @throws Yume\Fure\Support\Services\ServicesOverrideError
 	 */
-	public static function register( Array | Object | String $name, Callable | Object $callback, Bool $override = True ): Void
+	public static function register( Array | Object | String $name, Object $callback, Bool $override = True ): Void
 	{
 		// Check if name is Array type.
 		if( is_array( $name ) )
 		{
 			// Mapping service name.
-			Util\Arr::map( $name, function( Int $i, $idx, $name ) use( $callback, $override )
-			{
+			Util\Arr::map( $name, fn( Int $i, Int | String $idx, $name ) =>
+			
 				// Register services.
-				self::register( callback: $callback, override: $override, name: match( True )
+				self::bind( callback: $callback, override: $override, name: match( True )
 				{
 					// If service name is valid name.
 					is_object( $name ),
@@ -155,34 +150,15 @@ final class Services extends Design\Singleton
 					
 					// If service name type is invalid.
 					default => throw new ServicesError( $name, ServiceError::NAME_ERROR )
-				});
-			});
+				})
+			);
+			return;
 		}
-		else {
-			
-			// Check if name is Object type.
-			if( is_object( $name ) )
-			{
-				$name = $name::class;
-			}
-			
-			// Check if services is exists.
-			if( isset( static::$services[$name] ) )
-			{
-				// Check if services is not overrideable.
-				if( static::$services[$name]['override'] === False )
-				{
-					throw new ServicesOverrideError( $name );
-				}
-			}
-			
-			// Set services.
-			static::$services[$name] = [
-				"name" => $name,
-				"callback" => $callback,
-				"override" => $override
-			];
-		}
+		App\App::service( ...[
+			"name" => $name,
+			"callback" => $callback,
+			"override" => $override
+		]);
 	}
 	
 }
