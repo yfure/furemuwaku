@@ -46,6 +46,13 @@ class FileHandler extends BaseHandler
 	 */
 	protected Readonly String $path;
 	
+	/*
+	 * File log permission.
+	 *
+	 * @access Protected Readonly
+	 *
+	 * @values Int
+	 */
 	protected Readonly Int $permission;
 	
 	/*
@@ -84,10 +91,7 @@ class FileHandler extends BaseHandler
 	 */
 	public function handle( Logger\LoggerLevel $level, String $message ): Bool
 	{
-		// ...
 		$fnew = False;
-		
-		// File stack.
 		$stack = "";
 		
 		// Check if file is not exists.

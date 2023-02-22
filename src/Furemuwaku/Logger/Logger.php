@@ -79,7 +79,6 @@ class Logger implements LoggerInterface
 	 */
 	public function __construct( Bool $debug = YUME_DEBUG )
 	{
-		// Handle threshold.
 		self::config( function( $config )
 		{
 			// Check if threshold is Array type.
@@ -94,7 +93,6 @@ class Logger implements LoggerInterface
 						// Check if exists.
 						if( isset( $this->levels[$val] ) )
 						{
-							// Get allowed level.
 							$val = $this->levels[$val];
 						}
 					}
@@ -108,7 +106,6 @@ class Logger implements LoggerInterface
 						// Check if index is exists.
 						if( isset( $keys[$val] ) )
 						{
-							// Get allowed level.
 							$val = $this->levels[$keys[$val]];
 						}
 					}
@@ -116,7 +113,6 @@ class Logger implements LoggerInterface
 					// If level is Enum LoggerLevel.
 					if( $val Instanceof LoggerLevel )
 					{
-						// Push allowed level.
 						$this->allows[strtolower( $val->value )] = $val;
 					}
 					else {
@@ -124,7 +120,7 @@ class Logger implements LoggerInterface
 					}
 				}));
 			}
-			throw new Error\AssertionError( [ "threshold", "Array", is_object( $config->threshold ) ? $config->threshold::class : gettype( $config->threshold ) ], Error\AssertionError::VALUE_ERROR );
+			throw new Error\AssertionError( [ "threshold", "Array", type( $config->threshold ) ], Error\AssertionError::VALUE_ERROR );
 		});
 		
 		// Set date time format.
