@@ -41,16 +41,39 @@ class Env extends Design\Singleton
 	 * @inherit Yume\Fure\Support\Design\Singleton
 	 *
 	 */
-	protected function __construct()
+	protected function __construct( Bool $parse = False )
 	{
 		// Create new Environment Parser instance.
 		$this->parser = new EnvParser( ".env" );
 		
-		// Starting parsing environment variable.
-		Util\Timer::calculate( "env", fn() => $this->parser->parse() );
-		
-		// Get all parsed Environment Variables.
-		$this->vars = $this->parser->getVars();
+		// If auto parse allowed.
+		if( $parse )
+		{
+			$this->parse();
+		}
+	}
+	
+	/*
+	 * Parses content from environment files
+	 *
+	 * @access Public
+	 *
+	 * @return Void
+	 */
+	public function parse(): Void
+	{
+		// Check if environment has not parsed.
+		if( Reflect\ReflectProperty::isInitialized( $this, "vars" ) === False )
+		{
+			Util\Timer::calculate( "env", function(): Void
+			{
+				// Starting parsing content file environment.
+				$this->parser->parse();
+				
+				// Get all parsed Environment Variables.
+				$this->vars = $this->parser->getVars();
+			});
+		}
 	}
 	
 	/*
