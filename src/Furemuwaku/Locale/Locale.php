@@ -75,13 +75,12 @@ class Locale extends Design\Singleton
 	 * @inherit Yume\Fure\Support\Design\Singleton
 	 *
 	 */
-	protected function __construct()
+	protected function __construct( Bool $setup = False )
 	{
-		// Set Application Language.
-		self::setLanguage();
-		
-		// Set Application DateTime.
-		self::setDateTime();
+		if( $setup )
+		{
+			$this->setup();
+		}
 	}
 	
 	/*
@@ -254,6 +253,26 @@ class Locale extends Design\Singleton
 			// Set default locale date timezone.
 			date_default_timezone_set( $timezone );
 		}
+	}
+	
+	/*
+	 * Setup localization.
+	 *
+	 * @access Public
+	 *
+	 * @params String $datetime
+	 * @params String $language
+	 * @params String $timezone
+	 *
+	 * @return Void
+	 */
+	public function setup( ? String $datetime = Null, ? String $language = Null, ? String $timezone = Null ): Void
+	{
+		// Set Application Language.
+		Locale::setLanguage( $language );
+		
+		// Set Application DateTime.
+		Locale::setDateTime( $datetime, $timezone );
 	}
 	
 	/*
