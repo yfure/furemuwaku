@@ -3,6 +3,7 @@
 namespace Yume\Fure\CLI;
 
 use Yume\Fure\App;
+use Yume\Fure\Error;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI\Command;
 use Yume\Fure\Config;
@@ -23,21 +24,22 @@ final class CLI extends Design\Singleton
 	/*
 	 * Instance of class Argument.
 	 *
-	 * @access Private Readonly
+	 * @access Public Readonly
 	 *
 	 * @values Yume\Fure\CLI\Argument\Argument
 	 */
-	private Readonly Argument\Argument $argument;
+	public Readonly Argument\Argument $argument;
 	
 	/*
 	 * Instance of class Commands.
 	 *
-	 * @access Private Readonly
+	 * @access Public Readonly
 	 *
 	 * @values Yume\Fure\CLI\Command\Commands
 	 */
-	private Readonly Command\Commands $commands;
+	public Readonly Command\Commands $commands;
 	
+	use \Yume\Fure\CLI\CLITrait;
 	use \Yume\Fure\Config\ConfigTrait;
 	
 	/*
