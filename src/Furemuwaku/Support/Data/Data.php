@@ -192,7 +192,7 @@ class Data implements DataInterface
 	 *
 	 * @return Array
 	 */
-	final public function __toArray(): Array
+	public function __toArray(): Array
 	{
 		$data = [];
 		
@@ -218,7 +218,7 @@ class Data implements DataInterface
 	 *
 	 * @return String
 	 */
-	final public function __toString(): String
+	public function __toString(): String
 	{
 		return( Json\Json::encode( $this->__toArray(), JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ) );
 	}
