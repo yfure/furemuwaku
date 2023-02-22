@@ -47,10 +47,10 @@ trait ConfigTrait
 			$class = end( $split );
 			
 			// Get class configuration.
-			self::$configs = App\App::self()->config( $class );
+			self::$configs = App\App::config( $class );
 		}
 		
-		// Check if `name` is not null type.
+		// Check if `name` is not Empty value.
 		if( valueIsNotEmpty( $name ) )
 		{
 			// If name is String type.
