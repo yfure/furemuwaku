@@ -43,20 +43,6 @@ abstract class Path
 	}
 	
 	/*
-	 * Tells whether the filename is a directory.
-	 *
-	 * @access Public Static
-	 *
-	 * @params String $dir
-	 *
-	 * @return Bool
-	 */
-	public static function is( String $dir ): Bool
-	{
-		return( is_dir( $dir ) );
-	}
-	
-	/*
 	 * List directory contents.
 	 *
 	 * @access Public Static
@@ -165,13 +151,13 @@ abstract class Path
 			}
 			
 			// Check if thd path has prefix path.
-			if( strpos( $path, BASE_PATH ) !== False ) return( $path );
+			if( strpos( $path, BASE_PATH ) !== False || $path === BASE_PATH || $path . "/" === BASE_PATH ) return( $path );
 			
 			// Check if path has prefix.
 			if( $prefix_or_remove Instanceof PathName ) $path = sprintf( "%s/%s", $prefix_or_remove->value, $path );
 			
 			// Add basepath into prefix pathname.
-			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, preg_replace( "/\//", DIRECTORY_SEPARATOR, f( "{}/{}", BASE_PATH, $path ) ) ) );
+			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, preg_replace( "/\//", DIRECTORY_SEPARATOR, sprintf( "%s/%s", BASE_PATH, $path ) ) ) );
 		}
 	}
 	
