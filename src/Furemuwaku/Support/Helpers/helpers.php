@@ -36,13 +36,18 @@ function cache( ? String $key = Null ): Cache\CacheItemInterface | Cache\CacheIt
 	return( Cache\Cache::pool() );
 }
 
+function clear( String $string ): String
+{
+	return( preg_replace( "/(^\s+)|(\s+$)/", "", $string ) );
+}
+
 /*
  * @inherit Yume\Fure\Config\Config
  *
  */
 function config( String $name, Bool $import = False ): Mixed
 {
-	return( App\App::self() )->config( $name, $import );
+	return( App\App::config( $name, $import ) );
 }
 
 function e( Throwable $e ): Void
@@ -86,63 +91,7 @@ function env( String $env, Mixed $optional = Null )
 }
 
 /*
- * Compare execution time.
- *
- * @params Float|String $start
- * @params Float|String $end
- *
- * @return Float|String
- */
-function executionTimeCompare( Float | String $start, Float | String $end ): Float | String
-{
-	// Sum of all the values in the array.
-	$timeStart = array_sum( explode( "\x20", $start ) );
-	$timeEnd = array_sum( explode( "\x20", $end ) );
-	
-	// Format a number with grouped thousands.
-	return( number_format( $timeEnd - $timeStart, 6 ) );
-}
-
-function executionTimeCompare2x( $start, $end )
-{
-	//$start = array_sum( explode( "\x20", $start ) );
-	//$end = array_sum( explode( "\x20", $end ) );
-	
-	$time = $end - $start;
-	
-	$formatted_time_ms = number_format($time * 1000, 4);
-	$formatted_time_s = number_format($time, 4);
-	$formatted_time_m = number_format($time / 60, 4);
-	
-	$time_unit = "ms";
-	
-	if ($formatted_time_ms >= 1000)
-	{
-		$formatted_time_ms = round($formatted_time_ms / 1000, 2);
-		return( f( "{}s", $formatted_time_ms ) );
-	}
-	
-	if ($formatted_time_s >= 60)
-	{
-		return( f( "{}m", $formatted_time_m ) );
-	}
-	
-	//return [$formatted_time_ms, $formatted_time_s, $formatted_time_m, $time_unit];
-	return( f( "{}ms", $formatted_time_s ) );
-}
-
-/*
- * Get last execution time compared.
- *
- * @return Float|String
- */
-function executionTimeCompareEnd(): Float | String
-{
-	return( executionTimeCompare( YUME_START, microtime( True ) ) );
-}
-
-/*
- * @inherit Yume\Fure\Util\Str
+ * @inherit Yume\Fure\Util\Str::fmt
  *
  */
 function f( String $string, Mixed ...$format ): String
@@ -151,7 +100,7 @@ function f( String $string, Mixed ...$format ): String
 }
 
 /*
- * @inherit Yume\Fure\Util\Arr
+ * @inherit Yume\Fure\Util\Arr::ify
  *
  */
 function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
@@ -160,7 +109,7 @@ function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
 }
 
 /*
- * @inherit Yume\Fure\Support\File\File
+ * @inherit Yume\Fure\Support\File\File::size
  *
  */
 function fsize( $file, Int | String $optional = 0 ): Int
@@ -169,7 +118,7 @@ function fsize( $file, Int | String $optional = 0 ): Int
 }
 
 /*
- * @inherit Yume\Fure\Locale\Language
+ * @inherit Yume\Fure\Locale\Language::translate
  *
  */
 function lang( String $ify, Mixed ...$format ): String
@@ -188,14 +137,15 @@ function lang( String $ify, Mixed ...$format ): String
  */
 function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? String $message = Null, ? Array $context = Null ): ? Logger\LoggerInterface
 {
-	// If arguments given is not Null type.
-	if( $level !== Null &&
-		$message !== Null &&
-		$context !== Null )
+	if( Services\Services::available( "logger", False ) )
 	{
-		return( Services\Services::get( Logger\Logger::class ) )->log( $level, $message, $context );
+		Services\Services::register( "logger", new Logger\Logger(), False );
 	}
-	return( Services\Services::get( Logger\Logger::class ) );
+	if( $level !== Null && $message !== Null && $context !== Null )
+	{
+		return( Services\Services::get( "logger" ) )->log( $level, $message, $context );
+	}
+	return( Services\Services::get( "logger" ) );
 }
 
 /*
@@ -216,7 +166,7 @@ function path( String $path, Bool | Path\PathName $prefix_or_remove = False ): S
 }
 
 /*
- * Explain echo.
+ * Alias echo.
  *
  * @params String $string
  * @params Mixed $format
@@ -246,54 +196,52 @@ function tree( String $path, String $parent = "" ): Array | False
  */
 function type( Mixed $value ): String
 {
-	// Check if value is object type.
 	if( is_object( $value ) )
 	{
 		return( $value::class );
 	}
-	return( gettype( $value ) );
+	return( ucfirst( gettype( $value ) ) );
 }
 
 /*
  * Check if value is empty.
  *
  * @params Mixed $value
+ * @params Bool $optional
  *
  * @return Bool
  */
-function valueIsEmpty( Mixed $value ): Bool
+function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool
 {
-	return( match( True )
+	try
 	{
-		// If `value` is Int type.
-		is_int( $value ) => $value === 0,
-		
-		// If `value` is Null type.
-		is_null( $value ) => True,
-		
-		// If `value` is Bool type.
-		is_bool( $value ) => $value === False,
-		
-		// If `value` is Array type.
-		is_array( $value ) => count( $value ) === 0,
-		
-		// If `value` is String type.
-		is_string( $value ) => preg_match( "/^([\r\t\n\s]*)$/", $value ),
-		
-		default => False
-	});
+		$empty = match( True )
+		{
+			is_int( $value ) => $value === 0,
+			is_null( $value ) => True,
+			is_bool( $value ) => $value === False,
+			is_array( $value ) => $value === [],
+			is_string( $value ) => preg_match( "/^([\r\t\n\s]*)$/", $value ) || $value === ""
+		};
+	}
+	catch( UnhandledMatchError )
+	{
+		$empty = False;
+	}
+	return( $optional === Null ? $empty : $empty === $optional );
 }
 
 /*
- * Check if value is empty.
+ * Check if value is not empty.
  *
  * @params Mixed $value
+ * @params Bool $optional
  *
  * @return Bool
  */
-function valueIsNotEmpty( Mixed $value ): Bool
+function valueIsNotEmpty( Mixed $value, ? Bool $optional = Null ): Bool
 {
-	return( valueIsEmpty( $value ) === False );
+	return( $optional === Null ? valueIsEmpty( $value, False ) : valueIsEmpty( $value, False ) === $optional );
 }
 
 /*

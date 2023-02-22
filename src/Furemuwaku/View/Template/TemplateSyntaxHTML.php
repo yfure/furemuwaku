@@ -487,6 +487,12 @@ class TemplateSyntaxHTML extends TemplateSyntax
 	 */
 	protected function format( String $format, Data\DataInterface $values ): String
 	{
+		if( $values->token === "style" ||
+			$values->token === "script" )
+		{
+			$values->outline = $this->unclean( $values->outline ?? "" );
+			$values->children = $this->unclean( $values->children ?? "" );
+		}
 		return( f( $format, ...[
 			"attr" => $values->attr ?? "",
 			"token" => $values->token ?? "",
