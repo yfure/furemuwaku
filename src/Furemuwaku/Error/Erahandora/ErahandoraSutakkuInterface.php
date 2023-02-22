@@ -1,15 +1,15 @@
 <?php
 
-namespace Yume\Fure\Error\Handler\Sutakku;
+namespace Yume\Fure\Error\Erahandora;
 
 use Throwable;
 
 /*
- * SutakkuInterface
+ * ErahandoraSutakkuInterface (Error Handler Stack Interface)
  *
- * @package Yume\Fure\Error\Handler\Sutakku
+ * @package Yume\Fure\Error\Erahandora
  */
-interface SutakkuInterface
+interface ErahandoraSutakkuInterface
 {
 	
 	/*
@@ -17,9 +17,9 @@ interface SutakkuInterface
 	 *
 	 * @access Public
 	 *
-	 * @return Yume\Fure\Error\Handler\Sutakku\SutakkuInterface
+	 * @return Yume\Fure\Error\Erahandora\ErahandoraSutakkuInterface
 	 */
-	public function build(): SutakkuInterface;
+	public function build(): ErahandoraSutakkuInterface;
 	
 	/*
 	 * Get previous exceptions.

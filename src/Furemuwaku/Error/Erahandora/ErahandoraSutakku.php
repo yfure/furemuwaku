@@ -1,6 +1,6 @@
 <?php
 
-namespace Yume\Fure\Error\Handler\Sutakku;
+namespace Yume\Fure\Error\Erahandora;
 
 use Throwable;
 
@@ -10,11 +10,11 @@ use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
 
 /*
- * Sutakku
+ * ErahandoraSutakku (Error Handler Stack)
  *
- * @package Yume\Fure\Error\Handler\Sutakku
+ * @package Yume\Fure\Error\Erahandora
  */
-class Sutakku implements SutakkuInterface
+class ErahandoraSutakku implements ErahandoraSutakkuInterface
 {
 	
 	/*
@@ -91,7 +91,7 @@ class Sutakku implements SutakkuInterface
 			Util\Arr::map( $thrown, function( Int $i, String $name, Throwable $class )
 			{
 				// Create new Suttaku instance.
-				$sutakku = new Sutakku( $class );
+				$sutakku = new ErahandoraSutakku( $class );
 				
 				// Building sutakku stack trace.
 				$sutakku->build();
@@ -106,18 +106,40 @@ class Sutakku implements SutakkuInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Error\Handler\Sutakku\SutakkuInterface
+	 * @inherit Yume\Fure\Error\Erahandora\ErahandoraSutakkuInterface
 	 *
 	 */
-	public function build(): SutakkuInterface
+	public function build(): ErahandoraSutakkuInterface
 	{
 		return([ $this, $this->trace = $this->stack() ][0]);
 	}
 	
+	/*
+	 * Read where exception thrown or trace file.
+	 *
+	 * @access Private
+	 *
+	 * @params String $file
+	 * @params Int $line
+	 *
+	 * @return Array
+	 */
 	private function read( String $file, Int $line ): Array
 	{
-		// Read exception throwned.
-		$fread = htmlspecialchars( str_replace( [ "\t", "\s\s" ], [ "\xc2\xb7\xc2\xb7\xc2\xb7\xc2\xb7", "\xc2\xb7\xc2\xb7" ], File\File::read( $file ) ) );
+		try
+		{
+			$fread = htmlspecialchars( str_replace( [ "\t", "\s\s" ], [ "\xc2\xb7\xc2\xb7\xc2\xb7\xc2\xb7", "\xc2\xb7\xc2\xb7" ], File\File::read( $file ) ) );
+		}
+		catch( \Throwable $e )
+		{
+			var_dump([
+				"name" => $file,
+				"exists" => File\File::exists( $file ),
+				"file" => is_file( path( $file ) ),
+				"dir" => is_dir( path( $file ) )
+			]);
+			exit( $e );
+		}
 		
 		// Split file contents with newline.
 		$split = explode( "\n", $fread );
@@ -170,7 +192,7 @@ class Sutakku implements SutakkuInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Error\Handler\Sutakku\SutakkuInterface
+	 * @inherit Yume\Fure\Error\Erahandora\ErahandoraSutakkuInterface
 	 *
 	 */
 	public function getPrevious(): Array
@@ -179,7 +201,7 @@ class Sutakku implements SutakkuInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Error\Handler\Sutakku\SutakkuInterface
+	 * @inherit Yume\Fure\Error\Erahandora\ErahandoraSutakkuInterface
 	 *
 	 */
 	public function getScheme(): Array
@@ -188,7 +210,7 @@ class Sutakku implements SutakkuInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Error\Handler\Sutakku\SutakkuInterface
+	 * @inherit Yume\Fure\Error\Erahandora\ErahandoraSutakkuInterface
 	 *
 	 */
 	public function getThrown(): Throwable
@@ -197,7 +219,7 @@ class Sutakku implements SutakkuInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Error\Handler\Sutakku\SutakkuInterface
+	 * @inherit Yume\Fure\Error\Erahandora\ErahandoraSutakkuInterface
 	 *
 	 */
 	public function getTrace(): Array
@@ -268,7 +290,7 @@ class Sutakku implements SutakkuInterface
 						"Trait" => Reflect\ReflectClass::getTraits( $self->thrown ),
 						
 						// Handle traces.
-						"Trace" => function( SutakkuInterface $self )
+						"Trace" => function( ErahandoraSutakkuInterface $self )
 						{
 							// Get all traces.
 							$traces = $self->thrown->getTrace();
@@ -311,7 +333,7 @@ class Sutakku implements SutakkuInterface
 						},
 						
 						// For default scheme.
-						default => function( SutakkuInterface $self, String $value ) use( $key )
+						default => function( ErahandoraSutakkuInterface $self, String $value ) use( $key )
 						{
 							// Check if the method is available.
 							if( method_exists( $self->thrown, $method = f( "get{}", $value ) ) )
@@ -319,7 +341,7 @@ class Sutakku implements SutakkuInterface
 								// Return method value.
 								return( $self->thrown->{ $method }() );
 							}
-							return( "Undefined" );
+							return( "UNKNOWN" );
 						}
 					};
 					

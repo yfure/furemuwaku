@@ -104,7 +104,7 @@ class BaseError extends Error
 	{
 		return( 
 			path( 
-				prefix_or_remove: True, 
+				prefix_or_remove: False,//True, 
 				path: f( "{}: {} on file {} line {} code {}.\n{}", ...[
 					$this::class, 
 					$this->getMessage(), 

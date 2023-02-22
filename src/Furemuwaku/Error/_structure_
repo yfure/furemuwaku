@@ -18,6 +18,7 @@ Error\BaseError
   ..  ..  ..Error\IndexError +
   ..  ..  ..Error\KeyError +
   ..Error\RuntimeError +
+  ..  ..CLI\CLIError +
   ..  ..Error\LogicError +
   ..Error\SyntaxError +
   ..Error\TriggerError +
