@@ -72,10 +72,16 @@ final class CLI extends Design\Singleton
 	 */
 	public function start(): Void
 	{
-		$this->commands->run(
-			$this->argument[0] ?? "help",
-			$this->argument
-		);
+		if( $this->argument[0] )
+		{
+			$this->commands->run(
+				$this->argument[0],
+				$this->argument
+			);
+		}
+		else {
+			echo "Welcome to Yume CLI Tool (Sasayaki)\n";
+		}
 	}
 	
 	/*
@@ -87,7 +93,7 @@ final class CLI extends Design\Singleton
 	 */
 	public function stop(): Void
 	{
-		puts( "{}: Finsih\n", $this->argument->file );
+		puts( "{}: Finish\n", $this->argument->file );
 	}
 	
 }

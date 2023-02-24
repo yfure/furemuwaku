@@ -63,8 +63,8 @@ class Commands
 				if( Reflect\ReflectClass::isImplements( $class, CommandInterface::class, $reflect ) )
 				{
 					// Create new Command instance.
-					$command = $reflect->newInstance( $this, $this->logger, $config );
-					$commandName = $command->name;
+					$command = $reflect->newInstance( $this, $this->logger, $configs );
+					$commandName = $command->getName();
 					
 					// Push command.
 					$this->commands[$commandName] = $command;
@@ -107,25 +107,33 @@ class Commands
 	 */
 	public function run( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void
 	{
+		// Copy command.
+		$name = $command;
+		
 		// When command value is ArgumentValue class.
 		if( $command Instanceof Argument\ArgumentValue )
 		{
-			// If command is not option e.g -x | --xx
-			if( is_int( $command->name ) )
-			{
-				$command = $command->value;
-			}
-			else{
-				$command = $command->name;
-			}
+			// Get command name.
+			$name = $command->name;
+			
+			// When command is not option e.g (-x|--xx)
+			if( is_int( $command->name ) ) $name = $command->value;
 		}
 		
-		// Check command is not exists.
-		if( $this->has( $command, False ) )
+		// Check command is exists.
+		if( $this->has( $name ) )
 		{
+			// Get command class.
+			$command = $this->commands[$name];
+			
+		}
+		else {
 			puts( "{}: {}: Command not found\n", $argument->file, $command );
 		}
 	}
+	
+	public function surprice(): Void
+	{}
 	
 }
 

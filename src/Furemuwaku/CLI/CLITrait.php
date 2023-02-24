@@ -22,7 +22,7 @@ trait CLITrait
 	 *
 	 * @return String
 	 */
-	public static function colorize( String $string, String $base = "\x1b[0m" ): String
+	public static function color( String $string, String $base = "\x1b[0m" ): String
 	{
 		// ...
 	}

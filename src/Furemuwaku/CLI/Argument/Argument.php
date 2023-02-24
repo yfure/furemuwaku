@@ -68,6 +68,10 @@ class Argument implements ArrayAccess
 		}
 		catch( Json\JsonError $e )
 		{
+			if( is_int( $name ) )
+			{
+				$name = $value;
+			}
 			throw new ArgumentJsonValueError( $name, previous: $e );
 		}
 		return( new ArgumentValue( ...[

@@ -5,6 +5,7 @@ namespace Yume\Fure\CLI\Command;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\Logger;
 use Yume\Fure\Support\Reflect;
+use Yume\Fure\Util;
 
 /*
  * Command
@@ -73,10 +74,48 @@ abstract class Command implements CommandInterface
 	 */
 	public function __construct( protected Readonly Commands $commands, protected Readonly Logger\LoggerInterface $logger )
 	{
+		// If command name has not Initialized.
 		if( Reflect\ReflectProperty::isInitialized( $this, "name" ) === False )
 		{
 			throw new CommandUnitializedNameError( $this::class );
 		}
+		$this->buildOptions();
+	}
+	
+	private function buildOptions(): Void
+	{
+		$options = [];
+		
+		// Mapping all options defined.
+		foreach( $this->options As $name => $type )
+		{
+			// If option has value type.
+			if( is_string( $name ) )
+			{
+				// If option has other configuration.
+				if( is_array( $type ) )
+				{
+					// If option is required.
+					if( $type['required'] ?? False )
+					{
+						$required = ltrim( $type['required'], "\\" );
+						$requiredWith = $type['requiredWith'] ?? [];
+					}
+					$type = $type['type'] ?? Null;
+				}
+			}
+			else {
+				$name = $type;
+			}
+			$options[$name] = new CommandOption( ...[
+				"name" => $name,
+				"type" => $type ?? Null,
+				"long" => $long ?? False,
+				"required" => $required ?? False,
+				"requiredWith" => $requiredWith ?? []
+			]);
+		}
+		$this->options = $options;
 	}
 	
 	/*
