@@ -113,6 +113,48 @@ abstract class Arr
 	}
 	
 	/*
+	 * Return if array is Associative.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array $array
+	 *
+	 * @return Bool
+	 */
+	public static function isAssoc( Array $array, ? Bool $optional = Null ): Bool
+	{
+		return( $optional === Null ? self::isList( $value, False ) : self::isList( $value, False ) === $optional );
+	}
+	
+	/*
+	 * Return if array is List.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array $array
+	 *
+	 * @return Bool
+	 */
+	public static function isList( Array $array, ? Bool $optional = Null ): Bool
+	{
+		return( $optional === Null ? array_is_list( $array ) : array_is_list( $array ) === $optional );
+	}
+	
+	/*
+	 * Return if array is Multidimension.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array $array
+	 *
+	 * @return Bool
+	 */
+	public static function isMulti( Array $array, ? Bool $optional = Null ): Bool
+	{
+		return( $optional === Null ? count( array_filter( $array, "is_array" ) ) > 0 : self::isMulti( $array ) === $optional );
+	}
+	
+	/*
 	 * Array map.
 	 *
 	 * @access Public Static
@@ -264,15 +306,12 @@ abstract class Arr
 	 * @params Array|ArrayAccess $array
 	 * @params Mixed $values
 	 *
-	 * @return Array|ArrayAccess
+	 * @return Void
 	 */
-	public static function unset( Array | ArrayAccess $array, Mixed $values ): Array | ArrayAccess
+	public static function unset( Array | ArrayAccess &$array, Mixed $values ): Void
 	{
 		// If `values` is not array type.
-		if( is_array( $values ) === False && $values Instanceof ArrayAccess === False )
-		{
-			$values = [ $values ];
-		}
+		if( is_array( $values ) === False && $values Instanceof ArrayAccess === False ) $values = [ $values ];
 		
 		// Mapping array values.
 		self::map( $values, function( $i, $index, $value ) use( &$array )
@@ -287,8 +326,6 @@ abstract class Arr
 				}
 			});
 		});
-		
-		return( $array );
 	}
 	
 }
