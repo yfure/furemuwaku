@@ -3,7 +3,9 @@
 namespace Yume\Fure\CLI\Argument;
 
 use ArrayAccess;
+use Countable;
 
+use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
 
@@ -12,7 +14,7 @@ use Yume\Fure\Util\RegExp;
  *
  * @package Yume\Fure\CLI\Argument
  */
-class Argument implements ArrayAccess
+class Argument implements ArrayAccess, Countable
 {
 	
 	/*
@@ -23,6 +25,17 @@ class Argument implements ArrayAccess
 	 * @values Array
 	 */
 	private Readonly Array $args;
+	
+	/*
+	 * Command name.
+	 *
+	 * The second argument after the file name will be considered a command if it does not have an option type.
+	 *
+	 * @access Public Readonly
+	 *
+	 * @values String
+	 */
+	public Readonly ? String $command;
 	
 	/*
 	 * File name.
@@ -74,11 +87,19 @@ class Argument implements ArrayAccess
 			}
 			throw new ArgumentJsonValueError( $name, previous: $e );
 		}
-		return( new ArgumentValue( ...[
-			"name" => $name,
-			"long" => $long,
-			...$value
-		]));
+		return( new ArgumentValue( ...[ "name" => $name, "long" => $long ], ...$value ) );
+	}
+	
+	/*
+	 * Count arguments.
+	 *
+	 * @access Public
+	 *
+	 * @return Int
+	 */
+	public function count(): Int
+	{
+		return( count( $this->args ) );
 	}
 	
 	/*
@@ -94,6 +115,18 @@ class Argument implements ArrayAccess
 	public function get( Int | String $arg, Mixed $default = Null ): Mixed
 	{
 		return( $this )->args[$arg] ?? $default;
+	}
+	
+	/*
+	 * Get command name.
+	 *
+	 * @access Public
+	 *
+	 * @return String
+	 */
+	public function getCommandName(): String
+	{
+		return( $this )->command;
 	}
 	
 	/*
@@ -114,12 +147,25 @@ class Argument implements ArrayAccess
 	 * @access Public
 	 *
 	 * @params Int|String $arg
+	 * @params Bool $optional
 	 *
 	 * @return Bool
 	 */
-	public function has( Int | String $arg ): Bool
+	public function has( Int | String $arg, ? Bool $optional = Null ): Bool
 	{
-		return( isset( $this->args[$arg] ) );
+		return( $optional === Null ? isset( $this->args[$arg] ) : isset( $this->args[$arg] ) === $optional );
+	}
+	
+	/*
+	 * Return if command is available.
+	 *
+	 * @access Public
+	 *
+	 * @return Bool
+	 */
+	public function hasCommand(): Bool
+	{
+		return( $this )->command !== Null;
 	}
 	
 	/*
@@ -315,6 +361,15 @@ class Argument implements ArrayAccess
 			// Build value.
 			$args[$name] = $this->build( $name, $value, False );
 		}
+		
+		// If command is available.
+		if( isset( $args[0] ) )
+		{
+			$this->command = array_shift( $args )->value;
+		}
+		else {
+			$this->command = Null;
+		}
 		$this->args = $args;
 	}
 	
@@ -367,8 +422,20 @@ class Argument implements ArrayAccess
 			};
 		}
 		return([
-			"type" => type( $value ),
-			"value" => $value
+			"value" => $value,
+			"type" => match( type( $value ) )
+			{
+				\Array::class => Util\Types::ARRAY,
+				\Boolean::class => Util\Types::BOOLEAN,
+				\Double::class => Util\Types::DOUBLE,
+				\Float::class => Util\Types::FLOAT,
+				\Int::class => Util\Types::INT,
+				\Integer::class => Util\Types::INTEGER,
+				\Null::class => Util\Types::NULL,
+				\String::class => Util\Types::STRING,
+				
+				default => Util\Types::MIXED
+			}
 		]);
 	}
 	

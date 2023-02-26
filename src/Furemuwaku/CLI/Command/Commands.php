@@ -9,6 +9,7 @@ use Yume\Fure\Error;
 use Yume\Fure\Logger;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Reflect;
+use Yume\Fure\Util;
 
 /*
  * Commands
@@ -44,7 +45,7 @@ class Commands
 		$this->commands = new Data\Data;
 		
 		// Mapping all defined commands.
-		config( "cli" )->commands->map(
+		config( "app" )->commands->map(
 			
 			/*
 			 * Handle mapping command will be register.
@@ -57,13 +58,13 @@ class Commands
 			 *
 			 * @throws Yume\Fure\Error\ClassImplementationError
 			 */
-			function( Int $i, String $class, Config\Config $configs )
+			function( Int $i, Int $index, String $class )
 			{
 				// Check if CommandHandler has implement CommandInterface.
 				if( Reflect\ReflectClass::isImplements( $class, CommandInterface::class, $reflect ) )
 				{
 					// Create new Command instance.
-					$command = $reflect->newInstance( $this, $this->logger, $configs );
+					$command = $reflect->newInstance( $this, $this->logger );
 					$commandName = $command->getName();
 					
 					// Push command.
@@ -126,9 +127,52 @@ class Commands
 			// Get command class.
 			$command = $this->commands[$name];
 			
+			// If command has options defined.
+			if( $command->hasOptions() )
+			{
+				// Mapping all required options.
+				foreach( $command->getRequiredOptions() ?: [] As $option )
+				{
+					// If argument has no required option.
+					if( $argument->has( $option->name, False ) )
+					{
+						// If command has Alias name and argument has required option by alias name.
+						if( $option->alias && $argument->has( $option->alias ) )
+						{
+							continue;	
+						}
+						puts( "{}: {}: Required option {}\n", $argument->file, $name, $option );
+						exit;
+					}
+				}
+				
+				// Mapping all defined options.
+				foreach( $command->getOptions() As $option )
+				{
+					// If argument has no option, skip/ continue.
+					if( $argument->has( $option->name, False ) ) continue;
+					
+					// If option has defined Type.
+					if( $option->hasType() )
+					{
+						// If option type is Mixed or Null, skip/ continue.
+						if( $option->type === Util\Types::MIXED ||
+							$option->type === Util\Types::NULL ) continue;
+						
+						// If option type is doesn't valid with argument option.
+						if( $option->type !== $argument[$option->name]->type )
+						{
+							puts( "{}: {}: {}: Option value must be type {}, {} given\n", $argument->file, $command->getName(), $option->name, $option->type->name, $argument[$option->name]->type->name );
+							exit;
+						}
+					}
+				}
+			}
+			$command->run( $argument );
 		}
 		else {
 			puts( "{}: {}: Command not found\n", $argument->file, $command );
+			exit;
 		}
 	}
 	

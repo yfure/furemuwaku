@@ -72,10 +72,10 @@ final class CLI extends Design\Singleton
 	 */
 	public function start(): Void
 	{
-		if( $this->argument[0] )
+		if( $this->argument->hasCommand() )
 		{
 			$this->commands->run(
-				$this->argument[0],
+				$this->argument->command,
 				$this->argument
 			);
 		}
