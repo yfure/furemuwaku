@@ -340,6 +340,11 @@ abstract class Str
 		return( preg_match( "/^(?:([0-9]*)[\.]([0-9]+)|([0-9]+)[\.]([0-9]*))$/", $string ) );
 	}
 	
+	public static function isEmail( String $string ): Bool
+	{
+		return( preg_match( "/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/", $string ) );
+	}
+	
 	/*
 	 * Return is String is valid Numeric Double Exponent number.
 	 *
@@ -591,6 +596,7 @@ abstract class Str
 	
 	/*
 	 * Generate random string by alphabhet given.
+	 *
 	 * This function has deprecated on Yume on v3.0.6
 	 *
 	 * @source http://stackoverflow.com/a/13733588/

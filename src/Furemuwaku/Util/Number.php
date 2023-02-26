@@ -158,13 +158,14 @@ abstract class Number
 	 *
 	 * @return Double/Float|Int|Integer
 	 */
-	public static function parse( Mixed $args ): Float | Int | Integer
+	public static function parse( Mixed $args ): Double | Float | Int | Integer
 	{
 		return( match( True )
 		{
 			is_bool( $args ),
 			is_double( $args ),
 			is_float( $args ),
+			is_finite( $args ),
 			is_infinite( $args ),
 			is_int( $args ),
 			is_integer( $args ),

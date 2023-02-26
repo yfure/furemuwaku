@@ -123,7 +123,7 @@ abstract class Arr
 	 */
 	public static function isAssoc( Array $array, ? Bool $optional = Null ): Bool
 	{
-		return( $optional === Null ? self::isList( $value, False ) : self::isList( $value, False ) === $optional );
+		return( $optional === Null ? self::isList( $array, False ) : self::isList( $array, False ) === $optional );
 	}
 	
 	/*
