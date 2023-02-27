@@ -7,6 +7,8 @@ use Stringable;
 /*
  * StreamInterface
  *
+ * @fsrouce https://github.com/php-fig/http-message
+ *
  * @package Yume\Fure\HTTP\Stream
  */
 interface StreamInterface extends Stringable
@@ -24,9 +26,12 @@ interface StreamInterface extends Stringable
 	/*
 	 * Separates any underlying resources from the stream.
 	 *
+	 * After the stream has been detached, the stream is
+	 * in an unusable state.
+	 *
 	 * @access Public
 	 *
-	 * @return Reasource
+	 * @return Resource
 	 */
 	public function detach();
 	
@@ -40,13 +45,15 @@ interface StreamInterface extends Stringable
 	public function eof(): Bool;
 	
 	/*
-	 * Returns the remaining contents in a string.
+	 * Returns the remaining contents in a string
 	 *
 	 * @access Public
 	 *
 	 * @return String
 	 *
 	 * @throws Yume\Fure\HTTP\Stream\StreamError
+	 *  If unable to read or an error occurs while reading.
+	 *
 	 */
 	public function getContents(): String;
 	
@@ -55,7 +62,8 @@ interface StreamInterface extends Stringable
 	 *
 	 * @access Public
 	 *
-	 * @params Mixed $key
+	 * @params String $key
+	 *  Specific metadata to retrieve.
 	 *
 	 * @return Mixed
 	 */
@@ -67,6 +75,7 @@ interface StreamInterface extends Stringable
 	 * @access Public
 	 *
 	 * @return Int
+	 *  Returns the size in bytes if known, or null if unknown.
 	 */
 	public function getSize(): ? Int;
 	
@@ -103,8 +112,13 @@ interface StreamInterface extends Stringable
 	 * @access Public
 	 *
 	 * @params Int $length
+	 *  Read up to $length bytes from the object and return them.
+	 *  Fewer than $length bytes may be returned if underlying stream
+	 *  call returns fewer bytes.
 	 *
 	 * @return String
+	 *  Returns the data read from the stream, or an
+	 *  empty string if no bytes are available.
 	 *
 	 * @throws Yume\Fure\HTTP\Stream\StreamError
 	 */
@@ -115,8 +129,6 @@ interface StreamInterface extends Stringable
 	 *
 	 * @access Public
 	 *
-	 * @return Void
-	 *
 	 * @throws Yume\Fure\HTTP\Stream\StreamError
 	 */
 	public function rewind(): Void;
@@ -126,10 +138,8 @@ interface StreamInterface extends Stringable
 	 *
 	 * @access Public
 	 *
-	 * @params Int $offset
+	 * @params int $offset
 	 * @params Int $whence
-	 *
-	 * @return Void
 	 *
 	 * @throws Yume\Fure\HTTP\Stream\StreamError
 	 */
@@ -141,7 +151,8 @@ interface StreamInterface extends Stringable
 	 * @access Public
 	 *
 	 * @return Int
-	 *
+	 *  Position of the file pointer
+	 * 
 	 * @throws Yume\Fure\HTTP\Stream\StreamError
 	 */
 	public function tell(): Int;
@@ -152,8 +163,10 @@ interface StreamInterface extends Stringable
 	 * @access Public
 	 *
 	 * @params String $string
+	 *  The string that is to be written.
 	 *
 	 * @return Int
+	 *  Returns the number of bytes written to the stream.
 	 *
 	 * @throws Yume\Fure\HTTP\Stream\StreamError
 	 */

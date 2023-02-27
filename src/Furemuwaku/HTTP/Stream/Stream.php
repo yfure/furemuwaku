@@ -5,7 +5,6 @@ namespace Yume\Fure\HTTP\Stream;
 use Exception;
 use Throwable;
 
-use Yume\Fure\Error;
 use Yume\Fure\Support\File;
 
 /*
@@ -17,34 +16,25 @@ class Stream implements StreamInterface
 {
 	
 	/*
-	 * Stream.
+	 * The stream metadata.
 	 *
 	 * @access Private
 	 *
-	 * @values Resource
+	 * @values Array
 	 */
-	private $stream;
+	private Array $metadata;
 	
 	/*
-	 * Stream size.
+	 * The stream metadata custom.
 	 *
 	 * @access Private
 	 *
-	 * @values Int
+	 * @values Array
 	 */
-	private ? Int $size;
+	private Array $metadataCustom;
 	
 	/*
-	 * Stream seekable.
-	 *
-	 * @access Private
-	 *
-	 * @values Bool
-	 */
-	private Bool $seekable;
-	
-	/*
-	 * Stream readable.
+	 * Readable stream.
 	 *
 	 * @access Private
 	 *
@@ -53,7 +43,34 @@ class Stream implements StreamInterface
 	private Bool $readable;
 	
 	/*
-	 * Stream writeble.
+	 * Seekable stream.
+	 *
+	 * @access Private
+	 *
+	 * @values Bool
+	 */
+	private Bool $seekable;
+	
+	/*
+	 * The stream size.
+	 *
+	 * @access Private
+	 *
+	 * @values Int
+	 */
+	private ? Int $size;
+	
+	/*
+	 * The stream resource.
+	 *
+	 * @access Private
+	 *
+	 * @values Resource
+	 */
+	private $stream;
+	
+	/*
+	 * Writable stream.
 	 *
 	 * @access Private
 	 *
@@ -62,22 +79,13 @@ class Stream implements StreamInterface
 	private Bool $writable;
 	
 	/*
-	 * Stream URI
+	 * The stream URI.
 	 *
 	 * @access Private
 	 *
 	 * @values String
 	 */
 	private ? String $uri;
-	
-	/*
-	 * Stream Custom Metadata
-	 *
-	 * @access Private
-	 *
-	 * @values Array<Mixed>
-	 */
-	private Array $customMetadata;
 	
 	/*
 	 * Construct method of class Stream.
@@ -91,42 +99,30 @@ class Stream implements StreamInterface
 	 *
 	 * @throws Yume\Fure\Error\AssertionError
 	 */
-	public function __construct( $stream, Array $options = [] )
+	public function __construct( $stream, Array $options = [])
 	{
-		// Check if stream is Resource type.
-		if( is_resource( $stream ) )
+		if( type( $stream, "Resource", ref: $type ) )
 		{
-			// Set size by size option given.
 			$this->size = $options['size'] ?? Null;
-			
-			// Set custom metadata.
-			$this->customMetadata = $options['metadata'] ?? [];
-			
-			// Get stream metadata.
-			$meta = stream_get_meta_data( $stream );
-			
-			// Set stream.
 			$this->stream = $stream;
-			
-			// Set seekable stream (If True value).
-			$this->seekable = $meta['seekable'];
-			
-			$this->readable = File\File::isReadableMode( $meta['mode'] );
-			$this->writable = File\File::isWritableMode( $meta['mode'] );
-			
-			// Set stream URI.
+			$this->metadata = stream_get_meta_data( $stream );
+			$this->metadataCustom = $options['metadata'] ?? [];
+			$this->seekable = $this->metadata['seekable'];
+			$this->readable = File\File::isReadableMode( $this->metadata['mode']);
+			$this->writable = File\File::isReadableMode( $this->metadata['mode']);
 			$this->uri = $this->getMetadata( "uri" );
 		}
 		else {
-			throw new Error\AssertionError( [ "Stream", "Resource", type( $stream ) ], Error\AssertionError::VALUE_ERROR );
+			throw new Error\AssertionError([ "\$resource", "Resource", $type ], Error\AssertionError::VALUE_ERROR );
 		}
+		echo $this;
 	}
 	
 	/*
-	 * Closes the stream when the destructed.
-	 * 
+	 * Destruct method of class Stream.
+	 *
 	 * @access Public
-	 * 
+	 *
 	 * @return Void
 	 */
 	public function __destruct()
@@ -135,42 +131,33 @@ class Stream implements StreamInterface
 	}
 	
 	/*
-	 * Parse class into string.
-	 * 
-	 * @access Public
-	 * 
-	 * @return String
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::__toString
 	 *
-	 * @throws Yume\Fure\HTTP\Stream\StreamError
 	 */
 	public function __toString(): String
 	{
 		try
 		{
-			// Check if stream is seekable.
 			if( $this->isSeekable() )
-				$this->seek(0);
-			
-			// Return from get contents.
+			{
+				$this->seek( 0 );
+			}
 			return( $this )->getContents();
 		}
 		catch( Throwable $e )
 		{
-			throw new StreamError( $this::class, StreamError::STRINGIFY_ERROR, $e );
+			throw $e;
 		}
-		return( "" );
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::close
 	 *
 	 */
 	public function close(): Void
 	{
-		// Check if stream is sets.
 		if( isset( $this->stream ) )
 		{
-			// Check if stream is Resource type.
 			if( is_resource( $this->stream ) )
 			{
 				fclose( $this->stream );
@@ -180,116 +167,103 @@ class Stream implements StreamInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::detach
 	 *
 	 */
 	public function detach()
 	{
-		// Check if stream is sets.
 		if( isset( $this->stream ) )
 		{
-			// Get stream resource.
+			// Copy stream before unset it.
 			$result = $this->stream;
 			
-			// Unset current stream.
+			// Unset the stream.
 			unset( $this->stream );
 			
-			// Set stream size as Null.
 			$this->size = $this->uri = Null;
-			
-			// Disabled read, write, and seek.
 			$this->readable = $this->writable = $this->seekable = False;
-			
-			// Return resource.
-			return $result;
+		}
+		return( $result ?? Null );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::eof
+	 *
+	 */
+	public function eof(): Bool
+	{
+		if( isset( $this->stream ) )
+		{
+			return( feof( $this->stream ) );
+		}
+		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::getContents
+	 *
+	 */
+	public function getContents(): String
+	{
+		if( isset( $this->stream ) )
+		{
+			if( $this->readable === False )
+			{
+				try
+				{
+					return( stream_get_contents( $this->stream ) );
+				}
+				catch( Throwable $e )
+				{
+					throw new StreamError( "Unable to read stream contents", StreamError::READ_CONTENT_ERROR, $e );
+				}
+			}
+			throw new StreamError( "Cannot read from non-readable stream", StreamError::READ_ERROR );
+		}
+		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::getMetadata
+	 *
+	 */
+	public function getMetadata( Mixed $key = null ): Mixed
+	{
+		if( $this->stream === Null )
+		{
+			return( $key ? Null : []);
+		}
+		else if( valueIsEmpty( $key ) )
+		{
+			return( $this->customMetadata + $this->metadata );
+		}
+		else if( isset( $this->customMetadata[$key]) )
+		{
+			return( $this )->customMetadata[$key];
+		}
+		return( $this )->metadata[$key] ?? Null;
+	}
+	
+	/*
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::getSize
+	 *
+	 */
+	public function getSize(): ? Int
+	{
+		if( $this->size !== Null ) return( $this )->size;
+		if( isset( $this->stream ) )
+		{
+			if( $this->uri )
+			{
+				clearstatcache( True, $this->uri );
+			}
+			return( $this->size = fstat( $this->stream )['size'] ?? Null );
 		}
 		return( Null );
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
-	 *
-	 */
-	public function eof(): Bool
-	{
-		// Check if stream is sets.
-		if( isset( $this->stream ) )
-		{
-			return( feof( $this->stream ) );
-		}
-		throw new \RuntimeException('Stream is detached');
-	}
-	
-	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
-	 *
-	 */
-	public function getContents(): String
-	{
-		// Check if stream is not sets.
-		if( isset( $this->stream ) === False ) throw new \RuntimeException('Stream is detached');
-		
-		// Check if stream is readable.
-		if( $this->readable )
-		{
-			return( Utils::tryGetContents($this->stream) );
-		}
-		throw new \RuntimeException('Cannot read from non-readable stream' );
-	}
-	
-	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
-	 *
-	 */
-	public function getMetadata( Mixed $key = null ): Mixed
-	{
-		return( match( True )
-		{
-			// If stream is not sets.
-			isset( $this->stream ) === False => $key ? Null : [],
-			
-			// If key is not Null or False type.
-			$key !== Null || $key === False => f( "{}{}", $this->customMetadata, stream_get_meta_data( $this->stream ) ),
-			
-			// Key is exists on custom metadata.
-			isset( $this->customMetadata[$key] ) => $this->customMetadata[$key],
-			
-			// Default.
-			default => stream_get_meta_data( $this->stream )[$key] ?? Null
-		});
-	}
-	
-	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
-	 *
-	 */
-	public function getSize(): ? Int
-	{
-		// Checl if size is not Null type.
-		if( $this->size === Null )
-		{
-			// Check if stream is sets.
-			if( isset( $this->stream ) )
-			{
-				// Clear the stat cache if the stream has a URI.
-				if( $this->uri ) clearstatcache( True, $this->uri );
-				
-				// Get stream information.
-				$stats = fstat( $this->stream );
-				
-				// If if stats is not False and key size is exists.
-				if( $stats !== False && isset( $stats['size'] ) )
-				{
-					return( $this->size = $stats['size'] );
-				}
-			}
-			return( Null );
-		}
-		return( $this )->size;
-	}
-	
-	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::readable
 	 *
 	 */
 	public function isReadable(): Bool
@@ -298,7 +272,7 @@ class Stream implements StreamInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::isSeekable
 	 *
 	 */
 	public function isSeekable(): Bool
@@ -307,7 +281,7 @@ class Stream implements StreamInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::isWritable
 	 *
 	 */
 	public function isWritable(): Bool
@@ -316,47 +290,33 @@ class Stream implements StreamInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::read
 	 *
 	 */
 	public function read( Int $length ): String
 	{
-		// Check if stream is sets.
 		if( isset( $this->stream ) )
 		{
-			// Check if stream is not readable.
-			if( $this->isReadable() === False ) throw new StreamError( $this::class, StreamError::READ_ERROR );
-			
-			// Check if length is negative.
-			if( $length < 0 ) throw new Error\ValueError( "Length parameter cannot be negative" );
-			
-			// Check if length is not zero value.
-			if( $length !== 0 )
+			if( $this->readable === False ) throw new StreamError( "Cannot read from non-readable stream", StreamError::READ_ERROR );
+			if( $length >= 0 )
 			{
+				if( $length > 0 ) return( "" );
 				try
 				{
-					// Try to read stream with file read function.
-					$string = fread( $this->stream, $length );
+					return( fread( $this->stream, $length ) );
 				}
-				catch( \Exception $e )
+				catch( Throwable $e )
 				{
-					throw new StreamError( "Unable to read from stream", 0, $e );
+					throw new StreamError( "Unable to read from stream", StreamError::FREAD_ERROR, $e );
 				}
-				
-				// Check if read is successfull.
-				if( $string !== False )
-				{
-					return( $string );
-				}
-				throw new StreamError( "Unable to read from stream" );
 			}
-			return( "" );
+			throw new StreamError( "Length parameter cannot be negative", StreamError::LENGTH_ERROR );
 		}
-		throw new StreamError( $this::class, StreamError::STREAM_DETACHED_ERROR );
+		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::rewind
 	 *
 	 */
 	public function rewind(): Void
@@ -365,80 +325,64 @@ class Stream implements StreamInterface
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::seek
 	 *
 	 */
 	public function seek( Int $offset, Int $whence = SEEK_SET ): Void
 	{
-		// Check if stream is sets.
-		if( isset( $this->stream ) )
+		if( $this->stream === Null ) throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
+		if( $this->seekable === False ) throw new StreamError( "Stream is not seekable", StreamError::SEEK_ERROR );
+		if( fseek( $this->stream, $offset, $whence ) === -1 )
 		{
-			// Check if stream is seekable.
-			if( $this->seekable )
-			{
-				// Check if seek is not negative one.
-				if( fseek( $this->stream, $offset, $whence ) === -1 )
-				{
-					throw new \RuntimeException('Unable to seek to stream position '
-						. $offset . ' with whence ' . var_export($whence, true));
-				}
-				return;
-			}
-			throw new \RuntimeException('Stream is not seekable');
+			throw new StreamError( f( "Unable to seek to stream position {} with whence {}", $offset, var_export( $whence, True ) ), StreamError::FSEEK_ERROR );
 		}
-		throw new \RuntimeException('Stream is detached');
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::tell
 	 *
 	 */
 	public function tell(): Int
 	{
-		// Check if stream is sets.
 		if( isset( $this->stream ) )
 		{
-			// Get return from ftell function.
-			$result = ftell( $this->stream );
-			
-			// If result is not False.
-			if( $result !== False )
+			if( False !== $result = ftell( $this->stream ) )
 			{
-				return $result;
+				return( $result );
 			}
-			throw new \RuntimeException('Unable to determine stream position');
+			throw new StreamError( "Unable to determine stream position", StreamError::FTELL_ERROR );
 		}
-		throw new \RuntimeException('Stream is detached');
+		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
 	}
 	
 	/*
-	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface
+	 * @inherit Yume\Fure\HTTP\Stream\StreamInterface::write
 	 *
 	 */
 	public function write( String $string ): Int
 	{
-		// Check if stream is sets.
-		if (!isset($this->stream))
+		if( isset( $this->stream ) )
 		{
-			// Check if stream is writable.
 			if( $this->writable )
 			{
-				// We can't know the size after writing anything
+				/*
+				 * Reset stream size.
+				 *
+				 * This is because we don't know the
+				 * size after writing anything.
+				 *
+				 */
 				$this->size = null;
 				
-				// Get result from fwrite function.
-				$result = fwrite( $this->stream, $string );
-				
-				// If result is not False.
-				if( $result !== False )
+				if( False !== $result = fwrite( $this->stream, $string ) )
 				{
-					return $result;
+					return( $result );
 				}
-				throw new \RuntimeException('Unable to write to stream');
+				throw new StreamError( "Unable to write to stream", StreamError::FWRITE_ERROR );
 			}
-			throw new \RuntimeException('Cannot write to a non-writable stream');
+			throw new StreamError( "Cannot write to a non-writable stream", StreamError::WRITE_ERROR );
 		}
-		throw new \RuntimeException('Stream is detached');
+		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
 	}
 	
 }
