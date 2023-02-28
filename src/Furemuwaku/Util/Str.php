@@ -564,20 +564,30 @@ abstract class Str
 	 * @params String $subject
 	 * @params String $separator
 	 * @params Bool $last
+	 * @params Mixed &$ref
 	 *
 	 * @return String
 	 */
-	public static function pop( String $subject, String $separator, Bool $last = False ): String
+	public static function pop( String $subject, String $separator, Bool $last = False, Mixed &$ref = Null ): String
 	{
 		if( count( $split = explode( $separator, $subject ) ) !== 0 )
 		{
+			$end = array_pop( $split );
+			
 			if( $last )
 			{
-				return( end( $split ) );
+				$ref = [
+					$string = implode( $separator, $split ),
+					$end
+				];
+				return( $end );
 			}
-			array_pop( $split );
 		}
-		return( implode( $separator, $split ) );
+		$ref = [
+			$string = implode( $separator, $split ),
+			$end ?? Null
+		];
+		return( $string );
 	}
 	
 	/*
