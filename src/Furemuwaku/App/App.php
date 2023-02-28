@@ -27,7 +27,6 @@ final class App extends Design\Singleton
 	
 	static private Bool $booted = False;
 	static private Bool $booting = False;
-	static private Array $composer = [];
 	static private Array $configs = [];
 	static private Bool $running = False;
 	static private Array $package = [];
@@ -42,10 +41,6 @@ final class App extends Design\Singleton
 	 */
 	protected function __construct()
 	{
-		static::$self = $this;
-		static::$booting = True;
-		static::$running = False;
-		
 		$this->booting();
 	}
 	
@@ -60,11 +55,13 @@ final class App extends Design\Singleton
 	{
 		Util\Timer::calculate( "booting", function(): Void
 		{
-			// Parses content from environment files.
-			Env\Env::self()->parse();
+			static::$self = $this;
+			static::$booting = True;
+			static::$running = False;
 			
-			// Set application localization settings.
+			Env\Env::self()->parse();
 			Locale\Locale::self()->setup();
+			Package\Package::self()->load();
 			
 			// Get application environment.
 			$env = strtolower( env( "ENVIRONMENT", "development" ) );
@@ -99,14 +96,12 @@ final class App extends Design\Singleton
 				throw new Error\LogicError( sprintf( "The application environment must be development|production, \"%s\" given", $env ) );
 			}
 			
-			// Setup error handler.
 			Erahandora\Erahandora::self()->setup();
-			
-			// Booting services provider.
 			Services\Services::self()->booting();
+			
+			static::$booted = True;
+			static::$booting = False;
 		});
-		static::$booted = True;
-		static::$booting = False;
 	}
 	
 	/*
@@ -120,11 +115,17 @@ final class App extends Design\Singleton
 	 */
 	public function run(): Void
 	{
-		if( static::$running )
+		if( static::$running === False )
 		{
+			static::$running = True;
+			
+			$test = new Tests\Test;
+			$test->main();
+		}
+		else {
 			throw new Error\RuntimeError( "Unable to run the currently running application" );
 		}
-		static::$running = True;
+		static::$running = False;
 	}
 	
 }
