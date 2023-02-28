@@ -311,7 +311,7 @@ class Locale extends Design\Singleton
 				}
 				return( Util\Str::fmt( $translation, ...$format ) );
 			}
-			throw new Error\TypeError( Util\Str::fmt( "Translation language must be string value, {+:ucfirst} given", is_object( $translation ) ? $translation::class : gettype( $translation ) ) );
+			throw new Error\TypeError( Util\Str::fmt( "Translation language must be string value, {+:ucfirst} given", type( $translation ) ) );
 		}
 		catch( Error\LookupError $e )
 		{
