@@ -2,12 +2,14 @@
 
 namespace Yume\Fure\Support\Package;
 
+use Throwable;
+
 use Yume\Fure\Error;
-use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Design;
 use Yume\Fure\Support\File;
+use Yume\Fure\Support\Path;
+use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
-use Yume\Fure\Util\RegExp;
 
 /*
  * Package
@@ -16,51 +18,158 @@ use Yume\Fure\Util\RegExp;
  *
  * @extends Yume\Fure\Support\Design\Singleton
  */
-class Package extends Design\Singleton
+final class Package extends Design\Singleton
 {
 	
 	/*
-	 * Composer autoload classes.
+	 * Composer installed packages.
 	 *
-	 * @access Static Private
+	 * @access Private Readonly
 	 *
-	 * @values Yume\Fure\Support\Data\DataInterface
+	 * @values Array
 	 */
-	static private Data\DataInterface $packages;
+	private Readonly Array $installed;
 	
 	/*
-	 * @inherit Yume\Fure\Support\Design\Singleton
+	 * @inherit Yume\Fure\Support\Design\Singleton::__construct
 	 *
 	 */
-	final protected function __construct()
+	protected function __construct( Bool $load = False )
 	{
-		// Create new data instance.
-		static::$packages = new Data\Data;
-		
-		// Get composer installed packages.
-		$composer = File\File::json( "vendor/composer/installed.json", True );
-		
-		// Mapping all packages.
-		Util\Arr::map( $packages['packages'], function( $package )
+		if( $load )
 		{
-			// Check if package has autoload psr-4.
-			if( isset( $package['autoload']['psr-4'] ) )
-			{
-				Util\Arr::map( $package['autoload']['psr-4'], fn( $i, $namespace, $directory ) => static::$packages[] = $namespace );
-			}
-		});
+			$this->load();
+		}
 	}
 	
 	/*
-	 * Get all packages.
+	 * Make package name into array syntax.
+	 *
+	 * The array syntax can be use with
+	 * Yume\Fure\Util\Str::ify method.
+	 *
+	 * @before Yume\Fure\Error\AssertionError
+	 * @after yume.fure[error.AssertionError]
 	 *
 	 * @access Public Static
 	 *
-	 * @return Yume\Fure\Support\Data\DataInterface
+	 * @params String $package
+	 *  Package name.
+	 * @params Array $prefix
+	 *  Prefix package name.
+	 * @params Bool $disable
+	 *  Disable transform into lowercase.
+	 *
+	 * @return String
 	 */
-	public static function getPackages(): Data\DataInterface
+	public static function array( String $package, ? String $prefix = Null, Bool $disable = False ): String
 	{
-		return( self::self() )->packages->map( fn( $i, $k, $v ) => $v );
+		// If package has prefix or package has installed.
+		if( $prefix !== Null || self::has( $package, $ref ) )
+		{
+			// If package name has backslash symbol.
+			if( strpos( $package, "\\" ) !== False )
+			{
+				// Default format result without suffix.
+				$format = "%s[%s]";
+				
+				$prefix = Util\Str::pop( $prefix ?? $ref['name'], "\\" );
+				$middle = Util\Str::pop( $package, "\\", ref: $suffix );
+				
+				$middle = substr( $middle, strlen( $prefix ) +1 );
+				
+				// If lowercase allowed.
+				if( $disable === False )
+				{
+					$prefix = strtolower( $prefix );
+					$middle = strtolower( $middle );
+				}
+				
+				// If package has suffix name.
+				if( $suffix = $suffix[1] ?? Null )
+				{
+					$format = "%s[%s.%s]";
+				}
+				$package = sprintf( $format, $prefix, $middle, $suffix );
+			}
+		}
+		return( str_replace( [ "\\", ".." ], ".", $package ) );
+	}
+	
+	/*
+	 * Return if package has installed.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $package
+	 *  Package name.
+	 * @params Mixed $ref
+	 *  If the packet has been installed, the name and path
+	 *  will be set there to use if needed, This is useful
+	 *  compared to having to loop after checking.
+	 *
+	 * @return Bool
+	 */
+	public static function has( String $package, Mixed &$ref = Null ): Bool
+	{
+		$ref = Null;
+		
+		// Mapping all installed packages.
+		foreach( self::self( True )->installed As $name => $path )
+		{
+			// If the package has the same prefix name as the namespace.
+			if( strpos( $package, $name ) === 0 )
+			{
+				$ref = [
+					"name" => $name,
+					"path" => $path
+				];
+				return( True );
+			}
+		}
+		return( False );
+	}
+	
+	/*
+	 * Load composer installed packages.
+	 *
+	 * Note, this is just get package name and pathname.
+	 *
+	 * @access Public
+	 *
+	 * @return Void
+	 */
+	public function load(): Void
+	{
+		// Check if packages has initialized.
+		if( Reflect\ReflectProperty::isInitialized( $this, "installed" ) ) return;
+		
+		// Get composer installed packages.
+		$installed = File\File::json( Path\PathName::VENDOR_INSTALLED->value, True )['packages'] ?? [];
+		$packages = [];
+		
+		// Mapping all packages.
+		foreach( $installed As $package )
+		{
+			// Get package autoload prs-4.
+			$autoload = $package['autoload']['psr-4'] ?? [];
+			
+			// Mapping all autoload packages.
+			foreach( $autoload As $space => $path )
+			{
+				$autoload[$space] = sprintf( "%s/%s/%s", Path\PathName::VENDOR->value, $package['name'], $path );
+			}
+			$packages = [
+				...$packages,
+				...$autoload
+			];
+		}
+		$this->installed = [
+			...$packages,
+			...[
+				"Yume\\App\\" => Path\PathName::APP->value . "/"
+			]
+		];
 	}
 	
 	/*
@@ -75,15 +184,16 @@ class Package extends Design\Singleton
 	public static function import( String $package ): Mixed
 	{
 		// Get package name.
-		$name = self::name( $package );
+		$name = self::path( $package );
 		
 		// Create file name.
-		$file = f( "{}{}", $name, substr( $name, -4 ) !== ".php" ? ".php" : "" );
+		$file = sprintf( "%s%s", $name, substr( $name, -4 ) !== ".php" ? ".php" : "" );
 		
 		// Check if file name is exists.
 		if( File\File::exists( $file ) )
 		{
-			try {
+			try
+			{
 				return( require( path( $file ) ) );
 			}
 			catch( Throwable $e )
@@ -95,7 +205,7 @@ class Package extends Design\Singleton
 	}
 	
 	/*
-	 * Create filename from package name.
+	 * Create pathname based on namespace package.
 	 *
 	 * @access Public Static
 	 *
@@ -103,10 +213,15 @@ class Package extends Design\Singleton
 	 *
 	 * @return String
 	 */
-	public static function name( String $package ): String
+	public static function path( String $package ): String
 	{
-		// Replace package namespace.
-		return( RegExp\RegExp::replace( "/^\\\*Yume\\\(App|Fure)\b/i", $package, fn( Array $match ) => $match[1] === "Fure" || $match[1] === "fure" ? "system/furemu" : "app" ) );
+		// If package has installed.
+		if( self::has( $package, $ref ) )
+		{
+			// Replace prefix namespace with pathname.
+			$package = substr_replace( $package, $ref['path'], 0, strlen( $ref['name'] ) );
+		}
+		return( str_replace( [ "/", "\\" ], DIRECTORY_SEPARATOR, $package ) );
 	}
 	
 }
