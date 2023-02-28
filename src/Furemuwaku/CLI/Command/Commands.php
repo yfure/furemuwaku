@@ -171,6 +171,7 @@ class Commands
 			$command->run( $argument );
 		}
 		else {
+			var_dump( $argument );
 			puts( "{}: {}: Command not found\n", $argument->file, $command );
 			exit;
 		}

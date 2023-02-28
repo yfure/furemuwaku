@@ -60,6 +60,11 @@ class Argument implements ArrayAccess, Countable
 		$this->parse( $argv );
 	}
 	
+	public function __get( Int | String $arg ): Mixed
+	{
+		return( $this )->get( $arg );
+	}
+	
 	/*
 	 * Value builder.
 	 *
@@ -287,8 +292,10 @@ class Argument implements ArrayAccess, Countable
 					// If argument has equal symbol.
 					if( $eqPost !== False )
 					{
+						echo 0;
+						echo PHP_EOL;
 						$key = substr( $arg, 2, $eqPost -2 );
-						$val = substr( $arg, $eq +1 );
+						$val = substr( $arg, $eqPost +1 );
 					}
 					else {
 						
@@ -325,7 +332,16 @@ class Argument implements ArrayAccess, Countable
 							unset( $argv[$idx] );
 						}
 					}
-					$args[$key] = $this->build( $key, $val, True );
+					
+					/*
+					 * If the argument option is given like
+					 * this --= then it will not be considered.
+					 *
+					 */
+					if( $key !== "" && $val !== "" )
+					{
+						$args[$key] = $this->build( $key, $val, True );
+					}
 				}
 				
 				// If argument value is short option.
@@ -340,7 +356,15 @@ class Argument implements ArrayAccess, Countable
 						$args[$key] = $this->build( $key, $val, False );
 					}
 					else {
-						throw new ArgumentShortOptionError( $arg );
+						
+						// If a short option is like this -xyz
+						// then it will be considered invalid,
+						// only like this -x
+						if( strlen( $arg ) !== 2 )
+						{
+							throw new ArgumentShortOptionError( $arg );
+						}
+						$args[$arg[1]] = True;
 					}
 				}
 				else {
