@@ -115,7 +115,6 @@ class Stream implements StreamInterface
 		else {
 			throw new Error\AssertionError([ "\$resource", "Resource", $type ], Error\AssertionError::VALUE_ERROR );
 		}
-		echo $this;
 	}
 	
 	/*
@@ -146,7 +145,7 @@ class Stream implements StreamInterface
 		}
 		catch( Throwable $e )
 		{
-			throw $e;
+			throw new StreamError( $this->uri ?? $this::class, StreamError::STRINGIFY_ERROR, $e );
 		}
 	}
 	
@@ -207,7 +206,7 @@ class Stream implements StreamInterface
 	{
 		if( isset( $this->stream ) )
 		{
-			if( $this->readable === False )
+			if( $this->readable )
 			{
 				try
 				{
@@ -310,7 +309,7 @@ class Stream implements StreamInterface
 					throw new StreamError( "Unable to read from stream", StreamError::FREAD_ERROR, $e );
 				}
 			}
-			throw new StreamError( "Length parameter cannot be negative", StreamError::LENGTH_ERROR );
+			throw new StreamError( "Length parameter cannot be negative", StreamError::LENGTH_ERROR, new Error\ValueError( "Value of length can't have negative length/ value" ) );
 		}
 		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
 	}
@@ -330,11 +329,11 @@ class Stream implements StreamInterface
 	 */
 	public function seek( Int $offset, Int $whence = SEEK_SET ): Void
 	{
-		if( $this->stream === Null ) throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
-		if( $this->seekable === False ) throw new StreamError( "Stream is not seekable", StreamError::SEEK_ERROR );
+		if( $this->stream === Null ) throw new StreamError( $this->uri ?? $this::class, StreamError::DETACH_ERROR );
+		if( $this->seekable === False ) throw new StreamError( $this->uri ?? $this::class, StreamError::SEEK_ERROR );
 		if( fseek( $this->stream, $offset, $whence ) === -1 )
 		{
-			throw new StreamError( f( "Unable to seek to stream position {} with whence {}", $offset, var_export( $whence, True ) ), StreamError::FSEEK_ERROR );
+			throw new StreamError( [ $this->uri ?? $this::class, $offset, var_export( $whence, True ) ], StreamError::FSEEK_ERROR );
 		}
 	}
 	
@@ -350,7 +349,7 @@ class Stream implements StreamInterface
 			{
 				return( $result );
 			}
-			throw new StreamError( "Unable to determine stream position", StreamError::FTELL_ERROR );
+			throw new StreamError( "Unable to determine stream position ", StreamError::FTELL_ERROR );
 		}
 		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
 	}

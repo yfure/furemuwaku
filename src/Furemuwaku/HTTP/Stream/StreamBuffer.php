@@ -181,7 +181,7 @@ final class StreamBuffer implements StreamInterface
 	 */
 	public function seek( Int $offset, Int $whence = SEEK_SET ): Void
 	{
-		throw new StreamBufferError( "Cannot seek a BufferStream", StreamBufferError::SEEK_ERROR );
+		throw new StreamBufferError( $this::class, StreamBufferError::SEEK_ERROR );
 	}
 	
 	/*
@@ -190,7 +190,7 @@ final class StreamBuffer implements StreamInterface
 	 */
 	public function tell(): Int
 	{
-		throw new StreamBufferError( "Cannot determine the position of a BufferStream", StreamBufferError::TEEL_ERROR );
+		throw new StreamBufferError( $this::class, StreamBufferError::TELL_ERROR );
 	}
 	
 	/*

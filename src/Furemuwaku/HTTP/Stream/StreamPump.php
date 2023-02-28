@@ -27,20 +27,50 @@ use Yume\Fure\Support\File;
 final class StreamPump implements StreamInterface
 {
 	
-	/** @var callable|null */
-	private ? Closure $source;
+	/*
+	 * Instance of class StreamBuffer.
+	 *
+	 * @access Private
+	 *
+	 * @values Yume\Fure\HTTP\Stream\StreamBuffer
+	 */
+	private ? BufferStream $buffer;
 	
-	/** @var int|null */
-	private ? Int $size;
-	
-	/** @var int */
-	private Int $tellPos = 0;
-	
-	/** @var array */
+	/*
+	 * The stream metadata.
+	 *
+	 * @access Private
+	 *
+	 * @values Array
+	 */
 	private Array $metadata;
 	
-	/** @var BufferStream */
-	private BufferStream $buffer;
+	/*
+	 * The stream size.
+	 *
+	 * @access Private
+	 *
+	 * @values 
+	 */
+	private ? Int $size;
+	
+	/*
+	 * Stream source.
+	 *
+	 * @access Private
+	 *
+	 * @values Closure
+	 */
+	private ? Closure $source;
+	
+	/*
+	 * Tell position.
+	 *
+	 * @access Private
+	 *
+	 * @values Int
+	 */
+	private Int $tellPos = 0;
 	
 	/*
 	 * Construct method of class StreamPump.
@@ -72,7 +102,7 @@ final class StreamPump implements StreamInterface
 		}
 		catch( Throwable $e )
 		{
-			throw $e;
+			throw new StreamEror( $this::class, StreamError::STRINGIFY_ERROR, $e );
 		}
 	}
 	
@@ -222,7 +252,7 @@ final class StreamPump implements StreamInterface
 	 */
 	public function seek( Int $offset, Int $whence = SEEK_SET ): Void
 	{
-		throw new \RuntimeException( "Cannot seek a PumpStream" );
+		throw new StreamError( $this::class, StreamError::SEEK_ERROR );
 	}
 	
 	/*
@@ -240,7 +270,7 @@ final class StreamPump implements StreamInterface
 	 */
 	public function write( String $string ): Int
 	{
-		throw new \RuntimeException( "Cannot write to a PumpStream" );
+		throw new StreamError( $this::class, StreamError::WRITE_ERROR );
 	}
 	
 }
