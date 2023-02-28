@@ -28,8 +28,6 @@ final class Services extends Design\Singleton
 	 */
 	private Readonly Array $providers;
 	
-	use \Yume\Fure\Config\ConfigTrait;
-	
 	/*
 	 * @inherit Yume\Fure\Support\Design\Singleton
 	 *
@@ -72,26 +70,22 @@ final class Services extends Design\Singleton
 		$providers = [];
 		
 		// Getting Services Provider.
-		self::config( function( Config\Config $services )
+		config( "app" )->services->map( function( Int $i, Int $idx, $service ) use( &$providers )
 		{
-			// Mapping Services Provider.
-			Util\Arr::map( $services, function( Int $i, Int $idx, $service ) use( &$providers )
+			// Check if service class is implement ServiceProviderInterface.
+			if( Reflect\ReflectClass::isImplements( $service, ServiceProviderInterface::class, $reflect ) )
 			{
-				// Check if service class is implement ServiceProviderInterface.
-				if( Reflect\ReflectClass::isImplements( $service, ServiceProviderInterface::class, $reflect ) )
-				{
-					// Get services provide instance.
-					$provider = $reflect->newInstance();
-					
-					// Call register and booting methods.
-					Reflect\ReflectMethod::invoke( $provider, "register" );
-					Reflect\ReflectMethod::invoke( $provider, "booting" );
-				}
-				else {
-					throw new Error\ClassImplementationError([ $service, ServiceProviderInterface::class ]);
-				}
-				$providers[] = $provider;
-			});
+				// Get services provide instance.
+				$provider = $reflect->newInstance();
+				
+				// Call register and booting methods.
+				Reflect\ReflectMethod::invoke( $provider, "register" );
+				Reflect\ReflectMethod::invoke( $provider, "booting" );
+			}
+			else {
+				throw new Error\ClassImplementationError([ $service, ServiceProviderInterface::class ]);
+			}
+			$providers[] = $provider;
 		});
 		$this->providers = $providers;
 	}
