@@ -48,7 +48,7 @@ class Erahandora extends Design\Singleton
 	{
 		// ...
 		$trace['object']['class'] = preg_replace( "/(\\\)/", "\x1b[1;38;5;111m$1\x1b[1;38;5;190m", $trace['object']['class'] );
-		$trace['file']['file'] = preg_replace( "/(\/|\.|\-)/", "\x1b[0m\x1b[1;38;5;111m$1\x1b[2;37m", $trace['file']['file'] );
+		$trace['file']['file'] = preg_replace( "/(\/|\.|\-)/", "\x1b[1;38;5;111m$1\x1b[1;38;5;250m", $trace['file']['file'] );
 		
 		return( $trace );
 	}
@@ -94,8 +94,8 @@ class Erahandora extends Design\Singleton
 		// Check if application running on CLI mode.
 		if( YUME_CONTEXT_CLI )
 		{
-			$file = CLI\CLI::self()->argument->file;
-			$format = "\x1b[1;32m{}\x1b[1;38;5;214m: \x1b[1;38;5;190m{object.class}\x1b[1;38;5;214m: \x1b[1;37m{message} in file \x1b[2;37m{file.file} \x1b[00m\x1b[1;37mon line \x1b[1;31m{file.line}\x1b[00m";
+			$file = $_SERVER['PHP_SELF'];
+			$format = "\x1b[1;32m\x7b\x7d\x1b[1;38;5;214m\x3a\x20\x1b[1;38;5;190m\x7b\x6f\x62\x6a\x65\x63\x74\x2e\x63\x6c\x61\x73\x73\x7d\x1b[1;38;5;214m\x3a\x20\x1b[1;37m\x7b\x6d\x65\x73\x73\x61\x67\x65\x7d\x20\x69\x6e\x20\x66\x69\x6c\x65\x20\x1b[1;38;5;250m\x7b\x66\x69\x6c\x65\x2e\x66\x69\x6c\x65\x7d\x20\x1b[00m\x1b[1;37m\x6f\x6e\x20\x6c\x69\x6e\x65\x20\x1b[1;31m\x7b\x66\x69\x6c\x65\x2e\x6c\x69\x6e\x65\x7d\x1b[00m";
 			$outputs = [];
 			
 			// If exception thrown has previous.
@@ -144,22 +144,22 @@ class Erahandora extends Design\Singleton
 			code: $code,
 			level: match( $code )
 			{
-				E_ERROR => "E_ERROR",
-				E_WARNING => "E_WARNING",
-				E_PARSE => "E_PARSE",
-				E_NOTICE => "E_NOTICE",
-				E_CORE_ERROR => "E_CORE_ERROR",
-				E_CORE_WARNING => "E_CORE_WARNING",
+				E_ALL => "E_ALL",
 				E_COMPILE_ERROR => "E_COMPILE_ERROR",
 				E_COMPILE_WARNING => "E_COMPILE_WARNING",
-				E_USER_ERROR => "E_USER_ERROR",
-				E_USER_WARNING => "E_USER_WARNING",
-				E_USER_NOTICE => "E_USER_NOTICE",
-				E_STRICT => "E_STRICT",
-				E_RECOVERABLE_ERROR => "E_RECOVERABLE_ERROR",
+				E_CORE_ERROR => "E_CORE_ERROR",
+				E_CORE_WARNING => "E_CORE_WARNING",
 				E_DEPRECATED => "E_DEPRECATED",
+				E_ERROR => "E_ERROR",
+				E_NOTICE => "E_NOTICE",
+				E_PARSE => "E_PARSE",
+				E_RECOVERABLE_ERROR => "E_RECOVERABLE_ERROR",
+				E_STRICT => "E_STRICT",
 				E_USER_DEPRECATED => "E_USER_DEPRECATED",
-				E_ALL => "E_ALL",
+				E_USER_ERROR => "E_USER_ERROR",
+				E_USER_NOTICE => "E_USER_NOTICE",
+				E_USER_WARNING => "E_USER_WARNING",
+				E_WARNING => "E_WARNING",
 				
 				default => "E_UNKNOWN"
 			}

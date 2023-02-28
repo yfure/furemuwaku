@@ -6,6 +6,7 @@ use Error;
 use Throwable;
 
 use Yume\Fure\Locale;
+use Yume\Fure\Support\Package;
 use Yume\Fure\Support\Reflect;
 use Yume\Fure\Util;
 
@@ -63,14 +64,14 @@ class BaseError extends Error
 			$this->type = $type;
 			
 			// Create ify for translation string.
-			$ify = Util\Str::fmt( "Error.{}.{}", Util\Str::end( $this::class, "\\" ), $type );
+			$ify = Util\Str::fmt( "{}.{}", Package\Package::array( $this::class ), $type );
 			
 			// Check if message is Array type.
 			if( is_array( $message ) )
 			{
 				// Mapping for change array null value to empty string.
 				// This is to avoid formatting errors.
-				$message = lang( $ify, ...Util\Arr::map( $message, fn( $i, $k, $v ) => $v ?? "" ) ) ?? $ify;
+				$message = lang( $ify, ...array_map( fn( Mixed $v ) => $v !== Null ? $v : "", $message ) ) ?? $ify;
 			}
 			else {
 				$message = lang( $ify, $message ?? "" ) ?? $ify;
@@ -102,19 +103,36 @@ class BaseError extends Error
 	 */
 	public function __toString(): String
 	{
-		return( 
-			path( 
-				prefix_or_remove: False,//True, 
-				path: f( "{}: {} on file {} line {} code {}.\n{}", ...[
-					$this::class, 
-					$this->getMessage(), 
-					$this->getFile(), 
-					$this->getLine(), 
-					$this->getCode(), 
-					$this->getTrace()
-				]) 
-			) 
-		);
+		$error = $this;
+		$stack = [
+			$this->format( $this )
+		];
+		while( $error = $error->getPrevious() )
+		{
+			$stack[] = $this->format( $error );
+		}
+		return( path( implode( "\n", array_reverse( $stack ) ), True ) );
+	}
+	
+	/*
+	 * Return exception thrown for readable.
+	 *
+	 * @access Private
+	 *
+	 * @params Throwable $thrown
+	 *
+	 * @return String
+	 */
+	private function format( ? Throwable $thrown )
+	{
+		if( $thrown Instanceof BaseError )
+		{
+			$format = "\n{class}: {type}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
+		}
+		else {
+			$format = "\n{class}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
+		}
+		return( f( $format, class: $thrown::class, message: $thrown->getMessage(), file: $thrown->getFile(), line: $thrown->getLine(), code: $thrown->getCode(), type: $thrown->type ?? "None", trace: $thrown->getTrace() ) );
 	}
 	
 }

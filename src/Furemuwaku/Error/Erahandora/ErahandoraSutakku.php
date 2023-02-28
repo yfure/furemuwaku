@@ -132,12 +132,6 @@ class ErahandoraSutakku implements ErahandoraSutakkuInterface
 		}
 		catch( \Throwable $e )
 		{
-			var_dump([
-				"name" => $file,
-				"exists" => File\File::exists( $file ),
-				"file" => is_file( path( $file ) ),
-				"dir" => is_dir( path( $file ) )
-			]);
 			exit( $e );
 		}
 		
