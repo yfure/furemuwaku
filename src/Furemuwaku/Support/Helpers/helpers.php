@@ -6,6 +6,7 @@ use Yume\Fure\Config;
 use Yume\Fure\Database;
 use Yume\Fure\Error;
 use Yume\Fure\HTTP;
+use Yume\Fure\HTTP\Stream;
 use Yume\Fure\Locale;
 use Yume\Fure\Logger;
 use Yume\Fure\Support;
@@ -191,16 +192,23 @@ function tree( String $path, String $parent = "" ): Array | False
  * Get value type.
  *
  * @params Mixed $value
+ * @params String $optional
+ * @params Bool $disable
+ * @params Mixed $ref
  *
  * @return String
  */
-function type( Mixed $value ): String
+function type( Mixed $value, ? String $optional = Null, Bool $disable = False, Mixed &$ref = Null ): Bool | String
 {
+	// If optional argument available.
+	if( $optional !== Null ) return( ucfirst( $optional ) === type( $value, Null, $disable, $ref ) );
+	
+	// If value is Object type.
 	if( is_object( $value ) )
 	{
-		return( $value::class );
+		return( $ref = $disable ? "Object" : $value::class );
 	}
-	return( ucfirst( gettype( $value ) ) );
+	return( $ref = ucfirst( gettype( $value ) ) );
 }
 
 /*
@@ -215,6 +223,15 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool
 {
 	try
 	{
+		// If value is Resource type.
+		if( is_resource( $value ) ) $value = new Stream\Stream( $value );
+		
+		// If value is instance of Countable.
+		if( is_countable( $value ) ) $value = $value->count();
+		
+		// If value is instance of Stream.
+		if( $value Instanceof Stream\StreamInterface ) $value = $value->getSize();
+		
 		$empty = match( True )
 		{
 			is_int( $value ) => $value === 0,

@@ -63,7 +63,7 @@ abstract class File
 	/*
 	 * File open assertion mode.
 	 *
-	 * @access Private Static
+	 * @access Public Static
 	 *
 	 * @params String $file
 	 * @params String $mode
@@ -73,11 +73,10 @@ abstract class File
 	 * @throws Yume\Fure\Error\AssertionError
 	 * @throws Yume\Fure\Support\File\FileError
 	 */
-	private static function assert( String $file, String $mode ): Void
+	public static function assert( String $file, String $mode ): Void
 	{
 		try
 		{
-			// If file open mode is invalid mode.
 			if( in_array( $mode, self::$modes ) === False )
 			{
 				throw new Error\AssertionError( [ "mode", self::$modes, $mode ], Error\AssertionError::VALUE_ERROR );
@@ -143,7 +142,7 @@ abstract class File
 	 */
 	public static function isReadableMode( String $mode ): Bool
 	{
-		return( RegExp\RegExp::test( self::READABLE_MODES, $mode ) );
+		return( preg_match( self::READABLE_MODES, $mode ) );
 	}
 
 	/*
@@ -157,7 +156,7 @@ abstract class File
 	 */
 	public static function isWritableMode( String $mode ): Bool
 	{
-		return( RegExp\RegExp::test( self::WRITABLE_MODES, $mode ) );
+		return( preg_match( self::WRITABLE_MODES, $mode ) );
 	}
 	
 	/*
@@ -231,17 +230,34 @@ abstract class File
 		self::assert( $file, $mode );
 		
 		// Check if the filename is a directory.
-		if( Path\Path::is( $file ) )
+		if( Path\Path::exists( $file ) )
 		{
 			throw new FileError( $file, FileError::FILE_ERROR );
 		}
 		
+		// Make file path.
+		$fpath = self::path( $file );
+		
 		// Check if such a directory exists.
-		if( Path\Path::exists( $fpath = Util\Str::pop( $file, "/", True ) ) )
+		if( $fpath === $file || $fpath !== $file && Path\Path::exists( $fpath ) )
 		{
-			return( fopen( Path\Path::path( $file ), $mode, $include, $context ) );
+			if( False !== $fopen = fopen( Path\Path::path( $file ), $mode, $include, $context ) )
+			{
+				return( $fopen );
+			}
+			throw new FileError( $file, FileError::OPEN_ERROR );
 		}
 		throw new FileError( [ $file, $fpath ], FileError::PATH_ERROR, new Path\PathNotFoundError( $fpath ) );
+	}
+	
+	public static function path( String $file ): String
+	{
+		// If path has prefix e.g php:// file://
+		if( preg_match( "/^([a-zA-Z][a-zA-Z0-9]*)\:\/\//", $file ) )
+		{
+			return( $file );
+		}
+		return( Util\Str::pop( $file, DIRECTORY_SEPARATOR ) );
 	}
 	
 	/*
@@ -270,7 +286,7 @@ abstract class File
 		else {
 			
 			// Get file pathname.
-			$fpath = Util\Str::pop( $file, "/", True );
+			$fpath = Util\Str::pop( $file, "/" );
 			
 			// Check if the filename is a directory.
 			if( Path\Path::exists( $file ) )
@@ -524,7 +540,7 @@ abstract class File
 		$fwrite = False;
 		
 		// Check if context is Resource type.
-		if( is_resource( $context ) )
+		if( $resource = is_resource( $context ) )
 		{
 			$fopen = $context;
 		}
@@ -542,7 +558,6 @@ abstract class File
 			// Check if such a directory exists.
 			if( Path\Path::exists( $fpath ) === False )
 			{
-				echo 8;
 				Path\Path::mkdir( $fpath );
 			}
 			
@@ -578,8 +593,13 @@ abstract class File
 			// Binary-safe file write.
 			$fwrite = is_int( fwrite( $fopen, $fdata ) );
 			
-			// Closes an open file pointer.
-			fclose( $fopen );
+			// If the stream comes from a context argument then the
+			// stream will not be forwarded to fclose function.
+			if( $resource === False )
+			{
+				// Closes an open file pointer.
+				fclose( $fopen );
+			}
 		}
 		else {
 			throw new FileError( $file, FileError::OPEN_ERROR );
