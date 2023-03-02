@@ -2,7 +2,9 @@
 
 namespace Yume\Fure\HTTP\Server\CLI;
 
-use Yume\Fure\CLI\{ Argument, Command };
+use Yume\Fure\CLI;
+use Yume\Fure\CLI\Argument;
+use Yume\Fure\CLI\Command;
 use Yume\Fure\Logger;
 use Yume\Fure\Support\Package;
 use Yume\Fure\Support\Path;
@@ -22,14 +24,13 @@ class Serve extends Command\Command
 	 * @inherit Yume\Fure\CLI\Command\Command->about
 	 *
 	 */
-	protected ? String $about = "Starting Yume CLI Web Server";
+	protected ? String $about = "Starting Yume PHP Development Server";
 	
 	/*
 	 * @inherit Yume\Fure\CLI\Command\Command->name
 	 *
 	 */
 	protected String $name = "serve";
-	
 	/*
 	 * @inherit Yume\Fure\CLI\Command\Command->options
 	 *
@@ -37,18 +38,26 @@ class Serve extends Command\Command
 	protected Array $options = [
 		"host" => [
 			"type" => Util\Types::STRING,
+			"about" => "Server hostname",
 			"required" => False
 		],
 		"port" => [
 			"type" => Util\Types::INTEGER,
+			"about" => "Server port number",
 			"required" => False
 		],
 		"phpb" => [
 			"type" => Util\Types::STRING,
+			"about" => "PHP Binary path",
 			"default" => PHP_BINARY,
 			"required" => False
 		]
 	];
+	
+	protected Array $optionAliases = [
+		"host" => "h"
+	];
+	protected Array | String | Null $usage = [];
 	
 	/*
 	 * @inherit Yume\Fure\CLI\Command\Command::__construct
@@ -77,6 +86,11 @@ class Serve extends Command\Command
 		$phpb = escapeshellarg( $phpb );
 		$droot = escapeshellarg( path( Path\PathName::PUBLIC->path() ) );
 		$start = escapeshellarg( Package\Package::path( f( "{}/{}", __NAMESPACE__, "start.php" ) ) );
+		
+		echo PHP_EOL;
+		
+		CLI\CLI::puts( "  \x1b[1;48;5;111m\x1b[1;37mYume\x1b[0m\x1b[40m Server running on http://{}:{} {}", "\x1b[1;37m", $host, $port, str_repeat( PHP_EOL, 2 ) );
+		CLI\CLI::puts( "  \x1b[1;37mPress Ctrl+C to stop the server {}\x1b[00m", "\x1b[1;37m", str_repeat( PHP_EOL, 2 ) );
 		
 		// Run server with execute the php binary.
 		passthru( f( "{} -S {}:{} -t {} {}", $phpb, $host, $port, $droot, $start ), $status );

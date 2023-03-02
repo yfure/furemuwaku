@@ -3,7 +3,6 @@
 namespace Yume\Fure\HTTP\Stream;
 
 use Closure;
-use Exception;
 use Throwable;
 
 use Yume\Fure\Support\File;

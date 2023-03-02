@@ -21,6 +21,7 @@ class CommandOption implements Stringable
 	 *
 	 * @params Public Readonly String $name
 	 * @params Public Readonly String $alias
+	 * @params Public Readonly String $about
 	 * @params Public Readonly Mixed $default
 	 * @params Public Readonly Yume\Fure\CLI\Command\CommandInterface $command
 	 * @params Public Readonly Yume\Fure\Util\Types $type
@@ -33,6 +34,7 @@ class CommandOption implements Stringable
 	public function __construct(
 		public Readonly String $name,
 		public Readonly ? String $alias,
+		public Readonly ? String $about,
 		public Readonly Mixed $default,
 		public Readonly CommandInterface $command,
 		public Readonly Util\Types $type,

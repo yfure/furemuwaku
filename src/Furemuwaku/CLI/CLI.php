@@ -39,6 +39,15 @@ final class CLI extends Design\Singleton
 	 */
 	public Readonly Command\Commands $commands;
 	
+	/*
+	 * Default command when there is not command passed.
+	 *
+	 * @access Private
+	 *
+	 * @values String
+	 */
+	private String $command = "help";
+	
 	use \Yume\Fure\CLI\CLITrait;
 	use \Yume\Fure\Config\ConfigTrait;
 	
@@ -72,16 +81,12 @@ final class CLI extends Design\Singleton
 	 */
 	public function start(): Void
 	{
-		if( $this->argument->hasCommand() )
-		{
-			$this->commands->run(
-				$this->argument->command,
-				$this->argument
-			);
-		}
-		else {
-			echo "Welcome to Yume CLI Tool (Sasayaki)\n";
-		}
+		$this->commands->run(
+			$this->argument->hasCommand() ?
+				$this->argument->command :
+				$this->command,
+			$this->argument
+		);
 	}
 	
 	/*
@@ -92,9 +97,7 @@ final class CLI extends Design\Singleton
 	 * @return Void
 	 */
 	public function stop(): Void
-	{
-		puts( "{}: Finish\n", $this->argument->file );
-	}
+	{}
 	
 }
 

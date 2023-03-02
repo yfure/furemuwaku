@@ -250,10 +250,19 @@ abstract class File
 		throw new FileError( [ $file, $fpath ], FileError::PATH_ERROR, new Path\PathNotFoundError( $fpath ) );
 	}
 	
+	/*
+	 * Get pathname from filename.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $file
+	 *
+	 * @return String
+	 */
 	public static function path( String $file ): String
 	{
 		// If path has prefix e.g php:// file://
-		if( preg_match( "/^([a-zA-Z][a-zA-Z0-9]*)\:\/\//", $file ) )
+		if( preg_match( "/^([a-zA-Z][a-zA-Z0-9]*)\:\/\/(([a-zA-Z][a-zA-Z0-9]*)\/*)*/", $file ) )
 		{
 			return( $file );
 		}

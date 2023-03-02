@@ -78,6 +78,18 @@ class Commands
 	}
 	
 	/*
+	 * Get all available commands.
+	 *
+	 * @access Public
+	 *
+	 * @return Yume\Fure\Support\Data\DataInterface
+	 */
+	public function getAll(): Data\DataInterface
+	{
+		return( $this )->commands->copy();
+	}
+	
+	/*
 	 * Return if command is exists.
 	 *
 	 * @access Public
@@ -171,14 +183,9 @@ class Commands
 			$command->run( $argument );
 		}
 		else {
-			var_dump( $argument );
 			puts( "{}: {}: Command not found\n", $argument->file, $command );
-			exit;
 		}
 	}
-	
-	public function surprice(): Void
-	{}
 	
 }
 

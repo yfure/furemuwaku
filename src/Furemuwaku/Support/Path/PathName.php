@@ -56,8 +56,12 @@ enum PathName: String
 	 * @inherit Yume\Fure\Support\Path\Path::path
 	 *
 	 */
-	public function path(): String
+	public function path( ? String $path = Null ): String
 	{
+		if( $path )
+		{
+			return( Path::path( sprintf( "%s/%s", $this->value, $path ) ) );
+		}
 		return( Path::path( $this->value ) );
 	}
 	

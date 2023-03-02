@@ -11,7 +11,7 @@ use Yume\Fure\Locale\Clock;
 use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Locale\Language;
 use Yume\Fure\Support\Design;
-use Yume\Fure\Support\Package;
+use Yume\Fure\Support\File;
 use Yume\Fure\Support\Path;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
@@ -219,13 +219,36 @@ class Locale extends Design\Singleton
 	 */
 	public static function setLanguage( ? String $language = Null ): Void
 	{
+		// Use default languag when the language is Null.
+		$language ??= self::$defaultLanguage;
+		
+		// Make language path.
+		$languagePath = Path\PathName::APP_LANG->path( "{$language}.php" );
+		
 		try
 		{
-			// Import language file.
-			self::$language = Package\Package::import( sprintf( "/%s/%s", Path\PathName::APP_LANG->value, $language ??= self::$defaultLanguage ) );
+			if( File\File::exists( $languagePath ) )
+			{
+				/*
+				 * @alert Yume\Fure\Support\Package\Package::import
+				 *
+				 * It is highly discouraged to use the Import Method from Package\Package Classes
+				 * because basically those classes will throw class exceptions that require
+				 * Translation for their error messages, this can cause an infinite loop
+				 * which in turn can kill the entire running process.
+				 */
+				self::$language = require( $languagePath );
+			}
+			else {
+				throw new Error\TypeError( Util\Str::fmt( "No language named {}", $language ) );
+			}
 		}
 		catch( Throwable $e )
 		{
+			if( self::$language === Null )
+			{
+				self::$language = new Language\Language( self::$defaultLanguage, [] );
+			}
 			throw new Error\TypeError( Util\Str::fmt( "An error occurred while setting the translation language {}", $language ), 0, $e );
 		}
 	}

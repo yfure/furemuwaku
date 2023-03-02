@@ -240,7 +240,7 @@ abstract class Str
 			catch( Throwable $e )
 			{
 				
-				return( sprintf( "#[%s(%s)]", $e::class, $e->getMessage(), $e->getLine(), path( $e->getFile(), True ) ) );
+				return( sprintf( "#[%s(%s on line %d in file %s)]", $e::class, $e->getMessage(), $e->getLine(), path( $e->getFile(), True ) ) );
 			}
 			$i++;
 		});
@@ -633,20 +633,30 @@ abstract class Str
 	 * @params String $subject
 	 * @params String $separator
 	 * @params Bool $shift
+	 * @params Mixed &$ref
 	 *
 	 * @return String
 	 */
-	public static function shift( String $subject, String $separator, Bool $shift = False ): String
+	public static function shift( String $subject, String $separator, Bool $shift = False, Mixed &$ref = Null ): String
 	{
 		if( count( $split = explode( $separator, $subject ) ) !== 0 )
 		{
+			$first = array_shift( $split );
+			
 			if( $shift )
 			{
-				return( $split[0] );
+				$ref = [
+					$string = implode( $separator, $split ),
+					$first
+				];
+				return( $first );
 			}
-			array_shift( $split );
 		}
-		return( implode( $separator, $split ) );
+		$ref = [
+			$string = implode( $separator, $split ),
+			$first ?? Null
+		];
+		return( $string );
 	}
 	
 	/*
@@ -766,7 +776,7 @@ abstract class Str
 			trigger_error( "Conversion from \"$inputEncoding\" to \"$outputEncoding\" failed", E_USER_WARNING );
 			return( False );
 		}
-	
+		
 		// Reverse the byte order of the output if requested.
 		if( $useBor ) $unicode = strrev( $unicode );
 		

@@ -91,6 +91,7 @@ abstract class Command implements CommandInterface
 			foreach( $this->options As $name => $option )
 			{
 				$type = Util\Types::MIXED;
+				$about = Null;
 				$default = Null;
 				$required = False;
 				$requiredWith = [];
@@ -101,6 +102,7 @@ abstract class Command implements CommandInterface
 					if( is_array( $option ) )
 					{
 						$type = $option['type'] ?? $type;
+						$about = $option['about'] ?? $about;
 						$default = $option['default'] ?? $default;
 						$required = $option['required'] ?? $required;
 						$requiredWith = $option['required.with'] ?? $requiredWith;
@@ -114,7 +116,7 @@ abstract class Command implements CommandInterface
 				if( is_string( $option ) ) $name = $option;
 				
 				// Make option.
-				$options[$name] = new CommandOption( name: $name, type: $type, long: strlen( $name ) > 1, alias: $this->optionAliases[$name] ?? Null, command: $this, default: $default, required: $required, requiredWith: $requiredWith );
+				$options[$name] = new CommandOption( name: $name, type: $type, long: strlen( $name ) > 1, alias: $this->optionAliases[$name] ?? Null, about: $about, command: $this, default: $default, required: $required, requiredWith: $requiredWith );
 			}
 			$this->options = $options;
 		}

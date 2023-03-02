@@ -292,8 +292,6 @@ class Argument implements ArrayAccess, Countable
 					// If argument has equal symbol.
 					if( $eqPost !== False )
 					{
-						echo 0;
-						echo PHP_EOL;
 						$key = substr( $arg, 2, $eqPost -2 );
 						$val = substr( $arg, $eqPost +1 );
 					}
@@ -303,10 +301,10 @@ class Argument implements ArrayAccess, Countable
 						$key = substr( $arg, 2 );
 						
 						// Index value.
-						$val = $argv[$idx] ?? "";
+						$val = $argv[$idx] ?? Null;
 						
 						// If argument value is not enclosed empty string.
-						if( $val !== "" )
+						if( $val !== "" && $val !== Null )
 						{
 							// If doesn't minus symbol.
 							if( $idx < $len && strlen( $val ) !== 0 && $val[0] !== "-" )
@@ -338,9 +336,9 @@ class Argument implements ArrayAccess, Countable
 					 * this --= then it will not be considered.
 					 *
 					 */
-					if( $key !== "" && $val !== "" )
+					if( $key !== "" )
 					{
-						$args[$key] = $this->build( $key, $val, True );
+						$args[$key] = $this->build( $key, $val !== Null ? $val : True, True );
 					}
 				}
 				
@@ -387,9 +385,16 @@ class Argument implements ArrayAccess, Countable
 		}
 		
 		// If command is available.
-		if( isset( $args[0] ) )
+		if( $command = array_values( $args )[0] ?? Null )
 		{
-			$this->command = array_shift( $args )->value;
+			if( $command->type->name === "STRING" && type( $command->name, "Integer" ) )
+			{
+				// Set command name.
+				$this->command = $command->value;
+				
+				// Unset command from arguments.
+				unset( $args[$command->name] );
+			}
 		}
 		else {
 			$this->command = Null;
