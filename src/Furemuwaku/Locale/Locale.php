@@ -71,6 +71,8 @@ class Locale extends Design\Singleton
 	 */
 	protected static String $defaultTimezone = "Asia/Jakarta";
 	
+	use \Yume\Fure\Locale\LocaleTranslationsTrait;
+	
 	/*
 	 * @inherit Yume\Fure\Support\Design\Singleton
 	 *
@@ -240,17 +242,18 @@ class Locale extends Design\Singleton
 				self::$language = require( $languagePath );
 			}
 			else {
-				throw new Error\TypeError( Util\Str::fmt( "No language named {}", $language ) );
+				if( strtolower( $language ) !== self::$defaultLanguage ) throw new Error\TypeError( Util\Str::fmt( "No language named {}", $language ) );
 			}
 		}
 		catch( Throwable $e )
 		{
 			if( self::$language === Null )
 			{
-				self::$language = new Language\Language( self::$defaultLanguage, [] );
+				self::$language = new Language\Language( ...self::$defaultLanguageTranslations );
 			}
 			throw new Error\TypeError( Util\Str::fmt( "An error occurred while setting the translation language {}", $language ), 0, $e );
 		}
+		self::$language ??= new Language\Language( ...self::$defaultLanguageTranslations );
 	}
 	
 	/*
