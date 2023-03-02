@@ -17,9 +17,6 @@ use Yume\Fure\Util;
 trait Decorator
 {
 	
-	public static function call( String $method, Mixed ...$args ): Mixed
-	{}
-	
 	/*
 	 * Get or import configuration.
 	 *

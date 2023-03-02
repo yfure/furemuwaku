@@ -41,7 +41,7 @@ final class App extends Design\Singleton
 	 */
 	protected function __construct()
 	{
-		$this->booting();
+		Util\Timer::calculate( "booting", fn() => $this->booting() );
 	}
 	
 	/*
@@ -53,55 +53,52 @@ final class App extends Design\Singleton
 	 */
 	private function booting(): Void
 	{
-		Util\Timer::calculate( "booting", function(): Void
+		static::$self = $this;
+		static::$booting = True;
+		static::$running = False;
+		
+		Env\Env::self()->parse();
+		Locale\Locale::self()->setup();
+		Package\Package::self()->load();
+		
+		// Get application environment.
+		$env = strtolower( env( "ENVIRONMENT", "development" ) );
+		
+		// Check if valid application environment.
+		if( $env === "development" || $env === "production" )
 		{
-			static::$self = $this;
-			static::$booting = True;
-			static::$running = False;
-			
-			Env\Env::self()->parse();
-			Locale\Locale::self()->setup();
-			Package\Package::self()->load();
-			
-			// Get application environment.
-			$env = strtolower( env( "ENVIRONMENT", "development" ) );
-			
-			// Check if valid application environment.
-			if( $env === "development" || $env === "production" )
+			// Check if application has context.
+			if( defined( "YUME_CONTEXT" ) )
 			{
-				// Check if application has context.
-				if( defined( "YUME_CONTEXT" ) )
+				// Set application context.
+				$this->context = match( True )
 				{
-					// Set application context.
-					$this->context = match( True )
-					{
-						YUME_CONTEXT_CLI => "cli",
-						YUME_CONTEXT_CLI_SERVER => "cli-server",
-						YUME_CONTEXT_WEB => "web",
-						
-						default => throw new Error\LogicError( sprintf( "Unknown application context for \"%s\"", YUME_CONTEXT ) )
-					};
-				}
-				else {
-					throw new Error\LogicError( "The application has no context" );
-				}
-				
-				// Define application evironment.
-				define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
-				
-				// Import bootable settings file by environment.
-				Package\Package::import( sprintf( "%s/%s", Path\PathName::SYSTEM_BOOTING->value, $env ) );
+					YUME_CONTEXT_CLI => "cli",
+					YUME_CONTEXT_CLI_SERVER => "cli-server",
+					YUME_CONTEXT_WEB => "web",
+					
+					default => throw new Error\LogicError( sprintf( "Unknown application context for \"%s\"", YUME_CONTEXT ) )
+				};
 			}
 			else {
-				throw new Error\LogicError( sprintf( "The application environment must be development|production, \"%s\" given", $env ) );
+				throw new Error\LogicError( "The application has no context" );
 			}
 			
-			Erahandora\Erahandora::self()->setup();
-			Services\Services::self()->booting();
+			// Define application evironment.
+			define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
 			
-			static::$booted = True;
-			static::$booting = False;
-		});
+			// Import bootable settings file by environment.
+			Package\Package::import( sprintf( "%s/%s", Path\PathName::SYSTEM_BOOTING->value, $env ) );
+		}
+		else {
+			throw new Error\LogicError( sprintf( "The application environment must be development|production, \"%s\" given", $env ) );
+		}
+		
+		Erahandora\Erahandora::self()->setup();
+		Services\Services::self()->booting();
+		
+		static::$booted = True;
+		static::$booting = False;
 	}
 	
 	/*
