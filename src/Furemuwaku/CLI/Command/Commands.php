@@ -174,7 +174,7 @@ class Commands
 						// If option type is doesn't valid with argument option.
 						if( $option->type !== $argument[$option->name]->type )
 						{
-							puts( "{}: {}: {}: Option value must be type {}, {} given\n", $argument->file, $command->getName(), $option->name, $option->type->name, $argument[$option->name]->type->name );
+							CLI\CLI::puts( "\x1b[1;32msasayaki: \x1b[1;38;5;190m{}: \x1b[1;38;5;194m{}: Option value must be type {}, {}({}) given{}", "\x1b[1;37m", $command->getName(), $option->name, $option->type->name, $argument[$option->name]->type->name, $argument[$option->name]->value ?? "Null", PHP_EOL );
 							exit;
 						}
 					}
@@ -183,7 +183,7 @@ class Commands
 			$command->run( $argument );
 		}
 		else {
-			puts( "{}: {}: Command not found\n", $argument->file, $command );
+			CLI\CLI::puts( "\x1b[1;32msasayaki: \x1b[1;31m{}: Command not found{}", "\x1b[1;37m", $command, PHP_EOL );
 		}
 	}
 	

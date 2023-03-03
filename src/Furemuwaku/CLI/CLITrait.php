@@ -120,11 +120,19 @@ trait CLITrait
 		return( $string );
 	}
 	
+	/*
+	 * @inherit Yume\Fure\Util\Str::fmt
+	 *
+	 */
 	public static function fmt( String $format, String $base = "\x1b[00m", Mixed ...$values ): String
 	{
 		return( self::colorize( Util\Str::fmt( $format, ...$values ), $base ) );
 	}
 	
+	/*
+	 * @inherit puts
+	 *
+	 */
 	public static function puts( String $format, String $base = "\x1b[00m", Mixed ...$values ): Void
 	{
 		echo( self::fmt( $format, $base, ...$values ) );
