@@ -3,11 +3,11 @@
 namespace Yume\Fure\HTTP\IP;
 
 /*
- * IPAddress
+ * IP
  *
  * @package Yume\Fure\HTTP\IP
  */
-abstract class IPAddress
+final class IPAddress
 {
 	
 	public static function isLocale( String $ip ): Bool

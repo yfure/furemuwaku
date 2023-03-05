@@ -6,9 +6,9 @@ use Yume\Fure\CLI;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI\Command;
 use Yume\Fure\Logger;
-use Yume\Fure\Support\Package;
-use Yume\Fure\Support\Path;
-use Yume\Fure\Util;
+use Yume\Fure\Util\File\Path;
+use Yume\Fure\Util\Package;
+use Yume\Fure\Util\Type;
 
 /*
  * Serve
@@ -37,17 +37,17 @@ class Serve extends Command\Command
 	 */
 	protected Array $options = [
 		"host" => [
-			"type" => Util\Types::STRING,
+			"type" => Type\Types::STRING,
 			"about" => "Server hostname",
 			"required" => False
 		],
 		"port" => [
-			"type" => Util\Types::INTEGER,
+			"type" => Type\Types::INTEGER,
 			"about" => "Server port number",
 			"required" => False
 		],
 		"phpb" => [
-			"type" => Util\Types::STRING,
+			"type" => Type\Types::STRING,
 			"about" => "PHP Binary path",
 			"default" => PHP_BINARY,
 			"required" => False
@@ -84,7 +84,7 @@ class Serve extends Command\Command
 		
 		// Escaping Shell Argument.
 		$phpb = escapeshellarg( $phpb );
-		$droot = escapeshellarg( path( Path\PathName::PUBLIC->path() ) );
+		$droot = escapeshellarg( path( Path\Paths::PUBLIC->path() ) );
 		$start = escapeshellarg( Package\Package::path( f( "{}/{}", __NAMESPACE__, "start.php" ) ) );
 		
 		echo PHP_EOL;

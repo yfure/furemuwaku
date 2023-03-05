@@ -6,14 +6,14 @@ use Closure;
 use Iterator;
 use Stringable;
 
-use Yume\Fure\Support\File;
+use Yume\Fure\Util\File;
 
 /*
  * StreamFactory
  *
  * @package Yume\Fure\HTTP\Stream
  */
-abstract class StreamFactory
+final class StreamFactory
 {
 	
 	/*

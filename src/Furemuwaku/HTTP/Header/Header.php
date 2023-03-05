@@ -7,7 +7,7 @@ namespace Yume\Fure\HTTP\Header;
  *
  * @package Yume\Fure\HTTP\Header
  */
-abstract class Header
+final class Header
 {
 	// ....
 }

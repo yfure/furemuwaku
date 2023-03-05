@@ -5,7 +5,7 @@ namespace Yume\Fure\HTTP\Stream;
 use Exception;
 use Throwable;
 
-use Yume\Fure\Support\File;
+use Yume\Fure\Util\File;
 
 /*
  * Stream
