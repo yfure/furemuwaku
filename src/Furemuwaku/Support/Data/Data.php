@@ -3,7 +3,7 @@
 namespace Yume\Fure\Support\Data;
 
 use Yume\Fure\Error;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Array;
 use Yume\Fure\Util\Json;
 
 /*
@@ -50,7 +50,7 @@ class Data implements DataInterface
 		}
 		
 		// Mapping data.
-		Util\Arr::map( $data, function( $i, $key, $value )
+		Array\Arr::map( $data, function( $i, $key, $value )
 		{
 			// If data value is Array type.
 			if( is_array( $value ) )
@@ -399,7 +399,8 @@ class Data implements DataInterface
 		if( is_null( $offset ) )
 		{
 			$this->data[] = $value;
-		} else {
+		}
+		else {
 			$this->data[$offset] = $value;
 		}
 	}
