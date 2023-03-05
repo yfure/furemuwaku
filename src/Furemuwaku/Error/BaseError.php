@@ -6,9 +6,9 @@ use Error;
 use Throwable;
 
 use Yume\Fure\Locale;
-use Yume\Fure\Support\Package;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Package;
+use Yume\Fure\Util\Reflect;
+use Yume\Fure\Util\Type;
 
 /*
  * BaseError
@@ -64,7 +64,7 @@ class BaseError extends Error
 			$this->type = $type;
 			
 			// Create ify for translation string.
-			$ify = Util\Str::fmt( "{}.{}", Package\Package::array( $this::class ), $type );
+			$ify = Type\Str::fmt( "{}.{}", Package\Package::array( $this::class ), $type );
 			
 			// Check if message is Array type.
 			if( is_array( $message ) )
@@ -78,7 +78,7 @@ class BaseError extends Error
 			}
 		}
 		else {
-			$message = Util\Str::parse( $message );
+			$message = Type\Str::parse( $message );
 		}
 		
 		// Call parent constructor.

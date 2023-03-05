@@ -2,7 +2,7 @@
 
 namespace Yume\Fure\Error;
 
-use Yume\Fure\Support\File;
+use Yume\Fure\Util\File;
 
 /*
  * ModuleError

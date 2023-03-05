@@ -7,22 +7,13 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  *
- * @extends Yume\Fure\Error\BaseError
+ * @extends Yume\Fure\Error\ValueError
  */
-class AssertionError extends BaseError
+class AssertionError extends ValueError
 {
 	
 	/*
-	 * Error constant for invalid value given.
-	 *
-	 * @access Public Static
-	 *
-	 * @values Int
-	 */
-	public const VALUE_ERROR = 96488;
-	
-	/*
-	 * @inherit Yume\Fure\Error\BaseError
+	 * @inherit Yume\Fure\Error\ValueError
 	 *
 	 */
 	protected Array $flags = [
