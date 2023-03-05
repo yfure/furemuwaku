@@ -5,8 +5,8 @@ namespace Yume\Fure\CLI;
 use Closure;
 
 use Yume\Fure\CLI\Command;
-use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
+use Yume\Fure\Util\Type;
 
 /*
  * CLITrait
@@ -121,12 +121,12 @@ trait CLITrait
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Str::fmt
+	 * @inherit Yume\Fure\Util\Type\Str::fmt
 	 *
 	 */
 	public static function fmt( String $format, String $base = "\x1b[00m", Mixed ...$values ): String
 	{
-		return( self::colorize( Util\Str::fmt( $format, ...$values ), $base ) );
+		return( self::colorize( Type\Str::fmt( $format, ...$values ), $base ) );
 	}
 	
 	/*

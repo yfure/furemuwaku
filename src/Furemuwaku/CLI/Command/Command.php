@@ -4,8 +4,8 @@ namespace Yume\Fure\CLI\Command;
 
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\Logger;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Reflect;
+use Yume\Fure\Util\Type;
 
 /*
  * Command
@@ -90,7 +90,7 @@ abstract class Command implements CommandInterface
 			
 			foreach( $this->options As $name => $option )
 			{
-				$type = Util\Types::MIXED;
+				$type = Type\Types::MIXED;
 				$about = Null;
 				$default = Null;
 				$required = False;
@@ -109,7 +109,7 @@ abstract class Command implements CommandInterface
 					}
 					
 					// If option is enum Types.
-					if( $option Instanceof Util\Types ) $type = $option;
+					if( $option Instanceof Type\Types ) $type = $option;
 				}
 				
 				// If option is String type.

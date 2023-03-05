@@ -19,8 +19,7 @@ class CLIError extends Error\RuntimeError
 	 *
 	 */
 	protected Array $flags = [
-		CLIError::class => [
-		],
+		CLIError::class => []
 	];
 	
 }

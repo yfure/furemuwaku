@@ -9,7 +9,7 @@ use Yume\Fure\CLI\Command;
 use Yume\Fure\Config;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Design;
-use Yume\Fure\Support\Reflect;
+use Yume\Fure\Util\Reflect;
 
 /*
  * CLI
@@ -49,7 +49,7 @@ final class CLI extends Design\Singleton
 	private String $command = "help";
 	
 	use \Yume\Fure\CLI\CLITrait;
-	use \Yume\Fure\Config\ConfigTrait;
+	use \Yume\Fure\Support\Config\ConfigTrait;
 	
 	/*
 	 * @inherit Yume\Fure\Support\Design\Singleton::__construct

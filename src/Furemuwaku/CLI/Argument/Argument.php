@@ -5,9 +5,9 @@ namespace Yume\Fure\CLI\Argument;
 use ArrayAccess;
 use Countable;
 
-use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
+use Yume\Fure\Util\Type;
 
 /*
  * Argument
@@ -454,16 +454,16 @@ class Argument implements ArrayAccess, Countable
 			"value" => $value,
 			"type" => match( type( $value ) )
 			{
-				\Array::class => Util\Types::ARRAY,
-				\Boolean::class => Util\Types::BOOLEAN,
-				\Double::class => Util\Types::DOUBLE,
-				\Float::class => Util\Types::FLOAT,
-				\Int::class => Util\Types::INT,
-				\Integer::class => Util\Types::INTEGER,
-				\Null::class => Util\Types::NULL,
-				\String::class => Util\Types::STRING,
+				\Array::class => Type\Types::ARRAY,
+				\Boolean::class => Type\Types::BOOLEAN,
+				\Double::class => Type\Types::DOUBLE,
+				\Float::class => Type\Types::FLOAT,
+				\Int::class => Type\Types::INT,
+				\Integer::class => Type\Types::INTEGER,
+				\NULL::class => Type\Types::NULL,
+				\String::class => Type\Types::STRING,
 				
-				default => Util\Types::MIXED
+				default => Type\Types::MIXED
 			}
 		]);
 	}

@@ -4,7 +4,7 @@ namespace Yume\Fure\CLI\Command;
 
 use Stringable;
 
-use Yume\Fure\Util;
+use Yume\Fure\Util\Type;
 
 /*
  * CommandOption
@@ -24,7 +24,7 @@ class CommandOption implements Stringable
 	 * @params Public Readonly String $about
 	 * @params Public Readonly Mixed $default
 	 * @params Public Readonly Yume\Fure\CLI\Command\CommandInterface $command
-	 * @params Public Readonly Yume\Fure\Util\Types $type
+	 * @params Public Readonly Yume\Fure\Util\Type\Types $type
 	 * @params Public Readonly Bool $long
 	 * @params Public Readonly Bool $required
 	 * @params Public Readonly Array<String> $requiredWith
@@ -37,11 +37,11 @@ class CommandOption implements Stringable
 		public Readonly ? String $about,
 		public Readonly Mixed $default,
 		public Readonly CommandInterface $command,
-		public Readonly Util\Types $type,
+		public Readonly Type\Types $type,
 		public Readonly Bool $long,
 		public Readonly Bool $required,
-		public Readonly Array $requiredWith )
-	{}
+		public Readonly Array $requiredWith
+	) {}
 	
 	/*
 	 * Parse class into string.
@@ -70,7 +70,7 @@ class CommandOption implements Stringable
 	 */
 	public function hasType(): Bool
 	{
-		return( $this->type !== Util\Types::MIXED && $this->type !== Util\Types::NULL );
+		return( $this->type !== Type\Types::MIXED && $this->type !== Type\Types::NULL );
 	}
 	
 	/*

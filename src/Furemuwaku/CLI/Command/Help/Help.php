@@ -5,7 +5,6 @@ namespace Yume\Fure\CLI\Command\Help;
 use Yume\Fure\CLI;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI\Command;
-use Yume\Fure\Util;
 
 /*
  * Help

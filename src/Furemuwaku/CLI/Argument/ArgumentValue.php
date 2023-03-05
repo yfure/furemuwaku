@@ -5,7 +5,7 @@ namespace Yume\Fure\CLI\Argument;
 use ArrayAccess;
 
 use Yume\Fure\Error;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Type;
 
 /*
  * ArgumentValue
@@ -38,9 +38,9 @@ class ArgumentValue implements ArrayAccess
 	 *
 	 * @access Protected Readonly
 	 *
-	 * @values Yume\Fure\Util\Types
+	 * @values Yume\Fure\Util\Type\Types
 	 */
-	protected Readonly Util\Types $type;
+	protected Readonly Type\Types $type;
 	
 	/*
 	 * Argument option (Long/Short).
@@ -63,7 +63,7 @@ class ArgumentValue implements ArrayAccess
 	 *
 	 * @return Void
 	 */
-	public function __construct( Int | String $name, Mixed $value, Util\Types $type, Bool $long )
+	public function __construct( Int | String $name, Mixed $value, Type\Types $type, Bool $long )
 	{
 		$this->name = $name;
 		$this->value = $value;

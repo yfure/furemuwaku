@@ -4,12 +4,12 @@ namespace Yume\Fure\CLI\Command;
 
 use Yume\Fure\CLI;
 use Yume\Fure\CLI\Argument;
-use Yume\Fure\Config;
 use Yume\Fure\Error;
 use Yume\Fure\Logger;
+use Yume\Fure\Support\Config;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Reflect;
+use Yume\Fure\Util\Type;
 
 /*
  * Commands
@@ -168,8 +168,8 @@ class Commands
 					if( $option->hasType() )
 					{
 						// If option type is Mixed or Null, skip/ continue.
-						if( $option->type === Util\Types::MIXED ||
-							$option->type === Util\Types::NULL ) continue;
+						if( $option->type === Type\Types::MIXED ||
+							$option->type === Type\Types::NULL ) continue;
 						
 						// If option type is doesn't valid with argument option.
 						if( $option->type !== $argument[$option->name]->type )
