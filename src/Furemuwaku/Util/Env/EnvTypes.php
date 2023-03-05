@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util\Env;
 
+use Yume\Fure\Util\Type;
+
 /*
  * EnvTypes
  *
@@ -11,50 +13,44 @@ enum EnvTypes: Int
 {
 	
 	/*
-	 * Constant for Environment value Boolean type.
+	 * @inherit Yume\Fure\Util\Type\Types::
 	 *
 	 * You may overwrite or replace the value of another type but
 	 * I hope you don't override or override the value for type
 	 * Boolean this is my memory to keep me in mind.
 	 *
-	 * @values Int
 	 */
-	case BOOLEAN = 2375;
+	case BOOLEAN = Type\Types::BOOLEAN->value;
 	
 	/*
-	 * Constant for Environment value Array<Associative|Multidimension> type.
+	 * @inherit Yume\Fure\Util\Type\Types::
 	 *
-	 * @values Int
 	 */
-	case DICT = 24734;
+	case DICT = Type\Types::ARRAY_ASSOCIATIVE->value;
 	
 	/*
-	 * Constant for Environment value Array<Indexed> type.
+	 * @inherit Yume\Fure\Util\Type\Types::
 	 *
-	 * @values Int
 	 */
-	case LIST = 24857;
+	case LIST = Type\Types::ARRAY_LIST->value;
 	
 	/*
-	 * Constant for Environment value Number type.
+	 * @inherit Yume\Fure\Util\Type\Types::
 	 *
-	 * @values Int
 	 */
-	case NUMBER = 25358;
+	case NUMBER = Type\Types::NUMBER->value;
 	
 	/*
-	 * Constant for Environment value None type.
+	 * @inherit Yume\Fure\Util\Type\Types::
 	 *
-	 * @values Int
 	 */
-	case NONE = 26572;
+	case NONE = Type\Types::NULL->value;
 	
 	/*
-	 * Constant for Environment value String type.
+	 * @inherit Yume\Fure\Util\Type\Types::
 	 *
-	 * @values Int
 	 */
-	case STRING = 27826;
+	case STRING = Type\Types::STRING->value;
 	
 }
 

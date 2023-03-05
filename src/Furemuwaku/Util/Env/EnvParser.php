@@ -2,10 +2,12 @@
 
 namespace Yume\Fure\Util\Env;
 
-use Yume\Fure\Support\File;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Array;
+use Yume\Fure\Util\File;
 use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
+use Yume\Fure\Util\Timer;
+use Yume\Fure\Util\Type;
 
 /*
  * EnvParser
@@ -15,31 +17,40 @@ use Yume\Fure\Util\RegExp;
 class EnvParser
 {
 	
-	// (?=(?:(["'])(?:[^\\]|\\.)*?\1|[^"']*))(#.*)
-	// ^(?:(?:([\"\'])(?:(?:\\\2|(?!\2).)*)(?:\2[^\n]*)?\n)*?)((?:(?!\2)[^#\"\']*|(?:\2(?:[^\\]|\\.)*?\2))*)(#.*)
-	protected String $comment = "\#[\s\t]*[^\n]*";
-	
-	// (?s)((?:\((?:[^\(\)]++|(?1))*+\)))
-	protected String $bracket;
-	
-	// (?s)((?:\[(?:[^\[\]]++|(?1))*+\]))
-	protected String $square;
-	
-	// (?s)((?:\{(?:[^\{\}]++|(?1))*+\}))
-	protected String $curly;
-	
-	// ([\"\'])((?:\\\1|(?!\1).)*)\1";
-	protected String $quoted;
-	
-	protected String $name = " [a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]* ";
-	protected String $semicolon = " (?<!\\\)[\s\t]*; ";
-	protected String $values = ".*?";
-	
+	/*
+	 * Instance of class Pattern.
+	 *
+	 * @access Protected Readonly
+	 *
+	 * @values Yume\Fure\Util\RegExp\Pattern
+	 */
 	protected Readonly RegExp\Pattern $pattern;
+	
+	/*
+	 * Variable containers.
+	 *
+	 * @access Protected Readonly
+	 *
+	 * @values Yume\Fure\Util\Env\EnvVariables
+	 */
 	protected Readonly EnvVariables $vars;
 	
+	/*
+	 * Raw contents from file.
+	 *
+	 * @access Protected
+	 *
+	 * @values String
+	 */
 	protected String $readed;
 	
+	/*
+	 * Current raw captured variable.
+	 *
+	 * @access Private
+	 *
+	 * @values String
+	 */
 	private ? String $raw = Null;
 	
 	/*
@@ -77,7 +88,7 @@ class EnvParser
 	 */
 	public function getFile(): String
 	{
-		return( $this->file );
+		return( $this )->file;
 	}
 	
 	/*
@@ -89,7 +100,7 @@ class EnvParser
 	 */
 	public function getVars(): EnvVariables
 	{
-		return( $this->vars );
+		return( $this )->vars;
 	}
 	
 	/*
@@ -153,7 +164,7 @@ class EnvParser
 			$comments = explode( "\n", $comments );
 			
 			// Mapping multiple comments.
-			Util\Arr::map( $comments, function( $i ) use( &$comments )
+			Array\Arr::map( $comments, function( $i ) use( &$comments )
 			{
 				// Check if comment is empty.
 				if( valueIsNotEmpty( $comments[$i] ) )
@@ -221,7 +232,7 @@ class EnvParser
 		}
 		
 		// Mapping value reference.
-		Util\Arr::map( $value['reference'], fn( Int $i, String $name, EnvVariable $var ) => $var->addReferenced( $match['name'], $this->vars[$match['name']] ) );
+		Array\Arr::map( $value['reference'], fn( Int $i, String $name, EnvVariable $var ) => $var->addReferenced( $match['name'], $this->vars[$match['name']] ) );
 		
 		// Set raw as null.
 		$this->raw = Null;
@@ -303,7 +314,7 @@ class EnvParser
 					if( $length === 1 ) return( "#" );
 					
 					// If number of backslash is odd.
-					if( Util\Number::isOdd( $length ) ) return( Util\Str::fmt( "{}#", str_repeat( "\\", $length -1 ) ) );
+					if( Type\Num::isOdd( $length ) ) return( Type\Str::fmt( "{}#", str_repeat( "\\", $length -1 ) ) );
 					
 					throw new EnvError( $match['symbol'], $this->file, $this->findLine(), EnvError::COMMENT_ERROR );
 				});
@@ -383,10 +394,10 @@ class EnvParser
 			$length = strlen( $match['nomatch'] );
 			
 			// If the number of backslashes is one.
-			if( $length === 1 ) return( Util\Str::fmt( "\${}", $match['name'] ) );
+			if( $length === 1 ) return( Type\Str::fmt( "\${}", $match['name'] ) );
 			
 			// If number of backslash is odd.
-			if( Util\Number::isOdd( $length ) ) return( Util\Str::fmt( "{}\${}", str_repeat( "\\", $length -1 ), $match['name'] ) );
+			if( Type\Num::isOdd( $length ) ) return( Type\Str::fmt( "{}\${}", str_repeat( "\\", $length -1 ), $match['name'] ) );
 			
 			// Check if variable is exists and not commented.
 			if( isset( $this->vars[$match['name']] ) && $this->vars[$match['name']]->hasCommented() === False )
@@ -395,7 +406,7 @@ class EnvParser
 				$refer[$match['name']] = $this->vars[$match['name']];
 				
 				// Return reference value.
-				return( Util\Str::parse( $this->vars[$match['name']]->getValue() ?? "" ) );
+				return( Type\Str::parse( $this->vars[$match['name']]->getValue() ?? "" ) );
 			}
 			throw new EnvError( $match['name'], $this->file, $this->findLine(), EnvError::REFERENCE_ERROR );
 		});

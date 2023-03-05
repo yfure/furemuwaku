@@ -22,90 +22,9 @@ class EnvVariable
 	 *
 	 * @access Protected
 	 *
-	 * @values String
-	 */
-	protected ? String $comment;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
-	 * @values Array
-	 */
-	protected ? Array $comments;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
-	 * @values Bool
-	 */
-	protected Bool $commented;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
-	 * @values Bool
-	 */
-	protected Bool $quoted;
-	
-	/*
-	 * ....
-	 *
-	 * @access Protected
-	 *
-	 * @values String
-	 */
-	protected ? String $format;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
-	 * @values String
-	 */
-	protected String $name;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
-	 * @values Yume\Fure\Util\Env\EnvTypes
-	 */
-	protected EnvTypes $type;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
-	 * @values String
-	 */
-	protected ? String $raw;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
 	 * @values Yume\Fure\Support\Data\DataInterface
 	 */
 	protected Data\DataInterface $referenced;
-	
-	/*
-	 * ...
-	 *
-	 * @access Protected
-	 *
-	 * @values Array|Bool|Int|String
-	 */
-	protected Array | Bool | Int | Null | String $value;
 	
 	/*
 	 * ...
@@ -116,38 +35,103 @@ class EnvVariable
 	 */
 	protected Data\DataInterface $valueReference;
 	
-	protected Bool $unset;
+	protected Bool $unset = False;
 	
 	/*
 	 * Construct method of class EnvVariable
 	 *
 	 * @access Public Instance
 	 *
-	 * @params String $name
-	 * @params Array|Bool|Int|String $value
-	 * @params Yume\Fure\Util\Env\EnvTypes $type
-	 * @params String $comment
-	 * @params Bool $commented
+	 * @params Protected String $name
+	 * @params Protected Array|Bool|Int|String $value
+	 * @params Protected Yume\Fure\Util\Env\EnvTypes $type
+	 * @params Protected String $comment
+	 * @params Protected Bool $commented
 	 * @params Array $reference
 	 * @params Array $valueReference
-	 * @params String $raw
+	 * @params Protected String $raw
 	 *
 	 * @return Void
 	 */
-	public function __construct( String $name, Array | Bool | Int | Null | String $value, EnvTypes $type = EnvTypes::STRING, ? String $comment = Null, ? Array $comments = Null, Bool $commented = False, Bool $quoted = False, Array $reference = [], Array $valueReference = [], ? String $raw = Null )
+	public function __construct(
+		
+		/*
+		 * Variable name.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected String $name,
+		
+		/*
+		 * Variable values.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected Mixed $value,
+		
+		/*
+		 * Variable value type.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected EnvTypes $type = EnvTypes::STRING,
+		
+		/*
+		 * Variable single comment after defined var.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected ? String $comment = Null,
+		
+		/*
+		 * Variable multiline comments before defined var.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected ? Array $comments = Null,
+		
+		/*
+		 * When variable has commented.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected Bool $commented = False,
+		
+		/*
+		 * If value of variable is String enclosed with quote symbol.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected Bool $quoted = False,
+		
+		Array $reference = [],
+		Array $valueReference = [],
+		
+		/*
+		 * Variable raw captured.
+		 *
+		 * @access Protected
+		 *
+		 * @values String
+		 */
+		protected ? String $raw = Null )
 	{
-		$this->comment = $comment;
-		$this->comments = $comments;
-		$this->commented = $commented;
-		$this->quoted = $quoted;
-		$this->format = Null;
-		$this->name = $name;
-		$this->type = $type;
-		$this->raw = $raw;
-		$this->unset = False;
 		$this->valueReference = new Data\Data( $valueReference );
 		$this->referenced = new Data\Data( $reference );
-		
 		$this->setValue( $value );
 	}
 	
@@ -236,20 +220,20 @@ class EnvVariable
 					EnvTypes::NUMBER => ( String ) $var->getValue(),
 					EnvTypes::STRING => $var->getValue()
 				};
-				$params['value'] = str_replace( RegExp\RegExp::replace( "/(\\$|\\#|\"|\'|\;|\\\)/ms", $valueFromReference, "\x5c\x5c\$1" ), Util\Str::fmt( "\${}", $var->getName() ), $params['value'] );
+				$params['value'] = str_replace( RegExp\RegExp::replace( "/(\\$|\\#|\"|\'|\;|\\\)/ms", $valueFromReference, "\x5c\x5c\$1" ), Type\Str::fmt( "\${}", $var->getName() ), $params['value'] );
 			});
 		}
 		
 		// Check if variable has comment.
 		if( $this->hasComment() )
 		{
-			$params['comment'] = Util\Str::fmt( " # {}", $this->comment );
+			$params['comment'] = Type\Str::fmt( " # {}", $this->comment );
 		}
 		
 		// Check if variable has multiple comments.
 		if( $this->hasMultipleComments() )
 		{
-			$params['comments'] = Util\Str::fmt( "# {}\n", implode( "\n# ", $this->comments ) );
+			$params['comments'] = Type\Str::fmt( "# {}\n", implode( "\n# ", $this->comments ) );
 		}
 		
 		// Check if variable has commented.
@@ -259,7 +243,7 @@ class EnvVariable
 		}
 		
 		// Return formated variable.
-		return( $this->format = Util\Str::fmt( "{ comments }{ commented }{ name } = { value };{ comment }", ...$params ) );
+		return( $this->format = Type\Str::fmt( "{ comments }{ commented }{ name } = { value };{ comment }", ...$params ) );
 	}
 	
 	/*
@@ -591,7 +575,6 @@ class EnvVariable
 			is_null( $value ) => EnvTypes::NONE,
 			is_string( $value ) => EnvTypes::STRING
 		};
-		
 		return( $this );
 	}
 	

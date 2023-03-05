@@ -5,9 +5,9 @@ namespace Yume\Fure\Util\Env;
 use Yume\Fure\App;
 use Yume\Fure\Error;
 use Yume\Fure\Support\Design;
-use Yume\Fure\Support\File;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Util;
+use Yume\Fure\Util\File;
+use Yume\Fure\Util\Reflect;
+use Yume\Fure\Util\Timer;
 
 /*
  * Env
@@ -65,7 +65,7 @@ class Env extends Design\Singleton
 		// Check if environment has not parsed.
 		if( Reflect\ReflectProperty::isInitialized( $this, "vars" ) === False )
 		{
-			Util\Timer::calculate( "env", function(): Void
+			Timer\Timer::execute( "env", function(): Void
 			{
 				// Starting parsing content file environment.
 				$this->parser->parse();
