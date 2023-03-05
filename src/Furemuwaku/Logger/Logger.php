@@ -7,8 +7,7 @@ use Stringable;
 use Yume\Fure\Error;
 use Yume\Fure\Logger\Handler;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Reflect;
 
 /*
  * Logger
@@ -63,7 +62,7 @@ class Logger implements LoggerInterface
 		"warning" => LoggerLevel::WARNING
 	];
 	
-	use \Yume\Fure\Config\ConfigTrait;
+	use \Yume\Fure\Support\Config\ConfigTrait;
 	
 	/*
 	 * Construct method of class Logger.
@@ -231,7 +230,7 @@ class Logger implements LoggerInterface
 					// Check if index is out of range.
 					if( isset( $levels[$level] ) === False )
 					{
-						throw new Error\IndexError( Util\Str::fmt( "Index {} out of range on Array from {}::\$levels", $level, __CLASS__ ), 0 );
+						throw new Error\IndexError( Type\Str::fmt( "Index {} out of range on Array from {}::\$levels", $level, __CLASS__ ), 0 );
 					}
 					else {
 						$level = $this->levels[$levels[$level]];
@@ -247,7 +246,7 @@ class Logger implements LoggerInterface
 					// Check if key is not exists.
 					if( isset( $this->levels[$level] ) === False )
 					{
-						throw new Error\KeyError( Util\Str::fmt( "Undefined key {} on Array from {}::\$levels", $level, __CLASS__ ), 0 );
+						throw new Error\KeyError( Type\Str::fmt( "Undefined key {} on Array from {}::\$levels", $level, __CLASS__ ), 0 );
 					}
 					else {
 						$level = $this->levels[$level];
@@ -270,7 +269,7 @@ class Logger implements LoggerInterface
 		if( in_array( $level, $this->allows ) )
 		{
 			// Format message.
-			$message = Util\Str::fmt( $message, ...$context );
+			$message = Type\Str::fmt( $message, ...$context );
 			
 			// Mapping handlers.
 			$this->handlers->map( function( Int $i, Int | String $name, Data\DataInterface | Handler\HandlerInterface $handler ) use( $level, $message )

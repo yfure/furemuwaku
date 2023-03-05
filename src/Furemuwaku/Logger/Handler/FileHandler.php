@@ -6,8 +6,7 @@ use Yume\Fure\Locale;
 use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Logger;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Support\File;
-use Yume\Fure\Util;
+use Yume\Fure\Util\File;
 
 /*
  * FileHandler
@@ -74,7 +73,7 @@ class FileHandler extends BaseHandler
 		$this->permission = $configs->permission;
 		
 		// Set file name.
-		$this->name = Util\Str::fmt( "{1}/{0:lower}-log-{3}.{2}", ...[
+		$this->name = Type\Str::fmt( "{1}/{0:lower}-log-{3}.{2}", ...[
 			
 			// Get application name.
 			env( "APP_NAME", "Yume" ),
@@ -124,7 +123,7 @@ class FileHandler extends BaseHandler
 			$datez = $date->getTimezone()->getName();
 			
 			// Format stack.
-			$stack = Util\Str::fmt( "{+#stack}[{+#level}][{+#timezone}][{+#timestamp}] {+#dateformat} - {+#message}\n", $stack, $level->value, $datez, $dates, $datef, $message );
+			$stack = Type\Str::fmt( "{+#stack}[{+#level}][{+#timezone}][{+#timestamp}] {+#dateformat} - {+#message}\n", $stack, $level->value, $datez, $dates, $datef, $message );
 			
 			// Write file.
 			$fwrite = File\File::write( $this->name, fdata: $stack, context: $fopen );

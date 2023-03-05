@@ -2,14 +2,14 @@
 
 namespace Yume\Fure\Logger;
 
-use Yume\Fure\Support\Services;
+use Yume\Fure\Services;
 
 /*
  * LoggerServiceProvider
  *
  * @package Yume\Fure\Logger
  *
- * @extends Yume\Fure\Support\ServiceProvider
+ * @extends Yume\Fure\Services\ServiceProvider
  */
 class LoggerServiceProvider extends Services\ServiceProvider
 {
