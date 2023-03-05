@@ -53,7 +53,7 @@ abstract class Singleton
 	 */
 	final public function __wakeup()
 	{
-		throw new Error\RuntimeError( f( "Cannot unserialize {}", $this::class ) );
+		throw new Error\RuntimeError( sprintf( "Cannot unserialize %s", $this::class ) );
 	}
 	
 	/*
