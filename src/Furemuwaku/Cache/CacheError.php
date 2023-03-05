@@ -14,7 +14,22 @@ use Yume\Fure\Error;
 class CacheError extends Error\TypeError
 {
 	
+	/*
+	 * Error constant for invalid time value.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
 	public const TIME_ERROR = 70172;
+	
+	/*
+	 * Error constant for invalid time to live value.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
 	public const TTL_ERROR = 72822;
 	
 	/*
@@ -22,8 +37,10 @@ class CacheError extends Error\TypeError
 	 *
 	 */
 	protected Array $flags = [
-		self::TIME_ERROR => "Invalid \$time \"{}\"",
-		self::TTL_ERROR => "Provided TTL \"{}\" is not supported"
+		CacheError::class => [
+			self::TIME_ERROR => "Invalid \$time \"{}\"",
+			self::TTL_ERROR => "Provided TTL \"{}\" is not supported"
+		]
 	];
 	
 }

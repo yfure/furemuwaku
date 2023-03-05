@@ -6,7 +6,7 @@ use DateInterval;
 use DateTimeInterface;
 
 use Yume\Fure\Locale\Clock;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Type;
 
 /*
  * CacheItem
@@ -91,7 +91,7 @@ class CacheItem implements CacheItemInterface
 		if( is_int( $time ) )
 		{
 			// Check if provided TTL is supported.
-			if( $interval = DateInterval::createFromDateString( Util\Str::fmt( "{} seconds", $time ) ) )
+			if( $interval = DateInterval::createFromDateString( Type\Str::fmt( "{} seconds", $time ) ) )
 			{
 				$time = $interval;
 			}

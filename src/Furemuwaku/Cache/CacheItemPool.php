@@ -5,8 +5,7 @@ namespace Yume\Fure\Cache;
 use Yume\Fure\Cache\Adapter;
 use Yume\Fure\Error;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Reflect;
 
 /*
  * CacheItemPool

@@ -3,12 +3,12 @@
 namespace Yume\Fure\Cache\Adapter;
 
 use Yume\Fure\Cache;
-use Yume\Fure\Config;
 use Yume\Fure\Locale;
 use Yume\Fure\Locale\DateTime;
+use Yume\Fure\Support\Config;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Support\File;
-use Yume\Fure\Support\Path;
+use Yume\Fure\Util\File;
+use Yume\Fure\Util\File\Path;
 
 /*
  * FileSystemAdapter

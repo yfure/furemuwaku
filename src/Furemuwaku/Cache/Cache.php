@@ -2,8 +2,8 @@
 
 namespace Yume\Fure\Cache;
 
+use Yume\Fure\Services;
 use Yume\Fure\Support\Design;
-use Yume\Fure\Support\Services;
 
 /*
  * Cache
