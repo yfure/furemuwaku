@@ -70,6 +70,7 @@ trait LocaleTranslationsTrait
 					 * Error Exception Thrown translations.
 					 *
 					 * @include AssertionError
+					 * @include AttributeError
 					 * @include BaseError
 					 * @include ClassError
 					 * @include ClassImplementationError
@@ -82,16 +83,19 @@ trait LocaleTranslationsTrait
 					 * @include KeyError
 					 * @include LogicError
 					 * @include LookupError
+					 * @include MethodError
 					 * @include ModuleError
 					 * @include ModuleNotFoundError
 					 * @include PermissionError
 					 * @include ReferenceError
+					 * @include PropertyError
 					 * @include RuntimeError
 					 * @include SyntaxError
 					 * @include TriggerError
 					 * @include TypeError
 					 * @include ValueError
 					 */
+					"error.AttributeError" => [],
 					"error.AssertionError" => [
 						"VALUE_ERROR" => "Invalid value for {} value must be {}, {+:ucfirst} given"
 					],
@@ -131,6 +135,7 @@ trait LocaleTranslationsTrait
 						"INDEX_ERROR" => "Index {} out of range",
 						"KEY_ERROR" => "Undefined key for {}"
 					],
+					"error.MethodError" => [],
 					"error.ModuleError" => [
 						"IMPORT_ERROR" => "Something wrong when import file {}",
 						"NOT_FOUND_ERROR" => "No module named {}"
@@ -144,6 +149,7 @@ trait LocaleTranslationsTrait
 						"WRITE_ERROR" => "Can't write {}"
 					],
 					"error.ReferenceError" => [],
+					"error.PropertyError" => [],
 					"error.RuntimeError" => [],
 					"error.SyntaxError" => [],
 					"error.TriggerError" => [],
@@ -199,12 +205,42 @@ trait LocaleTranslationsTrait
 					"security.SecurityError" => [],
 					
 					/*
+					 * Services Error Translations.
+					 *
+					 * @include ServicesError
+					 * @include ServicesLookupError
+					 * @include ServicesOverrideError
+					 */
+					"services.ServicesError" => [
+						"LOOKUP_ERROR" => "No service named {}",
+						"NAME_ERROR" => "Service name must be type Object|String, {type(+):ucfirst} given",
+						"OVERRIDE_ERROR" => "Can't override service {}"
+					],
+					"services.ServicesLookupError" => [
+						"LOOKUP_ERROR" => "^yume.fure[support.services.ServicesError].LOOKUP_ERROR"
+					],
+					"services.ServicesOverrideError" => [
+						"OVERRIDE_ERROR" => "^yume.fure[support.services.ServicesError].OVERRIDE_ERROR"
+					],
+					
+					/*
+					 * Util Error Translations.
+					 *
+					 * @include EnvError
+					 * @include JsonError
+					 * @include RegExpError
+					 */
+					"util.env.EnvError" => [],
+					"util.json.JsonError" => [],
+					"util.regexp.RegExpError" => [],
+					
+					/*
 					 * File Error Translations.
 					 *
 					 * @include FileError
 					 * @include FileNotFoundError
 					 */
-					"support.file.FileError" => [
+					"util.file.FileError" => [
 						"COPY_ERROR" => "Failed copy file from {} to {}",
 						"FILE_ERROR" => "Target file {} is not file type",
 						"MOVE_ERROR" => "Failed move file from {} to {}",
@@ -216,7 +252,7 @@ trait LocaleTranslationsTrait
 						"READ_ERROR" => "An error occurred while reading the contents of the file {}",
 						"WRITE_ERROR" => "An error occurred while writing the contents of the file {}"
 					],
-					"support.file.FileNotFoundError" => [
+					"util.file.FileNotFoundError" => [
 						"NOT_FOUND_ERROR" => "^yume.fure[support.path.FileError].NOT_FOUND_ERROR"
 					],
 					
@@ -226,45 +262,16 @@ trait LocaleTranslationsTrait
 					 * @include PathError
 					 * @include PathNotFoundError
 					 */
-					"support.path.PathError" => [
+					"util.file.path.PathError" => [
 						"COPY_ERROR" => "Failed copy directory to {} from {}",
 						"MOVE_ERROR" => "Failed move directory to {} from {}",
 						"NOT_FOUND_ERROR" => "No such directory {}",
 						"READ_ERROR" => "Cannot read anything in directory {}",
 						"WRITE_ERROR" => "Could not write to file or directory in directory {}"
 					],
-					"support.path.PathNotFoundError" => [
-						"NOT_FOUND_ERROR" => "^yume.fure[support.path.PathError].NOT_FOUND_ERROR"
+					"util.file.path.PathNotFoundError" => [
+						"NOT_FOUND_ERROR" => "^yume.fure[util.file.path.PathError].NOT_FOUND_ERROR"
 					],
-					
-					/*
-					 * Services Error Translations.
-					 *
-					 * @include ServicesError
-					 * @include ServicesLookupError
-					 * @include ServicesOverrideError
-					 */
-					"support.services.ServicesError" => [
-						"LOOKUP_ERROR" => "No service named {}",
-						"NAME_ERROR" => "Service name must be type Object|String, {type(+):ucfirst} given",
-						"OVERRIDE_ERROR" => "Can't override service {}"
-					],
-					"support.services.ServicesLookupError" => [
-						"LOOKUP_ERROR" => "^yume.fure[support.services.ServicesError].LOOKUP_ERROR"
-					],
-					"support.services.ServicesOverrideError" => [
-						"OVERRIDE_ERROR" => "^yume.fure[support.services.ServicesError].OVERRIDE_ERROR"
-					],
-					
-					/*
-					 * Util Error Translations.
-					 *
-					 * @include EnvError
-					 * @include JsonError
-					 * @include RegExpError
-					 */
-					"util.json.JsonError" => [],
-					"util.regexp.RegExpError" => [],
 					
 					/*
 					 * Views Error Translations.

@@ -11,10 +11,11 @@ use Yume\Fure\Locale\Clock;
 use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Locale\Language;
 use Yume\Fure\Support\Design;
-use Yume\Fure\Support\File;
-use Yume\Fure\Support\Path;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Array;
 use Yume\Fure\Util\Env;
+use Yume\Fure\Util\File;
+use Yume\Fure\Util\File\Path;
+use Yume\Fure\Util\Type;
 
 /*
  * Locale
@@ -225,7 +226,7 @@ class Locale extends Design\Singleton
 		$language ??= self::$defaultLanguage;
 		
 		// Make language path.
-		$languagePath = Path\PathName::APP_LANG->path( "{$language}.php" );
+		$languagePath = Path\Paths::APP_LANG->path( "{$language}.php" );
 		
 		try
 		{
@@ -242,7 +243,7 @@ class Locale extends Design\Singleton
 				self::$language = require( $languagePath );
 			}
 			else {
-				if( strtolower( $language ) !== self::$defaultLanguage ) throw new Error\TypeError( Util\Str::fmt( "No language named {}", $language ) );
+				if( strtolower( $language ) !== self::$defaultLanguage ) throw new Error\TypeError( Type\Str::fmt( "No language named {}", $language ) );
 			}
 		}
 		catch( Throwable $e )
@@ -251,7 +252,7 @@ class Locale extends Design\Singleton
 			{
 				self::$language = new Language\Language( ...self::$defaultLanguageTranslations );
 			}
-			throw new Error\TypeError( Util\Str::fmt( "An error occurred while setting the translation language {}", $language ), 0, $e );
+			throw new Error\TypeError( Type\Str::fmt( "An error occurred while setting the translation language {}", $language ), 0, $e );
 		}
 		self::$language ??= new Language\Language( ...self::$defaultLanguageTranslations );
 	}
@@ -325,7 +326,7 @@ class Locale extends Design\Singleton
 			}
 			
 			// Get translation strings.
-			$translation = Util\Arr::ify( $ify, self::$language );
+			$translation = Array\Arr::ify( $ify, self::$language );
 			
 			// Check if translation is string.
 			if( is_string( $translation ) )
@@ -335,9 +336,9 @@ class Locale extends Design\Singleton
 				{
 					return( self::translate( str_replace( "^", "", $translation ), ...$format ) );
 				}
-				return( Util\Str::fmt( $translation, ...$format ) );
+				return( Type\Str::fmt( $translation, ...$format ) );
 			}
-			throw new Error\TypeError( Util\Str::fmt( "Translation language must be string value, {+:ucfirst} given", type( $translation ) ) );
+			throw new Error\TypeError( Type\Str::fmt( "Translation language must be string value, {+:ucfirst} given", type( $translation ) ) );
 		}
 		catch( Error\LookupError $e )
 		{
@@ -358,7 +359,7 @@ class Locale extends Design\Singleton
 	{
 		if( self::isAvailableTimeZone( $timezone ) === False )
 		{
-			throw new Error\TypeError( Util\Str::fmt( "Unsupported timezone for {}", $timezone ) );
+			throw new Error\TypeError( Type\Str::fmt( "Unsupported timezone for {}", $timezone ) );
 		}
 	}
 	
