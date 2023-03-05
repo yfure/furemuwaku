@@ -3,18 +3,18 @@
 namespace Yume\Fure\App;
 
 use Yume\Fure\Error;
-use Yume\Fure\Support\Path;
-use Yume\Fure\Support\Package;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Support\Services;
-use Yume\Fure\Util;
+use Yume\Fure\Services;
+use Yume\Fure\Util\Array;
+use Yume\Fure\Util\File\Path;
+use Yume\Fure\Util\Package;
+use Yume\Fure\Util\Reflect;
 
 /*
- * Decorator
+ * AppDecoratorTrait
  *
  * @package Yume\Fure\App
  */
-trait Decorator
+trait AppDecoratorTrait
 {
 	
 	/*
@@ -34,7 +34,7 @@ trait Decorator
 		if( valueIsNotEmpty( $name ) )
 		{
 			// Split config name.
-			$split = Util\Arr::ifySplit( $name );
+			$split = Array\Arr::ifySplit( $name );
 			
 			// Normalize configuration name.
 			$split[0] = strtolower( $split[0] );
@@ -42,9 +42,9 @@ trait Decorator
 			// If the configuration has not been registered or if re-import is allowed.
 			if( isset( static::$configs[$split[0]] ) === False || $import )
 			{
-				static::$configs[$split[0]] = Package\Package::import( sprintf( "%s/%s", Path\PathName::SYSTEM_CONFIG->value, $split[0] ) );
+				static::$configs[$split[0]] = Package\Package::import( sprintf( "%s/%s", Path\Paths::SYSTEM_CONFIG->value, $split[0] ) );
 			}
-			return( Util\Arr::ify( $split, static::$configs ) );
+			return( Array\Arr::ify( $split, static::$configs ) );
 		}
 		throw new Error\ValueError( "Unable to fetch or import configuration, configuration name is required" );
 	}

@@ -5,15 +5,15 @@ namespace Yume\Fure\App;
 use Yume\App\Tests;
 
 use Yume\Fure\Error;
-use Yume\Fure\Error\Erahandora;
 use Yume\Fure\Locale;
+use Yume\Fure\Services;
+use Yume\Fure\Support\Erahandora;
 use Yume\Fure\Support\Design;
-use Yume\Fure\Support\Package;
-use Yume\Fure\Support\Path;
-use Yume\Fure\Support\Reflect;
-use Yume\Fure\Support\Services;
-use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
+use Yume\Fure\Util\File\Path;
+use Yume\Fure\Util\Package;
+use Yume\Fure\Util\Reflect;
+use Yume\Fure\Util\Timer;
 
 /*
  * App
@@ -33,7 +33,7 @@ final class App extends Design\Singleton
 	static private App $self;
 	static private Array $services = [];
 	
-	use \Yume\Fure\App\Decorator;
+	use \Yume\Fure\App\AppDecoratorTrait;
 	
 	/*
 	 * @inherit Yume\Fure\Support\Design\Singleton::__construct
@@ -41,7 +41,7 @@ final class App extends Design\Singleton
 	 */
 	protected function __construct()
 	{
-		Util\Timer::calculate( "booting", fn() => $this->booting() );
+		Timer\Timer::execute( "booting", fn() => $this->booting() );
 	}
 	
 	/*
@@ -88,7 +88,7 @@ final class App extends Design\Singleton
 			define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
 			
 			// Import bootable settings file by environment.
-			Package\Package::import( sprintf( "%s/%s", Path\PathName::SYSTEM_BOOTING->value, $env ) );
+			Package\Package::import( sprintf( "%s/%s", Path\Paths::SYSTEM_BOOTING->value, $env ) );
 		}
 		else {
 			throw new Error\LogicError( sprintf( "The application environment must be development|production, \"%s\" given", $env ) );
