@@ -2,22 +2,23 @@
 
 use Yume\Fure\App;
 use Yume\Fure\Cache;
-use Yume\Fure\Config;
+use Yume\Fure\CLI;
 use Yume\Fure\Database;
 use Yume\Fure\Error;
 use Yume\Fure\HTTP;
 use Yume\Fure\HTTP\Stream;
 use Yume\Fure\Locale;
 use Yume\Fure\Logger;
-use Yume\Fure\Support;
+use Yume\Fure\Services;
+use Yume\Fure\Support\Config;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Support\File;
-use Yume\Fure\Support\Path;
-use Yume\Fure\Support\Services;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Array;
 use Yume\Fure\Util\Env;
+use Yume\Fure\Util\File;
+use Yume\Fure\Util\File\Path;
 use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
+use Yume\Fure\Util\Type;
 use Yume\Fure\View;
 use Yume\Fure\View\Template;
 
@@ -92,25 +93,25 @@ function env( String $env, Mixed $optional = Null )
 }
 
 /*
- * @inherit Yume\Fure\Util\Str::fmt
+ * @inherit Yume\Fure\Type\Str::fmt
  *
  */
 function f( String $string, Mixed ...$format ): String
 {
-	return( Util\Str::fmt( $string, ...$format ) );
+	return( Type\Str::fmt( $string, ...$format ) );
 }
 
 /*
- * @inherit Yume\Fure\Util\Arr::ify
+ * @inherit Yume\Fure\Array\Arr::ify
  *
  */
 function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
 {
-	return( Util\Arr::ify( $refs, $data ) );
+	return( Array\Arr::ify( $refs, $data ) );
 }
 
 /*
- * @inherit Yume\Fure\Support\File\File::size
+ * @inherit Yume\Fure\Util\File\File::size
  *
  */
 function fsize( $file, Int | String $optional = 0 ): Int
@@ -150,7 +151,7 @@ function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? Strin
 }
 
 /*
- * @inherit Yume\Fure\Support\Path\Path::ls
+ * @inherit Yume\Fure\Util\File\Path\Path::ls
  *
  */
 function ls( String $path ): Array | Bool
@@ -159,7 +160,7 @@ function ls( String $path ): Array | Bool
 }
 
 /*
- * @inherit Yume\Fure\Support\Path\Path::path
+ * @inherit Yume\Fure\Util\File\Path\Path::path
  */
 function path( String $path, Bool | Path\PathName $prefix_or_remove = False ): String
 {
@@ -176,11 +177,11 @@ function path( String $path, Bool | Path\PathName $prefix_or_remove = False ): S
  */
 function puts( String $string, Mixed ...$format ): Void
 {
-	echo( Util\Str::fmt( $string, ...$format ) );
+	echo( Type\Str::fmt( $string, ...$format ) );
 }
 
 /*
- * @inherit Yume\Fure\Support\Path\Path::tree
+ * @inherit Yume\Fure\Util\File\Path\Path::tree
  *
  */
 function tree( String $path, String $parent = "" ): Array | False
