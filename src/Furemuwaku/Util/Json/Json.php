@@ -7,7 +7,7 @@ namespace Yume\Fure\Util\Json;
  *
  * @package Yume\Fure\Util\Json
  */
-abstract class Json
+final class Json
 {
     
     /*

@@ -2,14 +2,12 @@
 
 namespace Yume\Fure\Util\RegExp;
 
-use Yume\Fure\Util;
-
 /*
  * RegExp
  *
  * @package Yume\Fure\Util\RegExp
  */
-abstract class RegExp
+final class RegExp
 {
 	
 	/*
@@ -82,7 +80,7 @@ abstract class RegExp
 				if( is_array( $match ) )
 				{
 					// Mapping all result match values.
-					Util\Arr::map( $match, fn( Int $i, Int $u, ? String $result ) => $matchs[$i][$u] = $result !== "" ? $result : Null );
+					array_map( fn( Int $i, Int $u, ? String $result ) => $matchs[$i][$u] = $result !== "" ? $result : Null, $match );
 				}
 				else {
 					$matchs[$i] = $match !== "" ? $match : Null;

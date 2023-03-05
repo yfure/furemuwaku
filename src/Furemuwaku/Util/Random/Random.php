@@ -7,7 +7,7 @@ namespace Yume\Fure\Util\Random;
  *
  * @package Yume\Fure\Util\Random
  */
-abstract class Random
+final class Random
 {
 	
 	/*
