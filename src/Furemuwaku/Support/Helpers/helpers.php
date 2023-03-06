@@ -62,7 +62,7 @@ function e( Throwable $e ): Void
 		while( $e = $e->getPrevious() );
 		return;
 	}
-	echo path( remove: True, path: f( "\x1b[1;32m{}\x1b[1;33m: \x1b[0;37m{} in file \x1b[1;36m{} \x1b[0;37mon line \x1b[1;31m{}\n\x1b[1;30m{}\n", ...[
+	echo path( prefix_or_remove: True, path: f( "{}: {} in file {} on line {}\n{}\n", ...[
 		$e::class,
 		$e->getMessage(),
 		$e->getFile(),
