@@ -52,23 +52,46 @@ function config( String $name, Bool $import = False ): Mixed
 	return( App\App::config( $name, $import ) );
 }
 
+/*
+ * Parse exception class into string.
+ *
+ * @params Throwable $e
+ *
+ * @return Void
+ */
 function e( Throwable $e ): Void
 {
-	if( $e->getPrevious() )
+	/*
+	 * @inherit Yume\Fure\Error\BaseError::format
+	 *
+	 */
+	$f = static function( Throwable $thrown )
 	{
-		do {
-			e( $e );
+		if( $thrown Instanceof BaseError )
+		{
+			$format = "\n{class}: {type}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
 		}
-		while( $e = $e->getPrevious() );
-		return;
+		else {
+			$format = "\n{class}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
+		}
+		return( f( $format, class: $thrown::class, message: $thrown->getMessage(), file: $thrown->getFile(), line: $thrown->getLine(), code: $thrown->getCode(), type: $thrown->type ?? "None", trace: $thrown->getTrace() ) );
+	};
+	
+	if( $e Instanceof BaseError )
+	{
+		echo $e;
 	}
-	echo path( prefix_or_remove: True, path: f( "{}: {} in file {} on line {}\n{}\n", ...[
-		$e::class,
-		$e->getMessage(),
-		$e->getFile(),
-		$e->getLine(),
-		$e->getTrace()
-	]));
+	else {
+		$error = $e;
+		$stack = [
+			$f( $e )
+		];
+		while( $error = $error->getPrevious() )
+		{
+			$stack[] = $f( $error );
+		}
+		echo( path( implode( "\n", array_reverse( $stack ) ), True ) );
+	}
 }
 
 /*
