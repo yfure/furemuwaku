@@ -169,9 +169,9 @@ final class File
 	 * @params Int $depth
 	 * @params Int $flags
 	 *
-	 * @return Array
+	 * @return Mixed
 	 */
-	public static function json( String $file, ? Bool $associative = Null, Int $depth = 512, Int $flags = 0 ): Array
+	public static function json( String $file, ? Bool $associative = Null, Int $depth = 512, Int $flags = 0 ): Mixed
 	{
 		return( Json\Json::decode( self::read( $file ), $associative, $depth, $flags ) );
 	}
