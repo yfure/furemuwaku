@@ -17,7 +17,7 @@ class GeneratorError extends ReflectError
 	 *
 	 */
 	protected Array $flags = [
-		Error::class => [
+		GeneratorError::class => [
 			self::_ERROR
 		]
 	];

@@ -17,7 +17,7 @@ class ExtensionError extends ReflectError
 	 *
 	 */
 	protected Array $flags = [
-		Error::class => [
+		ExtensionError::class => [
 			self::_ERROR
 		]
 	];

@@ -17,7 +17,7 @@ class ArgumentError extends ValueError
 	 *
 	 */
 	protected Array $flags = [
-		Error::class => [
+		ArgumentError::class => [
 			self::_ERROR
 		]
 	];

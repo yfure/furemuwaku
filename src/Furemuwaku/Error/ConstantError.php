@@ -27,6 +27,7 @@ class ConstantError extends ClassError
 	 */
 	protected Array $flags = [
 		ConstantError::class => [
+			self::ACCESS_ERROR,
 			self::NAME_ERROR
 		]
 	];
