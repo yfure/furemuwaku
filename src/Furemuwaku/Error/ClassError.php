@@ -7,19 +7,37 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  *
- * @extends Yume\Fure\Error\TypeError
+ * @extends Yume\Fure\Error\ReflectError
  */
-class ClassError extends TypeError
+class ClassError extends ReflectError
 {
 	
+	/*
+	 * Error constant for invalid class.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
 	public const IMPLEMENTS_ERROR = 57822;
 	
+	/*
+	 * Error constant for uninstantiable class.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
 	public const INSTANCE_ERROR = 67887;
 	
-	public const NAME_ERROR = 79222;
+	/*
+	 * @inherit Yume\Fure\Error\ReferenceError
+	 *
+	 */
+	public const NAME_ERROR = ReferenceError::NAME_ERROR;
 	
 	/*
-	 * @inherit Yume\Fure\Error\TypeError
+	 * @inherit Yume\Fure\Error\ReflectError
 	 *
 	 */
 	protected Array $flags = [

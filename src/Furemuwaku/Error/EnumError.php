@@ -3,13 +3,13 @@
 namespace Yume\Fure\Error;
 
 /*
- * AttributeError
+ * EnumError
  *
  * @package Yume\Fure\Error
  *
  * @extends Yume\Fure\Error\ClassError
  */
-class AttributeError extends ClassError
+class EnumError extends ClassError
 {
 	
 	/*
@@ -17,9 +17,14 @@ class AttributeError extends ClassError
 	 *
 	 */
 	protected Array $flags = [
-		AttributeError::class => [
-			self::NAME_ERROR,
-			self::TYPE_ERROR
+		EnumError::class => [
+			self::NAME_ERROR
+		],
+		EnumBackedError::class => [
+			self::_ERROR
+		],
+		EnumUnitError::class => [
+			self::_ERROR
 		]
 	];
 	

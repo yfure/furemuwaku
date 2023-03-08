@@ -7,18 +7,30 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  *
- * @extends Yume\Fure\Error\ClassError
+ * @extends Yume\Fure\Error\ConstantError
  */
-class MethodError extends ClassError
+class MethodError extends ConstantError
 {
 	
-	// NAME_ERROR
+	/*
+	 * Error constant for when failed invoke method.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const INVOKE_ERROR = 75457;
 	
 	/*
-	 * @inherit Yume\Fure\Error\ClassError
+	 * @inherit Yume\Fure\Error\ConstantError
 	 *
 	 */
 	protected Array $flags = [
+		MethodError::class => [
+			self::ACCESS_ERROR,
+			self::NAME_ERROR,
+			self::INVOKE_ERROR
+		]
 	];
 	
 }

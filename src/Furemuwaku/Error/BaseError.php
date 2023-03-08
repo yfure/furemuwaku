@@ -21,6 +21,78 @@ class BaseError extends Error
 {
 	
 	/*
+	 * Error constant for deprecated function, method, etc.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const DEPRECATED_ERROR = 17382;
+	
+	/*
+	 * Error constant for Input/Output.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const IO_ERROR = 18271;
+	
+	/*
+	 * Error constant for undefined reference.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const REFERENCE_ERROR = 27272;
+	
+	/*
+	 * Error constant for invalid runtime.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const RUNTIME_ERROR = 29736;
+	
+	/*
+	 * Error constant for invalid syntax.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const SYNTAX_ERROR = 30178;
+	
+	/*
+	 * Error constant for emited error from trigger_error function.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const TRIGGER_ERROR = 34173;
+	
+	/*
+	 * Error constant for any error types.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const TYPE_ERROR = 48627;
+	
+	/*
+	 * Error constant for inavlid value passed.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const VALUE_ERROR = 49271;
+	
+	/*
 	 * Value of flag.
 	 *
 	 * @access Protected
@@ -36,7 +108,7 @@ class BaseError extends Error
 	 *
 	 * @values String
 	 */
-	protected String $type = "NONE";
+	protected String $type = "None";
 	
 	/*
 	 * Construct method of class BaseError.
@@ -54,15 +126,15 @@ class BaseError extends Error
 		// Get constant name.
 		$type = array_search( $code, Reflect\ReflectClass::getConstants( $this ) );
 		
+		// Set error type based on error contant name.
+		$this->type = $type !== False ? $type : $this->type;
+		
 		// Get flags index.
 		$index = array_search( $code, $this->flags[$this::class] ?? [] );
 		
 		// If the flag is available.
 		if( $type !== False && $index !== False )
 		{
-			// Set error type based on error contant name.
-			$this->type = $type;
-			
 			// Create ify for translation string.
 			$ify = Type\Str::fmt( "{}.{}", Package\Package::array( $this::class ), $type );
 			
@@ -80,8 +152,6 @@ class BaseError extends Error
 		else {
 			$message = Type\Str::parse( $message );
 		}
-		
-		// Call parent constructor.
 		parent::__construct( $message, $code, $previous );
 	}
 	
@@ -94,7 +164,7 @@ class BaseError extends Error
 	 */
 	public function getType(): String
 	{
-		return( $this->type );
+		return( $this )->type;
 	}
 	
 	/*
@@ -123,16 +193,22 @@ class BaseError extends Error
 	 *
 	 * @return String
 	 */
-	private function format( ? Throwable $thrown )
+	private function format( Throwable $thrown )
 	{
+		$values = [
+			"class" => $thrown::class,
+			"message" => $thrown->getMessage(),
+			"file" => $thrown->getFile(),
+			"line" => $thrown->getLine(),
+			"code" => $thrown->getCode(),
+			"type" => $thrown->type ?? "None",
+			"trace" => $thrown->getTrace()
+		];
 		if( $thrown Instanceof BaseError )
 		{
-			$format = "\n{class}: {type}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
+			return( f( "\n{class}: {type}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n", ...$values ) );
 		}
-		else {
-			$format = "\n{class}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
-		}
-		return( f( $format, class: $thrown::class, message: $thrown->getMessage(), file: $thrown->getFile(), line: $thrown->getLine(), code: $thrown->getCode(), type: $thrown->type ?? "None", trace: $thrown->getTrace() ) );
+		return( f( "\n{class}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n", ...$values ) );
 	}
 	
 }

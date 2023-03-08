@@ -7,18 +7,20 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  *
- * @extends Yume\Fure\Error\ClassError
+ * @extends Yume\Fure\Error\ConstantError
  */
-class PropertyError extends ClassError
+class PropertyError extends ConstantError
 {
 	
-	// NAME_ERROR
-	
 	/*
-	 * @inherit Yume\Fure\Error\ClassError
+	 * @inherit Yume\Fure\Error\ConstantError
 	 *
 	 */
 	protected Array $flags = [
+		PropertyError::class => [
+			self::ACCESS_ERROR,
+			self::NAME_ERROR
+		]
 	];
 	
 }
