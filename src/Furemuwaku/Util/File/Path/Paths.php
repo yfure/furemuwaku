@@ -80,6 +80,31 @@ enum Paths: String
 	case VENDOR_YFURE = "vendor/yfure";
 	
 	/*
+	 * ...
+	 *
+	 * @access Public
+	 *
+	 * @params String $path
+	 *
+	 * @return Bool
+	 */
+	public function is( String $path ): Bool
+	{
+		$paths = [
+			preg_replace( "/\//", DIRECTORY_SEPARATOR, $this->value ),
+			preg_replace( "/\//", DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR . $this->value )
+		];
+		foreach( $paths As $prefix )
+		{
+			if( strpos( $path, $prefix ) !== False )
+			{
+				return( True );
+			}
+		}
+		return( False );
+	}
+	
+	/*
 	 * @inherit Yume\Fure\Util\Path\Path::path
 	 *
 	 */

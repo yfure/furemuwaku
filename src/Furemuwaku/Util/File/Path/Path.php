@@ -141,7 +141,13 @@ final class Path
 		// Remove all basepath in string.
 		if( $prefix_or_remove === True )
 		{
-			return( str_replace( [ preg_replace( "/\//", DIRECTORY_SEPARATOR, BASE_PATH ), preg_replace( "/\//", "\\" . DIRECTORY_SEPARATOR, BASE_PATH ) ], "", $path ) );
+			$paths = [
+				preg_replace( "/\//", DIRECTORY_SEPARATOR, BASE_PATH . DIRECTORY_SEPARATOR ),
+				preg_replace( "/\//", "\\" . DIRECTORY_SEPARATOR, BASE_PATH . DIRECTORY_SEPARATOR ),
+				preg_replace( "/\//", DIRECTORY_SEPARATOR, BASE_PATH ),
+				preg_replace( "/\//", "\\" . DIRECTORY_SEPARATOR, BASE_PATH ),
+			];
+			return( str_replace( $paths, "", $path ) );
 		}
 		else {
 			
@@ -155,7 +161,7 @@ final class Path
 			if( strpos( $path, BASE_PATH ) !== False || $path === BASE_PATH || $path . "/" === BASE_PATH ) return( $path );
 			
 			// Check if path has prefix.
-			if( $prefix_or_remove Instanceof PathName ) $path = sprintf( "%s/%s", $prefix_or_remove->value, $path );
+			if( $prefix_or_remove Instanceof Paths ) $path = sprintf( "%s/%s", $prefix_or_remove->value, $path );
 			
 			// Add basepath into prefix pathname.
 			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, preg_replace( "/\//", DIRECTORY_SEPARATOR, sprintf( "%s/%s", BASE_PATH, $path ) ) ) );
