@@ -69,14 +69,22 @@ trait LocaleTranslationsTrait
 					/*
 					 * Error Exception Thrown translations.
 					 *
-					 * @include AssertionError
 					 * @include AttributeError
+					 * @include AssertionError
 					 * @include BaseError
 					 * @include ClassError
 					 * @include ClassImplementationError
 					 * @include ClassInstanceError
 					 * @include ClassNameError
+					 * @include ConstantError
 					 * @include DeprecatedError
+					 * @include EnumError
+					 * @include EnumBackedError
+					 * @include EnumUnitError
+					 * @include ExtensionError
+					 * @include FiberError
+					 * @include FunctionError
+					 * @include GeneratorError
 					 * @include IndexError
 					 * @include ImportError
 					 * @include IOError
@@ -86,23 +94,27 @@ trait LocaleTranslationsTrait
 					 * @include MethodError
 					 * @include ModuleError
 					 * @include ModuleNotFoundError
+					 * @include ParameterError
 					 * @include PermissionError
-					 * @include ReferenceError
 					 * @include PropertyError
+					 * @include ReferenceError
 					 * @include RuntimeError
 					 * @include SyntaxError
 					 * @include TriggerError
 					 * @include TypeError
 					 * @include ValueError
 					 */
-					"error.AttributeError" => [],
+					"error.AttributeError" => [
+						"NAME_ERROR" => "No attribute named {}",
+						"TYPE_ERROR" => "Can't instantiate non-attribute class {}"
+					],
 					"error.AssertionError" => [
 						"VALUE_ERROR" => "Invalid value for {} value must be {}, {+:ucfirst} given"
 					],
 					"error.BaseError" => [],
 					"error.ClassError" => [
 						"IMPLEMENTS_ERROR" => "Class {} must implement interface {}",
-						"INSTANCE_ERROR" => "Unable to create new instance for class {}", 
+						"INSTANCE_ERROR" => "Unable to create new instance for class {}, it's not instantiable class", 
 						"NAME_ERROR" => "No class named {}"
 					],
 					"error.ClassImplementationError" => [
@@ -114,10 +126,20 @@ trait LocaleTranslationsTrait
 					"error.ClassNameError" => [ 
 						"NAME_ERROR" => "^yume.fure[error.ClassError].NAME_ERROR"
 					],
+					"error.ConstantError" => [],
 					"error.DeprecatedError" => [
 						"FUNCTION_ERROR" => "Function {} has been deprecated, use {} instead",
 						"METHOD_ERROR" => "Method {} has been deprecated, use {} instead"
 					],
+					"error.EnumError" => [],
+					"error.EnumBackedError" => [],
+					"error.EnumUnitError" => [],
+					"error.ExtensionError" => [],
+					"error.FiberError" => [],
+					"error.FunctionError" => [
+						"NAME_ERROR" => "No function named {}"
+					],
+					"error.GeneratorError" => [],
 					"error.IndexError" => [
 						"INDEX_ERROR" => "^yume.fure[error.LookupError].INDEX_ERROR"
 					],
@@ -135,7 +157,11 @@ trait LocaleTranslationsTrait
 						"INDEX_ERROR" => "Index {} out of range",
 						"KEY_ERROR" => "Undefined key for {}"
 					],
-					"error.MethodError" => [],
+					"error.MethodError" => [
+						"ACCESS_ERROR" => "Method {}::{} is not accessible from outsite class",
+						"INVOKE_ERROR" => "Can't invoke method {}::{}, it's not accessible from outsite class",
+						"NAME_ERROR" => "No method named {}::{}"
+					],
 					"error.ModuleError" => [
 						"IMPORT_ERROR" => "Something wrong when import file {}",
 						"NOT_FOUND_ERROR" => "No module named {}"
@@ -143,13 +169,19 @@ trait LocaleTranslationsTrait
 					"error.ModuleNotFoundError" => [
 						"NOT_FOUND_ERROR" => "^yume.fure[error.ModuleError].NOT_FOUND_ERROR"
 					],
+					"error.ParameterError" => [
+						"REQUIRE_ERROR" => "Function {} requires parameters {} with type {}"
+					],
 					"error.PermissionError" => [
 						"PERMISSION_ERROR" => "^yume.fure[error.IOError].PERMISSION_ERROR",
 						"READ_ERROR" => "Can't read {}",
 						"WRITE_ERROR" => "Can't write {}"
 					],
+					"error.PropertyError" => [
+						"ACCESS_ERROR" => "Property {}::\${} is not accessible from outsite class",
+						"NAME_ERROR" => "No property named {}::\${}"
+					],
 					"error.ReferenceError" => [],
-					"error.PropertyError" => [],
 					"error.RuntimeError" => [],
 					"error.SyntaxError" => [],
 					"error.TriggerError" => [],
