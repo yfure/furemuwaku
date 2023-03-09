@@ -121,7 +121,7 @@ class Erahandora extends Design\Singleton
 		}
 		else {
 			
-			$view = config( "error" )->exception->view->html;
+			$view = config( "error[exception.view]" );
 			
 			if( File\File::exists( Path\Paths::ASSET_VIEW->path( $view ) ) )
 			{
