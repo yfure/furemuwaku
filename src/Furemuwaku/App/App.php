@@ -19,29 +19,112 @@ use Yume\Fure\Util\Timer;
  * App
  *
  * @package Yume\Fure\App
- *
- * @extends Yume\Fure\Support\Design\Singleton
  */
-final class App extends Design\Singleton
+final class App
 {
 	
+	/*
+	 * Aplication has booted.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Bool
+	 */
 	static private Bool $booted = False;
+	
+	/*
+	 * Application on booting.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Bool
+	 */
 	static private Bool $booting = False;
+	
+	/*
+	 * Application config container.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Array
+	 */
 	static private Array $configs = [];
+	
+	/*
+	 * Application context.
+	 *
+	 * @access Static Private
+	 *
+	 * @values String
+	 */
+	static private String $context;
+	
+	/*
+	 * Application on running.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Bool
+	 */
 	static private Bool $running = False;
-	static private Array $package = [];
+	
+	/*
+	 * Instance of class App.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Yume\Fure\App\App
+	 */
 	static private App $self;
+	
+	/*
+	 * Application service container.
+	 *
+	 * @access Static Private
+	 *
+	 * @values Array
+	 */
 	static private Array $services = [];
 	
 	use \Yume\Fure\App\AppDecoratorTrait;
 	
 	/*
-	 * @inherit Yume\Fure\Support\Design\Singleton::__construct
+	 * Construct method of class App.
+	 * Is not allowed to call from outside to
+	 * prevent from creating multiple instances.
 	 *
+	 * @access Protected
+	 *
+	 * @return Void
 	 */
 	protected function __construct()
 	{
 		Timer\Timer::execute( "booting", fn() => $this->booting() );
+	}
+
+			/*
+	 * Prevent the instance from being cloned.
+	 *
+	 * @access Protected
+	 *
+	 * @return Void
+	 */
+	protected function __clone(): Void
+	{}
+
+	/*
+	 * Prevent from being unserialized.
+	 * Or which would create a second instance of it.
+	 *
+	 * @access Public
+	 *
+	 * @return Void
+	 *
+	 * @throws Yume\Fure\Error\RuntimeError
+	 */
+	public function __wakeup(): Void
+	{
+		throw new Error\RuntimeError( sprintf( "Cannot unserialize %s", $this::class ) );
 	}
 	
 	/*
@@ -71,7 +154,7 @@ final class App extends Design\Singleton
 			if( defined( "YUME_CONTEXT" ) )
 			{
 				// Set application context.
-				$this->context = match( True )
+				static::$context = match( True )
 				{
 					YUME_CONTEXT_CLI => "cli",
 					YUME_CONTEXT_CLI_SERVER => "cli-server",

@@ -16,7 +16,7 @@ use Yume\Fure\Util\Reflect;
  */
 trait AppDecoratorTrait
 {
-	
+
 	/*
 	 * Get or import configuration.
 	 *
@@ -50,7 +50,7 @@ trait AppDecoratorTrait
 	}
 	
 	/*
-	 * Return application instance.
+	 * Return application context.
 	 *
 	 * @access Public Static
 	 *
@@ -58,13 +58,13 @@ trait AppDecoratorTrait
 	 *
 	 * @throws Yume\Fure\Error\LogicError
 	 */
-	public static function context(): App
+	public static function context(): String
 	{
 		if( self::isBooted() ||
 			self::isBooting() ||
 			self::isRunning() )
 		{
-			return( static::$self );
+			return( static::$context );
 		}
 		throw new Error\LogicError( "Can't get application instance, because the application doesn't not initialized" );
 	}
@@ -139,6 +139,24 @@ trait AppDecoratorTrait
 	public static function isWeb(): Bool
 	{
 		return( YUME_CONTEXT_WEB );
+	}
+
+	/*
+	 * Gets the instance via lazy initialization.
+	 *
+	 * @access Public Static
+	 *
+	 * @return Yume\Fure\App\App
+	 */
+	public static function self(): App
+	{
+		if( self::isBooted() ||
+			self::isBooting() ||
+			self::isRunning() )
+		{
+			return( static::$self );
+		}
+		return( static::$self = new Static( func_get_args() ) );
 	}
 	
 	/*
