@@ -42,7 +42,7 @@ trait AppDecoratorTrait
 			// If the configuration has not been registered or if re-import is allowed.
 			if( isset( static::$configs[$split[0]] ) === False || $import )
 			{
-				static::$configs[$split[0]] = Package\Package::import( sprintf( "%s/%s", Path\Paths::SYSTEM_CONFIG->value, $split[0] ) );
+				static::$configs[$split[0]] = Package\Package::import( sprintf( "%s/%s", Path\Paths::SystemConfig->value, $split[0] ) );
 			}
 			return( Array\Arr::ify( $split, static::$configs ) );
 		}

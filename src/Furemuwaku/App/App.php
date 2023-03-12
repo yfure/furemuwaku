@@ -171,7 +171,7 @@ final class App
 			define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
 			
 			// Import bootable settings file by environment.
-			Package\Package::import( sprintf( "%s/%s", Path\Paths::SYSTEM_BOOTING->value, $env ) );
+			Package\Package::import( sprintf( "%s/%s", Path\Paths::SystemBooting->value, $env ) );
 		}
 		else {
 			throw new Error\LogicError( sprintf( "The application environment must be development|production, \"%s\" given", $env ) );
