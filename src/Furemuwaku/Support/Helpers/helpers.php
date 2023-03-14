@@ -1,7 +1,11 @@
 <?php
 
+/*
+ * Yume Builtin Autoload Helpers.
+ *
+ */
+
 use Yume\Fure\App;
-use Yume\Fure\Cache;
 use Yume\Fure\CLI;
 use Yume\Fure\Database;
 use Yume\Fure\Error;
@@ -17,39 +21,51 @@ use Yume\Fure\Util\Env;
 use Yume\Fure\Util\File;
 use Yume\Fure\Util\File\Path;
 use Yume\Fure\Util\Json;
+use Yume\Fure\Util\Reflect;
 use Yume\Fure\Util\RegExp;
 use Yume\Fure\Util\Type;
 use Yume\Fure\View;
 use Yume\Fure\View\Template;
 
-/*
- * Get cache item or cache item pool
- *
- * @params String $key
- *
- * @return Yume\Fure\Cache\CacheItemInterface|Yume\Fure\Cache\CacheItemPoolInterface|
- */
-function cache( ? String $key = Null ): Cache\CacheItemInterface | Cache\CacheItemPoolInterface
+if( function_exists( "helper" ) === False )
 {
-	if( valueIsNotEmpty( $key ) )
+	/*
+	 * Import builtin helper files.
+	 *
+	 * @params String $path
+	 * @params String $self
+	 *
+	 * @return Void
+	 */
+	function helper( String $path, String $self ): Void
 	{
-		return( Cache\Cache::get( $key ) );
+		// Scaning directory.
+		$ls = array_diff( scandir( $path ), [ ".", "..", $self ] );
+		
+		// Mapping helpers.
+		foreach( $ls As $file )
+		{
+			if( is_dir( $file = $path . DIRECTORY_SEPARATOR . $file ) )
+			{
+				helper( $file, $self );
+			}
+			else {
+				require $file;
+			}
+		}
 	}
-	return( Cache\Cache::pool() );
 }
+
+// Get file name.
+$self = explode( DIRECTORY_SEPARATOR, __FILE__ );
+$self = end( $self );
+
+// Importing helpers.
+helper( __DIR__, $self );
 
 function clear( String $string ): String
 {
 	return( preg_replace( "/(^\s+)|(\s+$)/", "", $string ) );
-}
-
-/*
- * @inherit Yume\Fure\Config\Config
- *
- */
-function config( String $name, Bool $import = False ): Mixed
-{
-	return( App\App::config( $name, $import ) );
 }
 
 /*
@@ -95,27 +111,6 @@ function e( Throwable $e ): Void
 }
 
 /*
- * @inherit Yume\Fure\Support\Env\Env
- *
- */
-function env( String $env, Mixed $optional = Null )
-{
-	try
-	{
-		return( Env\Env::get( $env, $optional ) );
-	}
-	catch( Env\EnvError $e )
-	{
-		// Check if optional value is Callable type.
-		if( is_callable( $optional ) )
-		{
-			return( call_user_func( $optional ) );
-		}
-		return( $optional );
-	}
-}
-
-/*
  * @inherit Yume\Fure\Type\Str::fmt
  *
  */
@@ -149,28 +144,6 @@ function fsize( $file, Int | String $optional = 0 ): Int
 function lang( String $ify, Mixed ...$format ): String
 {
 	return( Locale\Locale::translate( $ify, ...$format ) ?? $ify );
-}
-
-/*
- * Write new log or get Logger instance class.
- *
- * @params Int|String|Yume\Fure\Logger\LoggerLevel
- * @params String $message
- * @params Array $context
- *
- * @return Yume\Fure\Logger\LoggerInterface
- */
-function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? String $message = Null, ? Array $context = Null ): ? Logger\LoggerInterface
-{
-	if( Services\Services::available( "logger", False ) )
-	{
-		Services\Services::register( "logger", new Logger\Logger(), False );
-	}
-	if( $level !== Null && $message !== Null && $context !== Null )
-	{
-		return( Services\Services::get( "logger" ) )->log( $level, $message, $context );
-	}
-	return( Services\Services::get( "logger" ) );
 }
 
 /*
