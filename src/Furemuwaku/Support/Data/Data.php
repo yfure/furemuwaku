@@ -3,6 +3,7 @@
 namespace Yume\Fure\Support\Data;
 
 use Yume\Fure\Error;
+use Yume\Fure\Support\Collection;
 use Yume\Fure\Util\Array;
 use Yume\Fure\Util\Json;
 
@@ -11,26 +12,8 @@ use Yume\Fure\Util\Json;
  *
  * @package Yume\Fure\Support\Data
  */
-class Data implements DataInterface
+class Data extends Collection\Collection implements DataInterface
 {
-	
-	/*
-	 * Location for overloaded data.
-	 *
-	 * @access Protected
-	 *
-	 * @values Array
-	 */
-	protected Array $data = [];
-	
-	/*
-	 * Current element value.
-	 *
-	 * @access Protected
-	 *
-	 * @values Int
-	 */
-	protected Int $index = 0;
 	
 	/*
 	 * Construct method of Data.
@@ -50,15 +33,16 @@ class Data implements DataInterface
 		}
 		
 		// Mapping data.
-		Array\Arr::map( $data, function( $i, $key, $value )
+		Array\Arr::map( $data, static function( $i, $key, $value ) use( &$data ): Void
 		{
 			// If data value is Array type.
 			if( is_array( $value ) )
 			{
 				$value = new Data( $value );
 			}
-			$this->data[$key] = $value;
+			$data[$key] = $value;
 		});
+		parent::__construct( $data );
 	}
 	
 	/*
@@ -136,7 +120,7 @@ class Data implements DataInterface
 	 */
 	public function __get( String $name ): Mixed
 	{
-		return( $this->data[$name] ?? Null );
+		return( $this )->offsetGet( $name );
 	}
 	
 	/*
@@ -150,7 +134,7 @@ class Data implements DataInterface
 	 */
 	public function __isset( String $name ): Bool
 	{
-		return( isset( $this->data[$name] ) );
+		return( $this )->offsetExists( $name );
 	}
 	
 	/*
@@ -163,10 +147,12 @@ class Data implements DataInterface
 	public function __reset( String | Int $name = 0, Mixed $value = Null ): Void
 	{
 		$this->data = [];
+		$this->keys = [];
 		
 		if( $value !== Null )
 		{
 			$this->data[$name] = $value;
+			$this->keys[] = $name;
 		}
 	}
 	
@@ -182,7 +168,7 @@ class Data implements DataInterface
 	 */
 	public function __set( String $name, Mixed $value ): Void
 	{
-		$this->data[$name] = is_array( $value ) ? new Data( $value ) : $value;
+		$this->offsetSet( $name, $value );
 	}
 	
 	/*
@@ -234,19 +220,7 @@ class Data implements DataInterface
 	 */
 	public function __unset( String $name ): Void
 	{
-		unset( $this->data[$name] );
-	}
-	
-	/*
-	 * Return the current element.
-	 *
-	 * @access Public
-	 *
-	 * @return Mixed
-	 */
-	public function current(): Mixed
-	{
-		return( $this->data[$this->index] );
+		$this->offsetUnset( $name );
 	}
 	
 	/*
@@ -293,19 +267,7 @@ class Data implements DataInterface
 		{
 			return( implode( $separator, $this->keys() ) );
 		}
-		return( implode( $separator, array_value( $this->__toArray() ) ) );
-	}
-	
-	/*
-	 * Return the key of the current element.
-	 *
-	 * @access Public
-	 *
-	 * @return Mixed
-	 */
-	public function key(): Mixed
-	{
-		return( $this->index );
+		return( implode( $separator, array_values( $this->__toArray() ) ) );
 	}
 	
 	/*
@@ -317,7 +279,7 @@ class Data implements DataInterface
 	 */
 	public function keys(): Array
 	{
-		return( array_keys( $this->data ) );
+		return( $this )->keys;
 	}
 	
 	/*
@@ -373,18 +335,6 @@ class Data implements DataInterface
 	}
 	
 	/*
-	 * Move forward to next element.
-	 *
-	 * @access Public
-	 *
-	 * @return Void
-	 */
-	public function next(): Void
-	{
-		$this->index++;
-	}
-	
-	/*
 	 * Assigns a value to the specified offset.
 	 *
 	 * @access Public
@@ -396,12 +346,18 @@ class Data implements DataInterface
 	 */
 	public function offsetSet( Mixed $offset, Mixed $value ): Void
 	{
+		if( is_array( $value ) )
+		{
+			$value = new Data( $value );
+		}
 		if( is_null( $offset ) )
 		{
 			$this->data[] = $value;
+			$this->keys = array_keys( $this->data );
 		}
 		else {
 			$this->data[$offset] = $value;
+			$this->keys[] = $offset;
 		}
 	}
 	
@@ -416,7 +372,7 @@ class Data implements DataInterface
 	 */
 	public function offsetExists( Mixed $offset ): Bool
 	{
-		return( isset( $this->data[$offset] ) );
+		return( in_array( $offset, $this->keys ) && isset( $this->data[$offset] ) );
 	}
 	
 	/*
@@ -432,6 +388,10 @@ class Data implements DataInterface
 	{
 		if( $this->offsetExists( $offset ) )
 		{
+			if( False !== $index = array_search( $offset, $this->keys ) )
+			{
+				unset( $this->keys[$index] );
+			}
 			unset( $this->data[$offset] );
 		}
 	}
@@ -451,39 +411,12 @@ class Data implements DataInterface
 	}
 	
 	/*
-	 * Rewind the Iterator to the first element.
-	 *
-	 * @access Public
-	 *
-	 * @return Void
-	 */
-	public function rewind(): Void
-	{
-		$this->index = 0;
-	}
-	
-	/*
-	 * Checks if current position is valid.
-	 *
-	 * @access Public
-	 *
-	 * @return Bool
-	 */
-	public function valid(): Bool
-	{
-		return( isset( $this->data[$this->index] ) );
-	}
-	
-	/*
-	 * Get value element.
-	 *
-	 * @access Public
-	 *
-	 * @return Mixed
+	 * @inherit Yume\Fure\Support\Collection\Collection::current
+	 * 
 	 */
 	public function value(): Mixed
 	{
-		return( $this->data[$this->index] );
+		return( $this )->current();
 	}
 	
 	/*
