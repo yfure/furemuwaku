@@ -123,12 +123,34 @@ class Erahandora extends Design\Singleton
 			
 			$view = config( "error[exception.view]" );
 			
-			if( File\File::exists( Path\Paths::ASSET_VIEW->path( $view ) ) )
+			$error = $sutakku->getTrace();
+			$error = new \Yume\Fure\Support\Data\Data( $error );
+			
+			if( File\File::exists( $path = Path\Paths::StorageView->path( f( "{}.php", $view ) ) ) )
 			{
-				echo view( $view, $sutakku->getTrace() );
+				$error->session = $_SESSION ?? [];
+				$error->request = $_REQUEST ?? [];
+				$error->server = $_SERVER ?? [];
+				$error->cookie = $_COOKIE ?? [];
+				$error->include = [
+					
+					// Gets the current include_path configuration option value.
+					"path" => @get_include_path() ?: "Something wrong",
+					
+					// Grouping included files.
+					"files" => File\File::group( get_included_files(), True )
+				];
+				$error->memory = [
+					"peak" => memory_get_peak_usage( True ),
+					"usage" => memory_get_usage( True )
+				];
+				( function() use( $error, $path )
+				{
+					include $path;
+				})();
 			}
 			else {
-				puts( "<pre>{}</pre>", $sutakku->getTrace() );
+				puts( "<pre>{}</pre>", $error );
 			}
 		}
 	}
