@@ -16,7 +16,14 @@ use Yume\Fure\Util\Json;
 class Config extends Data\Data
 {
 	
-	private /** Readonly */ Array $inherit;
+	/*
+	 * Other configuration instance.
+	 *
+	 * @access Private
+	 *
+	 * @values Array
+	 */
+	private Array $inherit;
 	
 	/*
 	 * @inherit Yume\Fure\Support\Data\Data::__construct()
@@ -33,8 +40,10 @@ class Config extends Data\Data
 			$this->__inherit( $configs['[inherit]'] );
 		}
 		
+		$data = [];
+		
 		// Mapping data.
-		Array\Arr::map( $configs, function( Int $i, Int | String $key, Mixed $value ) use( $name )
+		Array\Arr::map( $configs, function( Int $i, Int | String $key, Mixed $value ) use( $name, &$data ): Void
 		{
 			// If configuration value is not inheritable.
 			if( $key !== "[inherit]" )
@@ -44,9 +53,10 @@ class Config extends Data\Data
 				{
 					$value = new Config( $name, $value );
 				}
-				$this->data[$key] = $value;
+				$data[$key] = $value;
 			}
 		});
+		parent::__construct( $data );
 	}
 	
 	/*
@@ -69,7 +79,16 @@ class Config extends Data\Data
 		return( Null );
 	}
 	
-	private function __inherit( Mixed $inherits )
+	/*
+	 * Inject other configuration.
+	 *
+	 * @access Private
+	 *
+	 * @params Mixed $inherits
+	 *
+	 * @return Void
+	 */
+	private function __inherit( Mixed $inherits ): Void
 	{
 		// If config is multi inheritance.
 		if( is_array( $inherits ) )
