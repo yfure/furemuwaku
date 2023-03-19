@@ -27,6 +27,7 @@ use Yume\Fure\Util\Type;
 use Yume\Fure\View;
 use Yume\Fure\View\Template;
 
+// Check if helper function does not exists.
 if( function_exists( "helper" ) === False )
 {
 	/*
