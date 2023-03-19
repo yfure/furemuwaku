@@ -3,21 +3,18 @@
 /*
  * Yume Config Helpers.
  *
- * ...
+ * @include config
  */
 
 use Yume\Fure\App;
 
-if( function_exists( "config" ) === False )
+/*
+ * @inherit Yume\Fure\App\App::config
+ *
+ */
+function config( String $name, Bool $import = False ): Mixed
 {
-	/*
-	 * @inherit Yume\Fure\Config\Config
-	 *
-	 */
-	function config( String $name, Bool $import = False ): Mixed
-	{
-		return( App\App::config( $name, $import ) );
-	}
+	return( App\App::config( $name, $import ) );
 }
 
 ?>
