@@ -50,11 +50,11 @@ final class Path
 	 *
 	 * @params String $dir
 	 *
-	 * @return Array|Bool
+	 * @return Array
 	 *
 	 * @throws Yume\Fure\Util\Path\PathNotFoundError
 	 */
-	public static function ls( String $path ): Array | Bool
+	public static function ls( String $path ): Array
 	{
 		if( self::exists( $path ) )
 		{
@@ -80,23 +80,29 @@ final class Path
 	 * @params String $path
 	 * @params Int $permissions
 	 *
-	 * @return Void
+	 * @return Bool
 	 */
-	public static function mkdir( String $path, Int $permissions = 0777 ): Void
+	public static function mkdir( String $path, Int $permissions = 0777 ): Bool
 	{
 		// Directory stack.
 		$stack = "";
 		
-		// Mapping dir.
-		Array\Arr::map( explode( "/", $path ), function( Int $i, Int $idx, String $dir ) use( &$stack, $permissions )
+		// Directory stack.
+		$stack = "";
+		
+		foreach( explode( DIRECTORY_SEPARATOR, $path ) As $dir )
 		{
 			// Check if directory doesn't exists.
-			if( self::exists( $stack = sprintf( "%s%s/", $stack, $dir ) ) === False )
+			if( self::exists( $make = path( $stack .= DIRECTORY_SEPARATOR . $dir ) ) === False )
 			{
-				// If failed create directory.
-				if( mkdir( path( $stack ), $permissions ) === False ) return( STOP_ITERATION );
+				// If failed to make new directory.
+				if( mkdir( $make, $permissions ) === False )
+				{
+					return( False );
+				}
 			}
-		});
+		}
+		return( True );
 	}
 	
 	/*

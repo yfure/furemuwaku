@@ -22,34 +22,34 @@ enum Paths: String
 	 * @include App Tests
 	 * @include App Views
 	 */
-	case APP = "app";
-	case APP_CONTROLLER = "app/Http/Controllers";
-	case APP_HELPER = "app/Helpers";
-	case APP_LANG = "app/Lang";
-	case APP_MODEL = "app/Models";
-	case APP_PROVIDER = "app/Providers";
-	case APP_TEST = "app/Tests";
-	case APP_VIEW = "app/Views";
-	case APP_VIEW_COMPONENT = "app/Views/Components";
-	case APP_VIEW_TEMPLATE = "app/Views/Templates";
+	case AppController = "app/Http/Controllers";
+	case AppHelper = "app/Helpers";
+	case AppLang = "app/Lang";
+	case AppModel = "app/Models";
+	case AppProvider = "app/Providers";
+	case AppTest = "app/Tests";
+	case AppViewComponent = "app/Views/Components";
+	case AppViewTemplate = "app/Views/Templates";
+	case AppView = "app/Views";
+	case App = "app";
 	
-	// List of default paths for assets.
-	case ASSET = "assets";
-	case ASSET_CACHE = "assets/caches";
-	case ASSET_CACHE_VIEW = "assets/caches/views";
-	case ASSET_COOKIE = "assets/cookies";
-	case ASSET_COOKIE_SESSION = "assets/cookies/session";
-	case ASSET_LOGGING = "assets/logging";
-	case ASSET_VIEW = "assets/views";
-	case ASSET_VIEW_COMPONENT = "assets/views/components";
-	case ASSET_VIEW_TEMPLATE = "assets/views/templates";
+	// List of default paths for storage.
+	case StorageCacheView = "storage/caches/views";
+	case StorageCache = "storage/caches";
+	case StorageCookieSession = "storage/cookies/session";
+	case StorageCookie = "storage/cookies";
+	case StorageLogging = "storage/logging";
+	case StorageViewComponent = "storage/views/components";
+	case StorageViewTemplate = "storage/views/templates";
+	case StorageView = "storage/views";
+	case Storage = "storage";
 	
 	/*
 	 * Front controller path.
 	 *
 	 * @include Public
 	 */
-	case PUBLIC = "public";
+	case Public = "public";
 	
 	/*
 	 * List of default paths for system.
@@ -59,10 +59,10 @@ enum Paths: String
 	 * @include System Configs
 	 * @include System Routes
 	 */
-	case SYSTEM = "system/";
-	case SYSTEM_BOOTING = "system/booting";
-	case SYSTEM_CONFIG = "system/configs";
-	case SYSTEM_ROUTES = "system/routes";
+	case SystemBooting = "system/booting";
+	case SystemConfig = "system/configs";
+	case SystemRoutes = "system/routes";
+	case System = "system/";
 	
 	/*
 	 * List of default paths for vendor.
@@ -73,11 +73,13 @@ enum Paths: String
 	 * @include Vendor Furemuwaku/Helper
 	 * @include Vendor YFure
 	 */
-	case VENDOR = "vendor";
-	case VENDOR_INSTALLED = "vendor/composer/installed.json";
-	case VENDOR_FUREMU = "vendor/yfure/framework/src/Furemuwaku/";
-	case VENDOR_FUREMU_HELPER = "vendor/yfure/framework/src/Furemuwaku/Helpers";
-	case VENDOR_YFURE = "vendor/yfure";
+	case VendorInstalled = "vendor/composer/installed.json";
+	case VendorFuremuHelper = "vendor/yfure/framework/src/Furemuwaku/Support/Helpers";
+	case VendorFuremu = "vendor/yfure/framework/src/Furemuwaku";
+	case VendorYFure = "vendor/yfure";
+	case Vendor = "vendor";
+	
+	use \Yume\Fure\Util\Enum\EnumDecoratorTrait;
 	
 	/*
 	 * ...
@@ -96,7 +98,7 @@ enum Paths: String
 		];
 		foreach( $paths As $prefix )
 		{
-			if( strpos( $path, $prefix ) !== False )
+			if( strpos( $path, $prefix ) === 0 )
 			{
 				return( True );
 			}
