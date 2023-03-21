@@ -18,6 +18,8 @@ use Yume\Fure\Util\Reflect;
 final class Str
 {
 	
+	use \Yume\Fure\Util\Type\CaseDecoratorTrait;
+	
 	/*
 	 * Escape string.
 	 *
@@ -58,8 +60,8 @@ final class Str
 	 *
 	 * @access Public Static
 	 *
-	 * @params String $string
-	 * @params Mixed ...$format
+	 * @params String $format
+	 * @params Mixed ...$values
 	 *
 	 * @allows Iteration Replacement.
 	 * @syntax {}
@@ -95,12 +97,11 @@ final class Str
 	 *
 	 * @return String
 	 */
-	public static function fmt( String $string, Mixed ...$format ): String
+	public static function fmt( String $format, Mixed ...$values ): String
 	{
 		// Patterns.
 		$cur = "(?<curly>(\\\*)\{[\s\t]*(\\\*)\})";
 		$itr = "(?<iteration>(\+|\-){1,2})";
-		//$env = "(?<environment>env\\<(?<ename>[a-zA-Z0-9_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\\>)";
 		$idx = "(?<indexed>[0-9]([a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)";
 		$key = "(?<key>[a-zA-Z0-9_\x80-\xff]([a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)";
 		$stt = "(?<static>(?<class>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(?:\\\[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)*)\:\:(?<fname>[a-zA-Z_\x7f-\xff][a-zA-Z_\x7f-\xff]*))";
@@ -108,7 +109,7 @@ final class Str
 		$met = "(?<method>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)";
 		
 		// Replace format syntaxs.
-		$replace = preg_replace_callback( pattern: "/(?:(?<matched>(?<!\\\)\{([\s\t]*)(?<syntax>.*?)([\s\t]*)(?<!\\\)\}))/", subject: $string, callback: function( Array $match ) use( $cur, $itr, /** $env, */ $idx, $key, $fun, $met, &$string, &$format )
+		$replace = preg_replace_callback( pattern: "/(?:(?<matched>(?<!\\\)\{([\s\t]*)(?<syntax>.*?)([\s\t]*)(?<!\\\)\}))/", subject: $format, callback: function( Array $match ) use( $cur, $itr, /** $env, */ $idx, $key, $fun, $met, &$format, &$values )
 		{
 			// Statically variable.
 			static $i = 0;
@@ -123,46 +124,46 @@ final class Str
 				if( preg_match( "/^(?:(?<matched>($cur|$itr|$fun|$idx|$key)(\:($met))*)(?<skip>\#[^\n]*)*)$/iJ", $syntax, $match, PREG_UNMATCHED_AS_NULL ) )
 				{
 					// Get format values.
-					$values = self::fmtValue( $match, $format, $i );
+					$value = self::fmtValue( $match, $values, $i );
 					
 					// Check if syntax function is exists.
 					if( isset( $match['function'] ) )
 					{
 						// Check if values is not Array type.
-						if( is_array( $values ) === False ) $values = [ $values ];
+						if( is_array( $value ) === False ) $value = [ $value ];
 						
 						// Check if function is static method.
 						if( isset( $match['static'] ) )
 						{
 							// Get method return values.
-							$values = call_user_func_array( $match['static'], $values );
+							$value = call_user_func_array( $match['static'], $value );
 						}
 						else {
 							
 							// Get function return values.
-							$values = call_user_func_array( $match['fname'], $values );
+							$value = call_user_func_array( $match['fname'], $value );
 						}
 					}
 					
 					// Parse values to string.
-					$values = self::parse( $values );
+					$value = self::parse( $value );
 					
 					// Check if method is available.
 					if( isset( $match['method'] ) )
 					{
 						// Matching supported method.
-						$values = match( strtolower( $match['method'] ) )
+						$value = match( strtolower( $match['method'] ) )
 						{
 							// Supported methods.
 							"b64decode",
-							"base64_decode" => base64_decode( $values ),
+							"base64_decode" => base64_decode( $value ),
 							"b64encode",
-							"base64_encode" => base64_encode( $values ),
-							"bin2hex" => bin2hex( $values ),
-							"lcfirst" => lcfirst( $values ),
-							"lower" => strtolower( $values ),
-							"ucfirst" => ucfirst( $values ),
-							"upper" => strtoupper( $values ),
+							"base64_encode" => base64_encode( $value ),
+							"bin2hex" => bin2hex( $value ),
+							"lcfirst" => lcfirst( $value ),
+							"lower" => strtolower( $value ),
+							"ucfirst" => ucfirst( $value ),
+							"upper" => strtoupper( $value ),
 							"htmlspecialchars" => htmlspecialchars( $value ),
 							
 							// Supported hash methods.
@@ -225,21 +226,20 @@ final class Str
 							"haval160x2c5",
 							"haval192x2c5",
 							"haval224x2c5",
-							"haval256x2c5" => hash( preg_replace_callback( "/x([a-fA-F0-9]{2})/", fn( Array $m ) => hex2bin( $m[1] ), $match['method'] ), $values ),
+							"haval256x2c5" => hash( preg_replace_callback( "/x([a-fA-F0-9]{2})/", fn( Array $m ) => hex2bin( $m[1] ), $match['method'] ), $value ),
 							
 							// When unsupported method passed.
 							default => sprintf( "#[value(Unsuported method %s)]", $match['method'] )
 						};
 					}
-					return( self::parse( $values ) );
+					return( self::parse( $value ) );
 				}
 				else {
-					return( self::parse( self::fmtValue( [ "matched" => $matched ], $format, $i ) ) );
+					return( self::parse( self::fmtValue( [ "matched" => $matched ], $values, $i ) ) );
 				}
 			}
 			catch( Throwable $e )
 			{
-				
 				return( sprintf( "#[%s(%s on line %d in file %s)]", $e::class, $e->getMessage(), $e->getLine(), path( $e->getFile(), True ) ) );
 			}
 			$i++;
@@ -254,9 +254,9 @@ final class Str
 	 * @params Array $format
 	 * @params Int $i
 	 *
-	 * @return Callable
+	 * @return Mixed
 	 */
-	private static function fmtValue( Array $match, Array $format, Int &$i ): Array | Callable | String
+	private static function fmtValue( Array $match, Array $format, Int &$i ): Mixed
 	{
 		return( call_user_func( match( True )
 		{
