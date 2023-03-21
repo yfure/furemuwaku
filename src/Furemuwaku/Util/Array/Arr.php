@@ -6,7 +6,6 @@ use ArrayAccess;
 
 use Yume\Fure\Error;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Util\RegExp;
 use Yume\Fure\Util\Type;
 
 /*
@@ -56,7 +55,7 @@ final class Arr
 				if( $index === "" ) continue;
 				
 				// Decode Hexadecimal strings.
-				$index = RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $index, fn( $m ) => hex2bin( $m[1] ) );
+				$index = preg_replace_callback( "/^(?:hx_(.*?))$/", fn( $m ) => hex2bin( $m[1] ), $index );
 			}
 			
 			// Check if stack variable is exists.
@@ -96,7 +95,7 @@ final class Arr
 	 */
 	public static function ifyJoin( Array $split ): String
 	{
-		return( implode( ".", self::map( $split, fn( $i, $k, $refer ) => RegExp\RegExp::replace( "/^(?:hx_(.*?))$/", $refer, fn( $m ) => hex2bin( $m[1] ) ) ) ) );
+		return( implode( ".", array_map( fn( $refer ) => preg_replace_callback( "/^(?:hx_(.*?))$/", fn( $m ) => hex2bin( $m[1] ), $refer ), $split ) ) );
 	}
 	
 	/*
@@ -110,7 +109,7 @@ final class Arr
 	 */
 	public static function ifySplit( String $refer ): Array
 	{
-		return( explode( ".", RegExp\RegExp::replace( "/(?:\[([^\]]*)\])/", $refer, fn( $m ) => f( ".hx_{}", bin2hex( $m[1] ) ) ) ) );
+		return( explode( ".", preg_replace_callback( "/(?:\[([^\]]*)\])/", fn( $m ) => f( ".hx_{}", bin2hex( $m[1] ) ), $refer ) ) );
 	}
 	
 	/*
