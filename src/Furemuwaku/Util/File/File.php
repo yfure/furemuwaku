@@ -130,6 +130,64 @@ final class File
 	{
 		return( file_exists( Path\Path::path( $file ) ) && is_file( Path\Path::path( $file ) ) );
 	}
+	
+	/*
+	 * Group list files into appropriate categories.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array $files
+	 * @params Bool $remove
+	 *  Remove basepath prefix for before equalizing.
+	 *
+	 * @return Array
+	 */
+	public static function group( Array $files, Bool $remove = False ): Array
+	{
+		// Group stack.
+		$group = [];
+		
+		// If files has basepath.
+		$files = $remove ? array_map( fn( String $file ) => path( $file, True ), $files ) : $files;
+		
+		// Mapping files.
+		foreach( $files As $idx => $file )
+		{
+			// Mapping all pathnames.
+			Path\Paths::map(
+				
+				/*
+				 * Handle mapping paths.
+				 *
+				 * @params Int $i
+				 * @params String $name
+				 * @params Yume\Fure\Util\File\Path\Paths $case
+				 *
+				 * @return Mixed
+				 */
+				function( Int $i, String $name, Path\Paths $case ) use( $idx, $file, &$files, &$group ): Mixed
+				{
+					if( $case->is( $file ) )
+					{
+						$group[$name] ??= [];
+						$group[$name][] = $file;
+						
+						unset( $files[$idx] );
+					}
+					else {
+						return( False );
+					}
+					return( STOP_ITERATION );
+				}
+			);
+		}
+		
+		// Leftover files will still be considered.
+		$group['others'] = $files;
+		
+		// Return sorted array by key name.
+		return( ksort( $group ) === True ? $group : [] );
+	}
 
 	/*
 	 * Check if file open mode is readable.
