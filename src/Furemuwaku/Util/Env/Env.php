@@ -160,6 +160,18 @@ class Env extends Design\Singleton
 	}
 	
 	/*
+	 * Get all defined environments.
+	 *
+	 * @access Public Static
+	 *
+	 * @return Yume\Fure\Util\Env\EnvVariables
+	 */
+	public static function getAll(): EnvVariables
+	{
+		return( self::self() )->vars->copy();
+	}
+	
+	/*
 	 * Check if environment variable is set.
 	 *
 	 * @access Public Static

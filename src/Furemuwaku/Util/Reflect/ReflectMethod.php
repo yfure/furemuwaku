@@ -5,6 +5,7 @@ namespace Yume\Fure\Util\Reflect;
 use Closure;
 use Generator;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionType;
 
@@ -790,16 +791,13 @@ abstract class ReflectMethod
 		// Reflection class.
 		$reclass = Null;
 		
-		// Check if class is Singleton.
-		// Check if class is App.
-		if( ReflectClass::isSingleton( $class, $reclass ) ||
-			ReflectClass::isApp( $class, $reclass ) )
+		// Check if class is Singleton
+		if( ReflectClass::isSingleton( $class, $reclass ) )
 		{
-			throw new Error\ClassError( $class, Error\ClassError::ACCESSIBLE_ERROR );
+			throw new Error\MethodError( [ $reclass->name, $method ], Error\MethodError::ACCESS_ERROR );
 		}
-		
-		// Set method accessiblity.
-		( $reflect = self::reflect( $class, $method, $reflect ) )->setAccessible( $accessible );
+		$reflect = self::reflect( $class, $method, $reflect );
+		$reflect->setAccessible( $accessible );
 	}
 	
 	/*
@@ -827,7 +825,21 @@ abstract class ReflectMethod
 				return( $reflect );
 			}
 		}
-		return( new ReflectionMethod( $class, $method ) );
+		try
+		{
+			return( new ReflectionMethod( $class, $method ) );
+		}
+		catch( ReflectionException $e )
+		{
+			if( preg_match( "/^Method\s[^\s]*\sdoes\snot\sexist$/i", $e->getMessage() ) )
+			{
+				$e = new Error\MethodError( [ $class, $method ], Error\MethodError::NAME_ERROR, $e );
+			}
+			else {
+				$e = new Error\MethodError( $e->getMessage(), previous: $e );
+			}
+			throw $e;
+		}
 	}
 	
 }

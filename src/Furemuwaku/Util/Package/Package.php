@@ -145,7 +145,7 @@ final class Package extends Design\Singleton
 		if( Reflect\ReflectProperty::isInitialized( $this, "installed" ) ) return;
 		
 		// Get composer installed packages.
-		$installed = File\File::json( Path\Paths::VENDOR_INSTALLED->value, True )['packages'] ?? [];
+		$installed = File\File::json( Path\Paths::VendorInstalled->value, True )['packages'] ?? [];
 		$packages = [];
 		
 		// Mapping all packages.
@@ -157,7 +157,7 @@ final class Package extends Design\Singleton
 			// Mapping all autoload packages.
 			foreach( $autoload As $space => $path )
 			{
-				$autoload[$space] = sprintf( "%s/%s/%s", Path\Paths::VENDOR->value, $package['name'], $path );
+				$autoload[$space] = sprintf( "%s/%s/%s", Path\Paths::Vendor->value, $package['name'], $path );
 			}
 			$packages = [
 				...$packages,
@@ -167,7 +167,7 @@ final class Package extends Design\Singleton
 		$this->installed = [
 			...$packages,
 			...[
-				"Yume\\App\\" => Path\Paths::APP->value . "/"
+				"Yume\\App\\" => Path\Paths::App->value . "/"
 			]
 		];
 	}

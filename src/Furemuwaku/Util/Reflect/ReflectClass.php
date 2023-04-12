@@ -4,14 +4,19 @@ namespace Yume\Fure\Util\Reflect;
 
 use Countable;
 use Stringable;
+use Throwable;
 
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionClassConstant;
+use ReflectionEnum;
+use ReflectionException;
 use ReflectionExtension;
 use ReflectionMethod;
 use ReflectionProperty;
 
 use Yume\Fure\App;
+use Yume\Fure\Error;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Support\Design;
 use Yume\Fure\Services;
@@ -319,7 +324,6 @@ abstract class ReflectClass
 		{
 			$parents[] = $parent->getName();
 		}
-		
 		return( $parents );
 	}
 	
@@ -573,33 +577,61 @@ abstract class ReflectClass
 	 * @access Public Static
 	 *
 	 * @params Object|String $class
-	 * @params Array|False $construct
-	 * @params Mixed $reflect
+	 * @params Array|False $argument
+	 *  If false then the class will be instantiated without a constructor method.
+	 * @params Mixed &$reflect
 	 *
 	 * @return Object
+	 *
+	 * @throws Yume\Fure\Error\AttributeError
+	 * @throws Yume\Fure\Error\ClassError
 	 */
-	public static function instance( Object | String $class, Array | False | Null $construct = Null, Mixed &$reflect = Null ): Object
+	public static function instance( Object | String $class, Array | False $argument = [], Mixed &$reflect = Null ): Object
 	{
-		// Check if class is Singleton.
-		// Check if class is App.
-		if( ReflectClass::isSingleton( $class, $reflect ) ||
-			ReflectClass::isApp( $class, $reflect ) )
+		// Check if reflect is instanceof ReflectionAttribute class.
+		if( $reflect Instanceof ReflectionAttribute )
 		{
-			throw new Error\ClassError( $class, Error\ClassError::INSTANCE_ERROR );
+			if( $argument === False )
+			{
+				$argument = [];
+			}
+			try
+			{
+				return( $reflect )->newInstance( ...$argument );
+			}
+			catch( \Error $e )
+			{
+				if( preg_match( "/^Attempting\sto\suse\snon\-attribute\sclass\s\"[^\"]+\"\sas\sattribute$/i", $e->getMessage() ) )
+				{
+					$e = new Error\AttributeError( $reflect->getName(), Error\AttributeError::TYPE_ERROR, $e );
+				}
+				else {
+					$e = new Error\AttributeError( $e->getMessage(), previous: $e );
+				}
+				throw $e;
+			}
 		}
-		
-		// Check if class is not abstraction and has constructor.
-		if( $construct !== False && $reflect->isAbstract() === False && $reflect->getConstructor() )
-		{
-			// Get class constructor parameter.
-			$parameter = $reflect->getConstructor()->getParameters();
+		else {
 			
-			// Return new class instance.
-			return( $reflect )->newInstance( ...ReflectParameter::builder( $parameter, $construct ?? [] ) );
+			// Check if class is instantiable and not Singleton class.
+			if( self::isInstantiable( $class, $reflect ) === True &&
+				self::isSingleton( $class, $reflect ) === False )
+			{
+				// If the constructor is allowed to be called,
+				// and if class has constructor method.
+				if( $argument !== False && $construct = $reflect->getConstructor() )
+				{
+					return( $reflect )->newInstance(
+						...ReflectParameter::builder( 
+							$construct->getParameters(), 
+							$argument 
+						)
+					);
+				}
+				return( $reflect )->newInstanceWithoutConstructor();
+			}
 		}
-		
-		// Return new class instance without constructor.
-		return( $reflect )->newInstanceWithoutConstructor();
+		throw new Error\ClassInstanceError( $reflect->name );
 	}
 	
 	/*
@@ -978,20 +1010,36 @@ abstract class ReflectClass
 	 * @params Object|String $class
 	 * @params Mixed $reflect
 	 *
-	 * @return ReflectionClass
+	 * @return ReflectionAttribute|ReflectionClass|ReflectionEnum
 	 */
-	private static function reflect( Object | String $class, Mixed $reflect ): ReflectionClass
+	private static function reflect( Object | String $class, Mixed $reflect ): ReflectionAttribute | ReflectionClass | ReflectionEnum
 	{
 		// Get class name.
 		$class = is_object( $class ) ? $class::class : $class;
 		
-		// Check if `reflect` is instanceof ReflectionClass.
-		if( $reflect Instanceof ReflectionClass && $reflect->name === $class )
+		// Check if `reflect` is instance of Reflection Attribute, Class or Enum.
+		if( $reflect Instanceof ReflectionAttribute && $reflect->getName() === $class ||
+			$reflect Instanceof ReflectionClass && $reflect->name === $class ||
+			$reflect Instanceof ReflectionEnum )
 		{
 			return( $reflect );
 		}
 		else {
-			return( new ReflectionClass( $class ) );
+			try
+			{
+				return( new ReflectionClass( $class ) );
+			}
+			catch( ReflectionException $e )
+			{
+				if( preg_match( "/^Class\s\"[^\"]+\"\sdoes\snot\sexist$/i", $e->getMessage() ) )
+				{
+					$e = new Error\ClassNameError( $class, previous: $e );
+				}
+				else {
+					$e = new Error\ClassError( $e->getMessage(), previous: $e );
+				}
+				throw $e;
+			}
 		}
 	}
 	

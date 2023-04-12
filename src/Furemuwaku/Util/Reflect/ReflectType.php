@@ -10,26 +10,15 @@ use Reflector;
 
 use Yume\Fure\Services;
 use Yume\Fure\Util\RegExp;
+use Yume\Fure\Util\Type;
 
 /*
  * ReflectType
  *
  * @package Yume\Fure\Util\Reflect
  */
-abstract class ReflectType
+final class ReflectType
 {
-	
-	/*
-	 * Checks if null is allowed.
-	 *
-	 * @access Public Static
-	 *
-	 * @params $
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	abstract public static function allowsNull(): Bool;
 	
 	/*
 	 * Value binding.
@@ -50,7 +39,7 @@ abstract class ReflectType
 			$types = explode( "|", str_replace( [ "?", "&" ], [ "null|", "|" ], $reflect->__toString() ) );
 			
 			// Get type given.
-			$given = ucfirst( gettype( $value ) );
+			$given = type( $value, disable: True );
 			
 			foreach( $types As $type )
 			{
@@ -78,8 +67,8 @@ abstract class ReflectType
 					// type is the same as the given instance name.
 					if( $given === "Object" && $type === $value::class ) return( $value );
 					
-					// Check if the class name has been bound in the application.
-					if( $binded = Services\Services::app()->binded( $type ) ) return( $binded );
+					// If class has bind in service container.
+					if( Services\Services::available( $type ) ) return( Services\Services::get( $type ) );
 				}
 				else {
 					return( $value );
@@ -88,42 +77,6 @@ abstract class ReflectType
 		}
 		return( Null );
 	}
-	
-	/*
-	 * Get the name of the type as a string.
-	 *
-	 * @access Public Static
-	 *
-	 * @params $
-	 * @params Mixed $reflect
-	 *
-	 * @return String
-	 */
-	abstract public static function getName(): String;
-	
-	/*
-	 * Returns the types included in the union type.
-	 *
-	 * @access Public Static
-	 *
-	 * @params $
-	 * @params Mixed $reflect
-	 *
-	 * @return Array
-	 */
-	abstract public static function getTypes(): Array;
-	
-	/*
-	 * Checks if it is a built-in type.
-	 *
-	 * @access Public Static
-	 *
-	 * @params $
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	abstract public static function isBuiltin(): Bool;
 	
 }
 

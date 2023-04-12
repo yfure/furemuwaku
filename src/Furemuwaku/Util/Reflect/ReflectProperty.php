@@ -3,8 +3,10 @@
 namespace Yume\Fure\Util\Reflect;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
 use ReflectionType;
+use Throwable;
 
 use Yume\Fure\Error;
 
@@ -13,7 +15,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util\Reflect
  */
-abstract class ReflectProperty
+final class ReflectProperty
 {
 	
 	/*
@@ -324,15 +326,12 @@ abstract class ReflectProperty
 		$reclass = Null;
 		
 		// Check if class is Singleton.
-		// Check if class is App.
-		if( ReflectClass::isSingleton( $class, $reclass ) ||
-			ReflectClass::isApp( $class, $reclass ) )
+		if( ReflectClass::isSingleton( $class, $reclass ) )
 		{
-			throw new Error\ClassError( $class, Error\ClassError::ACCESSIBLE_ERROR );
+			throw new Error\PropertyError( [ $reclass->name, $property ], Error\PropertyError::ACCESS_ERROR );
 		}
-		
-		// Set property accessibility.
-		( $reflect = self::reflect( $class, $property, $reflect ) )->setAccessible( $accessible );
+		$reflect = self::reflect( $class, $property, $reflect );
+		$reflect->setAccessible( $accessible );
 	}
 	
 	/*
@@ -353,11 +352,9 @@ abstract class ReflectProperty
 		$reclass = Null;
 		
 		// Check if class is Singleton.
-		// Check if class is App.
-		if( ReflectClass::isSingleton( $class, $reclass ) ||
-			ReflectClass::isApp( $class, $reclass ) )
+		if( ReflectClass::isSingleton( $class, $reclass ) )
 		{
-			throw new Error\ClassError( $class, Error\ClassError::ACCESSIBLE_ERROR );
+			throw new Error\PropertyError( [ $reclass->name, $property ], Error\PropertyError::ACCESS_ERROR );
 		}
 		
 		// Check if property is static type.
@@ -395,7 +392,21 @@ abstract class ReflectProperty
 				return( $reflect );
 			}
 		}
-		return( new ReflectionProperty( $class, $property ) );
+		try
+		{
+			return( new ReflectionProperty( $class, $property ) );
+		}
+		catch( ReflectionException $e )
+		{
+			if( preg_match( "/^Property\s[^\s]*\sdoes\snot\sexist$/i", $e->getMessage() ) )
+			{
+				$e = new Error\PropertyError( [ $class, $property ], Error\PropertyError::NAME_ERROR, $e );
+			}
+			else {
+				$e = new Error\MethodError( $e->getMessage(), previous: $e );
+			}
+			throw $e;
+		}
 	}
 	
 }

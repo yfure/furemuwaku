@@ -5,8 +5,9 @@ namespace Yume\Fure\Util\Env;
 use Throwable;
 
 use Yume\Fure\Error;
-use Yume\Fure\Util;
+use Yume\Fure\Util\Array;
 use Yume\Fure\Util\RegExp;
+use Yume\Fure\Util\Type;
 
 /*
  * EnvError
@@ -83,7 +84,7 @@ class EnvError extends Error\TypeError
 			self::JSON_ERROR => $this->format( "Invalid json string value in variable {}", $message ),
 			self::REFERENCE_ERROR => $this->format( "Undefined environment variable {}", $message ),
 			self::SYNTAX_ERROR => $this->format( "Invalid syntax {}", $message ),
-			default => Util\Str::parse( $message )
+			default => Type\Str::parse( $message )
 		});
 	}
 	
@@ -103,7 +104,7 @@ class EnvError extends Error\TypeError
 		if( is_array( $message ) )
 		{
 			// Mapping messages.
-			$values = Util\Arr::map( $message, function( Int $i, $idx, $value )
+			$values = Array\Arr::map( $message, function( Int $i, $idx, $value )
 			{
 				// Check if message is String type.
 				if( is_string( $value ) )
@@ -123,7 +124,7 @@ class EnvError extends Error\TypeError
 		}
 		
 		// Return formated message.
-		return( Util\Str::fmt( $format, ...$values ) );
+		return( Type\Str::fmt( $format, ...$values ) );
 	}
 	
 }

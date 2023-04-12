@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util\Json;
 
+use stdClass;
+
 /*
  * JSON
  *
@@ -67,7 +69,6 @@ final class Json
         {
             throw new JSONError( self::error(), $errno );
         }
-        
         return( $decode );
     }
     

@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util\RegExp;
 
+use Throwable;
+
 use Yume\Fure\Error;
 
 /*
@@ -86,6 +88,38 @@ class RegExpError extends Error\TypeError
 		self::MODIFIER_ERROR => "Regular Expression unknown modifier \"{}\", pattern \"{}\"",
 		self::MODIFIER_DUPLICATE_ERROR => "Regular expressions cannot have the same multiple modifiers, flag \"{}\", pattern \"{}\""
 	];
+	
+	/*
+	 * @inherit Yume\Fure\Error\TypeError
+	 *
+	 */
+	public function __construct( Array | Int | String $message, Int $code = 0, ? Throwable $previous = Null )
+	{
+		// Check if exception thrown in RegExp Namespace.
+		if( preg_match( $regex = "/\/RegExp\/(Pattern|RegExp)\.php$/i", $this->getFile() ) )
+		{
+			// Mapping exception traces.
+			foreach( $this->getTrace() As $i => $trace )
+			{
+				// Skip if class name has no Reflect Namespace.
+				if( strpos( $trace['class'] ?? "", RegExp\RegExp::class ) === False ) continue;
+				
+				// Skip if file name has RegExp\RegExp.
+				if( preg_match( $regex, $trace['file'] ?? "" ) ) continue;
+				
+				// If keys is exists.
+				if( isset( $trace['function'] ) &&
+					isset( $trace['file'] ) &&
+					isset( $trace['type'] ) &&
+					isset( $trace['line'] ) )
+				{
+					$this->file = $trace['file'];
+					$this->line = $trace['line']; break;
+				}
+			}
+		}
+		parent::__construct( $message, $code, $previous );
+	}
 	
 }
 

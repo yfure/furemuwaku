@@ -5,9 +5,12 @@ namespace Yume\Fure\Util\Reflect;
 use Closure;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionExtension;
 use ReflectionFunction;
 use ReflectionType;
+
+use Yume\Fure\Error;
 
 /*
  * ReflectFunction
@@ -537,14 +540,27 @@ abstract class ReflectFunction
 		// Check if `reflect` is instanceof ReflectionFunction.
 		if( $reflect Instanceof ReflectionFunction )
 		{
-			// 
 			if( is_string( $function ) && $reflect->getName() === $function ||
 				is_callable( $function ) && $reflect->getClosure() === $function )
 			{
 				return( $reflect );
 			}
 		}
-		return( new ReflectionFunction( $function ) );
+		try
+		{
+			return( new ReflectionFunction( $function ) );
+		}
+		catch( ReflectionException $e )
+		{
+			if( preg_match( "/^Function\s[^\s]*\sdoes\snot\sexist$/i", $e->getMessage() ) )
+			{
+				$e = new Error\FunctionError( $function, Error\FunctionError::NAME_ERROR, $e );
+			}
+			else {
+				$e = new Error\FunctionError( $e->getMessage(), previous: $e );
+			}
+			throw $e;
+		}
 	}
 	
 }

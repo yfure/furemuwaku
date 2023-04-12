@@ -3,13 +3,16 @@
 namespace Yume\Fure\Util\Reflect;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionFunctionAbstract;
 use ReflectionIntersectionType;
 use ReflectionParameter;
 use ReflectionType;
 
+use Yume\Fure\Error;
 use Yume\Fure\Support\Data;
 use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Json;
 use Yume\Fure\Util\Type;
 
 /*
@@ -17,7 +20,7 @@ use Yume\Fure\Util\Type;
  *
  * @package Yume\Fure\Util\Reflect
  */
-abstract class ReflectParameter
+final class ReflectParameter
 {
 	
 	/*
@@ -55,52 +58,83 @@ abstract class ReflectParameter
 		// Parameter binding stack.
 		$binding = [];
 		
-		// Mapping parameters.
-		Array\Arr::map( $parameter, function( $i, $key, $params ) use( &$reflect, &$binding, $arguments )
+		/*
+		 * Mapping parameters.
+		 *
+		 * @params Int $i
+		 * @params Int|String $idx
+		 * @params Mixed $param
+		 *
+		 * @scopes $reflect
+		 * @scopes $binding
+		 * @scopes $arguments
+		 *
+		 * @return Void
+		 */
+		Array\Arr::map( $parameter, function( Int $i, Int | String $idx, Mixed $param ) use( &$reflect, &$binding, $arguments ): Void
 		{
-			// If `params` is array.
-			if( is_array( $params ) )
+			// Error message.
+			static $error = "Cannot build parameters, the value of the argument \$parameter must be a valid array <ReflectionParameter>|<Callable<ReflectionParameter>>, {} passed in the array element \$parameter<Array[{}]>";
+			
+			//<Function<Array>|<Object>|<String>>
+			//<Parameter<Int>|<String>>
+			//<Reflection<Mixed>>
+			
+			// If param value is Array type.
+			if( is_array( $param ) )
 			{
-				// Checks whether the array has elements with index 0 or key reflect.	
-				if( isset( $params[2] ) === False && isset( $params['reflect'] ) === False )
-				{
-					// To avoid argument count errors.
-					$params['reflect'] = False;
-				}
+				// Get array values.
+				$param = array_values( $param );
 				
-				// Get ReflectionParameter instance.
-				$params = self::reflect( ...$params );
+				// If array value is empty.
+				if( count( $param ) >= 2 )
+				{
+					// Get ReflectionParameter instance.
+					$param = self::reflect( $param[0], $param[1], $param[3] ?? False );
+				}
+				else {
+					throw new Error\ValueError( f( $error, f( "Array{}", Json\Json::encode( $param, JSON_INVALID_UTF8_SUBSTITUTE ) ), $idx ) );
+				}
 			}
+			else if( $param Instanceof ReflectionParameter ) {}
+			else {
+				throw new Error\ValueError( f( $error, type( $param ), $idx ) );
+			}
+			
+			// Get argument position.
+			$pos = $param->getPosition();
+			
+			// Get argument name.
+			$name = $param->getName();
 			
 			// Get value by parameter name or position.
-			$value = $arguments[$params->getName()] ?? $arguments[$params->getPosition()] ?? Null;
+			$binding[$name] = $arguments[$pos] ?? $arguments[$name] ?? Null;
 			
 			// Set ReflectionParameter to reference variable.
-			$reflect[$params->getName()] = $params;
+			$reflect[$name] = $param;
+			
+			// If parameter does't have argument passed.
+			if( $binding[$name] === Null )
+			{
+				$binding[$name] = $param->isDefaultValueAvailable() ? $param->getDefaultValue() : Null;
+			}
 			
 			// Check if parameter has type.
-			if( $params->hasType() )
+			if( $param->hasType() )
 			{
 				// Get ReflectionType instance.
-				$ntyped = $params->getType();
+				$ntyped = $param->getType();
 				
 				// Get value by ReflectionType.
-				$binding[$params->getName()] = ReflectType::binding( $value === Null ? ( $params->isDefaultValueAvailable() ? $params->getDefaultValue() : Null ) : $value, $ntyped );
+				$binding[$name] = ReflectType::binding( $binding[$name], $ntyped );
 				
 				// Check if value is null and null is not allowed.
-				if( $binding[$params->getName()] === Null && $ntyped->allowsNull() === False )
+				if( $binding[$name] === Null && $ntyped->allowsNull() === False )
 				{
-					unset( $binding[$params->getName()] );
+					throw new Error\ParameterError( [ $param->getDeclaringFunction()->name, $name, $ntyped->getName() ], Error\ParameterError::REQUIRE_ERROR );
 				}
 			}
-			else {
-				
-				// Set parameter value by parameter given or default value.
-				$binding[$params->getName()] = $value === Null ? ( $params->isDefaultValueAvailable() ? $params->getDefaultValue() : Null ) : $value;
-			}
 		});
-		
-		// Return binded parameter.
 		return( $binding );
 	}
 	
@@ -213,7 +247,6 @@ abstract class ReflectParameter
 			$format->class = "Declared";
 			$format->function = $function;
 		}
-		
 		return( Type\Str::fmt( "{ class }::{ function }(:{ parameter })", ...$format->__toArray() ) );
 	}
 	
@@ -234,19 +267,6 @@ abstract class ReflectParameter
 	{
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getAttributes( $name, $flags );
 	}
-	
-	/*
-	 * Get a ReflectionClass object for the parameter being reflected or null
-	 *
-	 * @access Public Static
-	 *
-	 * @params Array|Object|String $function
-	 * @params Int|String $param
-	 * @params Mixed $reflect
-	 *
-	 * @return ReflectionClass
-	 */
-	abstract public static function getClass( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ? ReflectionClass;
 	
 	/*
 	 * Gets declaring class
@@ -377,32 +397,6 @@ abstract class ReflectParameter
 	}
 	
 	/*
-	 * Checks if parameter expects an array
-	 *
-	 * @access Public Static
-	 *
-	 * @params Array|Object|String $function
-	 * @params Int|String $param
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	abstract public static function isArray( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool;
-	
-	/*
-	 * Returns whether parameter MUST be callable
-	 *
-	 * @access Public Static
-	 *
-	 * @params Array|Object|String $function
-	 * @params Int|String $param
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	abstract public static function isCallable( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Boo;
-	
-	/*
 	 * Checks if a default value is available
 	 *
 	 * @access Public Static
@@ -493,7 +487,7 @@ abstract class ReflectParameter
 	 *
 	 * @return ReflectionParameter
 	 */
-	private static function reflect( Array | Object | String $function, Int | String $param, Mixed $reflect )//: ReflectionParameter
+	private static function reflect( Array | Object | String $function, Int | String $param, Mixed $reflect ): ReflectionParameter
 	{
 		// Check if `reflect` is instanceof ReflectionParameter.
 		if( $reflect Instanceof ReflectionParameter )
@@ -530,7 +524,14 @@ abstract class ReflectParameter
 				return( $reflect );
 			}
 		}
-		return( new ReflectionParameter( $function, $param ) );
+		try
+		{
+			return( new ReflectionParameter( $function, $param ) );
+		}
+		catch( ReflectionException $e )
+		{
+			throw new Error\ParameterError( [ $function, $param ], Error\ParameterError::NAME_ERROR, $e );
+		}
 	}
 	
 }
