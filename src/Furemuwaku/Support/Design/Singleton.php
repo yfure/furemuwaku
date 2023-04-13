@@ -30,7 +30,8 @@ abstract class Singleton
 	 *
 	 * @return Void
 	 */
-	protected function __construct() {}
+	protected function __construct()
+	{}
 	
 	/*
 	 * Prevent the instance from being cloned.
@@ -39,7 +40,8 @@ abstract class Singleton
 	 *
 	 * @return Void
 	 */
-	final protected function __clone() {}
+	final protected function __clone(): Void
+	{}
 
 	/*
 	 * Prevent from being unserialized.
@@ -51,7 +53,7 @@ abstract class Singleton
 	 *
 	 * @throws Yume\Fure\Error\RuntimeError
 	 */
-	final public function __wakeup()
+	final public function __wakeup(): Void
 	{
 		throw new Error\RuntimeError( sprintf( "Cannot unserialize %s", $this::class ) );
 	}
