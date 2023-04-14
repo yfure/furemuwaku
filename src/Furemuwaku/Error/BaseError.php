@@ -8,6 +8,7 @@ use Throwable;
 use Yume\Fure\Locale;
 use Yume\Fure\Util\Package;
 use Yume\Fure\Util\Reflect;
+use Yume\Fure\Util\RegExp;
 use Yume\Fure\Util\Type;
 
 /*
@@ -102,6 +103,33 @@ class BaseError extends Error
 	protected Array $flags = [];
 	
 	/*
+	 * Tracking Error Source.
+	 *
+	 * @access Private
+	 *
+	 * @values Array
+	 */
+	private Array $track = [
+		RegExp::class => [
+			"classes" => [
+				RegExp\RegExp::class,
+				RegExp\Pattern::class
+			],
+			"function" => [
+				"preg_filter",
+				"preg_grep",
+				"preg_match_all",
+				"preg_match",
+				"preg_quote",
+				"preg_replace_callback_array",
+				"preg_replace_callback",
+				"preg_replace",
+				"preg_split"
+			]
+		]
+	];
+	
+	/*
 	 * Exception type thrown.
 	 *
 	 * @access Protected
@@ -151,6 +179,36 @@ class BaseError extends Error
 		}
 		else {
 			$message = Type\Str::parse( $message );
+		}
+		
+		foreach( $this->track As $group => $info )
+		{
+			// Make Pattern for match filename.
+			$pattern = f( "/{}\\/({})\\.php$/i", str_replace( DIRECTORY_SEPARATOR, "\\" . DIRECTORY_SEPARATOR, Package\Package::path( $group ) ), implode( "|", array_map( fn( String $class ) => Type\Str::pop( $class, "\\", True ), $info['classes'] ) ) );
+			
+			// If current filename match with pattern.
+			if( preg_match( $pattern, $this->getFile() ) )
+			{
+				// Mapping exception traces.
+				foreach( $this->getTrace() As $i => $trace )
+				{
+					// Skip if class name has no Reflect Namespace.
+					if( in_array( $trace['class'] ?? "", $info['classes'] ) === False ) continue;
+					
+					// Skip if file name has prefix filename from track.
+					if( preg_match( $pattern, $trace['file'] ?? "" ) ) continue;
+					
+					// If keys is exists.
+					if( isset( $trace['function'] ) &&
+						isset( $trace['file'] ) &&
+						isset( $trace['type'] ) &&
+						isset( $trace['line'] ) )
+					{
+						$this->file = $trace['file'];
+						$this->line = $trace['line']; break;
+					}
+				}
+			}
 		}
 		parent::__construct( $message, $code, $previous );
 	}

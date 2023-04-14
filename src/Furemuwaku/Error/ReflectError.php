@@ -23,7 +23,7 @@ class ReflectError extends TypeError
 	public function __construct( Array | Int | String $message, Int $code = 0, ? Throwable $previous = Null )
 	{
 		// Check if exception thrown in Reflect Namespace.
-		if( preg_match( $regex = "/\/Reflect\/Reflect(Attribute|Class|Function|Method|Parameter|Property|Type)\.php$/i", $this->getFile() ) )
+		if( preg_match( $regex = "/\/Reflect\/Reflect(Attribute|Class|Constant|Decorator|Enum|EnumBacked|EnumUnit|Extension|Fiber|Function|Generator|Method|Parameter|Property|Type)\.php$/i", $this->getFile() ) )
 		{
 			// Mapping exception traces.
 			foreach( $this->getTrace() As $i => $trace )
