@@ -101,8 +101,8 @@ final class App
 	{
 		Timer\Timer::execute( "booting", fn() => $this->booting() );
 	}
-
-			/*
+	
+	/*
 	 * Prevent the instance from being cloned.
 	 *
 	 * @access Protected
@@ -198,6 +198,8 @@ final class App
 		if( static::$running === False )
 		{
 			static::$running = True;
+			
+			
 			
 			$test = new Tests\Test;
 			$test->main();
