@@ -93,12 +93,8 @@ trait Format
 						// Check if values is not Array type.
 						if( is_array( $value ) === False ) $value = [ $value ];
 						
-						// Check if function is static method.
-						if( isset( $match['method'] ) )
-						{
-							// Get function/ method return values.
-							$value = call_user_func_array( isset( $match['method'] ) ? "{$match['class']}::{$match['method_name']}" : $match['function_name'], $value );
-						}
+						// Get function/ method return values.
+						$value = call_user_func_array( $match['func'], $value );
 					}
 					
 					// Parse values to string.
@@ -184,11 +180,11 @@ trait Format
 							"haval224x2c5",
 							"haval256x2c5" => hash( preg_replace_callback( "/x([a-fA-F0-9]{2})/", fn( Array $m ) => hex2bin( $m[1] ), $match['callback'] ), $value ),
 							
-							// When unsupported method passed.
+							// When unsupported callback passed.
 							default => sprintf( "#[value(Unsuported callback %s)]", $match['callback'] )
 						};
 					}
-					return( self::parse( $value ) );
+					return( $value );
 				}
 				else {
 					return( Strings::parse( self::formatValue( [ "matched" => $matched ], $values, $i ) ) );
