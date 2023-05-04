@@ -33,54 +33,11 @@ class Strings
 	use \Yume\Fure\Util\Letter\VerbObjectCase;
 	
 	/*
-	* String formater.
-	*
-	* To reduce risk it is not recommended to manage
-	* user input using this method and do not use it
-	* to manage long strings that contain lots of
-	* formatting stuff as this method relies heavily
-	* on Regular Expressions which are long enough to
-	* capture every supported syntax.
-	*
-	* @access Public Static
-	*
-	* @params String $format
-	* @params Mixed ...$values
-	*
-	* @allows Iteration Replacement.
-	* @syntax {}
-	*
-	* @allows Increment Replacement.
-	* @syntax +
-	* @syntax ++
-	*
-	* @allows Decrement Replacement.
-	* @syntax -
-	* @syntax --
-	*
-	* @allows Array Indexed Replacement.
-	* @syntax [0-9]+
-	*
-	* @allows Array Asocciative Replacement.
-	* @syntax [a-zA-Z0-9_]+
-	*
-	* @allows Callback Function Replacement.
-	* @syntax [a-zA-Z0-9_](+|++|-|--|{\}|[key]+|[index]+)
-	*
-	* @allows Callback Static-Method Replacement.
-	* @syntax [a-zA-Z0-9_]+::([a-zA-Z0-9_](+|++|-|--|{\}|[key]+|[index]+)
-	*
-	* @allows Method.
-	* @syntax Increment|Decrement:[a-zA-Z0-9_]+
-	* @syntax Array-Indexed|Asocciative:[a-zA-Z0-9_]+
-	* @syntax Function|Static-Method:[a-zA-Z0-9_]+
-	*
-	* @return String
-	*/
-	public static function format( String $format, Mixed ...$value ): String
-	{
-		
-	}
+	 * String formater utility.
+	 *
+	 * @include Format
+	 */
+	use \Yume\Fure\Util\Format;
 	
 	/*
 	 * Parses any data type to string.
