@@ -72,6 +72,34 @@ class Associative extends Arrayable
 	}
 	
 	/*
+	 * Whether an offset exists.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $offset
+	 *
+	 * @return Bool
+	 */
+	public function offsetExists( Mixed $offset ): Bool
+	{
+		return( in_array( $offset, $this->keys ) && isset( $this->data[$offset] ) );
+	}
+	
+	/*
+	 * Offset to retrieve.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $offset
+	 *
+	 * @return Mixed
+	 */
+	public function offsetGet( Mixed $offset ): Mixed
+	{
+		return( $this->data[( $this->keys[$offset] ?? Null )] ?? Null );
+	}
+	
+	/*
 	 * Assign a value to the specified offset.
 	 *
 	 * @access Public
@@ -100,11 +128,30 @@ class Associative extends Arrayable
 		if( $offset === Null )
 		{
 			$this->data[] = $value;
-			$this->keys = array_keys( $this->data );
 		}
 		else {
-			$this->data[$this->keys[$offset]] = $value;
+			$this->data[$offset] = $value;
 		}
+		$this->keys = array_keys( $this->data );
+	}
+	
+	/*
+	 * Unset an offset.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $offset
+	 *
+	 * @return Void
+	 */
+	public function offsetUnset( Mixed $offset ): Void
+	{
+		// Check if array key is exists.
+		if( $index = array_search( $offset, $this->keys ) )
+		{
+			unset( $this->keys[$index] );
+		}
+		unset( $this->data[$offset] );
 	}
 	
 }

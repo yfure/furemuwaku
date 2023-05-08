@@ -7,17 +7,18 @@ use Countable;
 use SeekableIterator;
 use Stringable;
 
+use Yume\Fure\Support;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
 
 /*
  * Arrayable
  *
- * @extends Yume\Fure\Util\Iterate
+ * @extends Yume\Fure\Support\Iterate
  *
  * @package Yume\Fure\Util\Arrayable
  */
-abstract class Arrayable extends Util\Iterate implements ArrayAccess, Countable, SeekableIterator, Stringable
+abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countable, SeekableIterator, Stringable
 {
 	
 	/*

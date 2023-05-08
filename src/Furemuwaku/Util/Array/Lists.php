@@ -107,7 +107,7 @@ class Lists extends Arrayable
 	public function offsetGet( Mixed $offset ): Mixed
 	{
 		$this->assert( $offset );
-		return( $this->keys[$offset] ?? False ? $this->data[$this->keys[$offset]] ?? Null : Null );
+		return( $this->data[( $this->keys[$offset] ?? Null )] ?? Null );
 	}
 	
 	/*
