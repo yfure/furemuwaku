@@ -243,7 +243,7 @@ class File
 	 * @inherit Yume\Fure\IO\Path\Path::move
 	 *
 	 */
-	public static function move( String $from, String $to, $context = Null ): Void
+	public static function move( String $from, String $to, $context = Null ): Bool
 	{
 		return( Path\Path::move( ...func_get_args() ) );
 	}
@@ -360,7 +360,7 @@ class File
 		if( $fopen )
 		{
 			// Get file size.
-			$fsize = fsize( $fopen, 13421779 );
+			$fsize = self::size( $fopen, 13421779 );
 			
 			// Reader stack.
 			$fread = "";
