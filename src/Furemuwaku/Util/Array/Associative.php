@@ -82,7 +82,7 @@ class Associative extends Arrayable
 	 */
 	public function offsetExists( Mixed $offset ): Bool
 	{
-		return( in_array( $offset, $this->keys ) && isset( $this->data[$offset] ) );
+		return( isset( $this->data[( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] ) );
 	}
 	
 	/*
@@ -96,7 +96,7 @@ class Associative extends Arrayable
 	 */
 	public function offsetGet( Mixed $offset ): Mixed
 	{
-		return( $this->data[( $this->keys[$offset] ?? Null )] ?? Null );
+		return( $this->data[( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? Null );
 	}
 	
 	/*
@@ -147,7 +147,7 @@ class Associative extends Arrayable
 	public function offsetUnset( Mixed $offset ): Void
 	{
 		// Check if array key is exists.
-		if( $index = array_search( $offset, $this->keys ) )
+		if( is_numeric( $index = array_search( $offset, $this->keys ) ) )
 		{
 			unset( $this->keys[$index] );
 		}
