@@ -4,7 +4,7 @@ namespace Yume\Fure\Util\Reflect;
 
 use ReflectionExtension;
 
-use Yume\Fure\HTTP\Stream;
+use Yume\Fure\IO\Stream;
 
 /*
  * ReflectExtension

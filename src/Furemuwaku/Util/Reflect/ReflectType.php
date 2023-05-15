@@ -9,8 +9,8 @@ use ReflectionUnionType;
 use Reflector;
 
 use Yume\Fure\Services;
+use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
-use Yume\Fure\Util\Type;
 
 /*
  * ReflectType

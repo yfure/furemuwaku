@@ -11,9 +11,8 @@ use ReflectionType;
 
 use Yume\Fure\Error;
 use Yume\Fure\Support\Data;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
-use Yume\Fure\Util\Type;
 
 /*
  * ReflectParameter
@@ -71,7 +70,7 @@ final class ReflectParameter
 		 *
 		 * @return Void
 		 */
-		Array\Arr::map( $parameter, function( Int $i, Int | String $idx, Mixed $param ) use( &$reflect, &$binding, $arguments ): Void
+		Util\Arrays::map( $parameter, function( Int $i, Int | String $idx, Mixed $param ) use( &$reflect, &$binding, $arguments ): Void
 		{
 			// Error message.
 			static $error = "Cannot build parameters, the value of the argument \$parameter must be a valid array <ReflectionParameter>|<Callable<ReflectionParameter>>, {} passed in the array element \$parameter<Array[{}]>";
@@ -247,7 +246,7 @@ final class ReflectParameter
 			$format->class = "Declared";
 			$format->function = $function;
 		}
-		return( Type\Str::fmt( "{ class }::{ function }(:{ parameter })", ...$format->__toArray() ) );
+		return( Util\Strings::format( "{ class }::{ function }(:{ parameter })", ...$format->__toArray() ) );
 	}
 	
 	/*
@@ -500,7 +499,7 @@ final class ReflectParameter
 			$reflectClass = $reflect->getDeclaringClass();
 			
 			// Export ReflectionParameter instance.
-			$reflectFormat = Type\Str::fmt( $format, ...[
+			$reflectFormat = Util\Strings::format( $format, ...[
 				
 				// Function class name.
 				"class" => $reflectClass ? $reflectClass->getName() : "Anonymous",

@@ -5,8 +5,6 @@ namespace Yume\Fure\Util\Reflect;
 use Fiber;
 use ReflectionFiber;
 
-use Yume\Fure\Error;
-
 /*
  * ReflectFiber
  *

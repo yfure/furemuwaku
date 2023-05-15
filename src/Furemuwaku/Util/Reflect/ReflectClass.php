@@ -15,11 +15,11 @@ use ReflectionExtension;
 use ReflectionMethod;
 use ReflectionProperty;
 
-use Yume\Fure\App;
 use Yume\Fure\Error;
-use Yume\Fure\Support\Data;
-use Yume\Fure\Support\Design;
+use Yume\Fure\Main;
+use Yume\Fure\Support;
 use Yume\Fure\Services;
+use Yume\Fure\Util\Array;
 
 /*
  * ReflectClass
@@ -665,7 +665,7 @@ abstract class ReflectClass
 	}
 	
 	/*
-	 * Return whether this class is App.
+	 * Return whether this class is Main Application.
 	 *
 	 * @access Public Static
 	 *
@@ -679,9 +679,24 @@ abstract class ReflectClass
 		// Check if `class` is Object type.
 		if( is_object( $class ) )
 		{
-			return( $class Instanceof App\App );
+			return( $class Instanceof Main\Main );
 		}
-		return( self::getName( $class, $reflect ) === App\App::class );
+		return( self::getName( $class, $reflect ) === Main\Main::class );
+	}
+	
+	/*
+	 * Returns whether this class is Arrayable.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Object|String $class
+	 * @params Mixed $reflect
+	 *
+	 * @return Bool
+	 */
+	public static function isArrayable( Object | String $class, Mixed &$reflect = Null ): Bool
+	{
+		return( self::isImplements( $class, Array\Arrayable::class, $reflect ) );
 	}
 	
 	/*
@@ -712,21 +727,6 @@ abstract class ReflectClass
 	public static function isCountable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
 		return( self::isImplements( $class, Countable::class, $reflect ) );
-	}
-	
-	/*
-	 * Returns whether this class is an data.
-	 *
-	 * @access Public Static
-	 *
-	 * @params Object|String $class
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	public static function isData( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
-		return( self::isImplements( $class, Data\DataInterface::class, $reflect ) );
 	}
 	
 	/*
@@ -906,7 +906,7 @@ abstract class ReflectClass
 	 */
 	public static function isSingleton( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
-		return( self::isSubClassOf( $class, Design\Singleton::class, $reflect ) );
+		return( self::isSubClassOf( $class, Support\Singleton::class, $reflect ) );
 	}
 	
 	/*
