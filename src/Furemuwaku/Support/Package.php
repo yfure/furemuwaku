@@ -67,7 +67,7 @@ final class Package extends Singleton
 	 * Make package name into array syntax.
 	 *
 	 * The array syntax can be use with
-	 * Yume\Fure\Type\Str::ify method.
+	 * Yume\Fure\Util\Arrays::ify method.
 	 *
 	 * @before Yume\Fure\Error\AssertionError
 	 * @after yume.fure[error.AssertionError]
@@ -128,27 +128,31 @@ final class Package extends Singleton
 	 *  If the packet has been installed, the name and path
 	 *  will be set there to use if needed, This is useful
 	 *  compared to having to loop after checking.
+	 * @params Bool $optional
 	 *
 	 * @return Bool
 	 */
-	public static function has( String $package, Mixed &$ref = Null ): Bool
+	public static function has( String $package, Mixed &$ref = Null, ? Bool $optional = Null ): Bool
 	{
-		$ref = Null;
-		
-		// Mapping all installed packages.
-		foreach( self::self()->installed As $name => $path )
+		if( $optional === Null )
 		{
-			// If the package has the same prefix name as the namespace.
-			if( strpos( $package, $name ) === 0 )
+			// Mapping all installed packages.
+			foreach( self::self()->installed As $name => $path )
 			{
-				$ref = [
-					"name" => $name,
-					"path" => $path
-				];
-				return( True );
+				// If the package has the same prefix name as the namespace.
+				if( strpos( $package, $name ) === 0 )
+				{
+					$ref = [
+						"name" => $name,
+						"path" => $path
+					];
+					return( True );
+				}
+				$ref = Null;
 			}
+			return( False );
 		}
-		return( False );
+		return( self::has( $package, $ref ) === $optional );
 	}
 	
 	/*
