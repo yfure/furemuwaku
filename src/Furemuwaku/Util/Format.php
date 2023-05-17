@@ -14,12 +14,67 @@ use Yume\Fure\Error;
 trait Format
 {
 	
+	/*
+	 * Pattern for match iteration syntax.
+	 *
+	 * @access Private Static
+	 *
+	 * @values String
+	 */
 	private static String $iterate = "(?<iterate>(\+|\-){1,2})";
+	
+	/*
+	 * Pattern for match curly syntax.
+	 *
+	 * @access Private Static
+	 *
+	 * @values String
+	 */
 	private static String $curly = "(?<curly>(?:\\\*)\{[\s\t]*(?:\\\*)\})";
+	
+	/*
+	 * Pattern for match array syntax.
+	 *
+	 * @access Private Static
+	 *
+	 * @values String
+	 */
 	private static String $array = "(?<array>(?:[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)*(?:\\[[^\\[\\]]+\\]|[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)+(?:\\.[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*|\\[[^\\[\\]]+\\])*)";
+	
+	/*
+	 * Pattern for match static method syntax.
+	 *
+	 * @access Private Static
+	 *
+	 * @values String
+	 */
 	private static String $method = "(?<method>(?<class>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(?:\\\[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)*)\:\:(?<method_name>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))";
+	
+	/*
+	 * Pattern for match callback syntax.
+	 *
+	 * @access Private Static
+	 *
+	 * @values String
+	 */
 	private static String $callback = "(?<callback>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)";
+	
+	/*
+	 * Pattern for match function/ method argument syntax.
+	 *
+	 * @access Private Static
+	 *
+	 * @values String
+	 */
 	private static String $argument = "(?<argument>(?:[\s\t]*)\((?:[\s\t]*)(?<values>%1\$s|%2\$s|%3\$s)(?:[\s\t]*)\))";
+	
+	/*
+	 * Pattern for match function syntax.
+	 *
+	 * @access Private Static
+	 *
+	 * @values String
+	 */
 	private static String $function = "(?<function>(?<function_name>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*))";
 	
 	/*
@@ -43,8 +98,15 @@ trait Format
 	 *
 	 * @access Public Static
 	 *
+	 * @syntax {}
+	 * @syntax {+|++|-|--}
+	 * @syntax {[a-zA-Z0-9]+}
+	 * @syntax {Function|Method(?)}
+	 *
 	 * @params String $format
+	 *  The raw string to be formatted.
 	 * @params Mixed ...$values
+	 *  Value to override format.
 	 *
 	 * @return String
 	 */
@@ -94,29 +156,29 @@ trait Format
 						if( is_array( $value ) === False ) $value = [ $value ];
 						
 						// Get function/ method return values.
-						$value = call_user_func_array( $match['func'], $value );
+						$value = call_user_func_array( $match['method'] ?? $match['function'], $value );
 					}
-					
-					// Parse values to string.
-					$value = self::parse( $value );
 					
 					// Check if method is available.
 					if( isset( $match['callback'] ) )
 					{
+						// Avoid argument error when the value is not String type.
+						$value = Strings::parse( $value );
+						
 						// Matching supported method.
-						$value = match( strtolower( $match['callback'] ) )
+						return( match( @strtolower( $match['callback'] ) )
 						{
 							// Supported methods.
 							"b64decode",
-							"base64_decode" => base64_decode( $value ),
+							"base64_decode" => @base64_decode( $value ),
 							"b64encode",
-							"base64_encode" => base64_encode( $value ),
-							"bin2hex" => bin2hex( $value ),
-							"lcfirst" => lcfirst( $value ),
-							"lower" => strtolower( $value ),
-							"ucfirst" => ucfirst( $value ),
-							"upper" => strtoupper( $value ),
-							"htmlspecialchars" => htmlspecialchars( $value ),
+							"base64_encode" => @base64_encode( $value ),
+							"bin2hex" => @bin2hex( $value ),
+							"lcfirst" => @lcfirst( $value ),
+							"lower" => @strtolower( $value ),
+							"ucfirst" => @ucfirst( $value ),
+							"upper" => @strtoupper( $value ),
+							"htmlspecialchars" => @htmlspecialchars( $value ),
 							
 							// Supported hash methods.
 							"md2",
@@ -178,13 +240,13 @@ trait Format
 							"haval160x2c5",
 							"haval192x2c5",
 							"haval224x2c5",
-							"haval256x2c5" => hash( preg_replace_callback( "/x([a-fA-F0-9]{2})/", fn( Array $m ) => hex2bin( $m[1] ), $match['callback'] ), $value ),
+							"haval256x2c5" => @hash( preg_replace_callback( "/x([a-fA-F0-9]{2})/", fn( Array $m ) => @hex2bin( $m[1] ), $match['callback'] ), $value ),
 							
 							// When unsupported callback passed.
 							default => sprintf( "#[value(Unsuported callback %s)]", $match['callback'] )
-						};
+						});
 					}
-					return( $value );
+					return( Strings::parse( $value ) );
 				}
 				else {
 					return( Strings::parse( self::formatValue( [ "matched" => $matched ], $values, $i ) ) );
