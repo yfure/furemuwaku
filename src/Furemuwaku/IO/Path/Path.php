@@ -203,7 +203,7 @@ class Path
 			if( strpos( $path, BASE_PATH ) !== False || $path === BASE_PATH || $path . "/" === BASE_PATH ) return( $path );
 			
 			// Check if path has prefix.
-			if( $prefix_or_remove Instanceof Paths ) $path = sprintf( "%s/%s", $prefix_or_remove->value, $path );
+			if( $prefix_or_remove Instanceof Paths ) $path = join( "/", [ $prefix_or_remove->value, $path ] );
 			
 			// Add basepath into prefix pathname.
 			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, preg_replace( "/\//", DIRECTORY_SEPARATOR, sprintf( "%s/%s", BASE_PATH, $path ) ) ) );
