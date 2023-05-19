@@ -16,7 +16,7 @@ enum Paths: String
 	 * @include App
 	 * @include App Controllers
 	 * @include App Helpers
-	 * @include App Lang
+	 * @include App Language
 	 * @include App Models
 	 * @include App Providers
 	 * @include App Tests
@@ -24,7 +24,7 @@ enum Paths: String
 	 */
 	case AppController = "app/Http/Controllers";
 	case AppHelper = "app/Helpers";
-	case AppLang = "app/Lang";
+	case AppLanguage = "app/Languages";
 	case AppModel = "app/Models";
 	case AppProvider = "app/Providers";
 	case AppTest = "app/Tests";
