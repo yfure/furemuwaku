@@ -5,10 +5,10 @@ namespace Yume\Fure\Support;
 use Throwable;
 
 use Yume\Fure\Error;
-use Yume\Fure\Util\File;
-use Yume\Fure\Util\Path;
+use Yume\Fure\IO\File;
+use Yume\Fure\IO\Path;
+use Yume\Fure\Util;
 use Yume\Fure\Util\Reflect;
-use Yume\Fure\Util\Type;
 
 /*
  * Package
@@ -35,26 +35,31 @@ final class Package extends Singleton
 	 */
 	protected function __construct()
 	{
-		// Get composer installed packages.
-		$installed = File\File::json( Path\Paths::VendorInstalled->value, True )['packages'] ?? [];
 		$packages = [];
-		
-		// Mapping all packages.
-		foreach( $installed As $package )
+		try
 		{
-			// Get package autoload prs-4.
-			$autoload = $package['autoload']['psr-4'] ?? [];
+			// Read installed packages.
+			$installed = File\File::json( Path\Paths::VendorInstalled->value, True )['packages'] ?? [];
 			
-			// Mapping all autoload packages.
-			foreach( $autoload As $space => $path )
+			// Mapping all packages.
+			foreach( $installed As $package )
 			{
-				$autoload[$space] = sprintf( "%s/%s/%s", Path\Paths::Vendor->value, $package['name'], $path );
+				// Get package autoload prs-4.
+				$autoload = $package['autoload']['psr-4'] ?? [];
+				
+				// Mapping all autoload packages.
+				foreach( $autoload As $space => $path )
+				{
+					$autoload[$space] = sprintf( "%s/%s/%s", Path\Paths::Vendor->value, $package['name'], $path );
+				}
+				$packages = [
+					...$packages,
+					...$autoload
+				];
 			}
-			$packages = [
-				...$packages,
-				...$autoload
-			];
 		}
+		catch( Error\BaseError )
+		{}
 		$this->installed = [
 			...$packages,
 			...[
@@ -94,8 +99,8 @@ final class Package extends Singleton
 				// Default format result without suffix.
 				$format = "%s[%s]";
 				
-				$prefix = Type\Str::pop( $prefix ?? $ref['name'], "\\" );
-				$middle = Type\Str::pop( $package, "\\", ref: $suffix );
+				$prefix = Util\Strings::pop( $prefix ?? $ref['name'], "\\" );
+				$middle = Util\Strings::pop( $package, "\\", ref: $suffix );
 				
 				$middle = substr( $middle, strlen( $prefix ) +1 );
 				
@@ -161,10 +166,13 @@ final class Package extends Singleton
 	 * @access Public Static
 	 *
 	 * @params String $package
+	 * @params Mixed $optional
+	 *  When the module import something wrong like syntax error,
+	 *  Method will return optional value for avoid error.
 	 *
 	 * @return Mixed
 	 */
-	public static function import( String $package ): Mixed
+	public static function import( String $package, Mixed $optional = Null ): Mixed
 	{
 		// Get package name.
 		$name = self::path( $package );
@@ -181,10 +189,17 @@ final class Package extends Singleton
 			}
 			catch( Throwable $e )
 			{
-				throw new Error\ImportError( $name, previous: $e );
+				if( $optional )
+				{
+					return( $optional );
+				}
+				echo $e;
+				exit;
+				throw new Error\ImportError( $package, previous: $e );
 			}
 		}
-		throw new Error\ModuleNotFoundError( $name );
+		echo $name;
+		throw new Error\ModuleNotFoundError( $package );
 	}
 	
 	/*
