@@ -29,7 +29,7 @@ class Data extends Array\Associative
 	 *
 	 * @return Void
 	 */
-	public function __construct( Array | Array\Arrayable | Traversable $data, Bool $insensitive = False )
+	public function __construct( Array | Array\Arrayable | Traversable $data = [], Bool $insensitive = False )
 	{
 		// Copy data from passed Arrayable instance.
 		if( $data Instanceof Array\Arrayable ) $data = $data->__toArray();
@@ -67,7 +67,7 @@ class Data extends Array\Associative
 		if( property_exists( $this, $name ) )
 		{
 			// Check if property is Closure.
-			if( $this->{ $name } Instanceof Closure === False )
+			if( $this->{ $name } Instanceof Closure )
 			{
 				return( call_user_func_array( $this->{ $name }, $args ) );
 			}
@@ -123,53 +123,6 @@ class Data extends Array\Associative
 	public function copy(): Static
 	{
 		return( new Data( $this->__toArray() ) );
-	}
-	
-	/*
-	 * Applies the callback to the elements of the given arrays.
-	 *
-	 * @access Public
-	 *
-	 * @params Callable $callback
-	 *
-	 * @return Static
-	 */
-	public function map( Callable $callback ): Static
-	{
-		// Data stack.
-		$stack = [];
-		
-		// Get data keys.
-		$keys = $this->keys();
-		$vals = $this->values();
-		
-		// Mapping data.
-		for( $i = 0; $i < $this->count(); $i++ )
-		{
-			// Check if element is exists.
-			if( isset( $keys[$i] ) )
-			{
-				// Get callback return value.
-				$stack[$keys[$i]] = call_user_func(
-					
-					// Callback handler.
-					$callback,
-					
-					// Index iteration.
-					$i,
-					
-					// Array index.
-					$keys[$i],
-					
-					// Array value.
-					$vals[$i]
-				);
-				
-				// Check if iteration is stop.
-				if( $stack[$keys[$i]] === STOP_ITERATION ) break;
-			}
-		}
-		return( new Data( $stack ) );
 	}
 	
 }
