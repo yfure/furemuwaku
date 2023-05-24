@@ -4,98 +4,88 @@ namespace Yume\Fure\Util\RegExp;
 
 use Stringable;
 
+use Yume\Fure\Util\Array;
+
 /*
  * Pattern
  *
  * @package Yume\Fure\Util\RegExp
  */
-class Pattern implements Stringable
+final class Pattern implements Stringable
 {
 	
 	/*
-	 * Pattern of Regular Expression.
+	 * Compiled regular expression.
 	 *
 	 * @access Public Readonly
 	 *
 	 * @values String
 	 */
-	public Readonly String $pattern;
+	public Readonly String $compiled;
 	
 	/*
-	 * Pattern Modifier of Regular Expression.
+	 * Regular expression flags.
 	 *
 	 * @access Public Readonly
 	 *
+	 * @values Array
+	 */
+	public Readonly Array $flags;
+	
+	/*
+	 * Last posotion matched.
+	 *
+	 * @access Private
+	 *
+	 * @values Int
+	 */
+	private Int $index;
+	
+	/*
+	 * Last subject matched.
+	 *
+	 * @access Private
+	 *
 	 * @values String
 	 */
-	public Readonly ? String $flags;
+	private ? String $subject = Null;
 	
 	/*
 	 * Construct method of class Pattern.
 	 *
-	 * @access Public Instance
+	 * @access Public Initialize
 	 *
 	 * @params String $pattern
-	 * @params String $flags
 	 *
 	 * @return Void
-	 *
-	 * @throws Yume\Fure\Util\RegExpError
 	 */
-	public function __construct( String $pattern, ? String $flags = Null )
+	public function __construct( public Readonly String $pattern, Array | String $flags = [] )
 	{
-		// Check if pattern has flags.
-		if( $flags )
+		// Avoid empty pattern.
+		if( valueIsEmpty( $pattern ) ) throw new RegExpError( "Pattern can't be empty" );
+		
+		// Normalize pattern flags.
+		$this->flags = is_array( $flags ) ? $flags : split( $flags );
+		
+		foreach( $this->flags As $flag )
 		{
-			// Valid flags.
-			// To avoid collision flag
-			// checking must be case sensitive.
-			$valid = [
-				"i", // PCRE_CASELESS
-				"m", // PCRE_MULTILINE
-				"s", // PCRE_DOTALL
-				"x", // PCRE_EXTENDED
-				"A", // PCRE_ANCHORED
-				"D", // PCRE_DOLLAR_ENDONLY
-				"S",
-				"U", // PCRE_UNGREEDY
-				"X", // PCRE_EXTRA
-				"J", // PCRE_INFO_JCHANGED
-				"u"  // PCRE_UTF8
-			];
-			
-			// Split flags one caharacter.
-			$splits = str_split( $flags, 1 );
-			
 			// Checked flags.
 			$checked = [];
 			
-			// Mapping flags.
-			foreach( $splits As $flag )
-			{
-				// Check if flags is available.
-				if( in_array( $flag, $valid ) )
-				{
-					// Check if there are duplicate flag.
-					if( in_array( $flag, $checked ) )
-					{
-						throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_DUPLICATE_ERROR );
-					}
-					
-					// Push checked flag.
-					$checked[] = $flag;
-				}
-				else {
-					throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_ERROR );
-				}
-			}
+			// Check if flags is not supported.
+			if( RegExp::isFlag( $flag, False ) ) throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_ERROR );
+			
+			// Check if there are duplicate flag.
+			if( in_array( $flag, $checked ) ) throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_DUPLICATE_ERROR );
+			
+			// Push checked flag.
+			$checked[] = $flag;
 		}
-		$this->flags = $flags;
-		$this->pattern = $pattern;
+		$this->compiled = sprintf( "/%1\$s/%2\$s", $this->pattern, join( "", $this->flags ) );
 	}
 	
 	/*
-	 * Parse class into string.
+	 * Parse class to String.
 	 *
 	 * @access Public
 	 *
@@ -103,50 +93,95 @@ class Pattern implements Stringable
 	 */
 	public function __toString(): String
 	{
-		return( f( "/{}/{}", $this->pattern, $this->flags ?? "" ) );
+		return( $this )->compiled;
 	}
 	
 	/*
-	 * Retrieves the result of matching a string against a regular expression.
+	 * Execute the given subject.
 	 *
 	 * @access Public
 	 *
 	 * @params String $subject
 	 *
-	 * @return Array|Bool
+	 * @return Yume\Fure\Util\RegExp\Matches
 	 */
-	public function match( String $text ): Array | Bool
+	public function exec( String $subject )//: ? Matches
 	{
-		return( RegExp::match( $this->__toString(), $text ) );
+		$this->index = $this->subject === $subject ? $this->index : 0;
+		$this->subject = $subject;
+		
+		// Explode string for avoid infinity loop.
+		$explode = substr( $subject, $this->index );
+		
+		// Check if subject is matched.
+		if( $matches = RegExp::match( $this->compiled, $explode ) )
+		{
+			return( $this )->process( $subject, $explode, $matches, $this->index );
+		}
+		return( Null );
 	}
 	
-	/*
-	 * Replace string with regexp.
-	 *
-	 * @access Public
-	 *
-	 * @params Array<String>|String $subject
-	 * @params Array<Callable|String>|Callable|String $replace
-	 *
-	 * @return Array|String
-	 */
-	public function replace( Array | String $subject, Array | Callable | String $replace ): Array | String
+	public function replace( Array | String $subject, Callable | String $replace, Int $limit = -1, Int &$count = Null, Int $flags = 0 ): Array | String
 	{
-		return( RegExp::replace( $this->__toString(), $subject, $replace ) );
+		if( is_callable( $replace ) )
+		{
+			// Captured position.
+			$index = 0;
+			
+			// Exploded sub string of subject.
+			$explode = $subject;
+			$callback = $replace;
+			
+			/*
+			 * Handle replace.
+			 *
+			 * @params Array $matches
+			 *
+			 * @return Mixed
+			 */
+			$replace = fn( Array $matches ) => call_user_func( $callback, $this->process( $subject, $explode, $matches, $index ) );
+		}
+		return( RegExp::replace( $this->compiled, $subject, $replace ) );
 	}
 	
-	/*
-	 * Perform a regular expression match.
-	 *
-	 * @access Public
-	 *
-	 * @params String $subject
-	 *
-	 * @return Bool
-	 */
-	public function test( String $text ): Bool
+	private function process( String $subject, String &$explode, Array $matches, Int &$index )//: Matches
 	{
-		return( RegExp::test( $this->__toString(), $text ) );
+		// Save previous index.
+		$iprev = $index;
+		
+		// Get next index iteration.
+		$search = $index += strpos( $explode, $matches[0] );
+		$index += strlen( $matches[0] );
+		
+		// Get subject string for next iteration.
+		$explode = substr( $subject, $index );
+		
+		// Create group instance.
+		$groups = new Array\Associative;
+		$string = $matches[0];
+		$stacks = "";
+		
+		// Mapping captured strings.
+		foreach( $matches As $group => $value )
+		{
+			// If group has name, and if group has value.
+			if( is_string( $group ) && valueIsNotEmpty( $value ) )
+			{
+				// Get position group in captured string.
+				$post = strpos( $string, $value );
+				$post += strlen( $stacks );
+				
+				$string = substr( $matches[0], $post );
+				$stacks = substr( $matches[0], 0, $post );
+				
+				// Push groups.
+				$groups[$group] = new Capture( $group, $value, $post );
+				
+				// Unset group name from matches.
+				unset( $matches[$group] );
+			}
+		}
+		return( new Matches( $matches, $groups, $search ) );
 	}
 	
 }
