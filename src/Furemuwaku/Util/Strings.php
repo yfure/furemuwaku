@@ -158,7 +158,7 @@ class Strings
 	 */
 	public static function pop( String $subject, String $separator, Bool $last = False, Mixed &$ref = Null ): String
 	{
-		if( count( $split = explode( $separator, $subject ) ) !== 0 )
+		if( count( $split = explode( $separator, $subject ) ) > 0 )
 		{
 			$end = array_pop( $split );
 			
@@ -192,7 +192,7 @@ class Strings
 	 */
 	public static function shift( String $subject, String $separator, Bool $shift = False, Mixed &$ref = Null ): String
 	{
-		if( count( $split = explode( $separator, $subject ) ) !== 0 )
+		if( count( $split = explode( $separator, $subject ) ) > 0 )
 		{
 			$first = array_shift( $split );
 			

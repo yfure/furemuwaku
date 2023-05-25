@@ -13,7 +13,7 @@ use Yume\Fure\Util\Array;
  *
  * @package Yume\Fure\Util
  */
-class Arrays
+final class Arrays
 {
 	
 	/*
@@ -23,10 +23,17 @@ class Arrays
 	 *
 	 * @params Array|String $refs
 	 * @params Array|ArrayAccess $data
+	 * @params Bool $throw
+	 *  Allow throw exception when index or key not found.
 	 *
 	 * @return Mixed
+	 *
+	 * @throws Yume\Fure\Error\IndexError
+	 *  Throw if index not found.
+	 * @throws Yume\Fure\Error\KeyError
+	 *  Throw if key not found.
 	 */
-	public static function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
+	public static function ify( Array | String $refs, Array | ArrayAccess $data, Bool $throw = True ): Mixed
 	{
 		// If `refs` is string type.
 		if( is_string( $refs ) ) $refs = self::ifySplit( $refs );
@@ -44,7 +51,12 @@ class Arrays
 					$stack = $stack[$index];
 				}
 				else {
-					throw is_string( $index ) ? new Error\KeyError( $index ) : new Error\IndexError( $index );
+					
+					// Throw error if throw is allowed.
+					if( $throw ) throw static::throw( $index, is_string( $index ) );
+					
+					// Just return null.
+					return( Null );
 				}
 			}
 			else {
@@ -55,7 +67,12 @@ class Arrays
 					$stack = $data[$index];
 				}
 				else {
-					throw is_string( $index ) ? new Error\KeyError( $index ) : new Error\IndexError( $index );
+					
+					// Throw error if throw is allowed.
+					if( $throw ) throw static::throw( $index, is_string( $index ) );
+					
+					// Just return null.
+					return( Null );
 				}
 			}
 		}
@@ -168,44 +185,76 @@ class Arrays
 	public static function map( Array | String | Array\Arrayable $array, Callable $callback ): Array | Array\Arrayable
 	{
 		// Call default map method if Array is Arrayable.
-		if( $array Instanceof Array\Arrayable ) return( $array )->map( $callback );
-		
-		// Split strings if array is string.
-		if( is_string( $array ) ) $array = str_split( $array );
-		
-		// Data Stack.
-		$stack = [];
-		
-		// Get array keys.
-		$indexs = array_keys( $array );
-		
-		// Mapping array.
-		for( $i = 0; $i < count( $array ); $i++ )
+		if( $array Instanceof Array\Arrayable )
 		{
-			// Get callback return value.
-			$stack[$indexs[$i]] = call_user_func(
-				
-				// Callback handler.
-				$callback,
-				
-				// Index iteration.
-				$i,
-				
-				// Array key name.
-				$indexs[$i],
-				
-				// Array value.
-				$array[$indexs[$i]]
-			);
-			
-			// Check if iteration is stop.
-			if( $stack[$indexs[$i]] === STOP_ITERATION )
-			{
-				unset( $stack[$indexs[$i]] );
-				break;
-			}
+			return( $array )->map( $callback );
 		}
-		return( $stack );
+		else {
+			
+			// Split strings if value is string.
+			if( is_string( $array ) )
+			{
+				$array = split( $array );
+			}
+			
+			// Get array indexs.
+			$indexs = array_keys( $array );
+			$stack = [];
+			
+			// Mapping array.
+			for( $i = 0; $i < count( $array ); $i++ )
+			{
+				try
+				{
+					// Get callback return value.
+					$stack[$indexs[$i]] = call_user_func(
+						
+						// Callback handler.
+						$callback,
+						
+						// Index iteration.
+						$i,
+						
+						// Array key name.
+						$indexs[$i],
+						
+						// Array value.
+						$array[$indexs[$i]]
+					);
+				}
+				catch( Support\Stoppable $stopped )
+				{
+					$stack[$indexs[$i]] = $stopped;
+				}
+				
+				// Checks if further execution is terminated.
+				if( $stack[$indexs[$i]] Instanceof Support\Stoppable )
+				{
+					$stack[$indexs[$i]] = $stack[$indexs[$i]]->value;
+					break;
+				}
+			}
+			return( $stack );
+		}
+	}
+	
+	/*
+	 * Return error instance.
+	 *
+	 * @access Private Static
+	 *
+	 * @params Int|String $index
+	 * @params Bool $isKey
+	 *
+	 * @return Yume\Fure\Error\LookupError
+	 */
+	private static function throw( Int | String $index, Bool $isKey ): Error\LookupError
+	{
+		if( $isKey )
+		{
+			return( new Error\KeyError( $index ) );
+		}
+		return( new Error\IndexError( $index ) );
 	}
 	
 	/*
@@ -303,15 +352,12 @@ class Arrays
 	 * @access Public Static
 	 *
 	 * @params Array|ArrayAccess $array
-	 * @params Mixed $values
+	 * @params Mixed ...$values
 	 *
 	 * @return Void
 	 */
-	public static function unset( Array | ArrayAccess &$array, Mixed $values ): Void
+	public static function unset( Array | ArrayAccess &$array, Mixed ...$values ): Void
 	{
-		// If `values` is not array type.
-		if( is_array( $values ) === False && $values Instanceof ArrayAccess === False ) $values = [ $values ];
-		
 		// Mapping array values.
 		self::map( $values, function( $i, $index, $value ) use( &$array )
 		{

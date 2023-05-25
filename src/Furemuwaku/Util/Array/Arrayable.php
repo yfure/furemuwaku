@@ -161,14 +161,40 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 		return( $optional !== Null ? $this Instanceof Lists === $optional : $this Instanceof Lists );
 	}
 	
+	/*
+	 * Return first array key element.
+	 *
+	 * @access Public
+	 *
+	 * @return Mixed
+	 */
 	public function keyFirst(): Mixed
 	{
 		return( $this )->keys[0] ?? Null;
 	}
 	
+	/*
+	 * Return last array key element.
+	 *
+	 * @access Public
+	 *
+	 * @return Mixed
+	 */
 	public function keyLast(): Mixed
 	{
 		return( end( $this->keys ) );
+	}
+	
+	/*
+	 * Return array keys.
+	 *
+	 * @access Public
+	 *
+	 * @return Array
+	 */
+	public function keys(): Array
+	{
+		return( $this )->keys;
 	}
 	
 	/*
@@ -213,9 +239,15 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 						$vals[$i]
 					);
 				}
-				catch( Support\Stoppable $e )
+				catch( Support\Stoppable $stopped )
 				{
-					$stack[$keys[$i]] = $e->getValue();
+					$stack[$keys[$i]] = $stopped;
+				}
+				
+				// Checks if further execution is terminated.
+				if( $stack[$keys[$i]] Instanceof Support\Stoppable )
+				{
+					$stack[$keys[$i]] = $stack[$keys[$i]]->value;
 					break;
 				}
 			}
@@ -236,12 +268,15 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 */
 	public function replace( Array | Arrayable $array, Bool $recursive = False ): Static
 	{
+		// Avoid resetting the position on the iterator.
+		if( $array Instanceof Arrayable ) $array = $array->data;
+		
 		foreach( $array As $offset => $value )
 		{
-			// Check if value of element is Array of Arrayable class.
+			// Check if value of element is Array or Arrayable class.
 			if( is_array( $value ) || $value Instanceof Arrayable )
 			{
-				// If recursive option is allowed, we will heck if element is exists,
+				// If recursive option is allowed, we will check if element is exists,
 				// and if value of element is Array or Arrayable class.
 				if( $recursive && isset( $this[$offset] ) && $this[$offset] Instanceof Arrayable )
 				{
@@ -255,6 +290,18 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 			$this[$offset] = $value;
 		}
 		return( $this );
+	}
+	
+	/*
+	 * Array element values.
+	 *
+	 * @access Public
+	 *
+	 * @return Array
+	 */
+	public function values(): Array
+	{
+		return( array_values( $this->data ) );
 	}
 	
 }

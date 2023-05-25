@@ -66,7 +66,7 @@ trait CamelCase
 		$string = str_replace( "\x20", "", ucwords( strtolower( $string ) ) );
 		$string = lcfirst( $string );
 		
-		return $string;
+		return( $string );
 	}
 	
 	/*
@@ -85,7 +85,7 @@ trait CamelCase
 		$string = str_replace( "\x20", "", ucwords( strtolower( $string ) ) );
 		$string = lcfirst( $string );
 		
-		return $string;
+		return( $string );
 	}
 	
 	/*
