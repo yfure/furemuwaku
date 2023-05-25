@@ -5,7 +5,6 @@ namespace Yume\Fure\Locale\DateTime;
 use DateTimeZone As BaseDateTimeZone;
 
 use Yume\Fure\Locale;
-use Yume\Fure\Util\Env;
 
 /*
  * DateTimeZone
@@ -16,25 +15,21 @@ use Yume\Fure\Util\Env;
  */
 class DateTimeZone extends BaseDateTimeZone
 {
+	
 	/*
-	 * @inherit BaseDateTimeZone
+	 * Construct method of class DateTimeZone.
 	 *
+	 * @access Public Initialize
+	 *
+	 * @params String $timezone
+	 *
+	 * @return Void
 	 */
 	public function __construct( ? String $timezone = Null )
 	{
-		// Check if environment variable is exists.
-		if( Env\Env::isset( "LOCALE_DATE_TIMEZONE" ) )
-		{
-			// Get timezone from environment variable set.
-			$timezone = Env\Env::get( "LOCALE_DATE_TIMEZONE" );
-		}
-		else {
-			$timezone = Locale\Locale::getDefaultTimezone();
-		}
-		
-		// Call parent constructor.
-		parent::__construct( $timezone );
+		parent::__construct( $timezone ?? Locale\Locale::getTimeZoneName() );
 	}
+	
 }
 
 ?>

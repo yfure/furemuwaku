@@ -2,348 +2,80 @@
 
 namespace Yume\Fure\Locale;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use DateTimeZone;
-use Throwable;
 
 use Yume\Fure\Error;
+use Yume\Fure\IO\File;
+use Yume\Fure\IO\Path;
 use Yume\Fure\Locale\Clock;
 use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Locale\Language;
-use Yume\Fure\Support\Design;
-use Yume\Fure\Util\Array;
-use Yume\Fure\Util\Env;
-use Yume\Fure\Util\File;
-use Yume\Fure\Util\File\Path;
-use Yume\Fure\Util\Type;
+use Yume\Fure\Support;
+use Yume\Fure\Util;
 
 /*
  * Locale
  *
- * @package Yume\Fure\Locale
+ * @extends Yume\Fure\Support\Singletom
  *
- * @extends Yume\Fure\Support\Design\Singleton
+ * @package Yume\Fure\Locale
  */
-class Locale extends Design\Singleton
+class Locale extends Support\Singleton
 {
-	
-	/*
-	 * DateTime Instance class.
-	 *
-	 * @access Protected Static
-	 *
-	 * @values Yume\Fure\Locale\DateTime\DateTime
-	 */
-	protected static ? DateTime\DateTime $datetime = Null;
-	
-	/*
-	 * Language Instance Class.
-	 *
-	 * @access Protected Static
-	 *
-	 * @values Yume\Fure\Locale\Language\Language
-	 */
-	protected static ? Language\Language $language = Null;
-	
-	/*
-	 * DateTimeZone Instance Class.
-	 *
-	 * @access Proteced Static
-	 *
-	 * @values DateTimeZone
-	 */
-	protected static ? DateTimeZone $timezone = Null;
 	
 	/*
 	 * Default language translation.
 	 *
-	 * @access Protected Static
+	 * @access Public Static
 	 *
 	 * @values String
 	 */
-	protected static String $defaultLanguage = "en-us";
+	public const DEFAULT_LANGUAGE = "en";
 	
 	/*
 	 * Default date timezone.
 	 *
-	 * @access Protected Static
+	 * @access Public Static
 	 *
 	 * @values String
 	 */
-	protected static String $defaultTimezone = "Asia/Jakarta";
-	
-	use \Yume\Fure\Locale\LocaleTranslationsTrait;
+	public const DEFAULT_TIMEZONE = "Asia/Jakarta";
 	
 	/*
-	 * @inherit Yume\Fure\Support\Design\Singleton
+	 * Instance of class Clock.
 	 *
+	 * @access Public Readonly
+	 *
+	 * @values Yume\Fure\Locale\Clock\ClockInterface
 	 */
-	protected function __construct( Bool $setup = False )
-	{
-		if( $setup )
-		{
-			$this->setup();
-		}
-	}
+	public Readonly Clock\ClockInterface $clock;
 	
 	/*
-	 * Check if timezone is available.
+	 * Instance of class Language.
 	 *
-	 * @access Public Static
+	 * @access Private
 	 *
-	 * @params String $timezone
-	 *
-	 * @return Bool
+	 * @values Yume\Fure\Locale\Language\Language
 	 */
-	public static function isAvailableTimeZone( String $timezone ): Bool
-	{
-		return( in_array( $timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ) ) );
-	}
+	private ? Language\Language $language = Null;
 	
 	/*
-	 * Get DateTime instance.
+	 * Instance of class DateTimeZone.
 	 *
-	 * @access Public Static
+	 * @access Private
 	 *
-	 * @return Yume\Fure\Locale\DateTime\DateTime
+	 * @values DateTimeZone
 	 */
-	public static function getDateTime(): ? DateTime\DateTime
-	{
-		if( self::$datetime === Null )
-		{
-			self::setDateTime(
-				"now", self::getTimeZone()
-			);
-		}
-		return( self::$datetime );
-	}
+	private ? DateTimeZone $timezone = Null;
 	
 	/*
-	 * Get Language instance.
+	 * @inherit Yume\Fure\Support\Singleton
 	 *
-	 * @access Public Static
-	 *
-	 * @return Yume\Fure\Locale\Language\Language
 	 */
-	public static function getLanguage(): Language\Language
+	protected function __construct()
 	{
-		if( self::$language === Null )
-		{
-			self::setLanguage(
-				env( "LOCALE_LANGUAGE", self::$defaultLanguage )
-			);
-		}
-		return( self::$language );
-	}
-	
-	/*
-	 * Get language as string.
-	 *
-	 * @access Public Static
-	 *
-	 * @return String
-	 */
-	public static function getLanguageName(): String
-	{
-		return( self::getLanguage() )->getLanguage();
-	}
-	
-	/*
-	 * Get DateTimeZone instance.
-	 *
-	 * @access Public Static
-	 *
-	 * @return DateTimeZone
-	 */
-	public static function getTimeZone(): DateTimeZone
-	{
-		if( self::$timezone === Null )
-		{
-			self::setTimeZone(
-				env( "LOCALE_DATE_TIMEZOBE", self::$defaultTimeZone )
-			);
-		}
-		return( self::$timezone );
-	}
-	
-	/*
-	 * Get default Language.
-	 *
-	 * @access Public Static
-	 *
-	 * @return String
-	 */
-	public static function getDefaultLanguage(): String
-	{
-		return( self::$defaultLanguage );
-	}
-	
-	/*
-	 * Get default DateTimeZone.
-	 *
-	 * @access Public Static
-	 *
-	 * @return String
-	 */
-	public static function getDefaultTimeZone(): String
-	{
-		return( self::$defaultTimezone );
-	}
-	
-	/*
-	 * Set datetime application.
-	 *
-	 * @access Public Static
-	 *
-	 * @params String $datetime
-	 * @params String $timezone
-	 *
-	 * @return Void
-	 */
-	public static function setDateTime( ? String $datetime = Null, ? String $timezone = Null ): Void
-	{
-		// Set DateTimeZone instance.
-		self::setTimeZone( $timezone );
-		
-		// Set DateTime instance.
-		self::$datetime = new DateTime\DateTime( $datetime, self::$timezone );
-	}
-	
-	/*
-	 * Set language translation application.
-	 *
-	 * @access Public Static
-	 *
-	 * @params String $language
-	 *
-	 * @return Void
-	 *
-	 * @throws Yume\Fure\Error\TypeError
-	 */
-	public static function setLanguage( ? String $language = Null ): Void
-	{
-		// Use default languag when the language is Null.
-		$language ??= self::$defaultLanguage;
-		
-		// Make language path.
-		$languagePath = Path\Paths::APP_LANG->path( "{$language}.php" );
-		
-		try
-		{
-			if( File\File::exists( $languagePath ) )
-			{
-				/*
-				 * @alert Yume\Fure\Support\Package\Package::import
-				 *
-				 * It is highly discouraged to use the Import Method from Package\Package Classes
-				 * because basically those classes will throw class exceptions that require
-				 * Translation for their error messages, this can cause an infinite loop
-				 * which in turn can kill the entire running process.
-				 */
-				self::$language = require( $languagePath );
-			}
-			else {
-				if( strtolower( $language ) !== self::$defaultLanguage ) throw new Error\TypeError( Type\Str::fmt( "No language named {}", $language ) );
-			}
-		}
-		catch( Throwable $e )
-		{
-			if( self::$language === Null )
-			{
-				self::$language = new Language\Language( ...self::$defaultLanguageTranslations );
-			}
-			throw new Error\TypeError( Type\Str::fmt( "An error occurred while setting the translation language {}", $language ), 0, $e );
-		}
-		self::$language ??= new Language\Language( ...self::$defaultLanguageTranslations );
-	}
-	
-	/*
-	 * Set date timezone application.
-	 *
-	 * @access Public Static
-	 *
-	 * @params String $timezone
-	 *
-	 * @return Void
-	 */
-	public static function setTimeZone( ? String $timezone = Null ): Void
-	{
-		// Asserting timezone.
-		self::assertTimeZone( $timezone ??= self::$defaultTimezone );
-		
-		// Check if current timezone is same.
-		if( self::$timezone !== Null && self::$timezone->getName() !== $timezone || self::$timezone === Null )
-		{
-			// Set DateTimeZone instance.
-			self::$timezone = new DateTimeZone( $timezone );
-			
-			// Set default locale date timezone.
-			date_default_timezone_set( $timezone );
-		}
-	}
-	
-	/*
-	 * Setup localization.
-	 *
-	 * @access Public
-	 *
-	 * @params String $datetime
-	 * @params String $language
-	 * @params String $timezone
-	 *
-	 * @return Void
-	 */
-	public function setup( ? String $datetime = Null, ? String $language = Null, ? String $timezone = Null ): Void
-	{
-		// Set Application Language.
-		Locale::setLanguage( $language );
-		
-		// Set Application DateTime.
-		Locale::setDateTime( $datetime, $timezone );
-	}
-	
-	/*
-	 * Get language translation.
-	 *
-	 * @access Public Static
-	 *
-	 * @params String $ify
-	 * @params Mixed ...$format
-	 *
-	 * @return String
-	 *
-	 * @throws Yume\Fure\Error\TypeError
-	 */
-	public static function translate( String $ify, Mixed ...$format ): ? String
-	{
-		try
-		{
-			// Check if translation language is unavailable.
-			if( self::$language === Null )
-			{
-				// Set translation language.
-				self::setLanguage( self::$defaultLanguage );
-			}
-			
-			// Get translation strings.
-			$translation = Array\Arr::ify( $ify, self::$language );
-			
-			// Check if translation is string.
-			if( is_string( $translation ) )
-			{
-				// Check if translation string is inherit from other translation.
-				if( $translation[0] === "^" )
-				{
-					return( self::translate( str_replace( "^", "", $translation ), ...$format ) );
-				}
-				return( Type\Str::fmt( $translation, ...$format ) );
-			}
-			throw new Error\TypeError( Type\Str::fmt( "Translation language must be string value, {+:ucfirst} given", type( $translation ) ) );
-		}
-		catch( Error\LookupError $e )
-		{
-			return( Null );
-		}
+		$this->clock = new Clock\Clock;
 	}
 	
 	/*
@@ -357,10 +89,239 @@ class Locale extends Design\Singleton
 	 */
 	private static function assertTimeZone( String $timezone ): Void
 	{
-		if( self::isAvailableTimeZone( $timezone ) === False )
+		if( self::isAvailableTimeZone( $timezone, False ) )
 		{
-			throw new Error\TypeError( Type\Str::fmt( "Unsupported timezone for {}", $timezone ) );
+			throw new Error\UnexpectedError( Util\Strings::format( "Unsupported timezone for {}", $timezone ) );
 		}
+	}
+	
+	/*
+	 * Return new DateTimeImmutable instance.
+	 *
+	 * @access Public Static
+	 *
+	 * @return DateTimeImmutable
+	 */
+	public static function clock(): DateTimeImmutable
+	{
+		return( self::self() )->clock->now();
+	}
+	
+	/*
+	 * Return Language instance.
+	 *
+	 * @access Public Static
+	 *
+	 * @return Yume\Fure\Locale\Language\Language
+	 */
+	public static function getLanguage(): Language\Language
+	{
+		if( self::self()->language === Null )
+		{
+			self::setLanguage();
+		}
+		return( self::self() )->language;
+	}
+	
+	/*
+	 * Return language name.
+	 *
+	 * @access Public Static
+	 *
+	 * @return String
+	 */
+	public static function getLanguageName(): String
+	{
+		if( self::self()->language === Null )
+		{
+			self::setLanguage();
+		}
+		return( self::self() )->language->language;
+	}
+	
+	/*
+	 * Return DateTimeZone instance.
+	 *
+	 * @access Public Static
+	 *
+	 * @return DateTimeZone
+	 */
+	public static function getTimeZone(): DateTimeZone
+	{
+		if( self::self()->timezone === Null )
+		{
+			self::setTimeZone();
+		}
+		return( self::self() )->timezone;
+	}
+	
+	/*
+	 * Return date timezone name.
+	 *
+	 * @access Public Static
+	 *
+	 * @return String
+	 */
+	public static function getTimeZoneName(): String
+	{
+		if( self::self()->timezone === Null )
+		{
+			self::setTimeZone();
+		}
+		return( self::self() )->timezone->getName();
+	}
+	
+	/*
+	 * Import translations module.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $name
+	 * @params Array $optional
+	 *
+	 * @return Array
+	 */
+	public static function getTranslation( String $name, ? Array $optional = Null ): ? Array
+	{
+		$lang = self::getLanguageName();
+		$source = Path\Paths::AppLanguage->path( join( "/", [ $lang, "{$name}.php" ] ) );
+		try
+		{
+			return( Support\Package::import( $source ) );
+		}
+		catch( Error\ModuleError )
+		{
+			return( $optional ?? Null );
+		}
+	}
+	
+	/*
+	 * Check if timezone is available.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $timezone
+	 * @params Bool $optional
+	 *
+	 * @return Bool
+	 */
+	public static function isAvailableTimeZone( String $timezone, ? Bool $optional = Null ): Bool
+	{
+		if( $optional === Null )
+		{
+			return( in_array( $timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ) ) );
+		}
+		return( $optional === self::isAvailableTimeZone( $timezone ) );
+	}
+	
+	/*
+	 * Set language.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $lang
+	 *
+	 * @return Void
+	 */
+	public static function setLanguage( ? String $lang = Null ): Void
+	{
+		// Normalize language name.
+		$lang = strtolower( $lang ?? config( "locale.language", self::DEFAULT_LANGUAGE ) );
+		
+		// Check if language name not same.
+		if( self::self()->language === Null ||
+			self::self()->language->isLang( $lang, False ) )
+		{
+			self::self()->language = new Language\Language( $lang );
+		}
+	}
+	
+	/*
+	 * Set default application timezone.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String|DateTimeZone $timezone
+	 *
+	 * @return Void
+	 */
+	public static function setTimeZone( String | DateTimeZone | Null $timezone = Null ): Void
+	{
+		// When timezone is null.
+		$timezone ??= config( "locale" )->timezone ??= self::DEFAULT_TIMEZONE;
+		
+		// Check if timezone name not same.
+		if( self::self()->timezone === Null ||
+			self::self()->timezone !== $timezone )
+		{
+			self::assertTimeZone( $timezone );
+			self::self()->timezone = new DateTimeZone( $timezone );
+			
+			// Set default locale date timezone.
+			date_default_timezone_set( $timezone );
+		}
+	}
+	
+	/*
+	 * Set language translations.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Array|String $translation
+	 *  Array of translations or translation names.
+	 *  String translation name.
+	 *
+	 * @return Void
+	 */
+	public static function setTranslation( Array | String $translation ): Void
+	{
+		// Normalize translation.
+		if( is_string( $translation ) ) $translation = [$translation];
+		
+		// Mapping translations.
+		foreach( $translation As $index => $value )
+		{
+			if( is_string( $value ) ) $value = self::getTranslation( $index = $value, [] );
+			if( is_array( $value ) )
+			{
+				if( is_int( $index ) )
+				{
+					foreach( $value As $key => $val )
+					{
+						self::self()->language[$key] = $val;
+					}
+					continue;
+				}
+				self::self()->language[$index] = $value;
+			}
+		}
+	}
+	
+	/*
+	 * Return translation string by key name.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $key
+	 * @params String $optional
+	 * @params Bool $format
+	 * @params Mixed $values
+	 *
+	 * @return String
+	 */
+	public static function translate( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String
+	{
+		// Get translation strings.
+		$translate = Util\Arrays::ify( $key, self::self()->language, False ) ?? $optional ?? Null;
+		
+		// If translation is available and
+		// if format is allowed.
+		if( $translate && $format )
+		{
+			// Return formatted translation.
+			return( Strings::format( $translate, ...self::map( fn( Int $i, Mixed $k, Mixed $v ) => $v ?? "" ) ) );
+		}
+		return( $translate );
 	}
 	
 }
