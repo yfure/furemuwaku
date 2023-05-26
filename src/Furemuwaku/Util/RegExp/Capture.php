@@ -9,7 +9,7 @@ use Stringable;
  *
  * @package Yume\Fure\Util\RegExp
  */
-class Capture implements Stringable
+final class Capture implements Stringable
 {
 	
 	public function __construct(

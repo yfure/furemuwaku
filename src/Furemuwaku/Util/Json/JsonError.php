@@ -9,9 +9,9 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util\Json
  *
- * @extends Yume\Fure\Error\ValueError
+ * @extends Yume\Fure\Error\IOError
  */
-class JsonError extends Error\ValueError
+class JsonError extends Error\IOError
 {
 	
 	/*

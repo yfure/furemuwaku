@@ -216,7 +216,6 @@ class RegExp
 	{
 		if( self::errno() )
 		{
-			echo self::error();exit( PHP_EOL );
 			throw new RegExpError( self::error(), self::errno() );
 		}
 		return( $result );

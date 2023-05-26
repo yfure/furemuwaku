@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\Util\RegExp;
 
+use Closure;
 use Stringable;
 
 use Yume\Fure\Util\Array;
@@ -121,9 +122,22 @@ final class Pattern implements Stringable
 		return( Null );
 	}
 	
+	/*
+	 * Replace the given subject with replacement.
+	 *
+	 * @access Public
+	 *
+	 * @params Array|String $subject
+	 * @params Callable|String $replace
+	 * @params Int $limit
+	 * @params Int &$count
+	 * @params Int $flags
+	 *
+	 * @return Array|String
+	 */
 	public function replace( Array | String $subject, Callable | String $replace, Int $limit = -1, Int &$count = Null, Int $flags = 0 ): Array | String
 	{
-		if( is_callable( $replace ) )
+		if( $replace Instanceof Closure )
 		{
 			// Captured position.
 			$index = 0;
@@ -144,7 +158,19 @@ final class Pattern implements Stringable
 		return( RegExp::replace( $this->compiled, $subject, $replace ) );
 	}
 	
-	private function process( String $subject, String &$explode, Array $matches, Int &$index )//: Matches
+	/*
+	 * Return match results.
+	 *
+	 * @access Private
+	 *
+	 * @params String $subject
+	 * @params String &$explode
+	 * @params Array $matches
+	 * @params Int &$index
+	 *
+	 * @return Yume\Fure\Util\RegExp\Matches
+	 */
+	private function process( String $subject, String &$explode, Array $matches, Int &$index ): Matches
 	{
 		// Save previous index.
 		$iprev = $index;

@@ -9,7 +9,7 @@ use Yume\Fure\Util\Array;
  *
  * @package Yume\Fure\Util\RegExp
  */
-class Matches extends Array\Lists
+final class Matches extends Array\Lists
 {
 	
 	/*
