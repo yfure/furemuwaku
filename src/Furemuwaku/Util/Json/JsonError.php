@@ -7,11 +7,11 @@ use Yume\Fure\Error;
 /*
  * JsonError
  *
- * @package Yume\Fure\Util\Json
+ * @extends Yume\Fure\Error\ValueError
  *
- * @extends Yume\Fure\Error\IOError
+ * @package Yume\Fure\Util\Json
  */
-class JsonError extends Error\IOError
+class JsonError extends Error\ValueError
 {
 	
 	/*
