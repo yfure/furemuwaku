@@ -179,14 +179,22 @@ class Locale extends Support\Singleton
 	 * @params String $name
 	 * @params Array $optional
 	 *
-	 * @return Array
+	 * @return Array|Yume\Fure\Locale\Language\Language
 	 */
-	public static function getTranslation( String $name, ? Array $optional = Null ): ? Array
+	public static function getTranslation( String $name, ? Array $optional = Null ): Array | Language\Language | Null
 	{
 		$lang = self::getLanguageName();
 		$source = Path\Paths::AppLanguage->path( join( "/", [ $lang, "{$name}.php" ] ) );
 		try
 		{
+			// Normalize translation name.
+			$name = str_replace( "/", ".", $name );
+			
+			// Check if translation has imported.
+			if( isset( self::self()->language[$name] ) )
+			{
+				return( self::self()->language[$name] );
+			}
 			return( Support\Package::import( $source ) );
 		}
 		catch( Error\ModuleError )
@@ -267,13 +275,14 @@ class Locale extends Support\Singleton
 	 *
 	 * @access Public Static
 	 *
-	 * @params Array|String $translation
+	 * @params Array|String|Yume\Fure\Locale\Language\Language $translation
 	 *  Array of translations or translation names.
 	 *  String translation name.
+	 *  Language Instance.
 	 *
 	 * @return Void
 	 */
-	public static function setTranslation( Array | String $translation ): Void
+	public static function setTranslation( Array | String | Language\Language $translation ): Void
 	{
 		// Normalize translation.
 		if( is_string( $translation ) ) $translation = [$translation];
@@ -292,8 +301,8 @@ class Locale extends Support\Singleton
 					}
 					continue;
 				}
-				self::self()->language[$index] = $value;
 			}
+			self::self()->language[str_replace( "/", ".", $index )] = $value;
 		}
 	}
 	
@@ -312,7 +321,22 @@ class Locale extends Support\Singleton
 	public static function translate( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String
 	{
 		// Get translation strings.
-		$translate = Util\Arrays::ify( $key, self::self()->language, False ) ?? $optional ?? Null;
+		$translate = Util\Arrays::ify( $key, self::self()->language, False );
+		
+		// If translation is inherit another translation.
+		if( preg_match( "/^\@(?:inherit\:(?<inherit>[^\n]+)|(?<group>[^\<]+)\<(?<key>[^\>]+)\>)$/Ji", $translate, $match ) )
+		{
+			// If inherited translation defined group.
+			if( $match['group'] ?? Null )
+			{
+				$inherit = join( ".", [ $match['group'], $match['key'] ] );
+			}
+			else {
+				$params = $match['inherit'];
+			}
+			$translate = self::translate( $inherit, Null, $format, ...$values );
+		}
+		$translate ??= $optional ?? Null;
 		
 		// If translation is available and
 		// if format is allowed.
