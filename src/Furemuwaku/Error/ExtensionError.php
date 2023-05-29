@@ -5,20 +5,20 @@ namespace Yume\Fure\Error;
 /*
  * ExtensionError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ReflectError
+ *
+ * @package Yume\Fure\Error
  */
 class ExtensionError extends ReflectError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ReflectError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		ExtensionError::class => [
-			self::_ERROR
+			// ...
 		]
 	];
 	

@@ -5,32 +5,32 @@ namespace Yume\Fure\Error;
 use Throwable;
 
 /*
- * ModuleNotFoundError
- *
- * @package Yume\Fure\Error
+ * ModuleNotFounfError
  *
  * @extends Yume\Fure\Error\ModuleError
+ *
+ * @package Yume\Fure\Error
  */
-class ModuleNotFoundError extends ModuleError
+final class ModuleNotFoundError extends ModuleError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ModuleError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		ModuleNotFoundError::class => [
-			self::NOT_FOUND_ERROR
+			self::NOT_FOUND_ERROR => "No module named {}"
 		]
 	];
 	
 	/*
-	 * @inherit Yume\Fure\Error\ModuleError
+	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = parent::NOT_FOUND_ERROR, ? Throwable $previous = Null )
+	public function __construct( Array | Int | String $message, Int $code = self::NOT_FOUND_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
 	{
-		parent::__construct( $message, $code, $previous );
+		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	
 }

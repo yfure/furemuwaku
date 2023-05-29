@@ -3,13 +3,13 @@
 namespace Yume\Fure\Error;
 
 /*
- * DeprecatedError
+ * DeprecationError
+ *
+ * @extends Yume\Fure\Error\YumeError
  *
  * @package Yume\Fure\Error
- *
- * @extends Yume\Fure\BaseError
  */
-class DeprecatedError extends BaseError
+class DeprecationError extends YumeError
 {
 	
 	/*
@@ -31,13 +31,13 @@ class DeprecatedError extends BaseError
 	public const METHOD_ERROR = 75272;
 	
 	/*
-	 * @inherit Yume\Fure\BaseError
+	 * @inherit Yume\Fure\YumeError
 	 *
 	 */
 	protected Array $flags = [
-		DeprecatedError::class => [
-			self::FUNCTION_ERROR,
-			self::METHOD_ERROR
+		DeprecationError::class => [
+			self::FUNCTION_ERROR => "Function {} has been deprecated, use {} instead",
+			self::METHOD_ERROR => "Method {} has been deprecated, use {} instead"
 		]
 	];
 	

@@ -5,9 +5,9 @@ namespace Yume\Fure\Error;
 /*
  * ConstantError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ClassError
+ *
+ * @package Yume\Fure\Error
  */
 class ConstantError extends ClassError
 {
@@ -22,13 +22,13 @@ class ConstantError extends ClassError
 	public const ACCESS_ERROR = 25357;
 	
 	/*
-	 * @inherit Yume\Fure\Error\ClassError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		ConstantError::class => [
-			self::ACCESS_ERROR,
-			self::NAME_ERROR
+			self::ACCESS_ERROR => "Constant {}::{} is not accessible from outsite class",
+			self::NAME_ERROR => "Class {} has no constant named {}"
 		]
 	];
 	

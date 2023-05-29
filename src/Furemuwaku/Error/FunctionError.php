@@ -3,28 +3,31 @@
 namespace Yume\Fure\Error;
 
 /*
- * ReflectError
+ * FunctionError
+ *
+ * @extends Yume\Fure\Error\ReflectError
  *
  * @package Yume\Fure\Error
- *
- * @extends Yume\Fure\Error\Error
  */
 class FunctionError extends ReflectError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ReferenceError
+	 * Error constant for undefined function name.
 	 *
+	 * @access Public Static
+	 *
+	 * @values Int
 	 */
-	public const NAME_ERROR = ReferenceError::NAME_ERROR;
+	public const NAME_ERROR = 68445;
 	
 	/*
-	 * @inherit Yume\Fure\Error\ReflectError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		FunctionError::class => [
-			self::NAME_ERROR
+			self::NAME_ERROR => "No function named {}"
 		]
 	];
 	

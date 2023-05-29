@@ -5,9 +5,9 @@ namespace Yume\Fure\Error;
 /*
  * MethodError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ConstantError
+ *
+ * @package Yume\Fure\Error
  */
 class MethodError extends ConstantError
 {
@@ -22,14 +22,14 @@ class MethodError extends ConstantError
 	public const INVOKE_ERROR = 75457;
 	
 	/*
-	 * @inherit Yume\Fure\Error\ConstantError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		MethodError::class => [
-			self::ACCESS_ERROR,
-			self::NAME_ERROR,
-			self::INVOKE_ERROR
+			self::ACCESS_ERROR => "Method {}::{} is not accessible from outsite class",
+			self::INVOKE_ERROR => "Can't invoke method {}::{}, it's not accessible from outsite class",
+			self::NAME_ERROR => "Class {} has no method named {}"
 		]
 	];
 	

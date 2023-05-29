@@ -5,26 +5,26 @@ namespace Yume\Fure\Error;
 /*
  * EnumError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ClassError
+ *
+ * @package Yume\Fure\Error
  */
 class EnumError extends ClassError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ClassError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		EnumError::class => [
-			self::NAME_ERROR
+			self::NAME_ERROR => "No enum named {}"
 		],
 		EnumBackedError::class => [
-			self::_ERROR
+			//self::NAME_ERROR => ""
 		],
 		EnumUnitError::class => [
-			self::_ERROR
+			//self::NAME_ERROR => ""
 		]
 	];
 	

@@ -2,14 +2,12 @@
 
 namespace Yume\Fure\Error;
 
-use Throwable;
-
 /*
  * PermissionError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\IOError
+ *
+ * @package Yume\Fure\Error
  */
 class PermissionError extends IOError
 {
@@ -33,25 +31,15 @@ class PermissionError extends IOError
 	public const WRITE_ERROR = 84911;
 	
 	/*
-	 * @inherit Yume\Fure\Error\IOError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		PermissionError::class => [
-			self::PERMISSION_ERROR,
-			self::READ_ERROR,
-			self::WRITE_ERROR
+			self::READ_ERROR => "Access denied, unable to read {}",
+			self::WRITE_ERROR => "Access denied, unable to write {}"
 		]
 	];
-	
-	/*
-	 * @inherit Yume\Fure\Error\IOError
-	 *
-	 */
-	public function __construct( Array | Int | String $message, Int $code = self::PERMISSION_ERROR, ? Throwable $previous = Null )
-	{
-		parent::__construct( $message, $code, $previous );
-	}
 	
 }
 

@@ -2,26 +2,25 @@
 
 namespace Yume\Fure\Error;
 
-use Throwable;
-
 /*
  * EnumUnitError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\EnumError
+ *
+ * @package Yume\Fure\Error
  */
-class EnumUnitError extends EnumError
+final class EnumUnitError extends EnumError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\EnumError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = self::__ERROR, ? Throwable $previous = Null )
-	{
-		parent::__construct( $messge, $code, $previous );
-	}
+	protected Array $flags = [
+		EnumUnitError::class => [
+			// ...
+		]
+	];
 	
 }
 

@@ -2,20 +2,18 @@
 
 namespace Yume\Fure\Error;
 
-use Yume\Fure\Util\File;
-
 /*
  * ModuleError
  *
- * @package Yume\Fure\Error
+ * @extends Yume\Fure\Error\IOError
  *
- * @extends Yume\Fure\Error\TypeError
+ * @package Yume\Fure\Error
  */
-class ModuleError extends TypeError
+class ModuleError extends IOError
 {
 	
 	/*
-	 * Error constant for .
+	 * Error constant .
 	 *
 	 * @access Public Static
 	 *
@@ -30,16 +28,16 @@ class ModuleError extends TypeError
 	 *
 	 * @values Int
 	 */
-	public const NOT_FOUND_ERROR = File\FileError::NOT_FOUND_ERROR;
+	public const NOT_FOUND_ERROR = 78550;
 	
 	/*
-	 * @inherit Yume\Fure\Error\TypeError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		ModuleError::class => [
-			self::IMPORT_ERROR,
-			self::NOT_FOUND_ERROR
+			self::IMPORT_ERROR => "Something wrong when import module {}",
+			self::NOT_FOUND_ERROR => "No module named {}"
 		]
 	];
 	

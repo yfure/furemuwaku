@@ -5,20 +5,29 @@ namespace Yume\Fure\Error;
 /*
  * AssertionError
  *
- * @package Yume\Fure\Error
+ * @extends Yume\Fure\Error\YumeError
  *
- * @extends Yume\Fure\Error\ValueError
+ * @package Yume\Fure\Error
  */
-class AssertionError extends ValueError
+class AssertionError extends YumeError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ValueError
+	 * Error constant for invalid value given.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	public const VALUE_ERROR = 96488;
+	
+	/*
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		AssertionError::class => [
-			self::VALUE_ERROR
+			self::VALUE_ERROR => "Invalid value for {} value must be {}, {+:ucfirst} given"
 		]
 	];
 	

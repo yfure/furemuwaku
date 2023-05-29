@@ -5,9 +5,9 @@ namespace Yume\Fure\Error;
 /*
  * LookupError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ReferenceError
+ *
+ * @package Yume\Fure\Error
  */
 class LookupError extends ReferenceError
 {
@@ -31,13 +31,13 @@ class LookupError extends ReferenceError
 	public const KEY_ERROR = 857287;
 	
 	/*
-	 * @inherit Yume\Fure\Error\ReferenceError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		LookupError::class => [
-			self::INDEX_ERROR,
-			self::KEY_ERROR
+			self::INDEX_ERROR => "Index {} out of range",
+			self::KEY_ERROR => "Undefined key for {}"
 		]
 	];
 	

@@ -5,9 +5,9 @@ namespace Yume\Fure\Error;
 /*
  * ClassError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ReflectError
+ *
+ * @package Yume\Fure\Error
  */
 class ClassError extends ReflectError
 {
@@ -31,29 +31,32 @@ class ClassError extends ReflectError
 	public const INSTANCE_ERROR = 67887;
 	
 	/*
-	 * @inherit Yume\Fure\Error\ReferenceError
+	 * Error constant for undeclared class name.
 	 *
+	 * @access Public Static
+	 *
+	 * @values Int
 	 */
-	public const NAME_ERROR = ReferenceError::NAME_ERROR;
+	public const NAME_ERROR = 68445;
 	
 	/*
-	 * @inherit Yume\Fure\Error\ReflectError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		ClassError::class => [
-			self::IMPLEMENTS_ERROR,
-			self::INSTANCE_ERROR, 
-			self::NAME_ERROR
+			self::IMPLEMENTS_ERROR => "Class {} must implement interface {}",
+			self::INSTANCE_ERROR => "Unable to create new instance for class {}, it's not instantiable class", 
+			self::NAME_ERROR => "No class named {}"
 		],
 		ClassImplementationError::class => [
-			self::IMPLEMENTS_ERROR
+			self::IMPLEMENTS_ERROR => "Class {} must implement interface {}"
 		],
 		ClassInstanceError::class => [
-			self::INSTANCE_ERROR,
+			self::INSTANCE_ERROR => "Unable to create new instance for class {}, it's not instantiable class"
 		],
 		ClassNameError::class => [ 
-			self::NAME_ERROR
+			self::NAME_ERROR => "No class named {}"
 		]
 	];
 	

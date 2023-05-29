@@ -5,32 +5,10 @@ namespace Yume\Fure\Error;
 /*
  * IOError
  *
- * @package Yume\Fure\Error
+ * @extends Yume\Fure\Error\YumeError
  *
- * @extends Yume\Fure\Error\BaseError
+ * @package Yume\Fure\Error
  */
-class IOError extends BaseError
-{
-	
-	/*
-	 * Error constants for permission errors.
-	 *
-	 * @access Public Static
-	 *
-	 * @values Int
-	 */
-	public const PERMISSION_ERROR = 61947;
-	
-	/*
-	 * @inherit Yume\Fure\Error\BaseError
-	 *
-	 */
-	protected Array $flags = [
-		IOError::class => [
-			self::PERMISSION_ERROR
-		]
-	];
-	
-}
+class IOError extends YumeError {}
 
 ?>

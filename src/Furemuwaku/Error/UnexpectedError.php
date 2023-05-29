@@ -3,12 +3,12 @@
 namespace Yume\Fure\Error;
 
 /*
- * ReflectError
+ * UnexpectedError
  *
  * @extends Yume\Fure\Error\YumeError
  *
  * @package Yume\Fure\Error
  */
-class ReflectError extends YumeError {}
+class UnexpectedError extends YumeError {}
 
 ?>

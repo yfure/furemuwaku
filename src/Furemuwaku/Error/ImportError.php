@@ -7,30 +7,30 @@ use Throwable;
 /*
  * ImportError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ModuleError
+ *
+ * @package Yume\Fure\Error
  */
-class ImportError extends ModuleError
+final class ImportError extends ModuleError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ModuleError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		ImportError::class => [
-			self::IMPORT_ERROR
+			self::IMPORT_ERROR => "Something wrong when import module {}"
 		]
 	];
 	
 	/*
-	 * @inherit Yume\Fure\Error\ModuleError
+	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = self::IMPORT_ERROR, ? Throwable $previous = Null )
+	public function __construct( Array | Int | String $message, Int $code = self::IMPORT_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
 	{
-		parent::__construct( $message, $code, $previous );
+		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	
 }

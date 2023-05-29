@@ -5,21 +5,21 @@ namespace Yume\Fure\Error;
 /*
  * PropertyError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ConstantError
+ *
+ * @package Yume\Fure\Error
  */
 class PropertyError extends ConstantError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ConstantError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		PropertyError::class => [
-			self::ACCESS_ERROR,
-			self::NAME_ERROR
+			self::ACCESS_ERROR => "Property {}::\${} is not accessible from outsite class",
+			self::NAME_ERROR => "Class {} has no property named {}"
 		]
 	];
 	

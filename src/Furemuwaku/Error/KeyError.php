@@ -7,30 +7,30 @@ use Throwable;
 /*
  * KeyError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\LookupError
+ *
+ * @package Yume\Fure\Error
  */
 class KeyError extends LookupError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\LookupError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		KeyError::class => [
-			self::KEY_ERROR
+			self::KEY_ERROR => "Undefined key for {}"
 		]
 	];
 	
 	/*
-	 * @inherit Yume\Fure\Error\LookupError
+	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = parent::KEY_ERROR, ? Throwable $previous = Null )
+	public function __construct( Array | Int | String $message, Int $code = self::KEY_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
 	{
-		parent::__construct( $message, $code, $previous );
+		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	
 }

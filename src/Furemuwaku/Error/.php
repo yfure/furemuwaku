@@ -1,41 +1,58 @@
 <?php
 
 Error +
-└── Error\BaseError +
-    ├── Error\DeprecatedError +
-    ├── Error\IOError +
-    │   └──  Error\PermissionError +
-    ├── Error\ReferenceError +
-    │   └── Error\LookupError +
-    │       ├── Error\IndexError +
-    │       └── Error\KeyError +
-    ├── Error\RuntimeError +
-    │   └── Error\LogicError +
-    ├── Error\SyntaxError +
-    ├── Error\TriggerError +
-    ├── Error\TypeError +
-    │   ├── Error\ReflectError +
-    │   │   ├── Error\ClassError +
-    │   │   │   ├── Error\AttributeError +
-    │   │   │   ├── Error\ClassImplementationError +
-    │   │   │   ├── Error\ClassInstanceError +
-    │   │   │   ├── Error\ClassNameError +
-    │   │   │   ├── Error\ConstantError +
-    │   │   │   │   ├── Error\MethodError +
-    │   │   │   │   └── Error\PropertyError +
-    │   │   │   └── Error\EnumError +
-    │   │   │       └── Error\EnumUnitError +
-    │   │   │           └── Error\EnumBackedError +
-    │   │   ├── Error\ParameterError +
-    │   │   ├── Error\ExtensionError +
-    │   │   ├── Error\FiberError +
-    │   │   ├── Error\FunctionError +
-    │   │   └── Error\GeneratorError +
-    │   └── Error\ModuleError +
-    │       ├── Error\ImportError +
-    │       └── Error\ModuleNotFoundError +
-    └── Error\ValueError +
-        ├── Error\ArgumentError +
-        └── Error\AssertionError +
+└── Error\YumeError +
+   ├── Error\AssertionError +
+   │   └── Error\ValueError +
+   │       ├── Json\JsonError +
+   │       ├── Error\LengthError +
+   │       └── Error\UnicodeError +
+   ├── Error\DeprecationError +
+   ├── Error\HTTPError
+   │   ├── Cookie\CookieError
+   │   ├── Session\SessionError
+   ├── Error\IOError +
+   │   ├── Buffer\BufferError
+   │   ├── Cache\CacheError
+   │   ├── Error\ConnectionError
+   │   ├── File\FileError +
+   │   │   └── File\FileNotFoundError +
+   │   ├── Logger\LoggerError
+   │   ├── Error\ModuleError +
+   │   │   ├── Error\ImportError +
+   │   │   └── Error\ModuleNotFoundError +
+   │   ├── Path\PathError +
+   │   │   └── Path\PathNotFoundError +
+   │   ├── Error\PermissionError +
+   │   └── Stream\StreamError
+   ├── Error\LocaleError
+   ├── Error\ReferenceError +
+   │   └── Error\LookupError +
+   │       ├── Error\IndexError +
+   │       └── Error\KeyError +
+   ├── Error\ReflectError +
+   │   ├── Error\ClassError +
+   │   │   ├── Error\AttributeError +
+   │   │   ├── Error\ClassImplementationError +
+   │   │   ├── Error\ClassInstanceError +
+   │   │   ├── Error\ClassNameError +
+   │   │   ├── Error\ConstantError +
+   │   │   │   ├── Error\MethodError +
+   │   │   │   └── Error\PropertyError +
+   │   │   └── Error\EnumError +
+   │   │       └── Error\EnumUnitError +
+   │   │           └── Error\EnumBackedError +
+   │   ├── Error\ParameterError +
+   │   ├── Error\ExtensionError +
+   │   ├── Error\FiberError +
+   │   ├── Error\FunctionError +
+   │   └── Error\GeneratorError +
+   ├── Error\RuntimeError +
+   │   ├── Service\ServiceError
+   │   └── Error\LogicError 
+   ├── Error\SyntaxError
+   │   └── RegExp\RegExpError
+   ├── Error\TriggerError
+   └── Error\UnexpectedError +
 
 ?>

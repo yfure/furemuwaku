@@ -5,20 +5,20 @@ namespace Yume\Fure\Error;
 /*
  * FiberError
  *
- * @package Yume\Fure\Error
- *
  * @extends Yume\Fure\Error\ReflectError
+ *
+ * @package Yume\Fure\Error
  */
 class FiberError extends ReflectError
 {
 	
 	/*
-	 * @inherit Yume\Fure\Error\ReflectError
+	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		FiberError::class => [
-			self::_ERROR
+			// ...
 		]
 	];
 	
