@@ -8,13 +8,13 @@ Error +
    │       ├── Error\LengthError +
    │       └── Error\UnicodeError +
    ├── Error\DeprecationError +
-   ├── Error\HTTPError
+   ├── Error\HTTPError +
+   │   ├── Error\ConnectionError +
    │   ├── Cookie\CookieError
-   │   ├── Session\SessionError
+   │   └── Session\SessionError
    ├── Error\IOError +
    │   ├── Buffer\BufferError
    │   ├── Cache\CacheError
-   │   ├── Error\ConnectionError
    │   ├── File\FileError +
    │   │   └── File\FileNotFoundError +
    │   ├── Logger\LoggerError
@@ -49,10 +49,10 @@ Error +
    │   └── Error\GeneratorError +
    ├── Error\RuntimeError +
    │   ├── Service\ServiceError
-   │   └── Error\LogicError 
-   ├── Error\SyntaxError
-   │   └── RegExp\RegExpError
-   ├── Error\TriggerError
+   │   └── Error\LogicError + 
+   ├── Error\SyntaxError +
+   │   └── RegExp\RegExpError +
+   ├── Error\TriggerError +
    └── Error\UnexpectedError +
 
 ?>

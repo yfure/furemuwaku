@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Error;
 
+use Throwable;
+
 /*
  * EnumUnitError
  *

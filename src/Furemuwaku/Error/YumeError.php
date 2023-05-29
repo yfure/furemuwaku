@@ -23,8 +23,6 @@ use Yume\Fure\Util\RegExp;
 class YumeError extends Error
 {
 	
-	const TESTING = 89;
-	
 	/*
 	 * Value of flag.
 	 *
@@ -37,56 +35,11 @@ class YumeError extends Error
 	/*
 	 * Tracking Error Source.
 	 *
-	 * @access Private
+	 * @access Protected
 	 *
 	 * @values Array
 	 */
-	private Array $track = [
-		Json::class => [
-			"classes" => [
-				Json\Json::class
-			],
-			"function" => [
-				"json_encode",
-				"json_decode"
-			]
-		],
-		Reflect::class => [
-			"classes" => [
-				Relfect\ReflectClass::class,
-				Relfect\ReflectConstant::class,
-				Relfect\ReflectDecorator::class,
-				Relfect\ReflectEnum::class,
-				Relfect\ReflectEnumBacked::class,
-				Relfect\ReflectEnumUnit::class,
-				Relfect\ReflectExtension::class,
-				Relfect\ReflectFiber::class,
-				Relfect\ReflectFunction::class,
-				Relfect\ReflectGenerator::class,
-				Relfect\ReflectMethod::class,
-				Relfect\ReflectParameter::class,
-				Relfect\ReflectProperty::class,
-				Relfect\ReflectType::class
-			]
-		],
-		RegExp::class => [
-			"classes" => [
-				RegExp\RegExp::class,
-				RegExp\Pattern::class
-			],
-			"function" => [
-				"preg_filter",
-				"preg_grep",
-				"preg_match_all",
-				"preg_match",
-				"preg_quote",
-				"preg_replace_callback_array",
-				"preg_replace_callback",
-				"preg_replace",
-				"preg_split"
-			]
-		]
-	];
+	protected Array $track = [];
 	
 	/*
 	 * Exception type thrown.
@@ -147,7 +100,7 @@ class YumeError extends Error
 		foreach( $this->track As $group => $info )
 		{
 			// Make Pattern for match filename.
-			$pattern = Util\Strings::format( "/{}\\/({})\\.php$/i", str_replace( DIRECTORY_SEPARATOR, "\\" . DIRECTORY_SEPARATOR, Support\Package::path( $group ) ), join( "|", array_map( fn( String $class ) => Util\Strings::pop( $class, "\\", True ), $info['classes'] ) ) );
+			$pattern = Util\Strings::format( "/{}\\/(?:{})\\.php$/i", str_replace( DIRECTORY_SEPARATOR, "\\" . DIRECTORY_SEPARATOR, Support\Package::path( $group ) ), join( "|", array_map( fn( String $class ) => Util\Strings::pop( $class, "\\", True ), $info['classes'] ) ) );
 			
 			// If current filename match with pattern.
 			if( preg_match( $pattern, $this->getFile() ) )
@@ -155,7 +108,7 @@ class YumeError extends Error
 				// Mapping exception traces.
 				foreach( $this->getTrace() As $i => $trace )
 				{
-					// Skip if class name has no Reflect Namespace.
+					// Skip if class name does not exists.
 					if( in_array( $trace['class'] ?? "", $info['classes'] ) === False ) continue;
 					
 					// Skip if file name has prefix filename from track.
@@ -251,7 +204,12 @@ class YumeError extends Error
 	 */
 	private function setType( Int $code ): Void
 	{
-		$this->type = Util\Strings::fromKebabCaseToUpperCamelCase( is_string( $type = array_search( $code, Reflect\ReflectClass::getConstants( $this ) ) ) ? $type : "Unknown" );
+		try
+		{
+			$this->type = Util\Strings::fromKebabCaseToUpperCamelCase( is_string( $type = array_search( $code, Reflect\ReflectClass::getConstants( $this ) ) ) ? $type : "Unknown" );
+		}
+		catch( Throwable )
+		{}
 	}
 	
 }
