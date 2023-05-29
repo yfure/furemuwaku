@@ -123,7 +123,32 @@ final class Package extends Singleton
 	}
 	
 	/*
-	 * Return if package has installed.
+	 * Return if package has installed and exists.
+	 *
+	 /*
+	 * Return if package name has installed.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $package
+	 * @params Bool $optional
+	 *
+	 * @return Bool
+	 */
+	public static function exists( String $package, ? Bool $optional = Null ): Bool
+	{
+		// Get package name.
+		$name = self::path( $package );
+		
+		// Create file name.
+		$file = join( "", [ $name, substr( $name, -4 ) !== ".php" ? ".php" : "" ] );
+		
+		// Return if file exists.
+		return( File\File::exists( $file, $optional ) );
+	}
+	
+	/*
+	 * Return if package name has installed.
 	 *
 	 * @access Public Static
 	 *
@@ -178,7 +203,7 @@ final class Package extends Singleton
 		$name = self::path( $package );
 		
 		// Create file name.
-		$file = sprintf( "%s%s", $name, substr( $name, -4 ) !== ".php" ? ".php" : "" );
+		$file = join( "", [ $name, substr( $name, -4 ) !== ".php" ? ".php" : "" ] );
 		
 		// Check if file name is exists.
 		if( File\File::exists( $file ) )
@@ -193,12 +218,9 @@ final class Package extends Singleton
 				{
 					return( $optional );
 				}
-				echo $e;
-				exit;
 				throw new Error\ImportError( $package, previous: $e );
 			}
 		}
-		echo $name;
 		throw new Error\ModuleNotFoundError( $package );
 	}
 	

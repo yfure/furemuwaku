@@ -1,72 +1,55 @@
 <?php
 
 /*
- * Yume Builtin Autoload Helpers.
+ * Yume PHP Framework.
  *
+ * @author Ari Setiawan
+ * @create 05.02-2022
+ * @update -
+ * @github https://github.com/yfure/Yume
+ *
+ * By making this, it is hoped that developers can easily build
+ * programs without writing room names or classes at length.
+ *
+ * Copyright (c) 2022 Ari Setiawan
+ * Copyright (c) 2022 Yume Framework
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-use Yume\Fure\App;
-use Yume\Fure\CLI;
-use Yume\Fure\Database;
 use Yume\Fure\Error;
-use Yume\Fure\HTTP;
-use Yume\Fure\HTTP\Stream;
+use Yume\Fure\IO\Path;
 use Yume\Fure\Locale;
-use Yume\Fure\Logger;
-use Yume\Fure\Services;
-use Yume\Fure\Support\Config;
-use Yume\Fure\Support\Data;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Locale\Clock;
+use Yume\Fure\Locale\DateTime;
+use Yume\Fure\Main;
+use Yume\Fure\Support;
+use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
-use Yume\Fure\Util\File;
-use Yume\Fure\Util\File\Path;
-use Yume\Fure\Util\Json;
-use Yume\Fure\Util\Reflect;
-use Yume\Fure\Util\RegExp;
-use Yume\Fure\Util\Type;
-use Yume\Fure\View;
-use Yume\Fure\View\Template;
 
-// Check if helper function does not exists.
-if( function_exists( "helper" ) === False )
+/*
+ * @inherit Yume\Fure\Main\Main::config
+ *
+ */
+function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed
 {
-	/*
-	 * Import builtin helper files.
-	 *
-	 * @params String $path
-	 * @params String $self
-	 *
-	 * @return Void
-	 */
-	function helper( String $path, String $self ): Void
-	{
-		// Scaning directory.
-		$ls = array_diff( scandir( $path ), [ ".", "..", $self ] );
-		
-		// Mapping helpers.
-		foreach( $ls As $file )
-		{
-			if( is_dir( $file = $path . DIRECTORY_SEPARATOR . $file ) )
-			{
-				helper( $file, $self );
-			}
-			else {
-				require $file;
-			}
-		}
-	}
-}
-
-// Get file name.
-$self = explode( DIRECTORY_SEPARATOR, __FILE__ );
-$self = end( $self );
-
-// Importing helpers.
-helper( __DIR__, $self );
-
-function clear( String $string ): String
-{
-	return( preg_replace( "/(^\s+)|(\s+$)/", "", $string ) );
+	return( Main\Main::config( ...func_get_args() ) );
 }
 
 /*
@@ -78,112 +61,129 @@ function clear( String $string ): String
  */
 function e( Throwable $e ): Void
 {
+	$output = "";
+	
 	/*
-	 * @inherit Yume\Fure\Error\BaseError::format
+	 * @inherit Yume\Fure\Error\YumeError::format
 	 *
 	 */
-	$f = static function( Throwable $thrown )
+	$format = static function( Throwable $thrown )
 	{
-		if( $thrown Instanceof BaseError )
+		$values = [
+			"class" => $thrown::class,
+			"message" => $thrown->getMessage(),
+			"file" => $thrown->getFile(),
+			"line" => $thrown->getLine(),
+			"code" => $thrown->getCode(),
+			"trace" => $thrown->getTrace(),
+			"type" => $thrown->type ?? "None"
+		];
+		if( $thrown Instanceof Error\YumeError )
 		{
-			$format = "\n{class}: {type}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
+			$values = [ "\n{class}: {type}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n", ...$values ];
 		}
 		else {
-			$format = "\n{class}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n";
+			$values = [ "\n{class}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n", ...$values ];
 		}
-		return( f( $format, class: $thrown::class, message: $thrown->getMessage(), file: $thrown->getFile(), line: $thrown->getLine(), code: $thrown->getCode(), type: $thrown->type ?? "None", trace: $thrown->getTrace() ) );
+		return( Util\Strings::format( ...$values ) );
 	};
-	
-	if( $e Instanceof BaseError )
+	if( $e Instanceof Error\YumeError )
 	{
-		echo $e;
+		$output = $e->__toString();
 	}
 	else {
-		$error = $e;
+		
+		/*
+		 * Current exception thrown.
+		 *
+		 */
 		$stack = [
-			$f( $e )
+			$format( $error = $e )
 		];
-		while( $error = $error->getPrevious() )
-		{
-			$stack[] = $f( $error );
-		}
-		echo( path( implode( "\n", array_reverse( $stack ) ), True ) );
+		
+		// Getting previous exception throwns.
+		while( $error = $error->getPrevious() ) $stack[] = $f( $error );
+		
+		// Push exception trace strings.
+		$output .= join( "\n", array_reverse( $stack ) );
 	}
+	puts( "{}\n", $output );
 }
 
 /*
- * @inherit Yume\Fure\Type\Str::fmt
+ * @inherit Yume\Fure\Util\Env\Env::get
  *
  */
-function f( String $string, Mixed ...$format ): String
+function env( String $name, Mixed $optional = Null ): Mixed
 {
-	return( Type\Str::fmt( $string, ...$format ) );
+	return( Env\Env::get( ...func_get_args() ) );
 }
 
 /*
- * @inherit Yume\Fure\Array\Arr::ify
+ * @inherit Yume\Fure\Util\Format::format
  *
  */
-function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
+function f( String $format, Mixed ...$values ): String
 {
-	return( Array\Arr::ify( $refs, $data ) );
+	return( Util\Strings::format( $format, ...$values ) );
 }
 
 /*
- * @inherit Yume\Fure\Util\File\File::size
+ * @inherit Yume\Fure\Support\Package::import
  *
  */
-function fsize( $file, Int | String $optional = 0 ): Int
+function import( String $package, Mixed $optional = Null ): Mixed
 {
-	return( File\File::size( $file, $optional ) );
+	return( Support\Package::import( $package, $optional ) );
 }
 
 /*
- * @inherit Yume\Fure\Locale\Language::translate
+ * @inherit Yume\Fure\Locale\Locale::translate
  *
  */
-function lang( String $ify, Mixed ...$format ): String
+function lang( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String
 {
-	return( Locale\Locale::translate( $ify, ...$format ) ?? $ify );
+	return( Locale\Locale::translate( $key, $optional, $format, ...$values ) );
 }
 
 /*
- * @inherit Yume\Fure\Util\File\Path\Path::ls
+ * @inherit Yume\Fure\Util\Path\Path::path
  *
  */
-function ls( String $path ): Array | Bool
-{
-	return( Path\Path::ls( $path ) );
-}
-
-/*
- * @inherit Yume\Fure\Util\File\Path\Path::path
- */
-function path( String $path, Bool | Path\PathName $prefix_or_remove = False ): String
+function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): String
 {
 	return( Path\Path::path( $path, $prefix_or_remove ) );
 }
 
 /*
- * Alias echo.
+ * Print outputs.
  *
- * @params String $string
- * @params Mixed $format
+ * @params String $format
+ *  Please see Yume\Fure\Util\Format::format
+ * @params Mixed ...$values
+ *  Please see Yume\Fure\Util\Format::format
  *
  * @return Void
  */
-function puts( String $string, Mixed ...$format ): Void
+function puts( String $format, Mixed ...$values ): Void
 {
-	echo( Type\Str::fmt( $string, ...$format ) );
+	echo( Util\Strings::format( $format, ...$values ) );
 }
 
 /*
- * @inherit Yume\Fure\Util\File\Path\Path::tree
+ * Alias of explode and str_split.
  *
+ * @params String $string
+ * @params Int|String $separator
+ *  When the Int passed str_split will called.
+ * @params Int $imit
+ *  When the Int passed for separator this useless.
+ *
+ * @return Array
  */
-function tree( String $path, String $parent = "" ): Array | False
+function split( String $string, Int | String $separator = 1, Int $limit = PHP_INT_MAX ): Array
 {
-	return( Path\Path::tree( $path, $parent ) );
+	return( is_int( $separator ) ? str_split( $string, $separator ) : explode( $separator, $string, $limit ) );
 }
 
 /*
@@ -257,19 +257,6 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool
 function valueIsNotEmpty( Mixed $value, ? Bool $optional = Null ): Bool
 {
 	return( $optional === Null ? valueIsEmpty( $value, False ) : valueIsEmpty( $value, False ) === $optional );
-}
-
-/*
- * Return view contents.
- *
- * @params String $view
- * @params Array|Yume\Fure\Support\Data\DataInterface $data
- *
- * @return
- */
-function view( String $view, Array | Data\DataInterface $data = [] )//: View\ViewInterface
-{
-	return( new View\View( $view, $data ) );
 }
 
 ?>

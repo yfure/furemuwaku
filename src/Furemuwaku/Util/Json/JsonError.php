@@ -104,6 +104,18 @@ class JsonError extends Error\ValueError
 	 */
 	public const UNSUPPORTED_TYPE_ERROR = JSON_ERROR_UNSUPPORTED_TYPE;
 	
+	/*
+	 * @inherit Yume\Fure\Error\YumeError
+	 *
+	 */
+	protected Array $track = [
+		__NAMESPACE__ => [
+			"classes" => [
+				Json::class
+			]
+		]
+	];
+	
 }
 
 ?>

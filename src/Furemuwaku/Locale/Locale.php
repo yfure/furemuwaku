@@ -336,14 +336,14 @@ class Locale extends Support\Singleton
 			}
 			$translate = self::translate( $inherit, Null, $format, ...$values );
 		}
-		$translate ??= $optional ?? Null;
+		$translate ??= $optional;
 		
 		// If translation is available and
 		// if format is allowed.
 		if( $translate && $format )
 		{
 			// Return formatted translation.
-			return( Strings::format( $translate, ...self::map( fn( Int $i, Mixed $k, Mixed $v ) => $v ?? "" ) ) );
+			return( Strings::format( $translate, ...Util\Arrays::map( fn( Int $i, Mixed $k, Mixed $v ) => $v ?? "" ) ) );
 		}
 		return( $translate );
 	}
