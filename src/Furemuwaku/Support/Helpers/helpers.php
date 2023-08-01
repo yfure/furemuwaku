@@ -42,6 +42,179 @@ use Yume\Fure\Main;
 use Yume\Fure\Support;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
+use Yume\Fure\Util\RegExp;
+
+/*
+ * Command Line Interface colorize string.
+ *
+ * @access Public Static
+ *
+ * @params String $string
+ * @params String $base
+ *
+ * @return String
+ */
+function colorize( String $string, ? String $base = Null ): String
+{
+	$result = "";
+	$base ??= "\x1b[0m";
+	$regexps = [
+		"number" => [
+			"pattern" => "(?<number>\b(?:\d+)\b)",
+			"colorize" => "\x1b[1;38;5;61m%s%s"
+		],
+		"define" => [
+			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback( "/(\.|\-){1,}/", fn( Array $m ) => sprintf( "\x1b[1;38;5;69m%s\x1b[1;38;5;111m", $m[0] ), $match[0] ),
+			"pattern" => "(?<define>(?:@|\\$)[a-zA-Z0-9_\-\.]+)",
+			"colorize" => "\x1b[1;38;5;111m%s%s"
+		],
+		"symbol" => [
+			"pattern" => "(?<symbol>[\\\\:\*\-\+\/\&\%\=\;\,\.\?\!\|\<\>\~]+)",
+			"colorize" => "\x1b[1;38;5;69m%s%s"
+		],
+		"bracket" => [
+			"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\)){1,}",
+			"colorize" => "\x1b[1;38;5;214m%s%s"
+		],
+		"boolean" => [
+			"pattern" => "(?<boolean>\b(?:False|True|None)\b)",
+			"colorize" => "\x1b[1;38;5;199m%s%s"
+		],
+		"type" => [
+			"pattern" => "(?<type>\b(?:Array|Float|Double|Int|Integer|Object|Stream|String)\b)",
+			"colorize" => "\x1b[1;38;5;213m%s%s"
+		],
+		"version" => [
+			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback( "/([\d\.]+)/", fn( Array $m ) => sprintf( "\x1b[1;38;5;190m%s\x1b[1;38;5;112m", $m[0] ), $match[0] ),
+			"pattern" => "(?<version>\b[vV][\d\.]+\b)",
+			"colorize" => "\x1b[1;38;5;112m%s%s"
+		],
+		"yume" => [
+			"pattern" => "(?<yume>\b(?:[yY]ume)\b)",
+			"colorize" => "\x1b[1;38;5;111m%s%s"
+		],
+		"comment" => [
+			"pattern" => "(?<comment>\#\S+)",
+			"colorize" => "\x1b[1;38;5;250m%s%s"
+		],
+		"string" => [
+			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback(
+				"/(?<!\\\)(\\\"|\\\'|\\\`|\\\r|\\\t|\\\n|\\\s)/", 
+				fn( Array $m ) => sprintf( 
+					"\x1b[1;38;5;208m%s\x1b[1;38;5;220m", 
+					$m[0] 
+					), 
+					$match[0] 
+			),
+			"pattern" => "(?<string>(?<!\\\)([\"\'])(?:\\\\1|(?!\\\\1).)*\\1)",
+			"colorize" => "\x1b[1;38;5;220m%s%s"
+		]
+	];
+	
+	// Building regular expression.
+	$pattern = new RegExp\Pattern( join( "|", array_map( fn( Array $regexp ) => $regexp['pattern'], $regexps ) ), "ms" );
+	$regansi = new RegExp\Pattern( "^(?:\e|\x1b|\033)\[([^m]+)m$" );
+	
+	// Split string with ansi color.
+	$strings = preg_split( "/((?:\e|\x1b|\033)\[[0-9\;]+m)/", $string, flags: PREG_SPLIT_DELIM_CAPTURE );
+	$strings = array_values( array_filter( $strings, fn( String $string ) => $string !== "" ) );
+	
+	try
+	{
+		$last = $base;
+		$escape = Null;
+		$skipable = [];
+		
+		foreach( $strings As $idx => $string )
+		{
+			// Skip if string is skipable.
+			if( in_array( $idx, $skipable ) ) continue;
+			
+			// Check if string is ansi color.
+			if( $color = $regansi->match( $string ) )
+			{
+				$index = $idx +1;
+				$escape = $last = $color[0];
+				
+				// If index is not out of range.
+				if( isset( $strings[$index] ) )
+				{
+					while( $rescape = $regansi->match( $strings[$index] ) )
+					{
+						// Append index iteration as skipable.
+						$skipable[] = $index;
+						
+						// Append ansi color.
+						$escape .= $rescape[0];
+						
+						$last = $rescape[0];
+						$index++;
+						
+						// Check if index is out of range.
+						if( isset( $strings[$index] ) === False )
+						{
+							break;
+						}
+					}
+				}
+				
+				// Check if index is in skipable.
+				if( in_array( $index +1, $skipable ) ) $index++;
+				
+				// Append index iteration as skipable.
+				$skipable[] = $index;
+			}
+			else {
+				$escape = $last;
+				$index = $idx;
+			}
+			
+			$string = $strings[$index];
+			$search = 0;
+			
+			while( $match = $pattern->exec( $string ) )
+			{
+				// Get captured character.
+				$chars = $match[0];
+				
+				// If result has group name.
+				if( count( $match->groups ) )
+				{
+					foreach( $match->groups->keys() As $group )
+					{
+						if( isset( $match->groups[$group] ) &&
+							isset( $regexps[$group] ) &&
+							isset( $regexps[$group]['colorize'] ) )
+						{
+							break;
+						}
+					}
+					
+					// Check if group has handler and handler is callable.
+					if( is_callable( $regexps[$group]['handler'] ?? Null ) )
+					{
+						$result .= $escape;
+						$result .= substr( $string, $search, ( $match->position +1 ) - strlen( $chars ) );
+						$result .= sprintf( $regexps[$group]['colorize'], $regexps[$group]['handler']( $match ), $escape );
+						$search = $match->position +1;
+						continue;
+					}
+					$result .= $escape;
+					$result .= substr( $string, $search, ( $match->position +1 ) - strlen( $chars ) );
+					$result .= sprintf( $regexps[$group]['colorize'], $chars, $escape );
+					$search = $match->position +1;
+				}
+			}
+			$result .= $escape;
+			$result .= substr( $string, $search );
+		}
+	}
+	catch( Throwable $e )
+	{
+		e( $e );
+	}
+	return( $result );
+}
 
 /*
  * @inherit Yume\Fure\Main\Main::config
@@ -80,10 +253,10 @@ function e( Throwable $e ): Void
 		];
 		if( $thrown Instanceof Error\YumeError )
 		{
-			$values = [ "\n{class}: {type}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n", ...$values ];
+			$values = [ "\n{class}: {message}\n{class}: File: {file}\n{class}: Line: {line}\n{class}: Type: {type}\n{class}: Code: {code}\n{class}: {trace}\n", ...$values ];
 		}
 		else {
-			$values = [ "\n{class}: {message} on file {file} line {line} code {code}.\n{class}{trace}\n", ...$values ];
+			$values = [ "\n{class}: {message}\n{class}: File: {file}\n{class}: Line: {line}\n{class}: Code: {code}\n{class}: {trace}\n", ...$values ];
 		}
 		return( Util\Strings::format( ...$values ) );
 	};
