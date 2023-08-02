@@ -59,55 +59,90 @@ function colorize( String $string, ? String $base = Null ): String
 	$result = "";
 	$base ??= "\x1b[0m";
 	$regexps = [
+		"comment" => [
+			"pattern" => "(?<comment>\#(?:\[[^\\]]*\])|(?:\#|\/\/)[^\n]*|\/\*.*?\*\/)",
+			"ansicol" => "\x1b[1;38;5;250m",
+			"rematch" => [
+				"define",
+				"boolean",
+				"type",
+				"version",
+				"yume"
+			]
+		],
 		"number" => [
 			"pattern" => "(?<number>\b(?:\d+)\b)",
-			"colorize" => "\x1b[1;38;5;61m%s%s"
+			"ansicol" => "\x1b[1;38;5;61m"
 		],
 		"define" => [
-			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback( "/(\.|\-){1,}/", fn( Array $m ) => sprintf( "\x1b[1;38;5;69m%s\x1b[1;38;5;111m", $m[0] ), $match[0] ),
+			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback( "/(\.|\-){1,}/", fn( Array $m ) => f( "\x1b[1;38;5;69m{}\x1b[1;38;5;111m", $m[0] ), $match[0] ),
 			"pattern" => "(?<define>(?:@|\\$)[a-zA-Z0-9_\-\.]+)",
-			"colorize" => "\x1b[1;38;5;111m%s%s"
+			"ansicol" => "\x1b[1;38;5;111m"
 		],
 		"symbol" => [
-			"pattern" => "(?<symbol>[\\\\:\*\-\+\/\&\%\=\;\,\.\?\!\|\<\>\~]+)",
-			"colorize" => "\x1b[1;38;5;69m%s%s"
+			"pattern" => "(?<symbol>\\\|\:|\*|\-|\+|\/|\&|\%|\=|\;|\,|\.|\?|\!|\||\<|\>|\~)",
+			"ansicol" => "\x1b[1;38;5;69m"
 		],
 		"bracket" => [
 			"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\)){1,}",
-			"colorize" => "\x1b[1;38;5;214m%s%s"
+			"ansicol" => "\x1b[1;38;5;214m"
 		],
 		"boolean" => [
-			"pattern" => "(?<boolean>\b(?:False|True|None)\b)",
-			"colorize" => "\x1b[1;38;5;199m%s%s"
+			"pattern" => "(?<boolean>\b(?:False|True|Null)\b)",
+			"ansicol" => "\x1b[1;38;5;199m"
 		],
 		"type" => [
-			"pattern" => "(?<type>\b(?:Array|Float|Double|Int|Integer|Object|Stream|String)\b)",
-			"colorize" => "\x1b[1;38;5;213m%s%s"
+			"pattern" => "(?<type>\b(?:Array|Bool|Callable|Closure|Double|Float|Int|Integer|Mixed|Object|Resource|String|Void)\b)",
+			"ansicol" => "\x1b[1;38;5;213m"
 		],
 		"version" => [
-			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback( "/([\d\.]+)/", fn( Array $m ) => sprintf( "\x1b[1;38;5;190m%s\x1b[1;38;5;112m", $m[0] ), $match[0] ),
+			//"handler": lambda match: re.sub( r"([\d\.]+)", lambda m => "\x1b[1;38;5;190m{}\x1b[1;38;5;112m".format( m.group() ), match.group( 0 ) ),
 			"pattern" => "(?<version>\b[vV][\d\.]+\b)",
-			"colorize" => "\x1b[1;38;5;112m%s%s"
+			"ansicol" => "\x1b[1;38;5;112m"
 		],
 		"yume" => [
 			"pattern" => "(?<yume>\b(?:[yY]ume)\b)",
-			"colorize" => "\x1b[1;38;5;111m%s%s"
-		],
-		"comment" => [
-			"pattern" => "(?<comment>\#\S+)",
-			"colorize" => "\x1b[1;38;5;250m%s%s"
+			"ansicol" => "\x1b[1;38;5;111m"
 		],
 		"string" => [
+			"rematch" => [
+				"define"
+			],
 			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback(
-				"/(?<!\\\)(\\\"|\\\'|\\\`|\\\r|\\\t|\\\n|\\\s)/", 
-				fn( Array $m ) => sprintf( 
-					"\x1b[1;38;5;208m%s\x1b[1;38;5;220m", 
+				"/(?<!\\\)\{(?:(?:[^\}\\\]|\\.*))\}|(\\\\(?:x(?:[a-fA-F0-9]{0,2})|.)|\\\\\\\)/m", 
+				fn( Array $m ) => f( 
+					"\x1b[1;38;5;208m{}\x1b[1;38;5;220m", 
 					$m[0] 
 					), 
 					$match[0] 
 			),
-			"pattern" => "(?<string>(?<!\\\)([\"\'])(?:\\\\1|(?!\\\\1).)*\\1)",
-			"colorize" => "\x1b[1;38;5;220m%s%s"
+			"handler" => [
+				"regex" => [
+					"pattern" => "^(?<regex>(?<delimiter>\/|\#|\+|\%)(?:.*?)(?<!\\\)\k{delimiter})$",//(?:i|m|s|x|A|D|S|U|X|J|u|n)*$)",
+					"ansicol" => "regex="//"\x1b[1;38;5;m"
+				],
+				"curly" => [
+					"pattern" => "(?<curly>\{(?:(?:[^\}\\\]|\\.)*)\})",
+					"ansicol" => "",//"\x1b[1;38;5;m",
+					"rematch" => [
+						"variable"
+					]
+				],
+				"variable" => [
+					"pattern" => "(?<variable>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
+					"ansicol" => ""//"\x1b[1;38;5;m"
+				],
+				"hexadec" => [
+					"pattern" => "(?<hexadec>\\\\(?:x(?:[a-fA-F0-9]{0,2})))",
+					"ansicol" => "hexadec="//"\x1b[1;38;5;m"
+				],
+				"escape" => [
+					"pattern" => "(?<escape>(\\\\.)|\\\\\\\)",
+					"ansicol" => "escape="//"\x1b[1;38;5;m"
+				]
+			],
+			"pattern" => "(?P<string>(?<!\\\)(\".*?(?<!\\\)\"|\'.*?(?<!\\\)\'|`.*?(?<!\\\)`))",
+			"ansicol" => "\x1b[1;38;5;220m"
 		]
 	];
 	
@@ -118,6 +153,74 @@ function colorize( String $string, ? String $base = Null ): String
 	// Split string with ansi color.
 	$strings = preg_split( "/((?:\e|\x1b|\033)\[[0-9\;]+m)/", $string, flags: PREG_SPLIT_DELIM_CAPTURE );
 	$strings = array_values( array_filter( $strings, fn( String $string ) => $string !== "" ) );
+	
+	$handler = static function( RegExp\Matches $match, String $escape, Closure $handler, Array $regexps )
+	{
+		// If captured has group name.
+		if( count( $match->groups ) )
+		{
+			// Find group name.
+			foreach( $match->groups->keys() As $group )
+			{
+				if( isset( $match->groups[$group] ) &&
+					isset( $regexps[$group] ) &&
+					isset( $regexps[$group]['ansicol'] ) )
+				{
+					break;
+				}
+			}
+			
+			// Get captured caharacters.
+			$chars = $match->groups[$group]->value;
+			
+			// If regex has callback handler.
+			if( $regexps[$group]['handler'] ?? Null )
+			{
+				// If callback is multiple handler.
+				if( is_array( $regexps[$group]['handler'] ) )
+				{
+					foreach( $regexps[$group]['handler'] As $callback )
+					{
+						$match[0] = $chars;
+						
+						// If callback is callable.
+						if( is_callable( $callback ) )
+						{
+							$chars = call_user_func( $callback, $match );
+						}
+						else {
+							$pattern = new RegExp\Pattern( $callback['pattern'], "ms" );
+							$chars = $pattern->replace( $chars, fn( RegExp\Matches $match ) => call_user_func( $handler,
+								match: $match,
+								escape: $regexps[$group]['ansicol'],
+								handler: $handler,
+								regexps: $regexps[$group]['handler']
+							));
+						}
+					}
+				}
+				else {
+					$chars = call_user_func( $regexps[$group]['handler'], $match );
+				}
+			}
+			
+			// If regex is re-matchable.
+			if( is_array( $regexps[$group]['rematch'] ?? Null ) )
+			{
+				// Building regular expression.
+				$pattern = new RegExp\Pattern( join( "|", array_map( fn( String $regexp ) => $regexps[$regexp]['pattern'], $regexps[$group]['rematch'] ) ), "ms" );
+				
+				// Re-match characters.
+				$chars = $pattern->replace( $chars, fn( RegExp\Matches $match ) => call_user_func( $handler,
+					match: $match,
+					escape: $regexps[$group]['ansicol'],
+					handler: $handler,
+					regexps: $regexps
+				));
+			}
+			return( f( "{}{}{}{0}", $escape, $regexps[$group]['ansicol'], $chars ) );
+		}
+	};
 	
 	try
 	{
@@ -150,11 +253,8 @@ function colorize( String $string, ? String $base = Null ): String
 						$last = $rescape[0];
 						$index++;
 						
-						// Check if index is out of range.
-						if( isset( $strings[$index] ) === False )
-						{
-							break;
-						}
+						// Break if index is out of range.
+						if( $strings[$index] ?? Null ) break;
 					}
 				}
 				
@@ -170,43 +270,12 @@ function colorize( String $string, ? String $base = Null ): String
 			}
 			
 			$string = $strings[$index];
-			$search = 0;
-			
-			while( $match = $pattern->exec( $string ) )
-			{
-				// Get captured character.
-				$chars = $match[0];
-				
-				// If result has group name.
-				if( count( $match->groups ) )
-				{
-					foreach( $match->groups->keys() As $group )
-					{
-						if( isset( $match->groups[$group] ) &&
-							isset( $regexps[$group] ) &&
-							isset( $regexps[$group]['colorize'] ) )
-						{
-							break;
-						}
-					}
-					
-					// Check if group has handler and handler is callable.
-					if( is_callable( $regexps[$group]['handler'] ?? Null ) )
-					{
-						$result .= $escape;
-						$result .= substr( $string, $search, ( $match->position +1 ) - strlen( $chars ) );
-						$result .= sprintf( $regexps[$group]['colorize'], $regexps[$group]['handler']( $match ), $escape );
-						$search = $match->position +1;
-						continue;
-					}
-					$result .= $escape;
-					$result .= substr( $string, $search, ( $match->position +1 ) - strlen( $chars ) );
-					$result .= sprintf( $regexps[$group]['colorize'], $chars, $escape );
-					$search = $match->position +1;
-				}
-			}
-			$result .= $escape;
-			$result .= substr( $string, $search );
+			$result = $pattern->replace( $string, fn( RegExp\Matches $match ) => call_user_func( $handler,
+				match: $match,
+				escape: $escape,
+				handler: $handler,
+				regexps: $regexps
+			));
 		}
 	}
 	catch( Throwable $e )
