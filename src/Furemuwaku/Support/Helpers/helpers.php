@@ -64,10 +64,7 @@ function colorize( String $string, ? String $base = Null ): String
 			"ansicol" => "\x1b[1;38;5;250m",
 			"rematch" => [
 				"define",
-				"boolean",
-				"type",
-				"version",
-				"yume"
+				"version"
 			]
 		],
 		"number" => [
@@ -75,16 +72,18 @@ function colorize( String $string, ? String $base = Null ): String
 			"ansicol" => "\x1b[1;38;5;61m"
 		],
 		"define" => [
-			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback( "/(\.|\-){1,}/", fn( Array $m ) => f( "\x1b[1;38;5;69m{}\x1b[1;38;5;111m", $m[0] ), $match[0] ),
-			"pattern" => "(?<define>(?:@|\\$)[a-zA-Z0-9_\-\.]+)",
-			"ansicol" => "\x1b[1;38;5;111m"
+			"pattern" => "(?<define>(?:@|\\$)[a-zA-Z_][a-zA-Z0-9_\-\.]*)",
+			"ansicol" => "\x1b[1;38;5;111m",
+			"rematch" => [
+				"symbol"
+			]
 		],
 		"symbol" => [
 			"pattern" => "(?<symbol>\\\|\:|\*|\-|\+|\/|\&|\%|\=|\;|\,|\.|\?|\!|\||\<|\>|\~)",
 			"ansicol" => "\x1b[1;38;5;69m"
 		],
 		"bracket" => [
-			"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\)){1,}",
+			"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\))",
 			"ansicol" => "\x1b[1;38;5;214m"
 		],
 		"boolean" => [
@@ -96,53 +95,92 @@ function colorize( String $string, ? String $base = Null ): String
 			"ansicol" => "\x1b[1;38;5;213m"
 		],
 		"version" => [
-			//"handler": lambda match: re.sub( r"([\d\.]+)", lambda m => "\x1b[1;38;5;190m{}\x1b[1;38;5;112m".format( m.group() ), match.group( 0 ) ),
 			"pattern" => "(?<version>\b[vV][\d\.]+\b)",
-			"ansicol" => "\x1b[1;38;5;112m"
+			"ansicol" => "\x1b[1;38;5;112m",
+			"handler" => [
+				"floating" => [
+					"pattern" => "(?<floating>[\d\.]+)",
+					"ansicol" => "\x1b[1;38;5;190m"
+				]
+			]
 		],
 		"yume" => [
 			"pattern" => "(?<yume>\b(?:[yY]ume)\b)",
 			"ansicol" => "\x1b[1;38;5;111m"
 		],
 		"string" => [
-			"rematch" => [
-				"define"
-			],
-			"handler" => fn( RegExp\Matches $match ) => preg_replace_callback(
-				"/(?<!\\\)\{(?:(?:[^\}\\\]|\\.*))\}|(\\\\(?:x(?:[a-fA-F0-9]{0,2})|.)|\\\\\\\)/m", 
-				fn( Array $m ) => f( 
-					"\x1b[1;38;5;208m{}\x1b[1;38;5;220m", 
-					$m[0] 
-					), 
-					$match[0] 
-			),
+			"pattern" => "(?P<string>(?<!\\\)(\".*?(?<!\\\)\"|\'.*?(?<!\\\)\'|`.*?(?<!\\\)`))",
+			"ansicol" => "\x1b[1;38;5;220m",
 			"handler" => [
-				"regex" => [
-					"pattern" => "^(?<regex>(?<delimiter>\/|\#|\+|\%)(?:.*?)(?<!\\\)\k{delimiter})$",//(?:i|m|s|x|A|D|S|U|X|J|u|n)*$)",
-					"ansicol" => "regex="//"\x1b[1;38;5;m"
-				],
 				"curly" => [
-					"pattern" => "(?<curly>\{(?:(?:[^\}\\\]|\\.)*)\})",
-					"ansicol" => "",//"\x1b[1;38;5;m",
-					"rematch" => [
-						"variable"
+					"pattern" => "(?<curly>(?<!\\\)\{(?:(?:[^\}\\\]|\\.)*)\})",
+					"ansicol" => "\x1b[1;38;5;214m",
+					"handler" => [
+						"chars" => [
+							"pattern" => "(?<chars>\b[a-zA-Z][a-zA-Z0-9\_]*\b)",
+							"ansicol" => "\x1b[1;38;5;11m",
+						],
+						"define" => [
+							"pattern" => "(?<define>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
+							"ansicol" => "\x1b[1;38;5;111m",
+						],
+						"number" => [
+							"pattern" => "(?<number>\b(?:\d+)\b)",
+							"ansicol" => "\x1b[1;38;5;61m"
+						],
+						"symbol" => [
+							"pattern" => "(?<symbol>\:|\.)",
+							"ansicol" => "\x1b[1;38;5;69m"
+						],
+						"bracket" => [
+							"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\))",
+							"ansicol" => "\x1b[1;38;5;214m"
+						],
+						"mismatch" => [
+							"pattern" => "(?<mismatch>.*)",
+							"ansicol" => "\x1b[1;38;5;220m"
+						]
 					]
 				],
-				"variable" => [
-					"pattern" => "(?<variable>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
-					"ansicol" => ""//"\x1b[1;38;5;m"
+				"bracket" => [
+					"pattern" => "(?<bracket>(?<!\\\)\[(?:(?:[^\]\\\]|\\.)*)\])",
+					"ansicol" => "\x1b[1;38;5;214m",
+					"handler" => [
+						"chars" => [
+							"pattern" => "(?<chars>\b[a-zA-Z][a-zA-Z0-9\_]*\b)",
+							"ansicol" => "\x1b[1;38;5;11m",
+						],
+						"define" => [
+							"pattern" => "(?<define>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
+							"ansicol" => "\x1b[1;38;5;111m",
+						],
+						"number" => [
+							"pattern" => "(?<number>\b(?:\d+)\b)",
+							"ansicol" => "\x1b[1;38;5;61m"
+						],
+						"bracket" => [
+							"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\))",
+							"ansicol" => "\x1b[1;38;5;214m"
+						],
+						"mismatch" => [
+							"pattern" => "(?<mismatch>.*)",
+							"ansicol" => "\x1b[1;38;5;220m"
+						]
+					]
 				],
 				"hexadec" => [
-					"pattern" => "(?<hexadec>\\\\(?:x(?:[a-fA-F0-9]{0,2})))",
-					"ansicol" => "hexadec="//"\x1b[1;38;5;m"
+					"pattern" => "(?<hexadec>\\\x[a-fA-F0-9]{2})",
+					"ansicol" => "\x1b[1;38;5;85m"
 				],
 				"escape" => [
-					"pattern" => "(?<escape>(\\\\.)|\\\\\\\)",
-					"ansicol" => "escape="//"\x1b[1;38;5;m"
+					"pattern" => "(?<escape>\\\(?:r|t|n))",
+					"ansicol" => "\x1b[1;38;5;208m"
+				],
+				"define" => [
+					"pattern" => "(?<define>\\$[a-zA-Z_][a-zA-Z0-9_]*)",
+					"ansicol" => "\x1b[1;38;5;111m",
 				]
-			],
-			"pattern" => "(?P<string>(?<!\\\)(\".*?(?<!\\\)\"|\'.*?(?<!\\\)\'|`.*?(?<!\\\)`))",
-			"ansicol" => "\x1b[1;38;5;220m"
+			]
 		]
 	];
 	
@@ -179,6 +217,8 @@ function colorize( String $string, ? String $base = Null ): String
 				// If callback is multiple handler.
 				if( is_array( $regexps[$group]['handler'] ) )
 				{
+					$pattern = [];
+					
 					foreach( $regexps[$group]['handler'] As $callback )
 					{
 						$match[0] = $chars;
@@ -189,14 +229,20 @@ function colorize( String $string, ? String $base = Null ): String
 							$chars = call_user_func( $callback, $match );
 						}
 						else {
-							$pattern = new RegExp\Pattern( $callback['pattern'], "ms" );
-							$chars = $pattern->replace( $chars, fn( RegExp\Matches $match ) => call_user_func( $handler,
-								match: $match,
-								escape: $regexps[$group]['ansicol'],
-								handler: $handler,
-								regexps: $regexps[$group]['handler']
-							));
+							$pattern[] = $callback['pattern'];
 						}
+					}
+					
+					// If pattern is available.
+					if( count( $pattern ) >= 1 )
+					{
+						$pattern = new RegExp\Pattern( join( "|", $pattern ), "ms" );
+						$chars = $pattern->replace( $chars, fn( RegExp\Matches $match ) => call_user_func( $handler,
+							match: $match,
+							escape: $regexps[$group]['ansicol'],
+							handler: $handler,
+							regexps: $regexps[$group]['handler']
+						));
 					}
 				}
 				else {
@@ -268,7 +314,6 @@ function colorize( String $string, ? String $base = Null ): String
 				$escape = $last;
 				$index = $idx;
 			}
-			
 			$string = $strings[$index];
 			$result = $pattern->replace( $string, fn( RegExp\Matches $match ) => call_user_func( $handler,
 				match: $match,
@@ -349,7 +394,7 @@ function e( Throwable $e ): Void
 		// Push exception trace strings.
 		$output .= join( "\n", array_reverse( $stack ) );
 	}
-	puts( "{}\n", $output );
+	puts( "{}\n", YUME_CONTEXT_CLI ? colorize( $output ) : $output );
 }
 
 /*
