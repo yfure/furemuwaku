@@ -3,10 +3,11 @@
 namespace Yume\Fure\IO\Buffer;
 
 use Closure;
-use Countable;
+use Stringable;
 
 use Yume\Fure\IO\Stream;
 use Yume\Fure\Support;
+use Yume\Fure\Util;
 use Yume\Fure\Util\Array;
 
 /*
@@ -16,51 +17,74 @@ use Yume\Fure\Util\Array;
  *
  * @package Yume\Fure\IO\Buffer
  */
-class Buffer extends Support\Singleton implements Countable
+class Buffer extends Support\Singleton
 {
 	
-	public const CLEAN = 356799;
-	public const FLUSH = 688575;
-	
 	/*
-	 * Output buffer container.
+	 * End or get with clean mode.
 	 *
-	 * @access Private
-	 *
-	 * @values Array<>
-	 */
-	private Array\Lists $buffer;
-	
-	/*
-	 * Output handler callback.
-	 *
-	 * @access Private
-	 *
-	 * @values Closure
-	 */
-	private ? Closure $callback = Null;
-	
-	/*
-	 * Current output buffer level.
-	 *
-	 * @access Private
+	 * @access Public Static
 	 *
 	 * @values Int
 	 */
-	private ? Int $level = Null;
+	final public const CLEAN = 356799;
+	
+	/*
+	 * End or get with flush mode.
+	 *
+	 * @access Public Static
+	 *
+	 * @values Int
+	 */
+	final public const FLUSH = 688575;
+	
+	/*
+	 * Output buffer statuses.
+	 *
+	 * @access Protected
+	 *
+	 * @values Yume\Fure\Util\Array\List<Yume\Fure\Util\Array\Associative>
+	 */
+	protected Array\Lists $buffer;
+	
+	/*
+	 * Default output buffering handler.
+	 *
+	 * @access Protected
+	 *
+	 * @values Closure
+	 */
+	protected ? Closure $handler = Null;
+	
+	/*
+	 * Current output buffering level.
+	 *
+	 * @access Protected
+	 *
+	 * @values Int
+	 */
+	protected Int $level = 0;
 	
 	/*
 	 * @inherit Yume\Fure\Support\Singleton
 	 *
 	 */
-	protected function __construct( ? Closure $callback = Null )
+	protected function __construct( ? Closure $handler = Null )
 	{
-		// Get all output buffer statuses.
-		$this->buffer = new Array\Lists( ob_get_status( True ) );
-		$this->buffer->map(
+		$this->handler = $handler;
+		$this->buffer = new Array\Lists([]);
+		
+		// Getting all output handlers.
+		$handlers = ob_list_handlers();
+		
+		// Getting all output buffering statuse.
+		$status = ob_get_status( True );
+		
+		// Mapping all output buffering statuse.
+		Util\Arrays::map( $status,
 			
 			/*
-			 * Mapping all buffers.
+			 * Buffer map handler.
 			 *
 			 * @params Int $i
 			 * @params Int $index
@@ -68,114 +92,254 @@ class Buffer extends Support\Singleton implements Countable
 			 *
 			 * @return Void
 			 */
-			function( Int $i, Int $index, Array\Associative $buffer ): Void
+			function( Int $i, Int $index, Array\Associtive $buffer ) use( $handlers )
 			{
-				// Set current buffer level status.
+				// Set current buffer level.
 				$this->level = $index;
+				$this->level++;
 				
-				// Get buffer contents.
-				$buffer->contents = ob_get_contents();
+				// Set buffer contents.
+				$this->buffer[$this->level]->buffer = ob_get_clean();
 				
-				// Get buffer handler.
-				$buffer->handler = ob_list_handlers()[$index];
+				// Set buffer handler.
+				$this->buffer[$this->level]->handler = $handlers[$index];
 			}
 		);
 	}
 	
-	public function append( String $buffer ): Buffer
+	/*
+	 * Append output buffering contents.
+	 *
+	 * @access Public
+	 *
+	 * @params String $contents
+	 *
+	 * @return Yume\Fure\IO\Buffer\Buffer
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the buffer doesn't not started.
+	 */
+	public function append( String $contents ): Buffer
 	{
-		return([ $this, $this->handler( $buffer, 0 ) ][0]);
-	}
-	
-	public function count(): Int
-	{
-		return( $this )->buffer->count();
-	}
-	
-	public function end( Int $flags ): Void
-	{
-		
-	}
-	
-	protected function handler( String $buffer, Int $flags ): False | String
-	{
-		// If output buffering is active.
-		if( $this->hasLevel() )
+		// Check if output buffering doesn't have level.
+		if( $this->hasLevel( False ) )
 		{
-			// Handle output buffering.
-			$buffer = is_callable( $callback = $this->buffer[$this->level]->handler ?? $this->callback ) ? call_user_func( $callback, $buffer, $flags ) : $buffer;
-			
-			// Update buffer status.
-			$this->buffer[$this->level]->replace( $this->status() );
-			$this->buffer[$this->level]->contents .= $buffer;
-			
-			return( $buffer );
-		}
-		throw new BufferError( $buffer, BufferError::STATUS_ERROR );
-	}
-	
-	public function hasLevel(): Bool
-	{
-		return( is_int( $this->level ) );
-	}
-	
-	public function length(): Int
-	{
-		return( strlen( $this->buffer[$this->level] ) );
-	}
-	
-	public function setCallback( ? Closure $callback = Null, ? Int $level = Null ): Buffer
-	{
-		return([ $this, $this->callback = $callback ][0]);
-	}
-	
-	public function setLevel( Int $level ): Buffer
-	{
-		// Check if level is valid.
-		if( isset( $this->buffer[$level] ) )
-		{
-			$this->level = $level;
+			throw new BufferError( $this->level, BufferError::APPEND_ERROR );
 		}
 		else {
-			throw new BufferError( $level, BufferError::LEVEL_ERROR );
+			echo $contents;
 		}
 		return( $this );
 	}
 	
-	public function start( ? Closure $callback = Null, Int $chunk = 0, Int $flags = PHP_OUTPUT_HANDLER_STDFLAGS ): Buffer
+	/*
+	 * Return output buffering contents.
+	 *
+	 * @access Public
+	 *
+	 * @params Int $level
+	 *  For specified output buffering level.
+	 *
+	 * @return String
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the buffer doesn't not started.
+	 *  Or level doesn't exists.
+	 */
+	public function contents( Int $level = 0 ): String
+	{
+		// Check if output buffering has level.
+		if( $this->hasLevel() )
+		{
+			if( $level >= 1 )
+			{
+				if( isset( $this->buffer[$level] ) )
+				{
+					return( $this )->buffer[$level]->buffer;
+				}
+				throw new BufferError( $level, BufferError::LEVEL_ERROR );
+			}
+			return( $this )->buffer[$this->level]->buffer;
+		}
+		throw new BufferError( $this->buffer, BufferError::STATUS_ERROR );
+	}
+	
+	/*
+	 * Terminate current output buffering level.
+	 *
+	 * @access Public
+	 *
+	 * @params Int $flags
+	 *
+	 * @return Void
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the buffer doesn't not started.
+	 */
+	public function end( Int $flags = self::CLEAN ): Void
+	{
+		// Check if output buffering has level.
+		if( $this->hasLevel() )
+		{
+			switch( $flags )
+			{
+				case self::CLEAN: ob_end_clean(); break;
+				case self::FLUSH: ob_end_flush(); break;
+				default:
+					throw new Error\AssertionError( [ "flags", [ "CLEAN", "FLUSH" ], $flags ], Error\AssertionError::VALUE_ERROR );
+			}
+			
+			// Removing output buffer status.
+			unset( $this->buffer[$this->level--] );
+		}
+		else {
+			throw new BufferError( 0, BufferError::TERMINATE_ERROR );
+		}
+	}
+	
+	/*
+	 * Send output buffering.
+	 *
+	 * @access Public
+	 *
+	 * @params String $contents
+	 *  When there are last contents to be sent before output sent.
+	 *
+	 * @return Void
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the buffer doesn't not started.
+	 */
+	public function flush( ? String $contents = Null ): Void
+	{
+		// Check if output buffering has level.
+		if( $this->hasLevel() )
+		{
+			// If contents is available.
+			if( $contents )
+			{
+				$this->append( $contents );
+			}
+			ob_flush();
+		}
+		else {
+			throw new BufferError( 0, BufferError::FLUSH_ERROR );
+		}
+	}
+	
+	/*
+	 * Output buffering handler.
+	 *
+	 * @access Protected
+	 *
+	 * @params String $buffer
+	 * @params Int $flags
+	 *
+	 * @return False|String
+	 */
+	final protected function handler( String $buffer, Int $flags ): False | String
+	{
+		// Check if output buffering has level.
+		if( $this->hasLevel() )
+		{
+			// Get output buffering callback handler.
+			$handler = $this->buffer[$this->level]->handler ?? $this->handler;
+			
+			// Handle output buffering.
+			$buffer = is_callable( $handler ) ? call_user_func( $handler, $buffer, $flags ) : $buffer;
+			
+			// Append output buffering contents.
+			$this->buffer[$this->level]->buffer .= $buffer ?: "";
+			
+			return( $buffer );
+		}
+		return( False );
+	}
+	
+	/*
+	 * Return if output buffering has level.
+	 *
+	 * @access Public
+	 *
+	 * @params Bool $optional
+	 *
+	 * @return Bool
+	 */
+	final public function hasLevel( ? Bool $optional = Null ): Bool
+	{
+		return( $optional !== Null ? $this->hasLevel() === $optional : ( $this->level >= 1 && $this->level === ob_get_level() && $this->buffer->count() >= 1 && $this->buffer->count() === $this->level ) );
+	}
+	
+	/*
+	 * Return current output buffering level.
+	 *
+	 * @access Public
+	 *
+	 * @return Int
+	 */
+	public function level(): Int
+	{
+		return( $this )->level;
+	}
+	
+	/*
+	 * Starting new output buffering.
+	 *
+	 * @access Public
+	 *
+	 * @params Closure $handler
+	 * @params Int $chunk
+	 * @params Int $flags
+	 *
+	 * @return Yume\Fure\IO\Buffer\Buffer
+	 */
+	public function start( ? Closure $handler = Null, Int $chunk = 0, Int $flags = PHP_OUTPUT_HANDLER_STDFLAGS ): Buffer
 	{
 		// Starting output buffering.
 		ob_start( fn( String $buffer, Int $flags ) => $this->handler( $buffer, $flags ), $chunk, $flags );
 		
-		// Set current callback.
-		$this->callback = $callback ?? $this->callback;
+		// Normalize output buffering handler.
+		$handler Instanceof Closure ? $handler : $this->handler;
 		
-		// Push current buffer.
-		$this->buffer[] = [
+		// Update output buffering level.
+		$this->level = ob_get_level();
+		
+		// Get buffer status.
+		$this->buffer[$this->level] = [
 			...ob_get_status(),
 			...[
-				"contents" => "",
-				"handler" => $this->callback
+				"buffer" => "",
+				"handler" => $handler
 			]
 		];
-		
-		// Update buffer level.
-		$this->level = count( $this->buffer ) -1;
-		
 		return( $this );
 	}
 	
-	public function status( ? Int $level = Null ): Array | Array\Arrayable
+	/*
+	 * Return output buffering status.
+	 *
+	 * @access Public
+	 *
+	 * @params Int level
+	 *  For specific output buffering.
+	 *
+	 * @return Yume\Fure\Util\Array\Arrayable
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the level is not found.
+	 */
+	public function status( Int $level = 0 ): Array\Arrayable
 	{
-		if( is_int( $level ) )
+		if( $level >= 1 )
 		{
-			if( isset( $this->buffer[$level] ) )
+			// Check if buffer status is available.
+			if( $level <= $this->buffer->count() )
 			{
-				return( $this )->buffer[$level];
+				return( $this )->buffer[$level]->copy();
 			}
 			throw new BufferError( $level, BufferError::LEVEL_ERROR );
 		}
-		return( ob_get_status() );
+		return( new Array\Lists( $this->buffer ) );
 	}
 	
 }
