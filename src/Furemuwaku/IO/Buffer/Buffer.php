@@ -133,6 +133,92 @@ class Buffer extends Support\Singleton
 	}
 	
 	/*
+	 * Clean current output buffering.
+	 *
+	 * @access Public
+	 *
+	 * @return Yume\Fure\IO\Buffer\Buffer
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the buffer doesn't not started.
+	 */
+	public function clean(): Buffer
+	{
+		// Check if output buffering has level.
+		if( $this->hasLevel() )
+		{
+			ob_clean();
+		}
+		else {
+			throw new BufferError( 0, BufferError::CLEAN_ERROR );
+		}
+		return( $this );
+	}
+	
+	/*
+	 * Terminate current output buffering level.
+	 *
+	 * @access Public
+	 *
+	 * @params Int $flags
+	 *
+	 * @return Yume\Fure\IO\Buffer\Buffer
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the buffer doesn't not started.
+	 */
+	public function end( Int $flags = self::CLEAN ): Buffer
+	{
+		// Check if output buffering has level.
+		if( $this->hasLevel() )
+		{
+			switch( $flags )
+			{
+				case self::CLEAN: $this->clean(); break;
+				case self::FLUSH: $this->flush(); break;
+				default:
+					throw new Error\AssertionError( [ "flags", [ "CLEAN", "FLUSH" ], $flags ], Error\AssertionError::VALUE_ERROR );
+			}
+			unset( $this->buffer[$this->level--] );
+		}
+		else {
+			throw new BufferError( 0, BufferError::TERMINATE_ERROR );
+		}
+		return( $this );
+	}
+	
+	/*
+	 * Send output buffering.
+	 *
+	 * @access Public
+	 *
+	 * @params String $contents
+	 *  When there are last contents to be sent before output sent.
+	 *
+	 * @return Yume\Fure\IO\Buffer\Buffer	
+	 *
+	 * @throws Yume\Fure\IO\Buffer\BufferError
+	 *  When the buffer doesn't not started.
+	 */
+	public function flush( ? String $contents = Null ): Buffer
+	{
+		// Check if output buffering has level.
+		if( $this->hasLevel() )
+		{
+			// If contents is available.
+			if( $contents )
+			{
+				$this->append( $contents );
+			}
+			ob_flush();
+		}
+		else {
+			throw new BufferError( 0, BufferError::FLUSH_ERROR );
+		}
+		return( $this );
+	}
+	
+	/*
 	 * Return output buffering contents.
 	 *
 	 * @access Public
@@ -146,7 +232,7 @@ class Buffer extends Support\Singleton
 	 *  When the buffer doesn't not started.
 	 *  Or level doesn't exists.
 	 */
-	public function contents( Int $level = 0 ): String
+	public function get( Int $level = 0 ): String
 	{
 		// Check if output buffering has level.
 		if( $this->hasLevel() )
@@ -162,69 +248,6 @@ class Buffer extends Support\Singleton
 			return( $this )->buffer[$this->level]->buffer;
 		}
 		throw new BufferError( $this->buffer, BufferError::STATUS_ERROR );
-	}
-	
-	/*
-	 * Terminate current output buffering level.
-	 *
-	 * @access Public
-	 *
-	 * @params Int $flags
-	 *
-	 * @return Void
-	 *
-	 * @throws Yume\Fure\IO\Buffer\BufferError
-	 *  When the buffer doesn't not started.
-	 */
-	public function end( Int $flags = self::CLEAN ): Void
-	{
-		// Check if output buffering has level.
-		if( $this->hasLevel() )
-		{
-			switch( $flags )
-			{
-				case self::CLEAN: ob_end_clean(); break;
-				case self::FLUSH: ob_end_flush(); break;
-				default:
-					throw new Error\AssertionError( [ "flags", [ "CLEAN", "FLUSH" ], $flags ], Error\AssertionError::VALUE_ERROR );
-			}
-			
-			// Removing output buffer status.
-			unset( $this->buffer[$this->level--] );
-		}
-		else {
-			throw new BufferError( 0, BufferError::TERMINATE_ERROR );
-		}
-	}
-	
-	/*
-	 * Send output buffering.
-	 *
-	 * @access Public
-	 *
-	 * @params String $contents
-	 *  When there are last contents to be sent before output sent.
-	 *
-	 * @return Void
-	 *
-	 * @throws Yume\Fure\IO\Buffer\BufferError
-	 *  When the buffer doesn't not started.
-	 */
-	public function flush( ? String $contents = Null ): Void
-	{
-		// Check if output buffering has level.
-		if( $this->hasLevel() )
-		{
-			// If contents is available.
-			if( $contents )
-			{
-				$this->append( $contents );
-			}
-			ob_flush();
-		}
-		else {
-			throw new BufferError( 0, BufferError::FLUSH_ERROR );
-		}
 	}
 	
 	/*

@@ -20,6 +20,12 @@ class BufferError extends Error\IOError
 	 */
 	protected Array $flags = [
 		BufferError::class => [
+			self::APPEND_ERROR => "",
+			self::CLEAN_ERROR => "",
+			self::FLUSH_ERROR => "",
+			self::LEVEL_ERROR => "",
+			self::STATUS_ERROR => "",
+			self::TERMINATE_ERROR => ""
 		]
 	];
 	
