@@ -130,23 +130,6 @@ final class ReflectExtension
 	{
 		$reflect = self::reflect( $extension, $reflect );
 		$reflect->info();
-		return;
-		return(
-			Stream\StreamFactory::createFromOB(
-				
-				/*
-				 * Callback for print extension info.
-				 *
-				 * @params ReflectionExtension
-				 *
-				 * @return Void
-				 */
-				callback: fn( ReflectionExtension $reflect ) => $reflect->info(),
-				args: [
-					$reflect = self::reflect( $extension, $reflect )
-				]
-			)
-		);
 	}
 	
 	/*

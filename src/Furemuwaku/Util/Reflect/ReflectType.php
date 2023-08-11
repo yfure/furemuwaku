@@ -8,7 +8,7 @@ use ReflectionType;
 use ReflectionUnionType;
 use Reflector;
 
-use Yume\Fure\Services;
+use Yume\Fure\Service;
 use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
 
@@ -67,8 +67,8 @@ final class ReflectType
 					// type is the same as the given instance name.
 					if( $given === "Object" && $type === $value::class ) return( $value );
 					
-					// If class has bind in service container.
-					if( Services\Services::available( $type ) ) return( Services\Services::get( $type ) );
+					// If class has binded in service container.
+					if( Service\Service::available( $type ) ) return( Service\Service::get( $type ) );
 				}
 				else {
 					return( $value );
