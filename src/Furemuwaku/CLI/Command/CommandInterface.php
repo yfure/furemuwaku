@@ -13,6 +13,15 @@ interface CommandInterface
 {
 	
 	/*
+	 * Execute command.
+	 *
+	 * @param Yume\Fure\CLI\Argument\Argument $argument
+	 *
+	 * @return Void
+	 */
+	public function exec( Argument\Argument $argument ): Void;
+
+	/*
 	 * Get command abouts/ descriptions.
 	 *
 	 * @access Public
@@ -47,24 +56,6 @@ interface CommandInterface
 	 * @return Array
 	 */
 	public function getOptions(): Array;
-	
-	/*
-	 * Get command usage.
-	 *
-	 * @access Public
-	 *
-	 * @return Array|String
-	 */
-	public function getUsage(): Array | Null | String;
-	
-	/*
-	 * Handles a CLI command.
-	 *
-	 * @param Yume\Fure\CLI\Argument\Argument $argument
-	 *
-	 * @return Void
-	 */
-	public function run( Argument\Argument $argument ): Void;
 	
 }
 
