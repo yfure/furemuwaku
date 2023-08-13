@@ -63,11 +63,13 @@ abstract class Singleton
 	 *
 	 * @access Public Static
 	 *
+	 * @params Mixed ...$args
+	 *
 	 * @return Static
 	 */
-	final public static function self(): Static
+	final public static function self( Mixed ...$args ): Static
 	{
-		return( static::$instances[static::class] ??= new Static( ...func_get_args() ) );
+		return( static::$instances[static::class] ??= new Static( ...$args ) );
 	}
 	
 }

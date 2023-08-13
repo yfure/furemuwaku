@@ -34,11 +34,14 @@
  */
 
 use Yume\Fure\Error;
+use Yume\Fure\IO\Buffer;
 use Yume\Fure\IO\Path;
 use Yume\Fure\Locale;
 use Yume\Fure\Locale\Clock;
 use Yume\Fure\Locale\DateTime;
+use Yume\Fure\Logger;
 use Yume\Fure\Main;
+use Yume\Fure\Service;
 use Yume\Fure\Support;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
@@ -95,7 +98,7 @@ function colorize( String $string, ? String $base = Null ): String
 			"ansicol" => "\x1b[1;38;5;213m"
 		],
 		"version" => [
-			"pattern" => "(?<version>\b[vV][\d\.]+\b)",
+			"pattern" => "(?<version>\b[vV][\d]+(?:[\d\.]+[\d+])*\b)",
 			"ansicol" => "\x1b[1;38;5;112m",
 			"handler" => [
 				"floating" => [
@@ -105,8 +108,11 @@ function colorize( String $string, ? String $base = Null ): String
 			]
 		],
 		"yume" => [
-			"pattern" => "(?<yume>\b(?:[yY]ume)\b)",
-			"ansicol" => "\x1b[1;38;5;111m"
+			"pattern" => "(?<yume>\b(?:[yY]ume(?:\\\(?:App|Fure)(?:\\\[a-zA-Z_](?:[a-zA-Z0-9_\\\]+[a-zA-Z0-9_])*)*)*)\b)",
+			"ansicol" => "\x1b[1;38;5;111m",
+			"rematch" => [
+				"symbol"
+			]
 		],
 		"string" => [
 			"pattern" => "(?P<string>(?<!\\\)(\".*?(?<!\\\)\"|\'.*?(?<!\\\)\'|`.*?(?<!\\\)`))",
@@ -117,7 +123,7 @@ function colorize( String $string, ? String $base = Null ): String
 					"ansicol" => "\x1b[1;38;5;214m",
 					"handler" => [
 						"chars" => [
-							"pattern" => "(?<chars>\b[a-zA-Z][a-zA-Z0-9\_]*\b)",
+							"pattern" => "(?<chars>[a-zA-Z][a-zA-Z0-9\_]*)",
 							"ansicol" => "\x1b[1;38;5;11m",
 						],
 						"define" => [
@@ -129,15 +135,15 @@ function colorize( String $string, ? String $base = Null ): String
 							"ansicol" => "\x1b[1;38;5;61m"
 						],
 						"symbol" => [
-							"pattern" => "(?<symbol>\:|\.)",
-							"ansicol" => "\x1b[1;38;5;69m"
+							"pattern" => "(?<symbol>\{|\}|\[|\]|\(|\)|\<|\>|\-)",
+							"ansicol" => "\x1b[1;38;5;214m"
 						],
 						"bracket" => [
 							"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\))",
 							"ansicol" => "\x1b[1;38;5;214m"
 						],
 						"mismatch" => [
-							"pattern" => "(?<mismatch>.*)",
+							"pattern" => "(?<mismatch>.)",
 							"ansicol" => "\x1b[1;38;5;220m"
 						]
 					]
@@ -147,7 +153,7 @@ function colorize( String $string, ? String $base = Null ): String
 					"ansicol" => "\x1b[1;38;5;214m",
 					"handler" => [
 						"chars" => [
-							"pattern" => "(?<chars>\b[a-zA-Z][a-zA-Z0-9\_]*\b)",
+							"pattern" => "(?<chars>[a-zA-Z][a-zA-Z0-9\_]*)",
 							"ansicol" => "\x1b[1;38;5;11m",
 						],
 						"define" => [
@@ -158,12 +164,12 @@ function colorize( String $string, ? String $base = Null ): String
 							"pattern" => "(?<number>\b(?:\d+)\b)",
 							"ansicol" => "\x1b[1;38;5;61m"
 						],
-						"bracket" => [
-							"pattern" => "(?<bracket>\{|\}|\[|\]|\(|\))",
+						"symbol" => [
+							"pattern" => "(?<symbol>\{|\}|\[|\]|\(|\)|\<|\>|\-)",
 							"ansicol" => "\x1b[1;38;5;214m"
 						],
 						"mismatch" => [
-							"pattern" => "(?<mismatch>.*)",
+							"pattern" => "(?<mismatch>.)",
 							"ansicol" => "\x1b[1;38;5;220m"
 						]
 					]
@@ -173,7 +179,7 @@ function colorize( String $string, ? String $base = Null ): String
 					"ansicol" => "\x1b[1;38;5;85m"
 				],
 				"escape" => [
-					"pattern" => "(?<escape>\\\(?:r|t|n))",
+					"pattern" => "(?<escape>\\\(?:040|40|7|11|011|0113|113|377|81|[aA]|[bB]|cx|[dD]|ddd|e|f|g|[hH]|k|n|[pP]|[rR]|[sS]|t|[vV]|[wW]|xhh|Z))",
 					"ansicol" => "\x1b[1;38;5;208m"
 				],
 				"define" => [
@@ -325,7 +331,8 @@ function colorize( String $string, ? String $base = Null ): String
 	}
 	catch( Throwable $e )
 	{
-		e( $e );
+		echo $e;
+		exit;
 	}
 	return( $result );
 }
@@ -337,6 +344,35 @@ function colorize( String $string, ? String $base = Null ): String
 function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed
 {
 	return( Main\Main::config( ...func_get_args() ) );
+}
+
+/*
+ * Dumping value.
+ *
+ * @params Mixed $value
+ * @params Bool $colorize
+ *  Automatically colorize contents.
+ *  This usage only on command line.
+ *
+ * @return String
+ */
+function dump( Mixed $value, Bool $colorize = False ): String
+{
+	// Starting output buffering.
+	$buffer = Buffer\Buffer::self();
+	$buffer->start( fn( String $buffer ) => $colorize ? colorize( $buffer ) : $buffer );
+
+	// Dumping variable value.
+	var_dump( $value );
+
+	// Getting output buffering.
+	$string = $buffer->clean()->get();
+
+	// Terminate output buffering.
+	$buffer->end( $buffer::FLUSH );
+
+	// Return output buffering.
+	return( $string );
 }
 
 /*
@@ -389,7 +425,7 @@ function e( Throwable $e ): Void
 		];
 		
 		// Getting previous exception throwns.
-		while( $error = $error->getPrevious() ) $stack[] = $f( $error );
+		while( $error = $error->getPrevious() ) $stack[] = $format( $error );
 		
 		// Push exception trace strings.
 		$output .= join( "\n", array_reverse( $stack ) );
@@ -431,6 +467,31 @@ function import( String $package, Mixed $optional = Null ): Mixed
 function lang( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String
 {
 	return( Locale\Locale::translate( $key, $optional, $format, ...$values ) );
+}
+
+/*
+ * Write new log or get Logger instance class.
+ *
+ * @params Int|String|Yume\Fure\Logger\LoggerLevel
+ * @params String $message
+ * @params Array $context
+ *
+ * @return Yume\Fure\Logger\LoggerInterface
+ */
+function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? String $message = Null, ? Array $context = Null ): ? Logger\LoggerInterface
+{
+	// Check if logger is not available.
+	if( Service\Service::available( Logger\Logger::class, False ) )
+	{
+		Service\Service::register( Logger\Logger::class, new Logger\Logger(), False );
+	}
+	if( valueIsNotEmpty( $level ) && 
+		valueIsNotEmpty( $message ) && 
+		valueIsNotEmpty( $context) )
+	{
+		return( Service\Service::get( Logger\Logger::class ) )->log( $level, $message, $context );
+	}
+	return( Service\Service::get( Logger\Logger::class ) );
 }
 
 /*

@@ -7,16 +7,16 @@ use Traversable;
 
 use Yume\Fure\Error;
 use Yume\Fure\Util;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 
 /*
  * Data
  *
- * @extends Yume\Fure\Util\Array\Associative
+ * @extends Yume\Fure\Util\Arr\Associative
  *
  * @package Yume\Fure\Support
  */
-class Data extends Array\Associative
+class Data extends Arr\Associative
 {
 	
 	/*
@@ -24,18 +24,18 @@ class Data extends Array\Associative
 	 *
 	 * @access Public Initialize
 	 *
-	 * @params Array|Yume\Fure\Util\Array\Arrayable $data
+	 * @params Array|Yume\Fure\Util\Arr\Arrayable $data
 	 * @params Bool $insensitive
 	 *
 	 * @return Void
 	 */
-	public function __construct( Array | Array\Arrayable | Traversable $data = [], Bool $insensitive = False )
+	public function __construct( Array | Arr\Arrayable | Traversable $data = [], Bool $insensitive = False )
 	{
 		// Copy data from passed Arrayable instance.
-		if( $data Instanceof Array\Arrayable ) $data = $data->__toArray();
+		if( $data Instanceof Arr\Arrayable ) $data = $data->__toArray();
 		
 		// Copy data from passed Traversable.
-		if( $data Instanceof Traversable ) $data = toArray( $data, True );
+		if( $data Instanceof Traversable ) $data = Util\Arrays::toArray( $data );
 		
 		// Mapping data.
 		Util\Arrays::map( $data, static function( Int $i, Mixed $key, Mixed $value ) use( &$data ): Void
@@ -71,7 +71,7 @@ class Data extends Array\Associative
 			{
 				return( call_user_func_array( $this->{ $name }, $args ) );
 			}
-			throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::CALLBACK_ERROR );
+			throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::INVOKE_ERROR );
 		}
 		
 		// Check if data overload is array.
@@ -85,7 +85,7 @@ class Data extends Array\Associative
 				{
 					return( call_user_func( $this->data[$name], ...$args ) );
 				}
-				throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::CALLBACK_ERROR );
+				throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::INVOKE_ERROR );
 			}
 		}
 		throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::NAME_ERROR );
@@ -108,7 +108,7 @@ class Data extends Array\Associative
 		// Check if property exists.
 		if( property_exists( __CLASS__, $name ) )
 		{
-			return( call_user_func( self::${ $name }, $this, ...$args ) );
+			return( call_user_func( self::${ $name }, ...$args ) );
 		}
 		throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::NAME_ERROR );
 	}
