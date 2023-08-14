@@ -6,7 +6,6 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use ReflectionType;
-use Throwable;
 
 use Yume\Fure\Error;
 
@@ -387,7 +386,7 @@ final class ReflectProperty
 			$object = is_object( $class ) ? $class::class : $class;
 			
 			// Check if class name and property name is equals.
-			if( $reflect->getDeclaringClass()->getName() === $object && $reflect->getName() === $method )
+			if( $reflect->getDeclaringClass()->getName() === $object && $reflect->getName() === $property )
 			{
 				return( $reflect );
 			}

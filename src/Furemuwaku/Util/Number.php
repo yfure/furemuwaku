@@ -18,6 +18,34 @@ class Number
 	use \Yume\Fure\Util\Numeric;
 	
 	/*
+	 * Return whether the number is even.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Int $n
+	 *
+	 * @return Bool
+	 */
+	public static function isEven( Int $n ): Bool
+	{
+		return( $n % 2 === 0 );
+	}
+	
+	/*
+	 * Return whether the number is odd.
+	 *
+	 * @access Public Static
+	 *
+	 * @params Int $n
+	 *
+	 * @return Bool
+	 */
+	public static function isOdd( Int $n ): Bool
+	{
+		return( $n % 2 !== 0 );
+	}
+	
+	/*
 	 * Parses any data type to Double/Float|Int|Integer.
 	 *
 	 * @access Public Static

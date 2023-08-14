@@ -2,14 +2,9 @@
 
 namespace Yume\Fure\Util\Reflect;
 
-use ReflectionIntersectionType;
-use ReflectionNamedType;
 use ReflectionType;
-use ReflectionUnionType;
-use Reflector;
 
 use Yume\Fure\Service;
-use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
 
 /*

@@ -28,7 +28,7 @@ final class ReflectEnum extends ReflectClass
 	 */
 	public static function getBackingType( Object | String $enum, Mixed &$reflect = Null ): ? ReflectionNamedType
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->getBackingType();
+		return( $reflect = self::reflect( $enum, $reflect ) )->getBackingType();
 	}
 	
 	/*
@@ -44,7 +44,7 @@ final class ReflectEnum extends ReflectClass
 	 */
 	public static function getCase( Object | String $enum, String $name, Mixed &$reflect = Null ): ReflectionEnumUnitCase
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->getCase( $name );
+		return( $reflect = self::reflect( $enum, $reflect ) )->getCase( $name );
 	}
 	
 	/*
@@ -59,7 +59,7 @@ final class ReflectEnum extends ReflectClass
 	 */
 	public static function getCases( Object | String $enum, Mixed &$reflect = Null ): Array
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->getCases();
+		return( $reflect = self::reflect( $enum, $reflect ) )->getCases();
 	}
 	
 	/*
@@ -75,7 +75,7 @@ final class ReflectEnum extends ReflectClass
 	 */
 	public static function hasCase( Object | String $enum, String $name, Mixed &$reflect = Null ): Bool
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->hasCase( $name );
+		return( $reflect = self::reflect( $enum, $reflect ) )->hasCase( $name );
 	}
 	
 	/*
@@ -90,7 +90,7 @@ final class ReflectEnum extends ReflectClass
 	 */
 	public static function isBacked( Object | String $enum, Mixed &$reflect = Null ): Bool
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->isBacked();
+		return( $reflect = self::reflect( $enum, $reflect ) )->isBacked();
 	}
 	
 	/*
@@ -104,9 +104,7 @@ final class ReflectEnum extends ReflectClass
 	 * @return ReflectionEnum
 	 */
 	private static function reflect( Object | String $enum, Mixed $reflect ): ReflectionEnum
-	{
-		
-	}
+	{}
 	
 }
 

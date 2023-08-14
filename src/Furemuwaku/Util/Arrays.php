@@ -3,10 +3,11 @@
 namespace Yume\Fure\Util;
 
 use ArrayAccess;
+use Traversable;
 
 use Yume\Fure\Error;
 use Yume\Fure\Support;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 
 /*
  * Arrays
@@ -177,15 +178,15 @@ final class Arrays
 	 *
 	 * @access Public Static
 	 *
-	 * @params Array|String|Yume\Fure\Util\Array\Arrayable $array
+	 * @params Array|String|Yume\Fure\Util\Arr\Arrayable $array
 	 * @params Callable $callback
 	 *
-	 * @return Array|Yume\Fure\Util\Array\Arrayable
+	 * @return Array|Yume\Fure\Util\Arr\Arrayable
 	 */
-	public static function map( Array | String | Array\Arrayable $array, Callable $callback ): Array | Array\Arrayable
+	public static function map( Array | String | Arr\Arrayable $array, Callable $callback ): Array | Arr\Arrayable
 	{
 		// Call default map method if Array is Arrayable.
-		if( $array Instanceof Array\Arrayable )
+		if( $array Instanceof Arr\Arrayable )
 		{
 			return( $array )->map( $callback );
 		}
@@ -344,6 +345,24 @@ final class Arrays
 			return( $stack );
 		}
 		return( $array );
+	}
+
+	/*
+	 * Parse traversable into array.
+	 * 
+	 * @access Public Static
+	 * 
+	 * @params Traversable $value
+	 * 
+	 * @return Array
+	 */
+	public static function toArray( Traversable $value ): Array
+	{
+		if( $value Instanceof Arr\Arrayable )
+		{
+			return( $value->__toArray() );
+		}
+		return( iterator_to_array( $value ) );
 	}
 	
 	/*

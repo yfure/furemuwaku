@@ -1,17 +1,17 @@
 <?php
 
-namespace Yume\Fure\Util\Array;
+namespace Yume\Fure\Util\Arr;
 
 use Traversable;
 
-use Yume\Fure\Error;
+use Yume\Fure\util;
 
 /*
  * Associative
  *
- * @extends Yume\Fure\Util\Array\Arrayable
+ * @extends Yume\Fure\Util\Arr\Arrayable
  *
- * @package Yume\Fure\Util\Array
+ * @package Yume\Fure\Util\Arr
  */
 class Associative extends Arrayable
 {
@@ -21,7 +21,7 @@ class Associative extends Arrayable
 	 *
 	 * @access Public Instance
 	 *
-	 * @params Array|Yume\Fure\Util\Array\Arrayable|Traversable $data
+	 * @params Array|Yume\Fure\Util\Arr\Arrayable|Traversable $data
 	 * @params Bool $insensitive
 	 *
 	 * @return Void
@@ -32,7 +32,7 @@ class Associative extends Arrayable
 		if( $data Instanceof Arrayable ) $data = $data->data;
 		
 		// Copy data from passed Traversable.
-		if( $data Instanceof Traversable ) $data = toArray( $data, True );
+		if( $data Instanceof Traversable ) $data = Util\Arrays::toArray( $data );
 		
 		parent::__construct(
 			$data
@@ -50,7 +50,7 @@ class Associative extends Arrayable
 	 */
 	public function isInsensitive( ? Bool $optional = Null ): Bool
 	{
-		return( $optional !== Null ? $this->insensitive ?: $optional : $this->insensitive );
+		return( $optional !== Null ? ( $this->insensitive ?: $optional ): $this->insensitive );
 	}
 	
 	/*

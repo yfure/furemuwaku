@@ -42,17 +42,6 @@ trait HungarianCase
 				break;
 		}
 		return $prefix . implode( "", array_map( "ucfirst", $parts ) );
-		$words = preg_split( "/(?=[A-Z])/", $string );
-		$result = "";
-		foreach( $words as $word )
-		{
-			if( $result !== "" )
-			{
-				$result .= "_";
-			}
-			$result .= strtolower( $word );
-		}
-		return $result;
 	}
 	
 	/*
@@ -100,7 +89,7 @@ trait HungarianCase
 	 */
 	public static function fromPascalCasetoHungarianCase( String $string, String $type = "str" ): String
 	{
-		return fromCamelCasetoHungarianCase( $string, $type );
+		return self::fromCamelCasetoHungarianCase( $string, $type );
 	}
 	
 	/*

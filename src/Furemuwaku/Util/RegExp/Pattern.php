@@ -5,7 +5,7 @@ namespace Yume\Fure\Util\RegExp;
 use Closure;
 use Stringable;
 
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 
 /*
  * Pattern
@@ -106,7 +106,7 @@ final class Pattern implements Stringable
 	 *
 	 * @return Yume\Fure\Util\RegExp\Matches
 	 */
-	public function exec( String $subject )//: ? Matches
+	public function exec( String $subject ): ? Matches
 	{
 		$this->index = $this->subject === $subject ? $this->index : 0;
 		$this->subject = $subject;
@@ -118,6 +118,32 @@ final class Pattern implements Stringable
 		if( $matches = RegExp::match( $this->compiled, $explode ) )
 		{
 			return( $this )->process( $subject, $explode, $matches, $this->index );
+		}
+		return( Null );
+	}
+	
+	/*
+	 * Return last subject from exec.
+	 *
+	 * @access Public
+	 *
+	 * @return String
+	 */
+	public function getSubject(): ? String
+	{
+		return( $this )->subject;
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\RegExp\RegExp::match
+	 *
+	 */
+	public function match( String $subject ): ? Matches
+	{
+		// Check if subject is matched.
+		if( $matches = RegExp::match( $this->compiled, $subject ) )
+		{
+			return( $this )->process( $subject, $subject, $matches );
 		}
 		return( Null );
 	}
@@ -170,7 +196,7 @@ final class Pattern implements Stringable
 	 *
 	 * @return Yume\Fure\Util\RegExp\Matches
 	 */
-	private function process( String $subject, String &$explode, Array $matches, Int &$index ): Matches
+	private function process( String $subject, String &$explode, Array $matches, Int &$index = 0 ): Matches
 	{
 		// Save previous index.
 		$iprev = $index;
@@ -183,7 +209,7 @@ final class Pattern implements Stringable
 		$explode = substr( $subject, $index );
 		
 		// Create group instance.
-		$groups = new Array\Associative;
+		$groups = new Arr\Associative;
 		$string = $matches[0];
 		$stacks = "";
 		

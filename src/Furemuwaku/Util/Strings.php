@@ -58,17 +58,33 @@ class Strings
 	}
 	
 	/*
-	 * Return if check if letter is uppercase.
+	 * Return if letter is uppercase.
 	 *
 	 * @access Public Static
 	 *
 	 * @params String $string
+	 * @params Bool $optional
 	 *
 	 * @return Bool
 	 */
-	public static function firstLetterIsUpper( String $string ): Int | Bool
+	public static function firstLetterIsUpper( String $string, ? Bool $optional = Null ): Int | Bool
 	{
-		return( preg_match( "/^[\p{Lu}\x{2160}-\x{216F}]/u", $string ) );
+		return( $optional !== Null ? $optional === $this->firstLetterIsUpper( $string ) : ( Bool ) preg_match( "/^[\p{Lu}\x{2160}-\x{216F}]/u", $string ) );
+	}
+	
+	/*
+	 * Return if string is valid JSON String.
+	 *
+	 * @access Public Static
+	 *
+	 * @params String $string
+	 * @params Bool $optional
+	 *
+	 * @return Bool
+	 */
+	public static function isJson( String $json, ? Bool $optional = Null ): Bool
+	{
+		return( $optional !== Null ? $optional === $this->isJson() : ( Bool ) @json_decode( $json ) );
 	}
 	
 	/*
@@ -77,12 +93,13 @@ class Strings
 	 * @access Public Static
 	 *
 	 * @params String $string
+	 * @params Mixed &$matches
 	 *
 	 * @return Bool
 	 */
-	public static function isQuoted( String $string ): Bool
+	public static function isQuoted( String $string, Mixed &$matches ): Bool
 	{
-		return( preg_match( "/^(?:(\"[^\"]*|\'[^\']*))$/", $string ) );
+		return( preg_match( "/^(?<quote>[\"\'])(?<value>(?:\\\\1|(?!\\\\1).)*)\\1/ms", $string, $matches, PREG_UNMATCHED_AS_NULL ) );
 	}
 	
 	/*

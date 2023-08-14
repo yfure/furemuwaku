@@ -1,6 +1,6 @@
 <?php
 
-namespace Yume\Fure\Util\Array;
+namespace Yume\Fure\Util\Arr;
 
 use ArrayAccess;
 use Countable;
@@ -17,7 +17,7 @@ use Yume\Fure\Util\Json;
  *
  * @extends Yume\Fure\Support\Iterate
  *
- * @package Yume\Fure\Util\Arrayable
+ * @package Yume\Fure\Util\Arr
  */
 abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countable, SeekableIterator, Stringable
 {
@@ -148,6 +148,20 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	}
 	
 	/*
+	 * Return index of value.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $value
+	 *
+	 * @return Int
+	 */
+	public function indexOf( Mixed $value ): Int
+	{
+		return( in_array( $this->data, $value ) );
+	}
+	
+	/*
 	 * Check if Instance is Lists.
 	 *
 	 * @access Public
@@ -183,6 +197,20 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	public function keyLast(): Mixed
 	{
 		return( end( $this->keys ) );
+	}
+	
+	/*
+	 * Return key of value.
+	 *
+	 * @access Public
+	 *
+	 * @params Mixed $value
+	 *
+	 * @return Int|String
+	 */
+	public function keyOf( Mixed $value ): Int | String
+	{
+		return( $this )->keys[$this->indexOf( $value )];
 	}
 	
 	/*
@@ -260,7 +288,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @access Public
 	 *
-	 * @params Array|Yume\Fure\Util\Array\Arrayable $array
+	 * @params Array|Yume\Fure\Util\Arr\Arrayable $array
 	 * @params Bool $recursive
 	 *  Allow recursive replace.
 	 *

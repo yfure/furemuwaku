@@ -1,17 +1,18 @@
 <?php
 
-namespace Yume\Fure\Util\Array;
+namespace Yume\Fure\Util\Arr;
 
 use Traversable;
 
 use Yume\Fure\Error;
+use Yume\Fure\Util;
 
 /*
  * Lists
  *
- * @extends Yume\Fure\Util\Array\Arrayable
+ * @extends Yume\Fure\Util\Arr\Arrayable
  *
- * @package Yume\Fure\Util\Array
+ * @package Yume\Fure\Util\Arr
  */
 class Lists extends Arrayable
 {
@@ -21,7 +22,7 @@ class Lists extends Arrayable
 	 *
 	 * @access Public Instance
 	 *
-	 * @params Array|Yume\Fure\Util\Array\Arrayable|Traversable $data
+	 * @params Array|Yume\Fure\Util\Arr\Arrayable|Traversable $data
 	 * @params Bool $keep
 	 *
 	 * @return Void
@@ -32,7 +33,7 @@ class Lists extends Arrayable
 		if( $data Instanceof Arrayable ) $data = $data->data;
 		
 		// Copy data from passed Traversable.
-		if( $data Instanceof Traversable ) $data = toArray( $data, $keep );
+		if( $data Instanceof Traversable ) $data = Util\Arrays::toArray( $data );
 		
 		// Check if keep position is enabled.
 		if( $keep )
@@ -40,7 +41,7 @@ class Lists extends Arrayable
 			// Check if array is not lists.
 			if( array_is_list( $data ) === False )
 			{
-				throw new Error\TypeError( "Can't keep array position because the array passed is not Lists" );
+				throw new Error\UnexpectedError( "Can't keep array position because the array passed is not Lists" );
 			}
 		}
 		else {
@@ -49,14 +50,15 @@ class Lists extends Arrayable
 			// Because the array list just need value only.
 			$data = array_values( $data );
 		}
+		
+		// Initialize data.
+		$this->data = [];
+		$this->keys = [];
+		
 		foreach( $data As $idx => $val )
 		{
-			$this->assert( $idx );
-			$this->data[$idx] = $val;
+			$this->offsetSet( $idx, $val );
 		}
-		$this->keys = array_keys(
-			$this->data
-		);
 	}
 	
 	/*
@@ -143,7 +145,7 @@ class Lists extends Arrayable
 		}
 		else {
 			$this->assert( $offset );
-			$this->data[$this->keys[$offset]] = $value;
+			$this->data[( $this->keys[$offset] ?? $this->keys[] = $offset )] = $value;
 		}
 	}
 	

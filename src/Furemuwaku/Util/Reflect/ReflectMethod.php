@@ -3,9 +3,9 @@
 namespace Yume\Fure\Util\Reflect;
 
 use Closure;
-use Generator;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionExtension;
 use ReflectionMethod;
 use ReflectionType;
 

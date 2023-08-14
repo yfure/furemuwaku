@@ -83,7 +83,11 @@ class RegExp
 	 */
 	public static function grep( String $pattern, Array $array, Int $flags = 0 ): Array | False
 	{
-		// ...
+		if( valueIsNotEmpty( $matches = @preg_grep( $pattern, $array, $flags ) ) )
+		{
+			return( $matches );
+		}
+		return( self::throws( False ) );	
 	}
 	
 	/*
@@ -115,7 +119,7 @@ class RegExp
 	public static function match( String $pattern, String $subject, Int $flags = 0 ): Array | Bool
 	{
 		// Check if match hash no errors.
-		if( preg_match( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) )
+		if( @preg_match( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) )
 		{
 			return( $matches );
 		}
@@ -136,7 +140,7 @@ class RegExp
 	public static function matchs( String $pattern, String $subject, Int $flags = PREG_SET_ORDER ): Array | Bool
 	{
 		// Check if match hash no errors.
-		if( preg_match_all( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) )
+		if( @preg_match_all( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) )
 		{
 			return( $matches );
 		}
@@ -167,24 +171,22 @@ class RegExp
 		// Arguments.
 		$args = [ $pattern, $subject, $replace ];
 		
-		// Match result.
-		if( $subType === "\x61\x72\x72\x61\x79" )
+		// Match result
+		$result = match( True )
 		{
-			$result = match( $patType )
+			$subType === "\x61\x72\x72\x61\x79" => match( $patType )
 			{
 				"\x61\x72\x72\x61\x79" => $repType === "\x61\x72\x72\x61\x79" ? self::__replaceMultipleSubjectPatternAndReplacement( ...$args ) : self::__replaceMultipleSubjectAndPattern( ...$args ),
 				"\x73\x74\x72\x69\x6e\x67" => $repType === "\x61\x72\x72\x61\x79" ? self::__replaceMultipleSubjectAndReplacement( ...$args ) : self::__replaceMultipleSubject( ...$args )
-			};
-		}
-		else {
-			$result = match( True )
+			},
+			default => match( True )
 			{
 				$patType === "\x73\x74\x72\x69\x6e\x67" && ( $repType === "\x73\x74\x72\x69\x6e\x67" || $repType === "\x6f\x62\x6a\x65\x63\x74" ) => self::__replaceSingle( ...$args ),
 				$patType === "\x61\x72\x72\x61\x79" && $repType === "\x61\x72\x72\x61\x79" => self::__replaceMultiplePatternAndReplacement( ...$args ),
 				$patType === "\x61\x72\x72\x61\x79" => self::__replaceMultiplePattern( ...$args ),
 				$repType === "\x61\x72\x72\x61\x79" => self::__replaceMultipleReplacement( ...$args )
-			};
-		}
+			}
+		};
 		return( self::throws( $result ) );
 	}
 	

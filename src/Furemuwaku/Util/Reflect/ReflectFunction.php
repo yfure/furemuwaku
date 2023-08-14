@@ -447,7 +447,7 @@ abstract class ReflectFunction
 	 */
 	public static function isDisabled( Closure | String $function, Mixed &$reflect = Null ): Bool
 	{
-		return( $reflect = self::reflect( $function, $reflect ) )->isDisabled();
+		throw new Error\DeprecationError( __METHOD__, Error\DeprecationError::METHOD_ERROR );
 	}
 	
 	/*

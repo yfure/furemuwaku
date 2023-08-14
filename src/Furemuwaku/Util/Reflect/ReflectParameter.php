@@ -5,7 +5,6 @@ namespace Yume\Fure\Util\Reflect;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunctionAbstract;
-use ReflectionIntersectionType;
 use ReflectionParameter;
 use ReflectionType;
 
@@ -185,7 +184,7 @@ final class ReflectParameter
 				2 => $function,
 				
 				// If function is invalid value.
-				0 => throw new Error\Error()
+				0 => throw new Error\AssertionError( "Invalid function name" )
 			};
 		}
 		

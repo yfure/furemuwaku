@@ -24,9 +24,9 @@ final class Boolean
 		if( is_bool( $value ) ) return( $value );
 		if( is_string( $value ) )
 		{
-			if( preg_match( "/^[\s\t]*(?<type>True|False)[\s\t]*$/i", $value, $match ) )
+			if( preg_match( "/^(?<type>True|False)$/i", trim( $value ), $match ) )
 			{
-				return( Strings::toUpperCamelCase( $match['value'] ) === "True" );
+				return( Strings::toUpperCamelCase( $match['type'] ) === "True" );
 			}
 		}
 		return( ( Bool ) $value );

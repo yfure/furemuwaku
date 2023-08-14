@@ -19,7 +19,7 @@ use Yume\Fure\Error;
 use Yume\Fure\Main;
 use Yume\Fure\Support;
 use Yume\Fure\Services;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 
 /*
  * ReflectClass
@@ -317,7 +317,7 @@ abstract class ReflectClass
 	 */
 	public static function getParentClasses( Object | String $class, Mixed &$reflect = Null ): Array
 	{
-		$parent = self::reflect( $class, $class, $reflect );
+		$parent = self::reflect( $class, $reflect );
 		$parents = [];
 		
 		while( $parent = $parent->getParentClass() )
@@ -490,7 +490,7 @@ abstract class ReflectClass
 		$traitsNames = array_merge( $traitsNames, $class->getTraitNames());
 		}
 		};
-		$recursiveClasses( $controllerClass);
+		return( $traitsNames );
 	}
 	
 	/*
@@ -597,7 +597,7 @@ abstract class ReflectClass
 			}
 			try
 			{
-				return( $reflect )->newInstance( ...$argument );
+				return( $reflect )->newInstance( $argument );
 			}
 			catch( \Error $e )
 			{
@@ -696,7 +696,7 @@ abstract class ReflectClass
 	 */
 	public static function isArrayable( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
-		return( self::isImplements( $class, Array\Arrayable::class, $reflect ) );
+		return( self::isImplements( $class, Arr\Arrayable::class, $reflect ) );
 	}
 	
 	/*
@@ -786,7 +786,7 @@ abstract class ReflectClass
 	 */
 	public static function isInstance( Object | String $class, Object $object, Mixed &$reflect = Null ): Bool
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->isInstance();
+		return( $reflect = self::reflect( $class, $reflect ) )->isInstance( $object );
 	}
 	
 	/*
@@ -891,7 +891,7 @@ abstract class ReflectClass
 	 */
 	public static function isServicesProvider( Object | String $class, Mixed &$reflect = Null ): Bool
 	{
-		return( self::isImplements( $class, Services\ServicesProviderInterface::class ) );
+		return( self::isImplements( $class, Services\ServicesProviderInterface::class, $reflect ) );
 	}
 	
 	/*
