@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\IO\Path;
 
+use const BASE_PATH;
+
 use Yume\Fure\IO\File;
 
 /*
@@ -57,7 +59,7 @@ class Path
 				{
 					// If destination directory doesn't exist,
 					// create it and this just copy the contents.
-					if( self::mkdir( $to, $permission ) === False ) return( False );
+					if( self::make( $to, $permission ) === False ) return( False );
 				}
 				
 				// Mapping directory contents.
@@ -239,7 +241,7 @@ class Path
 					if( unlink( self::path( $file ) ) === False ) return( False );
 				}
 				else {
-					self::remove( $file, $pattern, $onlyFile );
+					if( self::remove( $file, $pattern, $onlyFile ) === False ) return( False );
 				}
 			}
 			

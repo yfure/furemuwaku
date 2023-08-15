@@ -3,12 +3,11 @@
 namespace Yume\Fure\IO\Buffer;
 
 use Closure;
-use Stringable;
 
-use Yume\Fure\IO\Stream;
+use Yume\Fure\Error;
 use Yume\Fure\Support;
 use Yume\Fure\Util;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 
 /*
  * Buffer
@@ -43,9 +42,9 @@ class Buffer extends Support\Singleton
 	 *
 	 * @access Protected
 	 *
-	 * @values Yume\Fure\Util\Array\List<Yume\Fure\Util\Array\Associative>
+	 * @values Yume\Fure\Util\Arr\List<Yume\Fure\Util\Arr\Associative>
 	 */
-	protected Array\Lists $buffer;
+	protected Arr\Lists $buffer;
 	
 	/*
 	 * Default output buffering handler.
@@ -72,7 +71,7 @@ class Buffer extends Support\Singleton
 	protected function __construct( ? Closure $handler = Null )
 	{
 		$this->handler = $handler;
-		$this->buffer = new Array\Lists([]);
+		$this->buffer = new Arr\Lists([]);
 		
 		// Getting all output handlers.
 		$handlers = ob_list_handlers();
@@ -88,11 +87,11 @@ class Buffer extends Support\Singleton
 			 *
 			 * @params Int $i
 			 * @params Int $index
-			 * @params Yume\Fure\Util\Array\Associative $buffer
+			 * @params Yume\Fure\Util\Arr\Associative $buffer
 			 *
 			 * @return Void
 			 */
-			function( Int $i, Int $index, Array\Associtive $buffer ) use( $handlers )
+			function( Int $i, Int $index, $buffer ) use( $handlers )
 			{
 				// Set current buffer level.
 				$this->level = $index;
@@ -346,12 +345,12 @@ class Buffer extends Support\Singleton
 	 * @params Int level
 	 *  For specific output buffering.
 	 *
-	 * @return Yume\Fure\Util\Array\Arrayable
+	 * @return Yume\Fure\Util\Arr\Arrayable
 	 *
 	 * @throws Yume\Fure\IO\Buffer\BufferError
 	 *  When the level is not found.
 	 */
-	public function status( Int $level = 0 ): Array\Arrayable
+	public function status( Int $level = 0 ): Arr\Arrayable
 	{
 		if( $level >= 1 )
 		{
@@ -362,7 +361,7 @@ class Buffer extends Support\Singleton
 			}
 			throw new BufferError( $level, BufferError::LEVEL_ERROR );
 		}
-		return( new Array\Lists( $this->buffer ) );
+		return( new Arr\Lists( $this->buffer ) );
 	}
 	
 }

@@ -4,9 +4,9 @@ namespace Yume\Fure\IO\File;
 
 use Yume\Fure\Error;
 use Yume\Fure\IO\Path;
+use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
-use Yume\Fure\Util\Locale;
 
 /*
  * File
@@ -234,7 +234,7 @@ class File
 		// If file is exists.
 		if( self::exists( $file ) )
 		{
-			return( Locale\Locale::getDateTime()->getTimestamp() - self::mtime( $file )->getTimestamp() <= $long );
+			return( ( new DateTime\DateTime( "now" ) )->getTimestamp() - self::mtime( $file )->getTimestamp() <= $long );
 		}
 		return( False );
 	}
@@ -458,11 +458,11 @@ class File
 	 *
 	 * @params String $file
 	 *
-	 * @return Yume\Fure\Util\Locale\DateTime
+	 * @return Yume\Fure\Util\Locale\DateTime\DateTime
 	 *
 	 * @throws Yume\Fure\IO\File\FileNotFoundError
 	 */
-	public static function ctime( String $file ): Locale\DateTime
+	public static function ctime( String $file ): DateTime\DateTime
 	{
 		// Check if such a file exists.
 		if( self::exists( $file, True ) )
@@ -472,7 +472,7 @@ class File
 			// Get timestamp from file created.
 			$time = filectime( Path\Path::path( $file ) );
 			
-			$date = new Locale\DateTime;
+			$date = new DateTime\DateTime( "now" );
 			$date->setTimestamp( $time );
 			
 			// Return DateTime instance.
@@ -490,11 +490,11 @@ class File
 	 *
 	 * @params String $file
 	 *
-	 * @return Yume\Fure\Util\Locale\DateTime
+	 * @return Yume\Fure\Util\Locale\DateTime\DateTime
 	 *
 	 * @throws Yume\Fure\IO\File\FileNotFoundError
 	 */
-	public static function mtime( String $file ): Locale\DateTime
+	public static function mtime( String $file ): DateTime\DateTime
 	{
 		// Check if such a file exists.
 		if( self::exists( $file, True ) )
@@ -504,7 +504,7 @@ class File
 			// Get timestamp from last modification.
 			$time = filemtime( Path\Path::path( $file ) );
 			
-			$date = new Locale\DateTime;
+			$date = new DateTime\DateTime( "now" );
 			$date->setTimestamp( $time );
 			
 			// Return DateTime instance.
