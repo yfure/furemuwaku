@@ -4,7 +4,7 @@ namespace Yume\Fure\CLI\Command;
 
 use Yume\Fure\Error;
 use Yume\Fure\Logger;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 use Yume\Fure\Util\Reflect;
 
 /*
@@ -22,9 +22,9 @@ class Commands
 	 * 
 	 * @access Protected
 	 * 
-	 * @values Yume\Fure\Util\Array\Associative
+	 * @values Yume\Fure\Util\Arr\Associative
 	 */
-	protected Array\Associative $commands;
+	protected Arr\Associative $commands;
 
 	/*
 	 * Construct method of class Commands.
@@ -37,7 +37,7 @@ class Commands
 	 */
 	public function __construct( protected Readonly Logger\LoggerInterface $logger )
 	{
-		$this->commands = new Array\Associative([]);
+		$this->commands = new Arr\Associative([]);
 		$this->prepare();
 	}
 

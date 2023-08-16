@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\CLI\Command;
 
+use Generator;
+
 use Yume\Fure\CLI\Argument;
 
 /*
@@ -56,6 +58,59 @@ interface CommandInterface
 	 * @return Array
 	 */
 	public function getOptions(): Array;
+
+	/*
+	 * Return command option alias names.
+	 * 
+	 * @access Public
+	 * 
+	 * @return Generator
+	 */
+	public function getOptionAliases(): Generator;
+
+	/*
+	 * Return required command options.
+	 * 
+	 * @access Public
+	 * 
+	 * @return Generator
+	 */
+	public function getOptionRequires(): Generator;
+
+	/*
+	 * Return if command has option.
+	 * 
+	 * @access Public
+	 * 
+	 * @params String $option
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function hasOption( String $option, ? Bool $optional = Null ): Bool;
+
+	/*
+	 * Return if command has require option.
+	 * 
+	 * @access Public
+	 * 
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function hasOptionRequires( ? Bool $optional = Null ): Bool;
+
+	/*
+	 * Return if option is required.
+	 * 
+	 * @access Public
+	 * 
+	 * @params String $option
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function isOptionRequired( String $option, ? Bool $optional = Null ): Bool;
 	
 }
 
