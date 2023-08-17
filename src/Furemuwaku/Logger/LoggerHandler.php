@@ -1,16 +1,15 @@
 <?php
 
-namespace Yume\Fure\Logger\Handler;
+namespace Yume\Fure\Logger;
 
-use Yume\Fure\Logger;
-use Yume\Fure\Support\Data;
+use Yume\Fure\Config;
 
 /*
- * BaseHandler
+ * LoggerHandler
  *
- * @package Yume\Fure\Logger\Handler
+ * @package Yume\Fure\Logger
  */
-abstract class BaseHandler implements HandlerInterface
+abstract class LoggerHandler implements LoggerHandlerInterface
 {
 	
 	/*
@@ -32,34 +31,34 @@ abstract class BaseHandler implements HandlerInterface
 	protected String $dateTimeFormat;
 	
 	/*
-	 * Construct menthod of class BaseHandler.
+	 * Construct menthod of class LoggerHandler.
 	 *
 	 * @access Public Instance
 	 *
-	 * @params Yume\Fure\Support\Data\DataInterface $configs
+	 * @params Yume\Fure\Support\Data $configs
 	 *
 	 * @return Void
 	 */
-	public function __construct( Data\DataInterface $configs )
+	public function __construct( Config\Config $configs )
 	{
 		// Set allowed levels.
 		$this->allows = $configs->handles->__toArray();
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Logger\Handler\HandlerInterface
+	 * @inherit Yume\Fure\Logger\LoggerHandlerInterface::allow
 	 *
 	 */
-	public function allow( Logger\LoggerLevel $level ): Bool
+	public function allow( LoggerLevel $level ): Bool
 	{
 		return( in_array( $level, $this->allows ) );
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Logger\Handler\HandlerInterface
+	 * @inherit Yume\Fure\Logger\LoggerHandlerInterface::setDateTimeFormat
 	 *
 	 */
-	public function setDateTimeFormat( String $format ): HandlerInterface
+	public function setDateTimeFormat( String $format ): LoggerHandlerInterface
 	{
 		return([ $this, $this->dateTimeFormat = $format ][0]);
 	}

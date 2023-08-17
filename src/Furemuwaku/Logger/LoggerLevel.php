@@ -7,63 +7,65 @@ namespace Yume\Fure\Logger;
  *
  * @package Yume\Fure\Logger
  */
-enum LoggerLevel: String
+enum LoggerLevel: Int
 {
+	
+	use \Yume\Fure\Util\Backed;
 	
 	/*
 	 * Action must be taken immediately, like
 	 * when an entire website is down, the
 	 * database unavailable, etc.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case ALERT = "ALERT";
+	case Alert = 172728;
 	
 	/*
 	 * Critical conditions, like an application
 	 * component not available, or an unexpected
 	 * exception.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case CRITICAL = "CRITICAL";
+	case Critical = 273826;
 	
 	/*
 	 * Detailed debug information.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case DEBUG = "DEBUG";
+	case Debug = 362728;
 	
 	/*
 	 * The system is unusable.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case EMERGENCY = "EMERGENCY";
+	case Emergency = 468228;
 	
 	/*
 	 * Runtime errors that do not require immediate
 	 * action but should typically be logged and monitored.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case ERROR = "ERROR";
+	case Error = 582925;
 	
 	/*
 	 * Interesting events in your application,
 	 * like a user logging in, logging SQL queries, etc.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case INFO = "INFO";
+	case Info = 619352;
 	
 	/*
 	 * Normal, but significant events in your application.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case NOTICE = "NOTICE";
+	case Notice = 799622;
 	
 	/*
 	 * Exceptional occurrences that are not errors,
@@ -71,9 +73,9 @@ enum LoggerLevel: String
 	 * an API, or other undesirable things that are
 	 * not necessarily wrong.
 	 *
-	 * @values String
+	 * @values Int
 	 */
-	case WARNING = "WARNING";
+	case Warning = 865271;
 	
 }
 

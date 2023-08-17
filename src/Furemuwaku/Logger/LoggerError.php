@@ -7,11 +7,11 @@ use Yume\Fure\Error;
 /*
  * LoggerError
  *
- * @package Yume\Fure\Logger
+ * @extends Yume\Fure\Error\IOError
  *
- * @extends Yume\Fure\Error\TypeError
+ * @package Yume\Fure\Logger
  */
-class LoggerError extends Error\TypeError
+class LoggerError extends Error\IOError
 {
 	
 	/*
@@ -38,8 +38,8 @@ class LoggerError extends Error\TypeError
 	 */
 	protected Array $flags = [
 		LoggerError::class => [
-			self::HANDLER_ERROR,
-			self::LEVEL_ERROR
+			self::HANDLER_ERROR => "Logger does not have any handler",
+			self::LEVEL_ERROR => "{+:ucfirst} is an invalid log level"
 		]
 	];
 	

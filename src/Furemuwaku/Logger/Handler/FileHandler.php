@@ -2,20 +2,21 @@
 
 namespace Yume\Fure\Logger\Handler;
 
-use Yume\Fure\Locale;
+use Yume\Fure\Config;
+use Yume\Fure\IO\File;
+use Yume\Fure\IO\Path;
 use Yume\Fure\Locale\DateTime;
 use Yume\Fure\Logger;
-use Yume\Fure\Support\Data;
-use Yume\Fure\Util\File;
+use Yume\Fure\Util;
 
 /*
  * FileHandler
  *
  * @package Yume\Fure\Logger\Handler
  *
- * @extends Yume\Fure\Logger\Handler\BaseHandler
+ * @extends Yume\Fure\Logger\LoggerHandler
  */
-class FileHandler extends BaseHandler
+class FileHandler extends Logger\LoggerHandler
 {
 	
 	/*
@@ -55,10 +56,10 @@ class FileHandler extends BaseHandler
 	protected Readonly Int $permission;
 	
 	/*
-	 * @inherit Yume\Fure\Logger\Handler\BaseHandler
+	 * @inherit Yume\Fure\Logger\LoggerHandler::__construct
 	 *
 	 */
-	public function __construct( Data\DataInterface $configs )
+	public function __construct( Config\Config $configs )
 	{
 		// Call parent constructor.
 		parent::__construct( $configs );
@@ -73,15 +74,13 @@ class FileHandler extends BaseHandler
 		$this->permission = $configs->permission;
 		
 		// Set file name.
-		$this->name = Type\Str::fmt( "{1}/{0:lower}-log-{3}.{2}", ...[
-			
-			// Get application name.
-			env( "APP_NAME", "Yume" ),
-			
-			$this->path,
-			$this->extension,
-			Locale\Locale::getDateTime()->format( "d-m-Y" )
-		]);
+		$this->name = Util\Strings::format( "{1}/{0:lower}-log-{3}.{2}", ...[ env( "APP_NAME", "Yume" ), $this->path, $this->extension, datetime()->format( "d-m-Y" ) ]);
+
+		// Check if path doesn't exists.
+		if( Path\Path::exists( $this->path, False ) )
+		{
+			Path\Path::make( $this->path );
+		}
 	}
 	
 	/*
@@ -123,7 +122,7 @@ class FileHandler extends BaseHandler
 			$datez = $date->getTimezone()->getName();
 			
 			// Format stack.
-			$stack = Type\Str::fmt( "{+#stack}[{+#level}][{+#timezone}][{+#timestamp}] {+#dateformat} - {+#message}\n", $stack, $level->value, $datez, $dates, $datef, $message );
+			$stack = Util\Strings::format( "{+#stack}[{+#level}][{+#timestamp}][{+#timezone}] {+#dateformat} - {+#message}\n", $stack, $level->value, $dates, $datez, $datef, $message );
 			
 			// Write file.
 			$fwrite = File\File::write( $this->name, fdata: $stack, context: $fopen );
@@ -132,7 +131,7 @@ class FileHandler extends BaseHandler
 			if( $fnew )
 			{
 				// Changes file mode.
-				File\File::chmod( $this->name, $this->permission );
+				chmod( Path\Path::path( $this->name ), $this->permission );
 			}
 			
 			// Return result from file write.
