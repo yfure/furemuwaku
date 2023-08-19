@@ -90,6 +90,17 @@ interface CommandInterface
 	public function hasOption( String $option, ? Bool $optional = Null ): Bool;
 
 	/*
+	 * Return if command has options.
+	 * 
+	 * @access Public
+	 * 
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function hasOptions( ? Bool $optional = Null ): Bool;
+
+	/*
 	 * Return if command has require option.
 	 * 
 	 * @access Public

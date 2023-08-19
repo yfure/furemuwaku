@@ -3,7 +3,7 @@
 namespace Yume\Fure\CLI\Command;
 
 use Generator;
-
+use Yume\Fure\CLI\Argument;
 use Yume\Fure\Logger;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Reflect;
@@ -80,9 +80,9 @@ abstract class Command implements CommandInterface
 	 * 
 	 * @return Void
 	 * 
-	 * @throws Yume\Fure\CLI\Command\CommandUnitializedNameError
+	 * @throws Yume\Fure\CLI\Command\CommandUnitializeNameError
 	 */
-	final public function __construct( protected Commands $commands, protected Logger\LoggerInterface $logger )
+	public function __construct( protected Commands $commands, protected Logger\LoggerInterface $logger )
 	{
 		// If command name has Initialized.
 		if( Reflect\ReflectProperty::isInitialized( $this, "name" ) )
@@ -103,7 +103,7 @@ abstract class Command implements CommandInterface
 							default: $option['default'] ?? Null,
 							alias: $option['alias'] ?? Null,
 							name: $name,
-							type: $option['type'] ?? Null Instanceof Util\Type ? Util\Type::None : $option['type']
+							type: isset( $option['type'] ) && $option['type'] Instanceof Util\Type ? $option['type'] : Util\Type::Mixed
 						);
 					}
 					$this->options[$name] = $option;
@@ -111,7 +111,7 @@ abstract class Command implements CommandInterface
 			}
 		}
 		else {
-			throw new CommandUnitializedNameError( $this::class );
+			throw new CommandUnitializeNameError( $this::class );
 		}
 	}
 
@@ -140,6 +140,16 @@ abstract class Command implements CommandInterface
 	public function getName(): String
 	{
 		return( $this )->name;
+	}
+
+	protected function getOptionValue( Argument\Argument $argument, CommandOption $option, Mixed $default = Null ): Mixed
+	{
+		if( $argument->has( $name = $option->name, True ) ||
+			$argument->has( $alias = $option->alias ?? "", True ) )
+		{
+			return( $argument[$name] ?? $argument[$alias] )->value;
+		}
+		return( $default ?? $option->default );
 	}
 	
 	/*
@@ -182,6 +192,15 @@ abstract class Command implements CommandInterface
 	public function hasOption( String $option, ? Bool $optional = Null ): Bool
 	{
 		return( $optional !== Null ? $this->hasOption( $option ) === $optional : isset( $this->options[$option] ) );
+	}
+
+	/*
+	 * @inherit Yume\Fure\CLI\Command\CommandInterface::hasOptions
+	 * 
+	 */
+	public function hasOptions( ? Bool $optional = Null ): Bool
+	{
+		return( $optional !== Null ? $this->hasOptions() === $optional : count( $this->options ) >= 1 );
 	}
 
 	/*

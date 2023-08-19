@@ -2,8 +2,10 @@
 
 namespace Yume\Fure\CLI\Command;
 
+use Yume\Fure\CLI\Argument;
 use Yume\Fure\Error;
 use Yume\Fure\Logger;
+use Yume\Fure\Util;
 use Yume\Fure\Util\Arr;
 use Yume\Fure\Util\Reflect;
 
@@ -39,6 +41,86 @@ class Commands
 	{
 		$this->commands = new Arr\Associative([]);
 		$this->prepare();
+	}
+
+	/*
+	 * Execute command.
+	 * 
+	 * @access Public
+	 * 
+	 * @params String|Yume\Fure\CLI\Argumet\ArgumentValue $command
+	 * @params Yume\Fure\CLI\Argument\Argument $argument
+	 * 
+	 * @return Void
+	 */
+	final public function exec( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void
+	{
+		// If command name is object instance of class ArgumentValue.
+		if( $command Instanceof Argument\ArgumentValue )
+		{
+			// Resolve command name.
+			$command = is_int( $command->name ) ? $command->value : $command->name;
+		}
+
+		// Check if command not found.
+		if( $this->has( $command, False ) )
+		{
+			throw new CommandNotFoundError( $command );
+		}
+
+		// Mapping all defined options.
+		foreach( $this->commands[$command]->getOptions() As $option )
+		{
+			// If argument has no option, skip/ continue.
+			if( $argument->has( $option->name, False ) )
+			{
+				// if option is required.
+				if( $option->isRequired() )
+				{
+					throw new CommandOptionRequireError([ $command, $option->name ]);
+				}
+				continue;
+			}
+			
+			// If option has defined Type.
+			if( $option->hasType() )
+			{
+				// If option type is Mixed or Null, skip/ continue.
+				if( $option->type === Util\Type::Mixed ||
+					$option->type === Util\Type::None ) continue;
+				
+				// If option type is doesn't valid with argument option.
+				if( $option->type !== $argument[$option->name]->type )
+				{
+					throw new CommandOptionValueError([
+						$option->name,
+						$command,
+						$option->type->name,
+						$argument[$option->name]->type->name
+					]);
+				}
+			}
+		}
+
+		// Execute command.
+		$this->commands[$command]->exec(
+			$argument
+		);
+	}
+
+	/*
+	 * Return if command is available.
+	 * 
+	 * @access Public
+	 * 
+	 * @params String $command
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function has( String $command, ? Bool $optional = Null ): Bool
+	{
+		return( $optional !== Null ? $this->has( $command ) === $optional : isset( $this->commands[$command] ) );
 	}
 
 	/*
