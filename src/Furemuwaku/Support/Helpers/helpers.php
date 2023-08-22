@@ -35,7 +35,9 @@
 
 use Yume\Fure\Error;
 use Yume\Fure\IO\Buffer;
+use Yume\Fure\IO\File;
 use Yume\Fure\IO\Path;
+use Yume\Fure\IO\Stream;
 use Yume\Fure\Locale;
 use Yume\Fure\Locale\Clock;
 use Yume\Fure\Locale\DateTime;
@@ -46,6 +48,7 @@ use Yume\Fure\Support;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
 use Yume\Fure\Util\RegExp;
+use Yume\Fure\Util\Strings;
 
 /*
  * Command Line Interface colorize string.
@@ -90,8 +93,12 @@ function colorize( String $string, ? String $base = Null ): String
 			"ansicol" => "\x1b[1;38;5;214m"
 		],
 		"boolean" => [
-			"pattern" => "(?<boolean>\b(?:False|True|Null)\b)",
+			"pattern" => "(?<boolean>\b(?:False|True|(?:Null|NULL))\b)",
 			"ansicol" => "\x1b[1;38;5;199m"
+		],
+		"sasayaki" => [
+			"pattern" => "(?<sasayaki>\b(?:[sS]asayaki)\b)",
+			"ansicol" => "\x1b[1;38;5;105m"
 		],
 		"type" => [
 			"pattern" => "(?<type>\b(?:Array|Bool|Callable|Closure|Double|Float|Int|Integer|Mixed|Object|Resource|String|Void)\b)",
@@ -198,7 +205,19 @@ function colorize( String $string, ? String $base = Null ): String
 	$strings = preg_split( "/((?:\e|\x1b|\033)\[[0-9\;]+m)/", $string, flags: PREG_SPLIT_DELIM_CAPTURE );
 	$strings = array_values( array_filter( $strings, fn( String $string ) => $string !== "" ) );
 	
-	$handler = static function( RegExp\Matches $match, String $escape, Closure $handler, Array $regexps )
+	/*
+	 * Replacement callback handler.
+	 * 
+	 * @define Static
+	 * 
+	 * @params Yume\Fure\Util\RegExp\Matches $match
+	 * @params String $escape
+	 * @params Closure $handler
+	 * @params Array $regexps
+	 * 
+	 * @return String
+	 */
+	$handler = static function( RegExp\Matches $match, String $escape, Closure $handler, Array $regexps ): String
 	{
 		// If captured has group name.
 		if( count( $match->groups ) )
@@ -243,12 +262,14 @@ function colorize( String $string, ? String $base = Null ): String
 					if( count( $pattern ) >= 1 )
 					{
 						$pattern = new RegExp\Pattern( join( "|", $pattern ), "ms" );
-						$chars = $pattern->replace( $chars, fn( RegExp\Matches $match ) => call_user_func( $handler,
-							match: $match,
-							escape: $regexps[$group]['ansicol'],
-							handler: $handler,
-							regexps: $regexps[$group]['handler']
-						));
+						$chars = $pattern->replace( $chars, 
+							fn( RegExp\Matches $match ) => $handler( ...[
+								"match" => $match,
+								"escape" => $regexps[$group]['ansicol'],
+								"handler" => $handler,
+								"regexps" => $regexps[$group]['handler']
+							])
+						);
 					}
 				}
 				else {
@@ -263,15 +284,18 @@ function colorize( String $string, ? String $base = Null ): String
 				$pattern = new RegExp\Pattern( join( "|", array_map( fn( String $regexp ) => $regexps[$regexp]['pattern'], $regexps[$group]['rematch'] ) ), "ms" );
 				
 				// Re-match characters.
-				$chars = $pattern->replace( $chars, fn( RegExp\Matches $match ) => call_user_func( $handler,
-					match: $match,
-					escape: $regexps[$group]['ansicol'],
-					handler: $handler,
-					regexps: $regexps
-				));
+				$chars = $pattern->replace( $chars, 
+					fn( RegExp\Matches $match ) => $handler( ...[
+						"match" => $match,
+						"escape" => $regexps[$group]['ansicol'],
+						"handler" => $handler,
+						"regexps" => $regexps
+					])
+				);
 			}
 			return( f( "{}{}{}{0}", $escape, $regexps[$group]['ansicol'], $chars ) );
 		}
+		return( "" );
 	};
 	
 	try
@@ -320,13 +344,15 @@ function colorize( String $string, ? String $base = Null ): String
 				$escape = $last;
 				$index = $idx;
 			}
-			$string = $strings[$index];
-			$result = $pattern->replace( $string, fn( RegExp\Matches $match ) => call_user_func( $handler,
-				match: $match,
-				escape: $escape,
-				handler: $handler,
-				regexps: $regexps
-			));
+			$result .= $escape;
+			$result .= $pattern->replace( $strings[$index], 
+				fn( RegExp\Matches $match ) => $handler( ...[
+					"match" => $match,
+					"escape" => $escape,
+					"handler" => $handler,
+					"regexps" => $regexps
+				])
+			);
 		}
 	}
 	catch( Throwable $e )
@@ -338,12 +364,34 @@ function colorize( String $string, ? String $base = Null ): String
 }
 
 /*
+ * @inherit Yume\Fure\Locale\Clock::now
+ * 
+ */
+function clock(): DateTime\DateTimeImmutable
+{
+	return( new Clock\Clock() )->now();
+}
+
+/*
  * @inherit Yume\Fure\Main\Main::config
  *
  */
 function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed
 {
 	return( Main\Main::config( ...func_get_args() ) );
+}
+
+/*
+ * Return new instance DateTime.
+ * 
+ * @params String $datetime
+ * @params DateTimeZone $timezone
+ * 
+ * @return Yume\Fure\Locale\DateTime\DateTime
+ */
+function datetime( ? String $datetime = Null, ? DateTimeZone $timezone = Null ): DateTime\DateTime
+{
+	return( new DateTime\DateTime( $datetime, $timezone ) );
 }
 
 /*
@@ -430,7 +478,7 @@ function e( Throwable $e ): Void
 		// Push exception trace strings.
 		$output .= join( "\n", array_reverse( $stack ) );
 	}
-	puts( "{}\n", YUME_CONTEXT_CLI ? colorize( $output ) : $output );
+	putln( "{}\n", YUME_CONTEXT_CLI ? colorize( $output ) : $output );
 }
 
 /*
@@ -449,6 +497,24 @@ function env( String $name, Mixed $optional = Null ): Mixed
 function f( String $format, Mixed ...$values ): String
 {
 	return( Util\Strings::format( $format, ...$values ) );
+}
+
+/*
+ * @inherit Yume\Fure\Array\Arr::ify
+ *
+ */
+function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
+{
+	return( Util\Arrays::ify( $refs, $data ) );
+}
+
+/*
+ * @inherit Yume\Fure\Util\File\File::size
+ *
+ */
+function fsize( $file, Int | String $optional = 0 ): Int
+{
+	return( File\File::size( $file, $optional ) );
 }
 
 /*
@@ -486,8 +552,7 @@ function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? Strin
 		Service\Service::register( Logger\Logger::class, new Logger\Logger(), False );
 	}
 	if( valueIsNotEmpty( $level ) && 
-		valueIsNotEmpty( $message ) && 
-		valueIsNotEmpty( $context) )
+		valueIsNotEmpty( $message ) )
 	{
 		return( Service\Service::get( Logger\Logger::class ) )->log( $level, $message, $context );
 	}
@@ -516,6 +581,21 @@ function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): Stri
 function puts( String $format, Mixed ...$values ): Void
 {
 	echo( Util\Strings::format( $format, ...$values ) );
+}
+
+/*
+ * Print line outputs.
+ *
+ * @params String $format
+ *  Please see Yume\Fure\Util\Format::format
+ * @params Mixed ...$values
+ *  Please see Yume\Fure\Util\Format::format
+ *
+ * @return Void
+ */
+function putln( String $format, Mixed ...$values ): Void
+{
+	echo( Util\Strings::format( $format, ...$values ) . "\n" );
 }
 
 /*
@@ -573,7 +653,7 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool
 		if( is_resource( $value ) ) $value = new Stream\Stream( $value );
 		
 		// If value is instance of Countable.
-		if( is_countable( $value ) ) $value = $value->count();
+		if( is_countable( $value ) ) $value = count( $value );
 		
 		// If value is instance of Stream.
 		if( $value Instanceof Stream\StreamInterface ) $value = $value->getSize();

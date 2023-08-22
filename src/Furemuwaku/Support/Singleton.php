@@ -30,7 +30,7 @@ abstract class Singleton
 	 *
 	 * @return Void
 	 */
-	protected function __construct()
+	protected function __construct( Mixed ...$args )
 	{}
 	
 	/*
