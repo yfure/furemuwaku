@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Error;
 
+use PhpParser\Lexer\TokenEmulator\ReadonlyTokenEmulator;
+use PhpParser\Node\Expr\Cast\String_;
 use Throwable;
 
 /*
@@ -13,6 +15,12 @@ use Throwable;
  */
 class TriggerError extends YumeError
 {
+
+	/*
+	 * @inherit Yume\Fure\Error\YumeError::$type
+	 * 
+	 */
+	protected Readonly String $type;
 	
 	/*
 	 * Construct method of class TriggerError.
@@ -29,10 +37,12 @@ class TriggerError extends YumeError
 	 */
 	public function __construct( String $message, String $level, String $file, Int $line, Int $code, ? Throwable $previous = Null )
 	{
-		// Set error type.
-		$this->type = $level;
-		
-		// Call parent constructor.
+		try
+		{
+			$this->type = $level;
+		}
+		catch( Throwable )
+		{}
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	

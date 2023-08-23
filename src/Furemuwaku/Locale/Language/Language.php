@@ -2,17 +2,18 @@
 
 namespace Yume\Fure\Locale\Language;
 
+use Yume\Fure\Locale;
 use Yume\Fure\Util;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 
 /*
  * Language
  *
- * @extends Yume\Fure\Util\Array\Associative
+ * @extends Yume\Fure\Util\Arr\Associative
  *
  * @package Yume\Fure\Locale\Language
  */
-final class Language extends Array\Associative
+final class Language extends Arr\Associative
 {
 	
 	/*
@@ -21,17 +22,21 @@ final class Language extends Array\Associative
 	 * @access Public Initialize
 	 *
 	 * @params String $language
-	 * @params Array $translation
+	 * @params Array|Yume\Fure\Locale\Language\Language $translation
 	 *
 	 * @return Void
 	 */
-	public function __construct( public Readonly String $language, Array $translation = [] )
+	public function __construct( public Readonly String $language, Array | Language $translation = [] )
 	{
+		if( $translation Instanceof Language )
+		{
+			$translation = $translation->data;
+		}
 		parent::__construct( $translation );
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Associative::__toString
+	 * @inherit Yume\Fure\Util\Arr\Associative::__toString
 	 *
 	 */
 	public function __toString()
@@ -67,7 +72,7 @@ final class Language extends Array\Associative
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Associative::offsetSet
+	 * @inherit Yume\Fure\Util\Arr\Associative::offsetSet
 	 *
 	 */
 	public function offsetSet( Mixed $offset, Mixed $value ): Void
@@ -108,7 +113,7 @@ final class Language extends Array\Associative
 				if( is_array( $value ) === False ) $value = [$value];
 				
 				// Mapping required translations.
-				$value = array_map( fn( String $require ) => Locale\Locale::getTranslation( $require, [] ) );
+				$value = array_map( fn( String $require ) => Locale\Locale::getTranslation( $require, [] ), $value );
 				
 				// Resolve key name.
 				$key = $match['key'] ?? Null;
@@ -143,10 +148,10 @@ final class Language extends Array\Associative
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::replace
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::replace
 	 *
 	 */
-	public function replace( Array | Array\Arrayable $array, Bool $recursive = False ): Static
+	public function replace( Array | Arr\Arrayable $array, Bool $recursive = False ): Static
 	{
 		foreach( $array As $offset => $value )
 		{
@@ -155,7 +160,7 @@ final class Language extends Array\Associative
 			{
 				// Skip create new Static Instance if recursion is
 				// allowed and if previous element value is Instanceof Arrayable.
-				if( $recursive && $this[$offset] Instanceof Array\Arrayable )
+				if( $recursive && $this[$offset] Instanceof Arr\Arrayable )
 				{
 					continue;
 				}

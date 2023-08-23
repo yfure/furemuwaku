@@ -2,11 +2,9 @@
 
 namespace Yume\Fure\Locale;
 
-use DateTimeImmutable;
 use DateTimeZone;
 
 use Yume\Fure\Error;
-use Yume\Fure\IO\File;
 use Yume\Fure\IO\Path;
 use Yume\Fure\Locale\Clock;
 use Yume\Fure\Locale\DateTime;
@@ -100,9 +98,9 @@ class Locale extends Support\Singleton
 	 *
 	 * @access Public Static
 	 *
-	 * @return DateTimeImmutable
+	 * @return Yume\Fure\Locale\DateTime\DateTimeImmutable
 	 */
-	public static function clock(): DateTimeImmutable
+	public static function clock(): DateTime\DateTimeImmutable
 	{
 		return( self::self() )->clock->now();
 	}
@@ -324,7 +322,7 @@ class Locale extends Support\Singleton
 		$translate = Util\Arrays::ify( $key, self::self()->language, False );
 		
 		// If translation is inherit another translation.
-		if( preg_match( "/^\@(?:inherit\:(?<inherit>[^\n]+)|(?<group>[^\<]+)\<(?<key>[^\>]+)\>)$/Ji", $translate, $match ) )
+		if( preg_match( "/^\@(?:inherit\:(?<inherit>[^\n]+)|(?<group>[^\<]+)\<(?<key>[^\>]+)\>)$/Ji", $translate ?? "", $match ) )
 		{
 			// If inherited translation defined group.
 			if( $match['group'] ?? Null )
@@ -343,7 +341,7 @@ class Locale extends Support\Singleton
 		if( $translate && $format )
 		{
 			// Return formatted translation.
-			return( Strings::format( $translate, ...Util\Arrays::map( fn( Int $i, Mixed $k, Mixed $v ) => $v ?? "" ) ) );
+			return( util\Strings::format( $translate, ...Util\Arrays::map( $values, fn( Int $i, Mixed $k, Mixed $v ) => $v ?? "" ) ) );
 		}
 		return( $translate );
 	}

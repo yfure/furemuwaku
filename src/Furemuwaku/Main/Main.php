@@ -6,12 +6,14 @@ use Throwable;
 
 use Yume\Fure\Config;
 use Yume\Fure\Error;
+use Yume\Fure\Error\Erahandora;
 use Yume\Fure\Http\Controller;
 use Yume\Fure\Http\Request;
 use Yume\Fure\Http\Response;
 use Yume\Fure\Http\Router;
 use Yume\Fure\IO\Path;
 use Yume\Fure\Locale;
+use Yume\Fure\Service;
 use Yume\Fure\Support;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
@@ -47,9 +49,9 @@ final class Main
 	 *
 	 * @access Private
 	 *
-	 * @values Yume\Fure\Controller\Controller
+	 * @values Yume\Fure\Controller\ControllerInterface
 	 */
-	private Controller\Controller $controller;
+	private Controller\ControllerInterface $controller;
 	
 	/*
 	 * Application environment.
@@ -97,15 +99,6 @@ final class Main
 	private Router\RouterInterface $router;
 	
 	/*
-	 * Container for application services.
-	 *
-	 * @access Static Private
-	 *
-	 * @values Array
-	 */
-	private Array $services = [];
-	
-	/*
 	 * Construct method for class Main.
 	 *
 	 * @access Protected Initialize
@@ -120,14 +113,34 @@ final class Main
 			Support\Package::self();
 			
 			// Parse or load environment variables.
-			Env\Env::self( override: True );
-			Env\Env::self()->parse(
-				Env\Env::DEFAULT
-			);
+			Env\Env::self( Env\Env::DEFAULT );
+			Env\Env::self()->parse();
 			
 			// Setup localization application.
 			Locale\Locale::setLanguage();
 			Locale\Locale::setTimezone();
+			
+			// Setup services.
+			Service\Service::self()->booting();
+
+			// Get application environment.
+			$env = strtolower( env( "ENVIRONMENT", "development" ) );
+			
+			// Check if valid application environment.
+			if( $env === "development" || $env === "production" )
+			{
+				// Define application evironment.
+				defined( "YUME_ENVIRONMENT" ) | define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
+				
+				// Import bootable settings file by environment.
+				Support\Package::import( sprintf( "%s/%s", Path\Paths::SystemBooting->value, $env ) );
+			}
+			else {
+				throw new Error\LogicError( sprintf( "The application environment must be development|production, \"%s\" given", $env ) );
+			}
+
+			// Set trigger error and exception handler.
+			Erahandora\Erahandora::setup();
 		}
 		catch( Throwable $e )
 		{
@@ -223,7 +236,6 @@ final class Main
 				{
 					return( Util\Arrays::ify( $split, $config ) );
 				}
-				return( $config );
 			}
 			catch( Error\LookupError $e )
 			{
@@ -234,6 +246,7 @@ final class Main
 				}
 				throw $e;
 			}
+			return( $config );
 		}
 		throw new Error\ValueError( "Unable to fetch or import configuration, configuration name is required" );
 	}
@@ -256,7 +269,6 @@ final class Main
 			
 			// Set application as running.
 			static::$running = True;
-			
 		}
 	}
 	

@@ -12,6 +12,8 @@ namespace Yume\Fure\Error;
 class PropertyError extends ConstantError
 {
 	
+	public const UNITIALIZE_ERROR = 878232;
+	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError
 	 *
@@ -19,7 +21,8 @@ class PropertyError extends ConstantError
 	protected Array $flags = [
 		PropertyError::class => [
 			self::ACCESS_ERROR => "Property {}::\${} is not accessible from outsite class",
-			self::NAME_ERROR => "Class {} has no property named {}"
+			self::NAME_ERROR => "Class {} has no property named {}",
+			self::UNITIALIZE_ERROR => "Property {}::\${} is unitialized"
 		]
 	];
 	

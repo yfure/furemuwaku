@@ -11,7 +11,6 @@ use DateTimeZone As BaseDateTimeZone;
  */
 trait DateTimeDecorator
 {
-	
 	/*
 	 * Construct method of class DateTime.
 	 *

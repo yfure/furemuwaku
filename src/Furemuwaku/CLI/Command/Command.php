@@ -142,6 +142,19 @@ abstract class Command implements CommandInterface
 		return( $this )->name;
 	}
 
+	/*
+	 * Return command option value by option.
+	 * 
+	 * This will also use option alias name if option has alias name.
+	 * 
+	 * @access Protected
+	 * 
+	 * @params Yume\Fure\CLI\Argument\Argument $argument
+	 * @params Yume\Fure\CLI\Command\CommandOption $option
+	 * @params Mixed $default
+	 * 
+	 * @return Mixed
+	 */
 	protected function getOptionValue( Argument\Argument $argument, CommandOption $option, Mixed $default = Null ): Mixed
 	{
 		if( $argument->has( $name = $option->name, True ) ||

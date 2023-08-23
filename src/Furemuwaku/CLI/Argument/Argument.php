@@ -5,12 +5,14 @@ namespace Yume\Fure\CLI\Argument;
 use ArrayAccess;
 use Countable;
 
+use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
 use Yume\Fure\Util\RegExp;
-use Yume\Fure\Util\Type;
 
 /*
  * Argument
+ *
+ * Command Line Interface parser.
  *
  * @package Yume\Fure\CLI\Argument
  */
@@ -396,7 +398,7 @@ class Argument implements ArrayAccess, Countable
 		// If command is available.
 		if( $command = array_values( $args )[0] ?? Null )
 		{
-			if( $command->type->name === "STRING" && type( $command->name, "Integer" ) )
+			if( $command->type->name === "String" && type( $command->name, "Integer" ) )
 			{
 				// Set command name.
 				$this->command = $command->value;
@@ -422,17 +424,13 @@ class Argument implements ArrayAccess, Countable
 	 */
 	private function value( Mixed $value ): Array
 	{
-		// If value is Bool or Int type.
-		if( is_bool( $value ) ||
-			is_int( $value ) )
+		$value = match( True )
 		{
-			$value = ( Bool ) $value;
-		}
-		
-		// If value is String type.
-		if( is_string( $value ) )
-		{
-			$value = match( ucfirst( strtolower( $value ) ) )
+			// If value is Bool or Int type.
+			is_bool( $value ) || is_int( $value ) => ( Bool ) $value,
+			
+			// If value is String type.
+			is_string( $value ) => match( ucfirst( strtolower( $value ) ) )
 			{
 				// Nullable
 				"?", "None", "Null" => Null,
@@ -457,22 +455,23 @@ class Argument implements ArrayAccess, Countable
 					
 					default => $value
 				}
-			};
-		}
+			}
+		};
+		
 		return([
 			"value" => $value,
 			"type" => match( type( $value ) )
 			{
-				\Array::class => Type\Types::ARRAY,
-				\Boolean::class => Type\Types::BOOLEAN,
-				\Double::class => Type\Types::DOUBLE,
-				\Float::class => Type\Types::FLOAT,
-				\Int::class => Type\Types::INT,
-				\Integer::class => Type\Types::INTEGER,
-				\NULL::class => Type\Types::NULL,
-				\String::class => Type\Types::STRING,
+				"Array" => Util\Type::Array,
+				"Boolean" => Util\Type::Bool,
+				"Double" => Util\Type::Double,
+				"Float" => Util\Type::Float,
+				"Int" => Util\Type::Int,
+				"Integer" => Util\Type::Integer,
+				"NULL" => Util\Type::None,
+				"String" => Util\Type::String,
 				
-				default => Type\Types::MIXED
+				default => Util\Type::Mixed
 			}
 		]);
 	}

@@ -25,7 +25,7 @@ class Env extends Support\Singleton
 	 *
 	 * @values String
 	 */
-	public const DEFAULT = ".env";
+	public const DEFAULT = "env";
 
 	/*
 	 * Instance of class EnvParser.
@@ -58,7 +58,7 @@ class Env extends Support\Singleton
 	 * @inherit Yume\Fure\Support\Singleton::__construct
 	 *
 	 */
-	protected function __construct( ? String $source = Null, ? EnvParserInterface $parser = Null, public Readonly Bool $override = True )
+	protected function __construct( ? String $source = Null, public Readonly Bool $override = True )
 	{
 		// Register builtin environments.
 		Util\Arrays::map( $_ENV ?? [], fn( Int | String $i, String $name, Mixed $value ) => $this->vars[$name] = new EnvVariable( $name, $value, system: True ) );
@@ -68,7 +68,7 @@ class Env extends Support\Singleton
 		{
 			throw new File\FileNotFoundError( $this->source );
 		}
-		$this->parser = $parser ?? new EnvParser();
+		$this->parser = new EnvParser();
 		$this->parser->setContents(
 			
 			// Read environment file contents.

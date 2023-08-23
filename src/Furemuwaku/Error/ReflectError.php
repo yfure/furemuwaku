@@ -13,7 +13,6 @@ use Yume\Fure\Util\Reflect;
  */
 class ReflectError extends YumeError
 {
-	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError
 	 *

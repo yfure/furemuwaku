@@ -4,7 +4,7 @@ namespace Yume\Fure\Config;
 
 use Yume\Fure\Support;
 use Yume\Fure\Util;
-use Yume\Fure\Util\Array;
+use Yume\Fure\Util\Arr;
 
 /*
  * Config
@@ -86,7 +86,7 @@ class Config extends Support\Data
 					// If parent name is not equals with current config.
 					if( $name !== strtolower( $this->name ) )
 					{
-						$this->inherit[$name] = config( $name, new Config );
+						$this->inherit[$name] = config( $name, new Config( $this->name, $this->shared, [] ) );
 					}
 				}
 				
@@ -113,7 +113,7 @@ class Config extends Support\Data
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::__toArray
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::__toArray
 	 *
 	 */
 	final function __toArray(): Array
@@ -137,9 +137,17 @@ class Config extends Support\Data
 	{
 		return( Util\Strings::format( "{}<{}>({})", $this::class, $this->name, $this->__toArray() ) );
 	}
+
+	/*
+	 * @inherit Yume\Fure\Suport\Data::copy
+	 */
+	public function copy(): Static
+	{
+		return( new Config( $this->name, $this->shared, $this->__toArray() ) );
+	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::map
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::map
 	 *
 	 */
 	final public function map( Callable $callback ): Static
@@ -192,7 +200,7 @@ class Config extends Support\Data
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::offsetExists
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::offsetExists
 	 *
 	 */
 	public function offsetExists( Mixed $offset ): Bool
@@ -201,7 +209,7 @@ class Config extends Support\Data
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::offsetGet
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::offsetGet
 	 *
 	 */
 	public function offsetGet( Mixed $offset ): Mixed
@@ -210,7 +218,7 @@ class Config extends Support\Data
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::offsetGet
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::offsetGet
 	 *
 	 */
 	public function offsetSet( Mixed $offset, Mixed $value ): Void
@@ -245,7 +253,7 @@ class Config extends Support\Data
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::offsetUnset
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::offsetUnset
 	 *
 	 */
 	final public function offsetUnset( Mixed $offset ): Void
@@ -272,10 +280,10 @@ class Config extends Support\Data
 	}
 	
 	/*
-	 * @inherit Yume\Fure\Util\Array\Arrayable::replace
+	 * @inherit Yume\Fure\Util\Arr\Arrayable::replace
 	 *
 	 */
-	final public function replace( Array | Array\Arrayable $array, Bool $recursive = False ): Static
+	final public function replace( Array | Arr\Arrayable $array, Bool $recursive = False ): Static
 	{
 		foreach( $array As $offset => $value )
 		{
@@ -284,7 +292,7 @@ class Config extends Support\Data
 			{
 				// Skip create new Static Instance if recursion is
 				// allowed and if previous element value is Instanceof Arrayable.
-				if( $recursive && $this[$offset] Instanceof Array\Arrayable )
+				if( $recursive && $this->__get( $offset ) Instanceof Arr\Arrayable )
 				{
 					continue;
 				}

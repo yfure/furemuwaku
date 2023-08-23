@@ -13,14 +13,12 @@ use Throwable;
  */
 final class EnumBackedError extends EnumError
 {
-	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError
 	 *
 	 */
 	protected Array $flags = [
 		EnumBackedError::class => [
-			// ...
 		]
 	];
 	

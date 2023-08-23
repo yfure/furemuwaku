@@ -9,9 +9,7 @@ use Yume\Fure;
 use Yume\Fure\Locale;
 use Yume\Fure\Support;
 use Yume\Fure\Util;
-use Yume\Fure\Util\Json;
 use Yume\Fure\Util\Reflect;
-use Yume\Fure\Util\RegExp;
 
 /*
  * YumeError
@@ -79,7 +77,7 @@ class YumeError extends Error
 			$optional = $optional[$code] ?? Null;
 			
 			// Set translation.
-			Locale\Locale::setTranslation( "Furemu" );
+			Locale\Locale::getLanguage()->furemu ??= Locale\Locale::getTranslation( "Furemu" );
 			
 			// Create key name.
 			$key = Support\Package::array( $this::class );
@@ -206,7 +204,10 @@ class YumeError extends Error
 	{
 		try
 		{
-			$this->type = Util\Strings::fromKebabCaseToUpperCamelCase( is_string( $type = array_search( $code, Reflect\ReflectClass::getConstants( $this ) ) ) ? $type : "Unknown" );
+			if( Reflect\ReflectProperty::isInitialized( $this, "type" ) === False )
+			{
+				$this->type = Util\Strings::fromKebabCaseToUpperCamelCase( is_string( $type = array_search( $code, Reflect\ReflectClass::getConstants( $this ) ) ) ? $type : "Unknown" );
+			}
 		}
 		catch( Throwable )
 		{}

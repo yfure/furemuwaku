@@ -9,7 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class ReferenceError extends BaseError
+class ReferenceError extends YumeError
 {
 	
 	/*

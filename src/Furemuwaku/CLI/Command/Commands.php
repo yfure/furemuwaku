@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\CLI\Command;
 
+use PhpParser\Node\Expr\Cast\Array_;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\Error;
 use Yume\Fure\Logger;
@@ -63,10 +64,7 @@ class Commands
 		}
 
 		// Check if command not found.
-		if( $this->has( $command, False ) )
-		{
-			throw new CommandNotFoundError( $command );
-		}
+		if( $this->has( $command, False ) ) throw new CommandNotFoundError( $command );
 
 		// Mapping all defined options.
 		foreach( $this->commands[$command]->getOptions() As $option )
@@ -101,11 +99,43 @@ class Commands
 				}
 			}
 		}
-
-		// Execute command.
 		$this->commands[$command]->exec(
 			$argument
 		);
+	}
+
+	/*
+	 * Return command by command name.
+	 * 
+	 * @access Public
+	 * 
+	 * @params String $command
+	 *  Command name
+	 * 
+	 * @return Yume\Fure\CLI\Command\CommandInterface
+	 * 
+	 * @throws Yume\Fure\CLI\Command\CommandInterface
+	 *  Throw when the command not found.
+	 */
+	public function get( String $command ): CommandInterface
+	{
+		if( $this->has( $command ) )
+		{
+			return( $this )->commands[$command];
+		}
+		throw new CommandNotFoundError( $command );
+	}
+
+	/*
+	 * Return available commands.
+	 * 
+	 * @access Public
+	 * 
+	 * @return Yune\Fure\Util\Arr\Associative<String,Yume\Fure\CLI\Command\CommandInterface>
+	 */
+	public function getAll(): Arr\Associative
+	{
+		return( new Arr\Associative( $this->commands ) );
 	}
 
 	/*

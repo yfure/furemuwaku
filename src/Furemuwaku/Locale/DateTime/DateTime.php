@@ -13,7 +13,7 @@ use DateTime As BaseDateTime;
  */
 class DateTime extends BaseDateTime
 {
-	use \Yume\Fure\Locale\DateTimeDecorator;
+	use \Yume\Fure\Locale\DateTime\DateTimeDecorator;
 }
 
 ?>

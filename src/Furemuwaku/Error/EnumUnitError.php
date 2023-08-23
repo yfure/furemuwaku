@@ -20,7 +20,6 @@ final class EnumUnitError extends EnumError
 	 */
 	protected Array $flags = [
 		EnumUnitError::class => [
-			// ...
 		]
 	];
 	

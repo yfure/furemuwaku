@@ -2,24 +2,29 @@
 
 namespace Yume\Fure\CLI;
 
-use Yume\Fure\App;
-use Yume\Fure\Error;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI\Command;
-use Yume\Fure\Config;
-use Yume\Fure\Support\Data;
-use Yume\Fure\Support\Design;
-use Yume\Fure\Util\Reflect;
+use Yume\Fure\Main;
+use Yume\Fure\Support;
 
 /*
  * CLI
  *
- * @package Yume\Fure\CLI
+ * @extends Yume\Fure\Support\Singleton
  *
- * @extends Yume\Fure\Support\Design\Singleton
+ * @package Yume\Fure\CLI
  */
-final class CLI extends Design\Singleton
+class CLI extends Support\Singleton
 {
+	
+	/*
+	 * Instance of class Main.
+	 *
+	 * @access Protected Readonly
+	 *
+	 * @values Yume\Fure\Main\Main
+	 */
+	protected Readonly Main\Main $app;
 	
 	/*
 	 * Instance of class Argument.
@@ -48,29 +53,16 @@ final class CLI extends Design\Singleton
 	 */
 	private String $command = "help";
 	
-	use \Yume\Fure\CLI\CLITrait;
-	use \Yume\Fure\Support\Config\ConfigTrait;
-	
 	/*
-	 * @inherit Yume\Fure\Support\Design\Singleton::__construct
+	 * @inherit Yume\Fure\Support\Singleton::__construct
 	 *
 	 */
-	protected function __construct()
+	protected function __construct( ? Main\Main $app = Null )
 	{
+		$this->app = $app ?? Main\Main::self();
 		$this->argument = new Argument\Argument;
 		$this->commands = new Command\Commands( logger() );
-		$this->prepare();
 	}
-	
-	/*
-	 * Coming soon!
-	 *
-	 * @access Private
-	 *
-	 * @return Void
-	 */
-	private function prepare(): Void
-	{}
 	
 	/*
 	 * Starting command line interface.
@@ -81,23 +73,12 @@ final class CLI extends Design\Singleton
 	 */
 	public function start(): Void
 	{
-		$this->commands->run(
-			$this->argument->hasCommand() ?
-				$this->argument->command :
-				$this->command,
-			$this->argument
-		);
+		// $this->commands->exec(
+		// 	$this->argument->command ?? $this->command,
+		// 	$this->argument
+		// );
+		echo format( "{config({\\})}\n", "app.config" );
 	}
-	
-	/*
-	 * Closing command line interface.
-	 *
-	 * @access Public
-	 *
-	 * @return Void
-	 */
-	public function stop(): Void
-	{}
 	
 }
 

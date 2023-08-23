@@ -27,7 +27,7 @@ class AssertionError extends YumeError
 	 */
 	protected Array $flags = [
 		AssertionError::class => [
-			self::VALUE_ERROR => "Invalid value for {} value must be {}, {+:ucfirst} given"
+			self::VALUE_ERROR => "Invalid value for {}, value must be {}, {+:ucfirst} given"
 		]
 	];
 	

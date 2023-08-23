@@ -2,13 +2,14 @@
 
 namespace Yume\Fure\CLI\Command\Helper;
 
-use Throwable;
-
+use Yume\Fure\CLI;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI\Command;
+use Yume\Fure\Error;
 use Yume\Fure\IO\File;
 use Yume\Fure\IO\Path;
 use Yume\Fure\Util;
+use Yume\Fure\Util\Json;
 use Yume\Fure\Util\Reflect;
 
 /*
@@ -77,23 +78,15 @@ final class Helper extends Command\Command implements Command\CommandInterface
 	{
 		foreach( $this->options As $option )
 		{
-			try
+			if( $argument->has( $option->name, False ) &&
+				$argument->has( $option->alias ?? "", False ) )
 			{
-				if( $argument->has( $option->name, False ) &&
-					$argument->has( $option->alias ?? "", False ) )
-				{
-					continue;
-				}
-				Reflect\ReflectMethod::invoke( $this, $option->name, [
-					$this->getOptionValue( $argument, $option )
-				]);
+				continue;
 			}
-			catch( Throwable $e )
-			{
-				echo  $e;
-			}
+			Reflect\ReflectMethod::invoke( $this, $option->name, [
+				$this->getOptionValue( $argument, $option )
+			]);
 		}
-		\Yume\Fure\CLI\Stdout::Error->out( "*", "x" );
 	}
 
 	/*
@@ -106,12 +99,38 @@ final class Helper extends Command\Command implements Command\CommandInterface
 	 * @return Void
 	 * 
 	 * @throws Yume\Fure\Error\ModuleNotFoundError
+	 *  When the helper is not found.
 	 */
 	private function register( String $helper ): Void
 	{
 		$target = Util\Strings::format( "\x7b\x7d\x2e\x70\x68\x70", $helper );
 		$target = Path\Paths::AppHelper->path( $target );
 		$target = path( $target, True );
+
+		// Check if file is exists.
+		if( File\File::exists( $target ) )
+		{
+			// Read composer file.
+			$json = File\File::json( "composer.json", True );
+			
+			// Check if helper has registered previously.
+			if( in_array( $target, $json['autoload']['files'] ??= [] ) )
+			{
+				CLI\Console::info( "has registered previously", $helper );
+			}
+			else {
+				
+				// Added helper into autoloads file.
+				$json['autoload']['files'][] = $target;
+
+				File\File::write( "composer.json", Json\Json::encode( $json, JSON_PRETTY_PRINT ) );
+				CLI\Console::success( "successfull registered", $helper );
+				CLI\Console::warning( "please dumping your composer" );
+			}
+		}
+		else {
+			throw new Error\ModuleNotFoundError( $helper );
+		}
 	}
 
 	/*
@@ -124,7 +143,31 @@ final class Helper extends Command\Command implements Command\CommandInterface
 	 * @return Void
 	 */
 	private function remove( String $helper ): Void
-	{}
+	{
+		$target = Util\Strings::format( "\x7b\x7d\x2e\x70\x68\x70", $helper );
+		$target = Path\Paths::AppHelper->path( $target );
+		$target = path( $target, True );
+
+		// Read composer file.
+		$json = File\File::json( "composer.json", True );
+			
+		// Check if helper has registered previously.
+		if( in_array( $target, $json['autoload']['files'] ??= [] ) )
+		{
+			// Get helper index position.
+			$index = array_search( $target, $json['autoload']['files'] );
+
+			// Remove helper from autoloads file.
+			unset( $json['autoload']['files'][$index] );
+
+			File\File::write( "composer.json", Json\Json::encode( $json, JSON_PRETTY_PRINT ) );
+			CLI\Console::success( "has removed", $helper );
+			CLI\Console::warning( "please dumping your composer" );
+		}
+		else {
+			CLI\Console::success( "no such helper registered", $helper );
+		}
+	}
 
 }
 

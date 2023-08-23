@@ -18,7 +18,6 @@ class FiberError extends ReflectError
 	 */
 	protected Array $flags = [
 		FiberError::class => [
-			// ...
 		]
 	];
 	

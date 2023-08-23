@@ -2,7 +2,7 @@
 
 namespace Yume\Fure\Locale\Clock;
 
-use DateTimeImmutable;
+use Yume\Fure\Locale\DateTime;
 
 /*
  * ClockInterface
@@ -19,7 +19,7 @@ interface ClockInterface
 	 *
 	 * @return DateTimeImmutable
 	 */
-	public function now(): DateTimeImmutable;
+	public function now(): DateTime\DateTimeImmutable;
 	
 }
 

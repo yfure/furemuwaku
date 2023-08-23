@@ -18,7 +18,6 @@ class ExtensionError extends ReflectError
 	 */
 	protected Array $flags = [
 		ExtensionError::class => [
-			// ...
 		]
 	];
 	

@@ -13,7 +13,7 @@ use DateTimeImmutable as BaseDateTimeImmutable;
  */
 class DateTimeImmutable extends BaseDateTimeImmuable
 {
-	use \Yume\Fure\Locale\DateTimeDecorator;
+	use \Yume\Fure\Locale\DateTime\DateTimeDecorator;
 }
 
 ?>

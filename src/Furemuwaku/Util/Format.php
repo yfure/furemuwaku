@@ -132,7 +132,7 @@ trait Format
 		}
 		
 		// Replacing formats.
-		$replace = preg_replace_callback( "/(?:(?<matched>(?<!\\\)\{(?:[\s\t]*)(?<syntax>.*?)(?:[\s\t]*)(?<!\\\)\}))/", subject: $format, callback: function( Array $match ) use( &$format, &$values )
+		$replace = preg_replace_callback( "/(?:(?<matched>(?<!\\\)\{(?:[\s\t]*)(?<syntax>.*?)(?:[\s\t]*)(?<!\\\)\}))/", subject: $format, callback: function( Array $match ) use( &$values )
 		{
 			// Statically variable.
 			static $i = 0;
