@@ -73,11 +73,11 @@ class CLI extends Support\Singleton
 	 */
 	public function start(): Void
 	{
-		// $this->commands->exec(
-		// 	$this->argument->command ?? $this->command,
-		// 	$this->argument
-		// );
-		echo format( "{config({\\})}\n", "app.config" );
+		$this->commands->exec(
+			$this->argument->command ?? $this->command,
+			$this->argument
+		);
+		echo new \Yume\Fure\Error\ClassImplementationError([ X::class, Y::class ]);
 	}
 	
 }

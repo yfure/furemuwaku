@@ -53,7 +53,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 		$this->commands->getAll()->map(
 			
 			/*
-			 * Mapper handler.
+			 * Grouping command by command group name.
 			 * 
 			 * @params Int $i
 			 * @params String $name
@@ -68,25 +68,28 @@ final class Help extends Command\Command implements Command\CommandInterface
 			}
 		);
 
-		putln( colorize( "\e[0m\e[1;37mThe Yume Framework v{config(\\{\\})}", "app.version" ) );
-		putln( colorize( "\e[0m\e[1;37mThe Sasayaki Command Line Interface" ) );
+		putcln( "\e[0m\e[1;37mThe Yume Framework v{config(+)}", "app.version" );
+		putcln( "\e[0m\e[1;37mThe Sasayaki Command Line Interface" );
 
 		foreach( $groups As $group => $commands )
 		{
-			putln( $group );
+			putcln( "\e[0m\n..\e[1;32m{}", $group );
+
 			foreach( $commands As $name => $command )
-			{}
+			{
+				putcln( "\e[0m{}", $name );
+			}
 		}
 	}
 
 	/*
-	 * Grouping command by command group name.
+	 * ...
 	 * 
 	 * @access Private
 	 * 
 	 * @params Yume\Fure\CLI\Command\CommandInterface $command
 	 * 
-	 * @return Array<Mixed>
+	 * @return Array<String,Mixed>
 	 */
 	private function handler( CommandInterface $command ): Array
 	{
