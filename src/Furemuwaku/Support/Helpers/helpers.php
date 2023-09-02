@@ -293,7 +293,7 @@ function colorize( String $string, ? String $base = Null ): String
 					])
 				);
 			}
-			return( f( "{}{}{}{0}", $escape, $regexps[$group]['ansicol'], $chars ) );
+			return( "{$escape}{$regexps[$group]['ansicol']}{$chars}{$escape}" );
 		}
 		return( "" );
 	};
@@ -569,6 +569,21 @@ function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): Stri
 }
 
 /*
+ * Print outputs with colorize.
+ *
+ * @params String $format
+ *  Please see Yume\Fure\Util\Format::format
+ * @params Mixed ...$values
+ *  Please see Yume\Fure\Util\Format::format
+ *
+ * @return Void
+ */
+function putc( String $format, Mixed ...$values ): Void
+{
+	echo( colorize( Util\Strings::format( $format, ...$values ) ) );
+}
+
+/*
  * Print outputs.
  *
  * @params String $format
@@ -581,6 +596,21 @@ function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): Stri
 function puts( String $format, Mixed ...$values ): Void
 {
 	echo( Util\Strings::format( $format, ...$values ) );
+}
+
+/*
+ * Print line outputs with colorize.
+ *
+ * @params String $format
+ *  Please see Yume\Fure\Util\Format::format
+ * @params Mixed ...$values
+ *  Please see Yume\Fure\Util\Format::format
+ *
+ * @return Void
+ */
+function putcln( String $format, Mixed ...$values ): Void
+{
+	echo( colorize( Util\Strings::format( $format, ...$values ) ) . "\n" );
 }
 
 /*
