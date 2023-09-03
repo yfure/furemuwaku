@@ -13,10 +13,21 @@
  *
  */
 return([
-	"error.AssertionError" => [],
-	"error.AttributeError" => [],
-	"error.ClassError" => [],
-	"error.ClassImplementationError" => [],
+	"error.AssertionError" => [
+		"ValueError" => "Invalid value for {}, value must be {}, {+:ucfirst} given"
+	],
+	"error.AttributeError" => [
+		"NameError" => "No attribute named {}",
+		"TypeError" => "Can't instantiate non-attribute class {}"
+	],
+	"error.ClassError" => [
+		"ImplementsError" => "xClass {} must implement interface {}",
+		"InstanceError" => "Unable to create new instance for class {}, it's not instantiable class", 
+		"NameError" => "No class named {}"
+	],
+	"error.ClassImplementationError" => [
+		"ImplementsError" => "@yume.fure.error<ClassError.ImplementsError>"
+	],
 	"error.ClassInstanceError" => [],
 	"error.ClassNameError" => [],
 	"error.ConnectionError" => [],

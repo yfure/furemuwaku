@@ -330,11 +330,13 @@ class Locale extends Support\Singleton
 				$inherit = join( ".", [ $match['group'], $match['key'] ] );
 			}
 			else {
-				$params = $match['inherit'];
+				$inherit = $match['inherit'];
 			}
 			$translate = self::translate( $inherit, Null, $format, ...$values );
 		}
 		$translate ??= $optional;
+
+		echo dump( [ self::self()->language, $translate, $key ], True );
 		
 		// If translation is available and
 		// if format is allowed.
