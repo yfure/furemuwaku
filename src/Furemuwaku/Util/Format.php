@@ -55,27 +55,26 @@ trait Format
 	public static function format( String $format, Mixed ...$values ): String
 	{
 		// Return normalized formated string.
-		return( self::formatNormalize(
-			preg_replace_callback(
+		return( self::formatNormalize( preg_replace_callback(
 
-				// Pattern for capture format syntax.
-				pattern: "/(?<matched>(?<!\\\)\{(?<syntax>.*?)(?<!\\\)\})/ms",
+			// Pattern for capture format syntax.
+			pattern: "/(?<matched>(?<!\\\)\{(?<syntax>.*?)(?<!\\\)\})/ms",
 
-				// String will be format.
-				subject: $format,
-				/*
-				 * Call the format handler.
-				 * 
-				 * @params Array $match
-				 * 
-				 * @return String
-				 */
-				callback: function( Array $match ) use( $values ): String
-				{
-					// Statically variable.
-					static $i = 0;
-					return( self::formatHandler( $match, $values, $i ) );
-				}),
+			// String will be format.
+			subject: $format,
+			/*
+				* Call the format handler.
+				* 
+				* @params Array $match
+				* 
+				* @return String
+				*/
+			callback: function( Array $match ) use( $values ): String
+			{
+				// Statically variable.
+				static $i = 0;
+				return( self::formatHandler( $match, $values, $i ) );
+			}),
 		));
 	}
 
@@ -90,7 +89,7 @@ trait Format
 	 *
 	 * @return String
 	 */
-	private static function formatHandler( Array $match, Array &$values, Int $i ): String
+	private static function formatHandler( Array $match, Array &$values, Int &$i ): String
 	{
 		// Patterns matcher.
 		$array = "(?<array>(?:[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)*(?:\\[[^\\[\\]]+\\]|[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)+(?:\\.[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*|\\[[^\\[\\]]+\\])*)";
