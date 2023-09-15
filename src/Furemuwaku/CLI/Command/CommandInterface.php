@@ -78,6 +78,17 @@ interface CommandInterface
 	public function getOptionRequires(): Generator;
 
 	/*
+	 * Return if command has description.
+	 * 
+	 * @access Public
+	 * 
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function hasAbout( ? Bool $optional = Null ): Bool;
+
+	/*
 	 * Return if command has option.
 	 * 
 	 * @access Public

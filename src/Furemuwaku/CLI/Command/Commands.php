@@ -2,8 +2,8 @@
 
 namespace Yume\Fure\CLI\Command;
 
-use PhpParser\Node\Expr\Cast\Array_;
 use Yume\Fure\CLI\Argument;
+use Yume\Fure\Config;
 use Yume\Fure\Error;
 use Yume\Fure\Logger;
 use Yume\Fure\Util;
@@ -176,13 +176,18 @@ class Commands
 			 *
 			 * @throws Yume\Fure\Error\ClassImplementationError
 			 */
-			function( Int $i, Int $index, String $class )
+			function( Int $i, Int | String $class, String | Config\Config $config )
 			{
+				if( is_int( $class ) )
+				{
+					$class = $config;
+					$config = new Config\Config( "Builder", False, [] );
+				}
 				// Check if CommandHandler has implement CommandInterface.
 				if( Reflect\ReflectClass::isImplements( $class, CommandInterface::class, $reflect ) )
 				{
 					// Create new Command instance.
-					$command = $reflect->newInstance( $this, $this->logger );
+					$command = $reflect->newInstance( $this, $config, $this->logger );
 					$commandName = $command->getName();
 					
 					// Push command.

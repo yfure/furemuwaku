@@ -3,7 +3,9 @@
 namespace Yume\Fure\CLI\Command;
 
 use Generator;
+
 use Yume\Fure\CLI\Argument;
+use Yume\Fure\Config;
 use Yume\Fure\Logger;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Reflect;
@@ -76,13 +78,14 @@ abstract class Command implements CommandInterface
 	 * @access Public Initialize
 	 * 
 	 * @params Yume\Fure\CLI\Command\Commands $commands
+	 * @params Yume\Fure\Config\Config $configs
 	 * @params Yume\Fure\Logger\LoggerInterface $logger
 	 * 
 	 * @return Void
 	 * 
 	 * @throws Yume\Fure\CLI\Command\CommandUnitializeNameError
 	 */
-	public function __construct( protected Commands $commands, protected Logger\LoggerInterface $logger )
+	public function __construct( protected Commands $commands, protected Config\Config $configs, protected Logger\LoggerInterface $logger )
 	{
 		// If command name has Initialized.
 		if( Reflect\ReflectProperty::isInitialized( $this, "name" ) )
@@ -196,6 +199,15 @@ abstract class Command implements CommandInterface
 		{
 			if( $option->isRequired() ) yield $option;
 		}
+	}
+
+	/*
+	 * @inherit Yume\Fure\CLI\Command\CommandInterface::hasAbout
+	 * 
+	 */
+	public function hasAbout( ? Bool $optional = Null ): Bool
+	{
+		return( $optional !== Null ? $this->hasAbout() === $optional : valueIsNotEmpty( $this->about ) );
 	}
 
 	/*

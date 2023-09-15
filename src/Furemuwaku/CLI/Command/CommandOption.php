@@ -36,7 +36,7 @@ final class CommandOption
 	 *  Example usage of option.
 	 * @params Bool $required
 	 *  When the option is required.
-	 * @params Arrays<String> $required
+	 * @params Arrays<String> $requires
 	 *  When the option is require anothe options.
 	 * @params Mixed $default
 	 *  Default value of option.

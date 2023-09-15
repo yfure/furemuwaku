@@ -68,6 +68,13 @@ class YumeError extends Error
 		
 		$this->file = $file ?? $this->getFile();
 		$this->line = $line ?? $this->getLine();
+
+		// if( $this Instanceof IndexError )
+		// {
+		// 	echo $this->file;
+		// 	echo $this->line;
+		// 	var_dump( $message );
+		// }
 		
 		// Check if error has type.
 		if( $this->type !== "Unknown" )
@@ -83,7 +90,7 @@ class YumeError extends Error
 			$key = Support\Package::array( $this::class );
 			
 			$furemu = strpos( $this::class, Fure::class ) === 0;
-			$translation = Locale\Locale::translate( join( ".", $furemu ? [ "Furemu", $key, $this->type ] : [ $key, $this->type ] ), $optional, False );
+			$translation = Locale\Locale::translate( join( ".", $furemu ? [ /** "Furemu", */ $key, $this->type ] : [ $key, $this->type ] ), $optional, False );
 			
 			// If translation is available.
 			if( $translation )

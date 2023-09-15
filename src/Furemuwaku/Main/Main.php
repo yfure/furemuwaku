@@ -269,6 +269,8 @@ final class Main
 			
 			// Set application as running.
 			static::$running = True;
+
+			echo 0;
 		}
 	}
 	

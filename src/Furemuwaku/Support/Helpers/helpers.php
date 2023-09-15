@@ -330,7 +330,7 @@ function colorize( String $string, ? String $base = Null ): String
 						$index++;
 						
 						// Break if index is out of range.
-						if( $strings[$index] ?? Null ) break;
+						if( isset( $strings[$index] ) === False ) break;
 					}
 				}
 				
@@ -344,15 +344,18 @@ function colorize( String $string, ? String $base = Null ): String
 				$escape = $last;
 				$index = $idx;
 			}
-			$result .= $escape;
-			$result .= $pattern->replace( $strings[$index], 
-				fn( RegExp\Matches $match ) => $handler( ...[
-					"match" => $match,
-					"escape" => $escape,
-					"handler" => $handler,
-					"regexps" => $regexps
-				])
-			);
+			if( isset( $strings[$index] ) )
+			{
+				$result .= $escape;
+				$result .= $pattern->replace( $strings[$index], 
+					fn( RegExp\Matches $match ) => $handler( ...[
+						"match" => $match,
+						"escape" => $escape,
+						"handler" => $handler,
+						"regexps" => $regexps
+					])
+				);
+			}
 		}
 	}
 	catch( Throwable $e )

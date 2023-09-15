@@ -77,7 +77,6 @@ class CLI extends Support\Singleton
 			$this->argument->command ?? $this->command,
 			$this->argument
 		);
-		echo new \Yume\Fure\Error\ClassImplementationError([ X::class, Y::class ]);
 	}
 	
 }

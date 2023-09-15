@@ -336,7 +336,7 @@ class Locale extends Support\Singleton
 		}
 		$translate ??= $optional;
 
-		echo dump( [ self::self()->language, $translate, $key ], True );
+		// echo dump( [ self::self()->language, $translate, $key ], True );
 		
 		// If translation is available and
 		// if format is allowed.
