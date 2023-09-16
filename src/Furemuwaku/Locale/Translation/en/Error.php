@@ -62,7 +62,7 @@ return([
 	"error.UnexpectedError" => [],
 	"error.UnicodeError" => [],
 	"error.ValueError" => [],
-	"error.YumeError" => []x
+	"error.YumeError" => []
 ]);
 
 ?>
