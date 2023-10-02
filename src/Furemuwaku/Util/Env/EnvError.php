@@ -41,7 +41,7 @@ class EnvError extends Error\YumeError
 	];
 	
 	/*
-	 * @inherit Yume\Fure\Error\YumeError
+	 * @inherit Yume\Fure\Error\YumeError::$flags
 	 *
 	 */
 	protected Array $track = [
