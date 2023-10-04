@@ -46,7 +46,8 @@ final class Helper extends Command\Command implements Command\CommandInterface
 			"example" => [
 				"--help",
 				"-h"
-			]
+			],
+			"implement" => "help"
 		],
 		"list" => [
 			"type" => Util\Type::Bool,
@@ -55,39 +56,26 @@ final class Helper extends Command\Command implements Command\CommandInterface
 			"example" => [
 				"--list",
 				"-l"
-			]
+			],
+			"implement" => "list"
 		],
 		"register" => [
 			"type" => Util\Type::String,
 			"alias" => "r",
 			"explain" => "Register helper",
-			"example" => "--register=helper"
+			"example" => "--register=helper",
+			"implement" => "register"
 		],
 		"remove" => [
 			"type" => Util\Type::String,
 			"explain" => "Remove helper",
-			"example" => "--remove=helper"
+			"example" => "--remove=helper",
+			"implement" => "remove"
 		]
 	];
 
-	/*
-	 * @inherit Yume\Fure\CLI\Command\CommandInterface::exec
-	 * 
-	 */
-	public function exec( Argument\Argument $argument ): Void
-	{
-		foreach( $this->options As $option )
-		{
-			if( $argument->has( $option->name, False ) &&
-				$argument->has( $option->alias ?? "", False ) )
-			{
-				continue;
-			}
-			Reflect\ReflectMethod::invoke( $this, $option->name, [
-				$this->getOptionValue( $argument, $option )
-			]);
-		}
-	}
+	public function list(): Void
+	{}
 
 	/*
 	 * Register new helper.

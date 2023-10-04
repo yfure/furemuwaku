@@ -123,6 +123,15 @@ interface CommandInterface
 	public function hasOptionRequires( ? Bool $optional = Null ): Bool;
 
 	/*
+	 * Display command info.
+	 * 
+	 * @access Public
+	 * 
+	 * @return Void
+	 */
+	public function help(): Void;
+
+	/*
 	 * Return if option is required.
 	 * 
 	 * @access Public

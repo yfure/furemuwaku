@@ -27,6 +27,12 @@ class Console
 		self::write( $string, Stdout::Error, ...$values );
 	}
 
+	public static function exit( Int $code, Stdout $level, String $string, Mixed ...$values ): Void
+	{
+		self::write( $string, $level, ...$values );
+		exit( $code );
+	}
+
 	/*
 	 * Print indicate info message.
 	 * 

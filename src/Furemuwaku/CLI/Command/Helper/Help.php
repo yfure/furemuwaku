@@ -79,6 +79,8 @@ final class Help extends Command\Command implements Command\CommandInterface
 		putcln( $this->configs->usage, PHP_EOL );
 		putcln( $this->configs->command, PHP_EOL );
 
+		$disable = $this->getOptionValue( $argument, $this->options['command'], False );
+		
 		// Re-iterating grouping command.
 		foreach( $groups As $group => $commands )
 		{
@@ -89,12 +91,12 @@ final class Help extends Command\Command implements Command\CommandInterface
 			foreach( $commands As $name => $command )
 			{
 				// If only display command names.
-				if( $argument->has( "command" ) )
+				if( $disable )
 				{
 					putcln( $this->configs->formats['command.info-name'], $name ); 
 					continue;
 				}
-				putcln( $this->configs->formats['command.info'], $name, $command );
+				putcln( $this->configs->formats['command.info-list'], $name, $command );
 			}
 		}
 		putln( "" );
@@ -244,6 +246,29 @@ final class Help extends Command\Command implements Command\CommandInterface
 	private function buildRequirementOptions( Array $requirements ): String
 	{
 		return( f( $this->configs->formats['command.option.single-info'], "linkeds", join( "\x2c\x20", $requirements ) ) );
+	}
+
+	/*
+	 * Display command info for single command.
+	 * 
+	 * @access Public
+	 * 
+	 * @params CommandInterface $command
+	 * 
+	 * @return Void
+	 */
+	public function single( CommandInterface $command ): Void
+	{
+		// Generate command info.
+		$docs = $this->builder( $command );
+
+		// Display command group name.
+		putcln( "" );
+		putcln( $this->configs->formats['command.group-name'], $command->getGroup() );
+
+		// Display command info.
+		putcln( $this->configs->formats['command.info'], $command->getName(), implode( PHP_EOL, $docs ) );
+		putcln( "" );
 	}
 
 }

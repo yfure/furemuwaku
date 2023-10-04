@@ -34,6 +34,8 @@ final class CommandOption
 	 *  Exaplain of option usage for.
 	 * @params Array $example
 	 *  Example usage of option.
+	 * @params String $implement
+	 *  Method implementation of option.
 	 * @params Bool $required
 	 *  When the option is required.
 	 * @params Arrays<String> $requires
@@ -50,6 +52,7 @@ final class CommandOption
 		public Readonly ? String $alias,
 		public Readonly Array $explain,
 		public Readonly Array $example,
+		public Readonly ? String $implement,
 		public Readonly Bool $required,
 		public Readonly Array $requires,
 		public Readonly Mixed $default,
@@ -84,6 +87,20 @@ final class CommandOption
 	public function hasDefaultValue( ? Bool $optional = Null ): Bool
 	{
 		return( $optional !== Null ? $this->hasDefaultValue() === $optional : $this->default !== Null);
+	}
+
+	/*
+	 * Return if option has method implementation for action.
+	 * 
+	 * @access Public
+	 * 
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function hasImplementation( ? Bool $optional = Null ): Bool
+	{
+		return( $optional !== Null ? $this->hasImplementation() === $optional : valueIsNotEmpty( $this->implement ) );
 	}
 
 	/*

@@ -5,6 +5,7 @@ namespace Yume\Fure\CLI\Command;
 use Generator;
 
 use Yume\Fure\CLI\Argument;
+use Yume\Fure\CLI;
 use Yume\Fure\Config;
 use Yume\Fure\Logger;
 use Yume\Fure\Util;
@@ -56,6 +57,8 @@ abstract class Command implements CommandInterface
 	 *    "explain" => Array|String "Explain option",
 	 *    #[option-example: Example usage command with option]
 	 *    "example" => Array|String "--test=Test",
+	 *    #[option-implement: Method implementation of option]
+	 *    "implement" => String "test",
 	 *    #[option-required: If option is required]
 	 *    "required" => Bool True|False,
 	 *    #[option-requires: Another option required when use this option]
@@ -93,14 +96,29 @@ abstract class Command implements CommandInterface
 			// If command has options.
 			if( count( $this->options ) >= 1 )
 			{
-				foreach( $this->options As $name => $option )
+				// If command has no help option.
+				if( isset( $this->options['help'] ) === False )
 				{
+					$this->options['help'] = [
+						"type" => Util\Type::Bool,
+						"alias" => "h",
+						"explain" => "Display help",
+						"example" => [
+							"--help",
+							"-h"
+						],
+						"implement" => "help"
+					];
+				}
+				foreach( $this->options As $name => $option )
+				{ 
 					// If option is not instance of class CommandOption.
 					if( $option Instanceof CommandOption === False )
 					{
 						$option = new CommandOption(
 							explain: type( $option['explain'] ?? Null, "String" ) ? [$option['explain']] : $option['explain'] ?? [],
 							example: type( $option['example'] ?? Null, "String" ) ? [$option['example']] : $option['example'] ?? [],
+							implement: $option['implement'] ?? Null,
 							required: $option['required'] ?? False,
 							requires: $option['requires'] ?? [],
 							default: $option['default'] ?? Null,
@@ -109,12 +127,45 @@ abstract class Command implements CommandInterface
 							type: isset( $option['type'] ) && $option['type'] Instanceof Util\Type ? $option['type'] : Util\Type::Mixed
 						);
 					}
+
+					// If option has defined method implementation
+					// but the option implementation is not implemented.
+					if( $option->implement !== Null && method_exists( $this, $option->implement ) === False )
+					{
+						CLI\Console::exit( 1, CLI\Stdout::Error, "Option not implemented", $this::class, $this->name, $option->name );
+					}
 					$this->options[$name] = $option;
 				}
 			}
 		}
 		else {
 			throw new CommandUnitializeNameError( $this::class );
+		}
+	}
+
+	/*
+	 * @inherit Yume\Fure\CLI\Command\CommandInterface::exec
+	 * 
+	 */
+	public function exec( Argument\Argument $argument ): Void
+	{
+		if( $argument->count() >= 1 )
+		{
+			foreach( $this->options As $option )
+			{
+				if( $option->hasImplementation( False ) ) continue;
+				if( $argument->has( $option->name, False ) &&
+					$argument->has( $option->alias ?? "", False ) )
+				{
+					continue;
+				}
+				Reflect\ReflectMethod::invoke( $this, $option->name, [
+					$this->getOptionValue( $argument, $option )
+				]);
+			}
+		}
+		else {
+			$this->help();
 		}
 	}
 
@@ -235,6 +286,19 @@ abstract class Command implements CommandInterface
 	public function hasOptionRequires( ? Bool $optional = Null ): Bool
 	{
 		return( $optional !== Null ? $this->hasOptionRequires() === $optional : count( iterator_to_array( $this->getOptionRequires() ) ) >= 1 );
+	}
+
+	/*
+	 * @inherit Yume\Fure\CLI\Command\CommandInterface::help
+	 * 
+	 */
+	public function help(): Void
+	{
+		if( $this->commands->has( "help" ) &&
+			$this->commands->get( "help" ) Instanceof Helper\Help )
+		{
+			$this->commands->get( "help" )->single( $this );
+		}
 	}
 
 	/*

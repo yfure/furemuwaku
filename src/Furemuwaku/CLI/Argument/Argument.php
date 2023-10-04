@@ -132,6 +132,18 @@ class Argument implements ArrayAccess, Countable
 	{
 		return( $this )->args[$arg] ?? $default;
 	}
+
+	/*
+	 * Return all arguments.
+	 * 
+	 * @access Public
+	 * 
+	 * @return Array<ArgumentValue>
+	 */
+	public function getAll(): Array
+	{
+		return( $this->args );
+	}
 	
 	/*
 	 * Get command name.
