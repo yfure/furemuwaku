@@ -123,26 +123,27 @@ class StreamError extends Error\IOError
 	public const WRITE_ERROR = 85789;
 	
 	/*
-	 * @inherit Yume\Fure\Error\IOError
+	 * @inherit Yume\Fure\Error\YumeError::$flags
 	 *
 	 */
 	protected Array $flags = [
 		StreamError::class => [
-			self::DETACH_ERROR,
-			self::FREAD_ERROR,
-			self::FSEEK_ERROR,
-			self::FTELL_ERROR,
-			self::FWRITE_ERROR,
-			self::LENGTH_ERROR,
-			self::READ_ERROR,
-			self::READ_CONTENT_ERROR,
-			self::SEEK_ERROR,
-			self::STRINGIFY_ERROR,
-			self::WRITE_ERROR
+			self::DETACH_ERROR => "Stream {} has been detach, the stream is useless",
+			self::FREAD_ERROR => "An error occurred when reading the {} stream",
+			self::FSEEK_ERROR => "An error occurred in Stream {} when re-changing the pointer to {} with whence {}",
+			self::FTELL_ERROR => "An error occurred in Stream {} when determine position",
+			self::FWRITE_ERROR => "An error occurred in Stream {} when writing content",
+			self::LENGTH_ERROR => "Cannot read stream content with length below zero, {} is given",
+			self::READ_ERROR => "Can't read stream {}, because stream is unreadable",
+			self::READ_CONTENT_ERROR => "An error occurred when getting the content stream {}",
+			self::SEEK_ERROR => "Stream {} cannot seek, because the unseekable stream",
+			self::STRINGIFY_ERROR => "Failed parse Object Stream {} into string",
+			self::TELL_ERROR => "Cannot determine the position of a Stream {}",
+			self::WRITE_ERROR => "Stream {} cannot be written, because Stream is unwritable"
 		],
 		StreamBufferError::class => [
-			self::SEEK_ERROR,
-			self::TELL_ERROR
+			self::SEEK_ERROR => "Stream {} cannot seek, because the unseekable stream",
+			self::TELL_ERROR => "Cannot determine the position of a Stream {}"
 		]
 	];
 	

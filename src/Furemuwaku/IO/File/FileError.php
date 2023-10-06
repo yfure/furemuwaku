@@ -105,7 +105,7 @@ class FileError extends Error\IOError
 	public const WRITE_ERROR = 84911;
 	
 	/*
-	 * @inherit Yume\Fure\Error\YumeError
+	 * @inherit Yume\Fure\Error\YumeError::$flags
 	 *
 	 */
 	protected Array $flags = [

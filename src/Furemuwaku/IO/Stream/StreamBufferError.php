@@ -9,6 +9,7 @@ namespace Yume\Fure\IO\Stream;
  *
  * @extends Yume\Fure\IO\Stream\StreamError
  */
-class StreamBufferError extends StreamError {}
+class StreamBufferError extends StreamError
+{}
 
 ?>
