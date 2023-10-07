@@ -58,7 +58,7 @@ final class Package extends Singleton
 				];
 			}
 		}
-		catch( Error\BaseError )
+		catch( Error\YumeError )
 		{}
 		$this->installed = [
 			...$packages,

@@ -38,6 +38,12 @@ class LookupError extends ReferenceError
 		LookupError::class => [
 			self::INDEX_ERROR => "Index {} out of range",
 			self::KEY_ERROR => "Undefined key for {}"
+		],
+		IndexError::class => [
+			self::INDEX_ERROR => "Index {} out of range"
+		],
+		KeyError::class => [
+			self::KEY_ERROR => "Undefined key for {}"
 		]
 	];
 	

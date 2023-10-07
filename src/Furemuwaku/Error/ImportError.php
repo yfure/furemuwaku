@@ -13,17 +13,6 @@ use Throwable;
  */
 final class ImportError extends ModuleError
 {
-	
-	/*
-	 * @inherit Yume\Fure\Error\YumeError
-	 *
-	 */
-	protected Array $flags = [
-		ImportError::class => [
-			self::IMPORT_ERROR => "Something wrong when import module {}"
-		]
-	];
-	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
@@ -32,7 +21,6 @@ final class ImportError extends ModuleError
 	{
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
-	
 }
 
 ?>

@@ -38,6 +38,12 @@ class ModuleError extends IOError
 		ModuleError::class => [
 			self::IMPORT_ERROR => "Something wrong when import module {}",
 			self::NOT_FOUND_ERROR => "No module named {}"
+		],
+		ImportError::class => [
+			self::IMPORT_ERROR => "Something wrong when import module {}"
+		],
+		ModuleNotFoundError::class => [
+			self::NOT_FOUND_ERROR => "No module named {}"
 		]
 	];
 	

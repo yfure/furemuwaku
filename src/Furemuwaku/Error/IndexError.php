@@ -13,17 +13,6 @@ use Throwable;
  */
 class IndexError extends LookupError
 {
-	
-	/*
-	 * @inherit Yume\Fure\Error\YumeError
-	 *
-	 */
-	protected Array $flags = [
-		IndexError::class => [
-			self::INDEX_ERROR => "Index {} out of range"
-		]
-	];
-	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
@@ -32,7 +21,6 @@ class IndexError extends LookupError
 	{
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
-	
 }
 
 ?>

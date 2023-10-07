@@ -322,17 +322,10 @@ class Locale extends Support\Singleton
 		$translate = Util\Arrays::ify( $key, self::self()->language, False );
 		
 		// If translation is inherit another translation.
-		if( preg_match( "/^\@(?:inherit\:(?<inherit>[^\n]+)|(?<group>[^\<]+)\<(?<key>[^\>]+)\>)$/Ji", $translate ?? "", $match ) )
+		while( static::isInheritTranslate( $translate ?? "", $match ) )
 		{
-			// If inherited translation defined group.
-			if( $match['group'] ?? Null )
-			{
-				$inherit = join( ".", [ $match['group'], $match['key'] ] );
-			}
-			else {
-				$inherit = $match['inherit'];
-			}
-			$translate = self::translate( $inherit, Null, $format, ...$values );
+			// Re-translate inherited translation value.
+			$translate = Util\Arrays::ify( $match['inherit'] ?? Util\Arrays::ifyJoin([ $match['source'], ...static::splitGroup( $match['group'] ) ]), self::self()->language, False );
 		}
 		$translate ??= $optional;
 
@@ -346,6 +339,26 @@ class Locale extends Support\Singleton
 			return( util\Strings::format( $translate, ...Util\Arrays::map( $values, fn( Int $i, Mixed $k, Mixed $v ) => $v ?? "" ) ) );
 		}
 		return( $translate );
+	}
+
+	/*
+	 * Return if string is syntax of inherit translation message.
+	 * 
+	 * @access Static Private
+	 * 
+	 * @params String $translate
+	 * @params Mixed &$matches
+	 * 
+	 * @return Bool
+	 */
+	static private function isInheritTranslate( String $translate, Mixed &$match = Null ): Bool
+	{
+		return( preg_match( "/^\@(?:[Ii]nherit\:(?<inherit>[^\n]+)|(?:(?<source>[^\<]+)<(?<group>[^\>]+)[\>]+))$/", $translate, $match, PREG_UNMATCHED_AS_NULL ) );
+	}
+
+	static private function splitGroup( String $group ): Array
+	{
+		return( Util\Arrays::map( split( $group, "<" ), fn( Int $i, Int $idx, String $value ) => trim( $value, "<>" ) ) );
 	}
 	
 }

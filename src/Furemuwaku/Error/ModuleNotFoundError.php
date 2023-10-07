@@ -13,17 +13,6 @@ use Throwable;
  */
 final class ModuleNotFoundError extends ModuleError
 {
-	
-	/*
-	 * @inherit Yume\Fure\Error\YumeError
-	 *
-	 */
-	protected Array $flags = [
-		ModuleNotFoundError::class => [
-			self::NOT_FOUND_ERROR => "No module named {}"
-		]
-	];
-	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
@@ -32,7 +21,6 @@ final class ModuleNotFoundError extends ModuleError
 	{
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
-	
 }
 
 ?>

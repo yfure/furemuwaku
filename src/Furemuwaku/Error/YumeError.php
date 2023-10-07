@@ -79,18 +79,23 @@ class YumeError extends Error
 		// Check if error has type.
 		if( $this->type !== "Unknown" )
 		{
+			// If translation is not available.
+			if( Locale\Locale::getLanguage()->yume === Null ) 
+			{
+				Locale\Locale::setTranslation(
+					Locale\Locale::getTranslation( "Furemu" )
+				);
+			}
+			
 			// Optional value when translation is unavailable.
 			$optional = $this->flags[$this::class] ?? [];
 			$optional = $optional[$code] ?? Null;
-			
-			// Set translation.
-			Locale\Locale::getLanguage()->furemu ??= Locale\Locale::getTranslation( "Furemu" );
 			
 			// Create key name.
 			$key = Support\Package::array( $this::class );
 			
 			$furemu = strpos( $this::class, Fure::class ) === 0;
-			$translation = Locale\Locale::translate( join( ".", $furemu ? [ /** "Furemu", */ $key, $this->type ] : [ $key, $this->type ] ), $optional, False );
+			$translation = Locale\Locale::translate( $x = join( ".", $furemu ? [ /** "Furemu", */ $key, $this->type ] : [ $key, $this->type ] ), $optional, False );
 			
 			// If translation is available.
 			if( $translation )

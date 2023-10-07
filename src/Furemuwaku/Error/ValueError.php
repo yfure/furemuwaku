@@ -38,6 +38,9 @@ class ValueError extends AssertionError
 		ValueError::class => [
 			self::LENGTH_ERROR => "Length of {} must be {}, {} given",
 			self::UNICODE_ERROR => "Unkown and Invalid unicode for {}"
+		],
+		UnicodeError::class => [
+			self::UNICODE_ERROR => "Unkown and Invalid unicode for {}"
 		]
 	];
 	
