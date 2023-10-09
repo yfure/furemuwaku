@@ -48,7 +48,6 @@ use Yume\Fure\Support;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Env;
 use Yume\Fure\Util\RegExp;
-use Yume\Fure\Util\Strings;
 
 /*
  * Command Line Interface colorize string.
@@ -65,13 +64,24 @@ function colorize( String $string, ? String $base = Null ): String
 	$result = "";
 	$base ??= "\x1b[0m";
 	$regexps = [
-		"comment" => [
-			"pattern" => "(?<comment>\#(?:\[[^\\]]*\])|(?:\#|\/\/)[^\n]*|\/\*.*?\*\/)",
-			"ansicol" => "\x1b[1;38;5;250m",
+		"attribute" => [
+			"pattern" => "(?<attribute>(?:\#\[[^\\]]*\]))",
+			"ansicol" => "\x1b[1;38;5;246m",
 			"rematch" => [
+				"boolean",
 				"define",
-				"version"
+				"number",
+				"sasayaki",
+				"string",
+				"symbol",
+				"type",
+				"version",
+				"yume"
 			]
+		],
+		"comment" => [
+			"pattern" => "(?<comment>(?:\#|\/\/)[^\n]*|\/\*.*?\*\/)",
+			"ansicol" => "\x1b[1;38;5;240m"
 		],
 		"number" => [
 			"pattern" => "(?<number>\b(?:\d+)\b)",
@@ -198,7 +208,7 @@ function colorize( String $string, ? String $base = Null ): String
 	];
 	
 	// Building regular expression.
-	$pattern = new RegExp\Pattern( join( "|", array_map( fn( Array $regexp ) => $regexp['pattern'], $regexps ) ), "ms" );
+	$pattern = new RegExp\Pattern( join( "|", array_map( fn( Array $regexp ) => $regexp['pattern'], $regexps ) ), "Jms" );
 	$regansi = new RegExp\Pattern( "^(?:\e|\x1b|\033)\[([^m]+)m$" );
 	
 	// Split string with ansi color.

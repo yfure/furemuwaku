@@ -7,6 +7,7 @@ use Generator;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI;
 use Yume\Fure\Config;
+use Yume\Fure\Config\Config as ConfigConfig;
 use Yume\Fure\Logger;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Reflect;
@@ -102,11 +103,8 @@ abstract class Command implements CommandInterface
 					$this->options['help'] = [
 						"type" => Util\Type::Bool,
 						"alias" => "h",
-						"explain" => "Display help",
-						"example" => [
-							"--help",
-							"-h"
-						],
+						"explain" => "Display help of command",
+						"example" => [],
 						"implement" => "help"
 					];
 				}
@@ -119,6 +117,7 @@ abstract class Command implements CommandInterface
 							explain: type( $option['explain'] ?? Null, "String" ) ? [$option['explain']] : $option['explain'] ?? [],
 							example: type( $option['example'] ?? Null, "String" ) ? [$option['example']] : $option['example'] ?? [],
 							implement: $option['implement'] ?? Null,
+							include: $option['include'] ?? False,
 							required: $option['required'] ?? False,
 							requires: $option['requires'] ?? [],
 							default: $option['default'] ?? Null,
@@ -132,7 +131,7 @@ abstract class Command implements CommandInterface
 					// but the option implementation is not implemented.
 					if( $option->implement !== Null && method_exists( $this, $option->implement ) === False )
 					{
-						CLI\Console::exit( 1, CLI\Stdout::Error, "Option not implemented", $this::class, $this->name, $option->name );
+						CLI\Console::exit( 1, CLI\Stdout::Error, "Action of option not implemented", $this::class, $this->name, $option->name );
 					}
 					$this->options[$name] = $option;
 				}
@@ -153,20 +152,19 @@ abstract class Command implements CommandInterface
 		{
 			foreach( $this->options As $option )
 			{
-				if( $option->hasImplementation( False ) ) continue;
-				if( $argument->has( $option->name, False ) &&
-					$argument->has( $option->alias ?? "", False ) )
+				if( $option->name === "help" ) continue;
+				if( $option->hasImplementation() &&
+					$argument->has( $option->name ) )
 				{
-					continue;
+					// Execute command by argument given.
+					Reflect\ReflectMethod::invoke( $this, $option->name, $argument );
+
+					// Break next argument iteration.
+					return;
 				}
-				Reflect\ReflectMethod::invoke( $this, $option->name, [
-					$this->getOptionValue( $argument, $option )
-				]);
 			}
 		}
-		else {
-			$this->help();
-		}
+		$this->help();
 	}
 
 	/*
@@ -294,11 +292,16 @@ abstract class Command implements CommandInterface
 	 */
 	public function help(): Void
 	{
-		if( $this->commands->has( "help" ) &&
-			$this->commands->get( "help" ) Instanceof Helper\Help )
+		if( $this->commands->has( "help", False ) )
 		{
-			$this->commands->get( "help" )->single( $this );
+			$this->commands->set( new Commands\Help( 
+				configs: new Config\Config( "app", True, [] ),
+				commands: $this->commands,
+				logger: $this->logger
+			));
 		}
+		$help = $this->commands->get( "help" );
+		$help Instanceof Commands\Help ? $help->single( $this ) : False;
 	}
 
 	/*

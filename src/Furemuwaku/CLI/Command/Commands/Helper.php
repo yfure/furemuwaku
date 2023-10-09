@@ -1,6 +1,6 @@
 <?php
 
-namespace Yume\Fure\CLI\Command\Helper;
+namespace Yume\Fure\CLI\Command\Commands;
 
 use Yume\Fure\CLI;
 use Yume\Fure\CLI\Argument;
@@ -17,7 +17,7 @@ use Yume\Fure\Util\Reflect;
  * 
  * @extends Yume\Fure\CLI\Command\Command
  * 
- * @package Yume\Fure\CLI\Command\Helper
+ * @package Yume\Fure\CLI\Command\Commands
  */
 final class Helper extends Command\Command implements Command\CommandInterface
 {
@@ -39,24 +39,11 @@ final class Helper extends Command\Command implements Command\CommandInterface
 	 * 
 	 */
 	protected Array $options = [
-		"help" => [
-			"type" => Util\Type::Bool,
-			"alias" => "h",
-			"explain" => "Display help",
-			"example" => [
-				"--help",
-				"-h"
-			],
-			"implement" => "help"
-		],
 		"list" => [
 			"type" => Util\Type::Bool,
 			"alias" => "l",
 			"explain" => "List of helpers",
-			"example" => [
-				"--list",
-				"-l"
-			],
+			"example" => [],
 			"implement" => "list"
 		],
 		"register" => [

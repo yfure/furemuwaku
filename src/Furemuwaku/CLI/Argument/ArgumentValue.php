@@ -12,7 +12,7 @@ use Yume\Fure\Util;
  *
  * @package Yume\Fure\CLI\Argument
  */
-class ArgumentValue implements ArrayAccess
+class ArgumentValue implements ArrayAccess, Util\Value
 {
 	
 	/*
@@ -89,6 +89,15 @@ class ArgumentValue implements ArrayAccess
 			return( $this )->{ $name };
 		}
 		throw new Error\PropertyError( $name, Error\PropertyError::NAME_ERROR );
+	}
+
+	/*
+	 * @inherit Yume\Fure\Util\Value::getValue
+	 * 
+	 */
+	public function getValue(): mixed
+	{
+		return( $this )->value;
 	}
 	
 	/*

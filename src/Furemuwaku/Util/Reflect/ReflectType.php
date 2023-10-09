@@ -5,6 +5,7 @@ namespace Yume\Fure\Util\Reflect;
 use ReflectionType;
 
 use Yume\Fure\Service;
+use Yume\Fure\Util;
 use Yume\Fure\Util\RegExp;
 
 /*
@@ -34,7 +35,7 @@ final class ReflectType
 			$types = explode( "|", str_replace( [ "?", "&" ], [ "null|", "|" ], $reflect->__toString() ) );
 			
 			// Get type given.
-			$given = type( $value, disable: True );
+			$given = type( $value Instanceof Util\Value ? $value = $value->getValue() : $value, disable: True );
 			
 			foreach( $types As $type )
 			{
@@ -60,8 +61,11 @@ final class ReflectType
 					
 					// If the given type is object and if the required
 					// type is the same as the given instance name.
-					if( $given === "Object" && $type === $value::class ) return( $value );
-					
+					if( $given === "Object" )
+					{
+						if( $type === $value::class ) return( $value );
+					}
+
 					// If class has binded in service container.
 					if( Service\Service::available( $type ) ) return( Service\Service::get( $type ) );
 				}

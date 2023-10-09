@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util\Reflect;
 
+use ArrayAccess;
+
 use ReflectionClass;
 use ReflectionException;
 use ReflectionFunctionAbstract;
@@ -48,7 +50,7 @@ final class ReflectParameter
 	 *
 	 * @return Array
 	 */
-	public static function builder( Array $parameter, Array $arguments = [], Mixed &$reflect = Null ): Array
+	public static function builder( Array $parameter, Array | ArrayAccess $arguments = [], Mixed &$reflect = Null ): Array
 	{
 		// Reflection instance references.
 		$reflect = new Support\Data([]);
@@ -94,7 +96,8 @@ final class ReflectParameter
 					throw new Error\ValueError( f( $error, f( "Array{}", Json\Json::encode( $param, JSON_INVALID_UTF8_SUBSTITUTE ) ), $idx ) );
 				}
 			}
-			else if( $param Instanceof ReflectionParameter ) {}
+			else if( $param Instanceof ReflectionParameter )
+			{}
 			else {
 				throw new Error\ValueError( f( $error, type( $param ), $idx ) );
 			}
@@ -106,16 +109,10 @@ final class ReflectParameter
 			$name = $param->getName();
 			
 			// Get value by parameter name or position.
-			$binding[$name] = $arguments[$pos] ?? $arguments[$name] ?? Null;
+			$binding[$name] = $arguments[$pos] ?? $arguments[$name] ?? ( $param->isDefaultValueAvailable() ? $param->getDefaultValue() : Null );
 			
 			// Set ReflectionParameter to reference variable.
 			$reflect[$name] = $param;
-			
-			// If parameter does't have argument passed.
-			if( $binding[$name] === Null )
-			{
-				$binding[$name] = $param->isDefaultValueAvailable() ? $param->getDefaultValue() : Null;
-			}
 			
 			// Check if parameter has type.
 			if( $param->hasType() )
@@ -127,10 +124,7 @@ final class ReflectParameter
 				$binding[$name] = ReflectType::binding( $binding[$name], $ntyped );
 				
 				// Check if value is null and null is not allowed.
-				if( $binding[$name] === Null && $ntyped->allowsNull() === False )
-				{
-					throw new Error\ParameterError( [ $param->getDeclaringFunction()->name, $name, $ntyped->getName() ], Error\ParameterError::REQUIRE_ERROR );
-				}
+				if( $binding[$name] === Null && $ntyped->allowsNull() === False ) throw new Error\ParameterError( [ $param->getDeclaringFunction()->name, $name, $ntyped->getName() ], Error\ParameterError::REQUIRE_ERROR );
 			}
 		});
 		return( $binding );

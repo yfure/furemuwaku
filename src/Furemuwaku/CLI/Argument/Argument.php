@@ -22,11 +22,11 @@ class Argument implements ArrayAccess, Countable
 	/*
 	 * Argument values parsed.
 	 *
-	 * @access Private Readonly
+	 * @access Private
 	 *
 	 * @values Array
 	 */
-	private Readonly Array $args;
+	private Array $args;
 	
 	/*
 	 * Command name.
@@ -238,7 +238,11 @@ class Argument implements ArrayAccess, Countable
 	 */
 	public function offsetSet( Mixed $offset, Mixed $value ): Void
 	{
-		throw new ArgumentError( $offset, ArgumentError::SET_ERROR );
+		if( $value Instanceof ArgumentValue === False )
+		{
+			throw new ArgumentError( [ $offset, ArgumentValue::class, type( $value ) ], ArgumentError::SET_ERROR );
+		}
+		$this->args[$offset] = $value;
 	}
 	
 	/*
@@ -361,7 +365,7 @@ class Argument implements ArrayAccess, Countable
 					 */
 					if( $key !== "" )
 					{
-						$args[$key] = $this->build( $key, $val !== Null ? $val : True, True );
+						$args[$key] = $this->build( $key, $val !== Null ? $val : Null, True );
 					}
 				}
 				
@@ -440,6 +444,9 @@ class Argument implements ArrayAccess, Countable
 		{
 			// If value is Bool or Int type.
 			is_bool( $value ) || is_int( $value ) => ( Bool ) $value,
+
+			// If value is Null or Empty string.
+			is_null( $value ) => True,
 			
 			// If value is String type.
 			is_string( $value ) => match( ucfirst( strtolower( $value ) ) )
@@ -448,16 +455,16 @@ class Argument implements ArrayAccess, Countable
 				"?", "None", "Null" => Null,
 				
 				// Boolean (True)
-				"I", "1", "Y", "Yes", "True" => True,
+				"I", "Y", "Yes", "True" => True,
 				
 				// Boolean (False)
-				"!", "0", "N", "Not", "False" => False,
+				"!", "N", "Not", "False" => False,
 				
 				// Re-Match
 				default => match( True )
 				{
 					// Number (Integer)
-					RegExp\RegExp::test( "/^(?:[0-9]{1})([0-9_]{1,}[0-9]{1})*$/", $value ) => ( Int ) $value,
+					RegExp\RegExp::test( "/^(?:[0-9]{1})(?:[0-9_]{1,}(?:[0-9]{1})*)*$/", $value ) => ( Int ) $value,
 					
 					// Number (Floating)
 					RegExp\RegExp::test( "/^(?:[0-9]+)\.(?:[0-9]+)$/", $value ) => ( Float ) $value,
@@ -469,7 +476,6 @@ class Argument implements ArrayAccess, Countable
 				}
 			}
 		};
-		
 		return([
 			"value" => $value,
 			"type" => match( type( $value ) )

@@ -1,6 +1,6 @@
 <?php
 
-namespace Yume\Fure\CLI\Command\Helper;
+namespace Yume\Fure\CLI\Command\Commands;
 
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI\Command;
@@ -12,7 +12,7 @@ use Yume\Fure\Util;
  * 
  * @extends Yume\Fure\CLI\Command\Command
  * 
- * @package Yume\Fure\CLI\Command\Helper
+ * @package Yume\Fure\CLI\Command\Commands
  */
 final class Help extends Command\Command implements Command\CommandInterface
 {
@@ -79,8 +79,6 @@ final class Help extends Command\Command implements Command\CommandInterface
 		putcln( $this->configs->usage, PHP_EOL );
 		putcln( $this->configs->command, PHP_EOL );
 
-		$disable = $this->getOptionValue( $argument, $this->options['command'], False );
-		
 		// Re-iterating grouping command.
 		foreach( $groups As $group => $commands )
 		{
@@ -90,13 +88,13 @@ final class Help extends Command\Command implements Command\CommandInterface
 			// Re-iterating commands.
 			foreach( $commands As $name => $command )
 			{
-				// If only display command names.
-				if( $disable )
+				// If display all information about of commands.
+				if( $this->getOptionValue( $argument, $this->options['command'], False ) )
 				{
-					putcln( $this->configs->formats['command.info-name'], $name ); 
+					putcln( $this->configs->formats['command.info-list'], $name, $command );
 					continue;
 				}
-				putcln( $this->configs->formats['command.info-list'], $name, $command );
+				putcln( $this->configs->formats['command.info-name-help'], $name );
 			}
 		}
 		putln( "" );

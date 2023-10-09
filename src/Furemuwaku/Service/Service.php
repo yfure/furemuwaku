@@ -4,6 +4,7 @@ namespace Yume\Fure\Service;
 
 use Closure;
 
+use Yume\Fure\Error;
 use Yume\Fure\Support;
 use Yume\Fure\Util\Reflect;
 

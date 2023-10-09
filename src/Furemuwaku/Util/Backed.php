@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util;
 
+use Closure;
+
 /*
  * Backed
  *

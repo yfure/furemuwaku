@@ -194,10 +194,12 @@ final class Package extends Singleton
 	 * @params Mixed $optional
 	 *  When the module import something wrong like syntax error,
 	 *  Method will return optional value for avoid error.
+	 * @params Mixed ...$args
+	 *  Pass the parameters to the file to import.
 	 *
 	 * @return Mixed
 	 */
-	public static function import( String $package, Mixed $optional = Null ): Mixed
+	public static function import( String $package, Mixed $optional = Null, Mixed ...$args ): Mixed
 	{
 		// Get package name.
 		$name = self::path( $package );
@@ -210,7 +212,7 @@ final class Package extends Singleton
 		{
 			try
 			{
-				return( require( path( $file ) ) );
+				return( fn( Mixed ...$args ) => require( path( $file ) ) )( ...$args );
 			}
 			catch( Throwable $e )
 			{

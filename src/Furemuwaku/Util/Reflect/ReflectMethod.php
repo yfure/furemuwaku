@@ -2,7 +2,9 @@
 
 namespace Yume\Fure\Util\Reflect;
 
+use ArrayAccess;
 use Closure;
+
 use ReflectionClass;
 use ReflectionException;
 use ReflectionExtension;
@@ -465,7 +467,7 @@ abstract class ReflectMethod
 	 *
 	 * @return Mixed
 	 */
-	public static function invoke( Object | String $class, String $method, Array $arguments = [], Mixed &$reflect = Null ): Mixed
+	public static function invoke( Object | String $class, String $method, Array | ArrayAccess $arguments = [], Mixed &$reflect = Null ): Mixed
 	{
 		// Allow accessibility for method.
 		self::setAccessible( $class, $method, True, $reflect );
@@ -516,22 +518,6 @@ abstract class ReflectMethod
 	public static function isAbstract( Object | String $class, String $method, Mixed &$reflect = Null ): Bool
 	{
 		return( $reflect = self::reflect( $class, $method, $reflect ) )->isAbstract();
-	}
-	
-	/*
-	 * Returns a dynamically created closure for the function.
-	 *
-	 * @access Public Static
-	 *
-	 * @params Object|String $class
-	 * @params String $method
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	public static function isAnonymous( Object | String $class, String $method, Mixed &$reflect = Null ): Bool
-	{
-		return( $reflect = self::reflect( $class, $method, $reflect ) )->isAnonymous();
 	}
 	
 	/*
@@ -596,22 +582,6 @@ abstract class ReflectMethod
 	public static function isDestructor( Object | String $class, String $method, Mixed &$reflect = Null ): Bool
 	{
 		return( $reflect = self::reflect( $class, $method, $reflect ) )->isDestructor();
-	}
-	
-	/*
-	 * Returns a dynamically created closure for the function.
-	 *
-	 * @access Public Static
-	 *
-	 * @params Object|String $class
-	 * @params String $method
-	 * @params Mixed $reflect
-	 *
-	 * @return Bool
-	 */
-	public static function isDisabled( Object | String $class, String $method, Mixed &$reflect = Null ): Bool
-	{
-		return( $reflect = self::reflect( $class, $method, $reflect ) )->isDisabled();
 	}
 	
 	/*

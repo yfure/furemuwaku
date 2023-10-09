@@ -36,6 +36,8 @@ final class CommandOption
 	 *  Example usage of option.
 	 * @params String $implement
 	 *  Method implementation of option.
+	 * @params Bool $include
+	 *  Include option when option value given is empty.
 	 * @params Bool $required
 	 *  When the option is required.
 	 * @params Arrays<String> $requires
@@ -53,6 +55,7 @@ final class CommandOption
 		public Readonly Array $explain,
 		public Readonly Array $example,
 		public Readonly ? String $implement,
+		public Readonly Bool $include,
 		public Readonly Bool $required,
 		public Readonly Array $requires,
 		public Readonly Mixed $default,
@@ -115,6 +118,20 @@ final class CommandOption
 	public function hasType( ? Bool $optional = Null ): Bool
 	{
 		return( $optional !== Null ? $this->hasType() === $optional : $this->type !== Util\Type::None && $this->type !== Util\Type::Mixed );
+	}
+
+	/*
+	 * Return if command is include when defined on command argument.
+	 * 
+	 * @access Public
+	 * 
+	 * @params Bool $optional
+	 * 
+	 * @return Bool
+	 */
+	public function isIncluded( ? Bool $optional = Null ): Bool
+	{
+		return( $optional !== Null ? $this->isIncluded() === $optional : $this->include === True );
 	}
 
 	/*

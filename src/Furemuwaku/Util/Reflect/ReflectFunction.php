@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\Util\Reflect;
 
+use ArrayAccess;
 use Closure;
 
 use ReflectionClass;
@@ -79,7 +80,7 @@ abstract class ReflectFunction
 	 */
 	public static function getClosureThis( Closure | String $function, Mixed &$reflect = Null ): ? Object
 	{
-		return( $reflect = self::reflect( $function, $reflect ) )->getClosureScopeThis();
+		return( $reflect = self::reflect( $function, $reflect ) )->getClosureThis();
 	}
 	
 	/*
@@ -377,7 +378,7 @@ abstract class ReflectFunction
 	 *
 	 * @return Mixed
 	 */
-	public static function invoke( Closure | String $function, Array $arguments = [], Mixed &$reflect = Null ): Mixed
+	public static function invoke( Closure | String $function, Array | ArrayAccess $arguments = [], Mixed &$reflect = Null ): Mixed
 	{
 		// Get ReflectionFunction class.
 		$reflect = self::reflect( $function, $reflect );

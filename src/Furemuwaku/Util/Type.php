@@ -14,6 +14,7 @@ enum Type: Int
 	
 	case Array = 162928;
 	case Bool = 178755;
+	case Boolean = 178756;
 	case Double = 278672;
 	case Float = 289644;
 	case Int = 345778;

@@ -17,9 +17,9 @@ use Yume\Fure\Util\Reflect;
  *
  * @package Yume\Fure\CLI\Command
  */
-class Commands
+final class Commands
 {
-
+	
 	/*
 	 * Commands container.
 	 * 
@@ -54,54 +54,88 @@ class Commands
 	 * 
 	 * @return Void
 	 */
-	final public function exec( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void
+	public function exec( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void
 	{
+		/*
+		 * ...
+		 * 
+		 */
+		$resolver = function( Callable $self, CommandInterface $command, Array $requires ) use( &$argument ): Void
+		{};
+
 		// If command name is object instance of class ArgumentValue.
-		if( $command Instanceof Argument\ArgumentValue )
-		{
-			// Resolve command name.
-			$command = is_int( $command->name ) ? $command->value : $command->name;
-		}
+		if( $command Instanceof Argument\ArgumentValue ) $command = is_int( $command->name ) ? $command->value : $command->name;
 
 		// Check if command not found.
 		if( $this->has( $command, False ) ) throw new CommandNotFoundError( $command );
 
+		// Get command instance.
+		$command = $this->commands[$command];
+
+		// Command option requirements.
+		$requires = [];
+
 		// Mapping all defined options.
-		foreach( $this->commands[$command]->getOptions() As $option )
+		foreach( $command->getOptions() As $option )
 		{
-			// If argument has no option, skip/ continue.
-			if( $argument->has( $option->name, False ) )
+			// If argument has option name.
+			if( $argument->has( $option->name ) ) $value = $argument[$option->name];
+
+			// If argument has option alias name.
+			else if( $option->hasAlias() && $argument->has( $option->alias ) ) $value = $argument[$option->name] = $argument[$option->alias];
+
+			// If option has default value.
+			else if( $option->hasDefaultValue() )
 			{
-				// if option is required.
-				if( $option->isRequired() )
+				if( $option->isIncluded( False ) )
 				{
-					throw new CommandOptionRequireError([ $command, $option->name ]);
+					if( $option->isRequired() )
+					{
+						throw new CommandOptionRequireError([ $command, $option->name ]);
+					}
+					continue;
 				}
-				continue;
+				$value = $argument[$option->name] = new Argument\ArgumentValue(
+					$option->name,
+					$option->default,
+					$option->type,
+					strlen( $option->name ) >= 2
+				);
 			}
+			
+			// If option is required but does not available in argument.
+			else if( $option->isRequired() ) throw new CommandOptionRequireError([ $command, $option->name ]);
+			else continue;
 			
 			// If option has defined Type.
 			if( $option->hasType() )
 			{
 				// If option type is Mixed or Null, skip/ continue.
-				if( $option->type === Util\Type::Mixed ||
-					$option->type === Util\Type::None ) continue;
+				if( $option->type === Util\Type::Mixed || $option->type === Util\Type::None ) continue;
+				
+				// If option available but not for value.
+				if( $value->type === Util\Type::None && $option->hasDefaultValue() )
+				{
+					$value = $argument[$option->name] = new Argument\ArgumentValue(
+						$option->name,
+						$option->default,
+						$option->type,
+						$value->long
+					);
+				}
+
+				// If option type is Numeric number.
+				if(
+					$option->type === Util\Type::Int && $value->type === Util\Type::Integer ||
+					$option->type === Util\Type::Integer && $value->type === Util\Type::Int
+				)
+				continue;
 				
 				// If option type is doesn't valid with argument option.
-				if( $option->type !== $argument[$option->name]->type )
-				{
-					throw new CommandOptionValueError([
-						$option->name,
-						$command,
-						$option->type->name,
-						$argument[$option->name]->type->name
-					]);
-				}
+				if( $option->type !== $value->type ) throw new CommandOptionValueError([ $option->name, $command, $option->type->name, $value->type->name ]);
 			}
 		}
-		$this->commands[$command]->exec(
-			$argument
-		);
+		$command->exec( $argument );
 	}
 
 	/*
@@ -198,6 +232,20 @@ class Commands
 				}
 			}
 		);
+	}
+
+	/*
+	 * Set new command.
+	 * 
+	 * @access Public
+	 * 
+	 * @params Yume\Fure\CLI\Command\CommandInterface $command
+	 * 
+	 * @return Void
+	 */
+	public function set( CommandInterface $command ): Void
+	{
+		$this->commands[$command->getName()] = $command;
 	}
 
 }

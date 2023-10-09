@@ -65,11 +65,11 @@ final class Main
 	/*
 	 * Identify if application is running.
 	 *
-	 * @access Private
+	 * @access Static Private
 	 *
 	 * @values Bool
 	 */
-	private Bool $running = False;
+	static private Bool $running = False;
 	
 	/*
 	 * Instance of class Request.
@@ -269,8 +269,6 @@ final class Main
 			
 			// Set application as running.
 			static::$running = True;
-
-			echo 0;
 		}
 	}
 	

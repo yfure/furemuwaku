@@ -2,6 +2,7 @@
 
 namespace Yume\Fure\Util\Reflect;
 
+use ArrayAccess;
 use Countable;
 use Stringable;	
 use Throwable;
@@ -372,7 +373,7 @@ abstract class ReflectClass
 	 */
 	public static function getReflectionConstant( Object | String $class, String $name, Mixed &$reflect = Null ): False | ReflectionClassConstant
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->getReflectionClassConstant( $name );
+		return( $reflect = self::reflect( $class, $reflect ) )->getReflectionConstant( $name );
 	}
 	
 	/*
@@ -388,7 +389,7 @@ abstract class ReflectClass
 	 */
 	public static function getReflectionConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
 	{
-		return( $reflect = self::reflect( $class, $reflect ) )->getReflectionClassConstants( $filter );
+		return( $reflect = self::reflect( $class, $reflect ) )->getReflectionConstants( $filter );
 	}
 	
 	/*
@@ -586,7 +587,7 @@ abstract class ReflectClass
 	 * @throws Yume\Fure\Error\AttributeError
 	 * @throws Yume\Fure\Error\ClassError
 	 */
-	public static function instance( Object | String $class, Array | False $argument = [], Mixed &$reflect = Null ): Object
+	public static function instance( Object | String $class, Array | ArrayAccess | False $argument = [], Mixed &$reflect = Null ): Object
 	{
 		// Check if reflect is instanceof ReflectionAttribute class.
 		if( $reflect Instanceof ReflectionAttribute )
