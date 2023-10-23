@@ -132,7 +132,7 @@ function colorize( String $string, ? String $base = Null ): String
 			]
 		],
 		"string" => [
-			"pattern" => "(?P<string>(?<!\\\)(\".*?(?<!\\\)\"|\'.*?(?<!\\\)\'|`.*?(?<!\\\)`))",
+			"pattern" => "(?<string>(?<!\\\)(\".*?(?<!\\\)\"|\'.*?(?<!\\\)\'|`.*?(?<!\\\)`))",
 			"ansicol" => "\x1b[1;38;5;220m",
 			"handler" => [
 				"curly" => [
