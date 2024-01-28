@@ -14,8 +14,7 @@ use Yume\Fure\Util\Reflect;
  *
  * @package Yume\Fure\IO\Stream
  */
-final class StreamFactory
-{
+final class StreamFactory {
 	
 	/*
 	 * Create a new stream from a string.
@@ -31,14 +30,10 @@ final class StreamFactory
 	 *
 	 * @return StreamInterface
 	 */
-	public static function create( String $content = "", Array $options = [] ): StreamInterface
-	{
+	public static function create( String $content = "", Array $options = [] ): StreamInterface {
 		$fname = "php://temp";
 		$stream = File\File::open( $fname, "r+" );
-		
-		// If content doesn't empty String.
-		if( $content !== "" )
-		{
+		if( $content !== "" ) {
 			fwrite( $stream, $content );
 			fseek( $stream, 0 );
 		}
@@ -58,32 +53,23 @@ final class StreamFactory
 	 * @return Yume\Fure\IO\Stream\StreamInterface
 	 *  Stream source destionation.
 	 */
-	public static function createCopy( StreamInterface $source, StreamInterface $destination, Int $length = -1 ): StreamInterface
-	{
-		// Buffer size.
+	public static function createCopy( StreamInterface $source, StreamInterface $destination, Int $length = -1 ): StreamInterface {
 		$size = 8192;
-
-		if( $length <= -1 )
-		{
-            while( $source->eof() === False )
-			{
-                if( $destination->write( $source->read( $size ) ) === False )
-				{
+		if( $length <= -1 ) {
+            while( $source->eof() === False ) {
+                if( $destination->write( $source->read( $size ) ) === False ) {
                     break;
                 }
             }
         }
 		else {
             $remain = $length;
-
-            while( $remain > 0 && $source->eof() === False )
-			{
+            while( $remain > 0 && $source->eof() === False ) {
                 $buffer = $source->read( min( $size, $remain ) );
                 $length = strlen( $buffer );
-                
-				// If length of buffer is less than one.
-				if( $length <= 0 ) break;
-                
+				if( $length <= 0 ) {
+					break;
+				}
                 $remain -= $length;
                 $destination->write( $buffer );
             }
@@ -101,20 +87,11 @@ final class StreamFactory
 	 *
 	 * @return String
 	 */
-	public static function createCopyString( StreamInterface $stream, Int $maxLength = -1 ): String
-	{
-		// Buffer stack.
+	public static function createCopyString( StreamInterface $stream, Int $maxLength = -1 ): String {
 		$buffer = "";
-		
-		// If maximum length less than negative one or equal it.
-		if( $maxLength <= -1 )
-		{
-			// While for end-of-file on a stream pointer.
-			while( $stream->eof() === False )
-			{
-				// If buffer of stream is empty value, break it.
-				if( "" === $buf = $stream->read( 1048576 ) )
-				{
+		if( $maxLength <= -1 ) {
+			while( $stream->eof() === False ) {
+				if( "" === $buf = $stream->read( 1048576 ) ) {
 					break;
 				}
 				$buffer .= $buf;
@@ -126,11 +103,10 @@ final class StreamFactory
 			
 			// While for end-of-file on a stream pointer.
 			// And length less than maximum length given.
-			while( !$stream->eof() && $length < $maxLength )
-			{
+			while( !$stream->eof() && $length < $maxLength ) {
+				
 				// If buffer of stream is empty value, break it.
-				if( "" === $buf = $stream->read( $maxLength - $length ) )
-				{
+				if( "" === $buf = $stream->read( $maxLength - $length ) ) {
 					break;
 				}
 				$buffer .= $buf;
@@ -150,8 +126,8 @@ final class StreamFactory
 	 *
 	 * @return Yume\Fure\IO\Stream\StreamInterface
 	 */
-	public static function createFromOB( Closure $callback, Array $args = [] ): StreamInterface
-	{
+	public static function createFromOB( Closure $callback, Array $args = [] ): StreamInterface {
+		
 		// Starting output buffering.
 		ob_start();
 		
@@ -181,10 +157,8 @@ final class StreamFactory
 	 * @throws Yume\Fure\Error\AssertionError
 	 *  If the mode is invalid.
 	 */
-	public static function createFromFile( String $fname, String $mode = "r", Array $options = [] ): StreamInterface
-	{
-		if( File\File::exists( $fname ) )
-		{
+	public static function createFromFile( String $fname, String $mode = "r", Array $options = [] ): StreamInterface {
+		if( File\File::exists( $fname ) ) {
 			return( new Stream( File\File::open( $fname, $mode ), $options ) );
 		}
 		throw new File\FileNotFoundError( $fname );
@@ -204,10 +178,8 @@ final class StreamFactory
 	 *
 	 * @return Yume\Fure\IO\Stream\StreamInterface
 	 */
-	public static function createFromResource( Mixed $resource, Array $options = [] ): StreamInterface
-	{
-		switch( type( $resource, ref: $type, disable: True ) )
-		{
+	public static function createFromResource( Mixed $resource, Array $options = [] ): StreamInterface {
+		switch( type( $resource, ref: $type, disable: True ) ) {
 			case "Object":
 				
 				// If the object is an implementation of StreamInterface
@@ -217,14 +189,11 @@ final class StreamFactory
 				// ....
 				if( $resource Instanceof Stringable ) return( self::create( $resource, $options ) );
 				if( $resource Instanceof Closure ) return( new StreamPump( $resource, $options ) );
-				if( $resource instanceof Iterator )
-				{
+				if( $resource instanceof Iterator ) {
 					return( new StreamPump( 
 						options: $options,
-						source: function() use( $resource )
-						{
-							if( $resource->valid() )
-							{
+						source: function() use( $resource ) {
+							if( $resource->valid() ) {
 								return([ $resource->current(), $resource->next() ][0]);
 							}
 							return( False );
@@ -237,8 +206,7 @@ final class StreamFactory
 			case "String":
 
 				// Check if stream is callable.
-				if( is_callable( $resource ) )
-				{
+				if( is_callable( $resource ) ) {
 					return( new StreamPump( $resource, $options ) );
 				}
 				return( self::create( $resource ?? "", $options ) );
@@ -253,8 +221,7 @@ final class StreamFactory
 				 * content type, and security concerns such as SQL injection or XSS attacks.
 				 *
 				 */
-				if( stream_get_meta_data( $resource )['uri'] ?? "" === "php://input" )
-				{
+				if( stream_get_meta_data( $resource )['uri'] ?? "" === "php://input" ) {
 					$stream = File\File::open( "php://temp", "w+" );
 					
 					/*

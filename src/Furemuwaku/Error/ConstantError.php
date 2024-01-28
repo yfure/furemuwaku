@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class ConstantError extends ClassError
-{
+class ConstantError extends ClassError {
 	
 	/*
 	 * Error constant for failed set accessible.

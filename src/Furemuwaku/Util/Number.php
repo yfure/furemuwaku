@@ -7,8 +7,7 @@ namespace Yume\Fure\Util;
  *
  * @package Yume\Fure\Util
  */
-class Number
-{
+class Number {
 	
 	/*
 	 * Numeric string utility.
@@ -26,8 +25,7 @@ class Number
 	 *
 	 * @return Bool
 	 */
-	public static function isEven( Int $n ): Bool
-	{
+	public static function isEven( Int $n ): Bool {
 		return( $n % 2 === 0 );
 	}
 	
@@ -40,8 +38,7 @@ class Number
 	 *
 	 * @return Bool
 	 */
-	public static function isOdd( Int $n ): Bool
-	{
+	public static function isOdd( Int $n ): Bool {
 		return( $n % 2 !== 0 );
 	}
 	
@@ -52,12 +49,10 @@ class Number
 	 *
 	 * @params Mixed $args
 	 *
-	 * @return Double/Float|Int|Integer
+	 * @return Double|Float|Int|Integer
 	 */
-	public static function parse( Mixed $args ): Double | Float | Int | Integer
-	{
-		return( match( True )
-		{
+	public static function parse( Mixed $args ): Float | Int {
+		return( match( True ) {
 			is_bool( $args ),
 			is_double( $args ),
 			is_float( $args ),

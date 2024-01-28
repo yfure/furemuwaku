@@ -7,8 +7,7 @@ namespace Yume\Fure\Util\RegExp;
  *
  * @package Yume\Fure\Util\RegExp
  */
-class RegExp
-{
+class RegExp {
 	
 	/*
 	 * Supported Regular Expression flags in PHP.
@@ -35,8 +34,7 @@ class RegExp
 	 * @inherit https://www.php.net/manual/en/function.preg-last-error.php
 	 *
 	 */
-	public static function errno(): Int
-	{
+	public static function errno(): Int {
 		return( preg_last_error() );
 	}
 	
@@ -44,8 +42,7 @@ class RegExp
 	 * @inherit https://www.php.net/manual/en/function.preg-last-error-msg.php
 	 *
 	 */
-	public static function error(): String
-	{
+	public static function error(): String {
 		return( preg_last_error_msg() );
 	}
 	
@@ -56,10 +53,8 @@ class RegExp
 	 *
 	 * @return String
 	 */
-	public static function etype(): String
-	{
-		return( match( self::errno() )
-		{
+	public static function etype(): String {
+		return( match( self::errno() ) {
 			0 => "PREG_NO_ERROR",
 			1 => "PREG_INTERNAL_ERROR",
 			2 => "PREG_BACKTRACK_LIMIT_ERROR",
@@ -81,10 +76,8 @@ class RegExp
 	 *
 	 * @return Array|False
 	 */
-	public static function grep( String $pattern, Array $array, Int $flags = 0 ): Array | False
-	{
-		if( valueIsNotEmpty( $matches = @preg_grep( $pattern, $array, $flags ) ) )
-		{
+	public static function grep( String $pattern, Array $array, Int $flags = 0 ): Array | False {
+		if( valueIsNotEmpty( $matches = @preg_grep( $pattern, $array, $flags ) ) ) {
 			return( $matches );
 		}
 		return( self::throws( False ) );	
@@ -100,8 +93,7 @@ class RegExp
 	 *
 	 * @return Bool
 	 */
-	public static function isFlag( String $flag, ? Bool $optional = Null ): Bool
-	{
+	public static function isFlag( String $flag, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? self::isFlag( $flag ) === $optional : in_array( $flag, self::FLAGS ) );
 	}
 	
@@ -116,11 +108,9 @@ class RegExp
 	 *
 	 * @return Array|Bool
 	 */
-	public static function match( String $pattern, String $subject, Int $flags = 0 ): Array | Bool
-	{
+	public static function match( String $pattern, String $subject, Int $flags = 0 ): Array | Bool {
 		// Check if match hash no errors.
-		if( @preg_match( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) )
-		{
+		if( @preg_match( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) ) {
 			return( $matches );
 		}
 		return( self::throws( False ) );
@@ -137,11 +127,8 @@ class RegExp
 	 *
 	 * @return Array|Bool
 	 */
-	public static function matchs( String $pattern, String $subject, Int $flags = PREG_SET_ORDER ): Array | Bool
-	{
-		// Check if match hash no errors.
-		if( @preg_match_all( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) )
-		{
+	public static function matchs( String $pattern, String $subject, Int $flags = PREG_SET_ORDER ): Array | Bool {
+		if( @preg_match_all( $pattern, $subject, $matches, PREG_UNMATCHED_AS_NULL | $flags ) ) {
 			return( $matches );
 		}
 		return( self::throws( False ) );
@@ -161,26 +148,17 @@ class RegExp
 	 *
 	 * @return Array|String
 	 */
-	public static function replace( Array | String $pattern, Array | String $subject, Array | Callable | String $replace, Int $limit = -1, Int &$count = Null, Int $flags = 0 ): Array | String
-	{
-		// Get types.
+	public static function replace( Array | String $pattern, Array | String $subject, Array | Callable | String $replace, Int $limit = -1, Int &$count = Null, Int $flags = 0 ): Array | String {
 		$patType = gettype( $pattern );
 		$subType = gettype( $subject );
 		$repType = gettype( $replace );
-		
-		// Arguments.
 		$args = [ $pattern, $subject, $replace ];
-		
-		// Match result
-		$result = match( True )
-		{
-			$subType === "\x61\x72\x72\x61\x79" => match( $patType )
-			{
+		$result = match( True ) {
+			$subType === "\x61\x72\x72\x61\x79" => match( $patType ) {
 				"\x61\x72\x72\x61\x79" => $repType === "\x61\x72\x72\x61\x79" ? self::__replaceMultipleSubjectPatternAndReplacement( ...$args ) : self::__replaceMultipleSubjectAndPattern( ...$args ),
 				"\x73\x74\x72\x69\x6e\x67" => $repType === "\x61\x72\x72\x61\x79" ? self::__replaceMultipleSubjectAndReplacement( ...$args ) : self::__replaceMultipleSubject( ...$args )
 			},
-			default => match( True )
-			{
+			default => match( True ) {
 				$patType === "\x73\x74\x72\x69\x6e\x67" && ( $repType === "\x73\x74\x72\x69\x6e\x67" || $repType === "\x6f\x62\x6a\x65\x63\x74" ) => self::__replaceSingle( ...$args ),
 				$patType === "\x61\x72\x72\x61\x79" && $repType === "\x61\x72\x72\x61\x79" => self::__replaceMultiplePatternAndReplacement( ...$args ),
 				$patType === "\x61\x72\x72\x61\x79" => self::__replaceMultiplePattern( ...$args ),
@@ -200,8 +178,7 @@ class RegExp
 	 *
 	 * @return Bool
 	 */
-	public static function test( String $pattern, String $subject ): Int | Bool
-	{
+	public static function test( String $pattern, String $subject ): Int | Bool {
 		return( self::throws( ( Bool ) preg_match( $pattern, $subject ) ) );
 	}
 	
@@ -214,10 +191,8 @@ class RegExp
 	 *
 	 * @return Mixed
 	 */
-	final public static function throws( Mixed $result = Null ): Mixed
-	{
-		if( self::errno() )
-		{
+	final public static function throws( Mixed $result = Null ): Mixed {
+		if( self::errno() ) {
 			throw new RegExpError( self::error(), self::errno() );
 		}
 		return( $result );
@@ -235,11 +210,8 @@ class RegExp
 	 *
 	 * @return Array
 	 */
-	private static function __replaceMultipleSubjectPatternAndReplacement( Array $pattern, Array $subject, Array $replace, Mixed ...$options ): ? Array
-	{
-		// Mapping subjects.
-		for( $i = 0; $i < count( $subject ); $i++ )
-		{
+	private static function __replaceMultipleSubjectPatternAndReplacement( Array $pattern, Array $subject, Array $replace, Mixed ...$options ): ? Array {
+		for( $i = 0; $i < count( $subject ); $i++ ) {
 			$subject[$i] = self::__replaceSingle( $pattern[$i], $subject[$i], $replace[$i], ...$options );
 		}
 		return( $subject );
@@ -257,11 +229,8 @@ class RegExp
 	 *
 	 * @return Array
 	 */
-	private static function __replaceMultipleSubjectAndPattern( Array $pattern, Array $subject, Callable | String $replace, Mixed ...$options ): ? Array
-	{
-		// Mapping subjects.
-		for( $i = 0; $i < count( $subject ); $i++ )
-		{
+	private static function __replaceMultipleSubjectAndPattern( Array $pattern, Array $subject, Callable | String $replace, Mixed ...$options ): ? Array {
+		for( $i = 0; $i < count( $subject ); $i++ ) {
 			$subject[$i] = self::__replaceSingle( $pattern[$i], $subject[$i], $replace, ...$options );
 		}
 		return( $subject );
@@ -279,11 +248,8 @@ class RegExp
 	 *
 	 * @return Array
 	 */
-	private static function __replaceMultipleSubjectAndReplacement( String $pattern, Array $subject, Array $replace, Mixed ...$options ): ? Array
-	{
-		// Mapping subjects.
-		for( $i = 0; $i < count( $subject ); $i++ )
-		{
+	private static function __replaceMultipleSubjectAndReplacement( String $pattern, Array $subject, Array $replace, Mixed ...$options ): ? Array {
+		for( $i = 0; $i < count( $subject ); $i++ ) {
 			$subject[$i] = self::__replaceSingle( $pattern, $subject[$i], $replace[$i], ...$options );
 		}
 		return( $subject );
@@ -301,11 +267,8 @@ class RegExp
 	 *
 	 * @return Array
 	 */
-	private static function __replaceMultipleSubject( String $pattern, Array $subject, Callable | String $replace, Mixed ...$options ): ? Array
-	{
-		// Mapping subjects.
-		for( $i = 0; $i < count( $subject ); $i++ )
-		{
+	private static function __replaceMultipleSubject( String $pattern, Array $subject, Callable | String $replace, Mixed ...$options ): ? Array {
+		for( $i = 0; $i < count( $subject ); $i++ ) {
 			$subject[$i] = self::__replaceSingle( $pattern, $subject[$i], $replace, ...$options );
 		}
 		return( $subject );
@@ -323,11 +286,8 @@ class RegExp
 	 *
 	 * @return String
 	 */
-	private static function __replaceMultiplePatternAndReplacement( Array $pattern, String $subject, Array $replace, Mixed ...$options ): ? String
-	{
-		// Mapping patterns.
-		for( $i = 0; $i < count( $pattern ); $i++ )
-		{
+	private static function __replaceMultiplePatternAndReplacement( Array $pattern, String $subject, Array $replace, Mixed ...$options ): ? String {
+		for( $i = 0; $i < count( $pattern ); $i++ ) {
 			$subject = self::__replaceSingle( $pattern[$i], $subject, $replace[$i], ...$options );
 		}
 		return( $subject );
@@ -345,11 +305,8 @@ class RegExp
 	 *
 	 * @return String
 	 */
-	private static function __replaceMultiplePattern( Array $pattern, String $subject, Callable | String $replace, Mixed ...$options ): ? String
-	{
-		// Mapping patterns.
-		for( $i = 0; $i < count( $pattern ); $i++ )
-		{
+	private static function __replaceMultiplePattern( Array $pattern, String $subject, Callable | String $replace, Mixed ...$options ): ? String {
+		for( $i = 0; $i < count( $pattern ); $i++ ) {
 			$subject = self::__replaceSingle( $pattern[$i], $subject, $replace, ...$options );
 		}
 		return( $subject );
@@ -367,11 +324,8 @@ class RegExp
 	 *
 	 * @return String
 	 */
-	private static function __replaceMultipleReplacement( String $pattern, String $subject, Array $replace, Mixed ...$options ): ? String
-	{
-		// Mapping replaces.
-		for( $i = 0; $i < count( $replace ); $i++ )
-		{
+	private static function __replaceMultipleReplacement( String $pattern, String $subject, Array $replace, Mixed ...$options ): ? String {
+		for( $i = 0; $i < count( $replace ); $i++ ) {
 			$subject = self::__replaceSingle( $pattern, $subject, $replace[$i], ...$options );
 		}
 		return( $subject );
@@ -389,16 +343,10 @@ class RegExp
 	 *
 	 * @return String
 	 */
-	private static function __replaceSingle( String $pattern, String $subject, Callable | String $replace, Mixed ...$options ): ? String
-	{
-		// Check if replacement is callable.
-		if( is_callable( $replace ) )
-		{
-			// Replace subject with replacement callback.
+	private static function __replaceSingle( String $pattern, String $subject, Callable | String $replace, Mixed ...$options ): ? String {
+		if( is_callable( $replace ) ) {
 			return( preg_replace_callback( $pattern, $replace, $subject, ...$options ) );
 		}
-		
-		// Replace subject with replacemenent.
 		return( preg_replace( $pattern, $replace, $subject, ...$options ) );
 	}
 	

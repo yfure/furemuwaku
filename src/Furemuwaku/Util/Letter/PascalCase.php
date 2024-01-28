@@ -7,8 +7,7 @@ namespace Yume\Fure\Util\Letter;
  *
  * @package Yume\Fure\Util\Letter
  */
-trait PascalCase
-{
+trait PascalCase {
 	
 	/*
 	 * ...
@@ -19,8 +18,7 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function toPascalCase( String $string ): String
-	{
+	public static function toPascalCase( String $string ): String {
 		return( str_replace( "\x20", "", ucwords( str_replace( [ "-", "_", "\x20" ], "\x20", $string ) ) ) );
 	}
 	
@@ -33,8 +31,7 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function fromCamelCaseToPascalCase( String $string ): String
-	{
+	public static function fromCamelCaseToPascalCase( String $string ): String {
 		return( ucfirst( lcfirst( $string ) ) );
 	}
 	
@@ -47,8 +44,7 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function fromSnakeCaseToPascalCase( String $string ): String
-	{
+	public static function fromSnakeCaseToPascalCase( String $string ): String {
 		return( str_replace( "\x20", "", ucwords( str_replace( "_", "\x20", $string ) ) ) );
 	}
 	
@@ -61,8 +57,7 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function fromKebabCaseToPascalCase( String $string ): String
-	{
+	public static function fromKebabCaseToPascalCase( String $string ): String {
 		return( str_replace( "\x20", "", ucwords( str_replace( "-", "\x20", $string ) ) ) );
 	}
 	
@@ -75,8 +70,7 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCamelCaseToPascalCase( String $string ): String
-	{
+	public static function fromUpperCamelCaseToPascalCase( String $string ): String {
 		return( ucfirst( $string ) );
 	}
 	
@@ -89,8 +83,7 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCaseToPascalCase( String $string ): String
-	{
+	public static function fromUpperCaseToPascalCase( String $string ): String {
 		return( self::toPascalCase( strtolower( $string ) ) );
 	}
 	
@@ -103,8 +96,7 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function fromHungarianCaseToPascalCase( String $string ): String
-	{
+	public static function fromHungarianCaseToPascalCase( String $string ): String {
 		return( implode( "", array_map( fn( String $part ) => substr( $part, 0, 1 ) . ucfirst( substr( $part, 1 ) ), explode( "_", $string ) ) ) );
 	}
 	
@@ -117,18 +109,14 @@ trait PascalCase
 	 *
 	 * @return String
 	 */
-	public static function fromVerbObjectCaseToPascalCase( String $string ): String
-	{
+	public static function fromVerbObjectCaseToPascalCase( String $string ): String {
 		$parts = explode( "_", $string );
 		$newParts = [];
-		foreach( $parts as $part )
-		{
-			if( $part == "get" || $part == "set" )
-			{
+		foreach( $parts as $part ) {
+			if( $part == "get" || $part == "set" ) {
 				$newParts[] = ucfirst( $part );
 			}
-			else
-			{
+			else {
 				$newParts[] = ucfirst( $part );
 			}
 		}

@@ -11,8 +11,7 @@ use ReflectionEnumBackedCase;
  * 
  * @extends Yume\Fure\Util\Reflect\ReflectEnumUnit
  */
-final class ReflectEnumBacked extends ReflectEnumUnit
-{
+final class ReflectEnumBacked extends ReflectEnumUnit {
 	
 	/*
 	 * Gets the scalar value backing this Enum case.
@@ -25,8 +24,7 @@ final class ReflectEnumBacked extends ReflectEnumUnit
 	 *
 	 * @return Int|String
 	 */
-	public static function getBackingValue( Object | String $class, String $constant, Mixed &$reflect = Null ): Int | String
-	{
+	public static function getBackingValue( Object | String $class, String $constant, Mixed &$reflect = Null ): Int | String {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getBackingValue();
 	}
 	
@@ -41,13 +39,10 @@ final class ReflectEnumBacked extends ReflectEnumUnit
 	 *
 	 * @return ReflectionEnumBackedCase
 	 */
-	private static function reflect( Object | String $class, String $constant, Mixed $reflect ): ReflectionEnumBackedCase
-	{
-		if( $reflect Instanceof ReflectionEnumBackedCase )
-		{
+	private static function reflect( Object | String $class, String $constant, Mixed $reflect ): ReflectionEnumBackedCase {
+		if( $reflect Instanceof ReflectionEnumBackedCase ) {
 			if( $reflect->name === $constant &&
-				$reflect->class === is_object( $class ) ? $class::class : $class )
-			{
+				$reflect->class === is_object( $class ) ? $class::class : $class ) {
 				return( $reflect );
 			}
 		}

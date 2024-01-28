@@ -9,8 +9,7 @@ use RuntimeException;
  *
  * @package Yume\Fure\Support
  */
-abstract class Singleton
-{
+abstract class Singleton {
 	
 	/*
 	 * Singleton class instance stack.
@@ -30,8 +29,7 @@ abstract class Singleton
 	 *
 	 * @return Void
 	 */
-	protected function __construct( Mixed ...$args )
-	{}
+	protected function __construct( Mixed ...$args ) {}
 	
 	/*
 	 * Prevent the instance from being cloned.
@@ -40,8 +38,7 @@ abstract class Singleton
 	 *
 	 * @return Void
 	 */
-	final protected function __clone(): Void
-	{}
+	final protected function __clone(): Void {}
 	
 	/*
 	 * Prevent from being unserialized.
@@ -53,8 +50,7 @@ abstract class Singleton
 	 *
 	 * @throws RuntimeException
 	 */
-	final public function __wakeup(): Void
-	{
+	final public function __wakeup(): Void {
 		throw new RuntimeException( sprintf( "Cannot unserialize %s", $this::class ) );
 	}
 	
@@ -67,8 +63,7 @@ abstract class Singleton
 	 *
 	 * @return Static
 	 */
-	final public static function self( Mixed ...$args ): Static
-	{
+	final public static function self( Mixed ...$args ): Static {
 		return( static::$instances[static::class] ??= new Static( ...$args ) );
 	}
 	

@@ -16,8 +16,7 @@ use Yume\Fure\Util;
  *
  * @extends Yume\Fure\Logger\LoggerHandler
  */
-class FileHandler extends Logger\LoggerHandler
-{
+class FileHandler extends Logger\LoggerHandler {
 	
 	/*
 	 * File log extension name.
@@ -59,82 +58,41 @@ class FileHandler extends Logger\LoggerHandler
 	 * @inherit Yume\Fure\Logger\LoggerHandler::__construct
 	 *
 	 */
-	public function __construct( Config\Config $configs )
-	{
-		// Call parent constructor.
-		parent::__construct( $configs );
-		
-		// Set file path.
+	public function __construct( Config\Config $configs ) {
 		$this->path = $configs->path;
-		
-		// Set file extension.
 		$this->extension = ltrim( $configs->extension, "." );
-		
-		// Set file permission.
 		$this->permission = $configs->permission;
-		
-		// Set file name.
 		$this->name = Util\Strings::format( "{1}/{0:lower}-log-{3}.{2}", ...[ env( "APP_NAME", "Yume" ), $this->path, $this->extension, datetime()->format( "d-m-Y" ) ]);
-
-		// Check if path doesn't exists.
-		if( Path\Path::exists( $this->path, False ) )
-		{
+		if( Path\Path::exists( $this->path, False ) ) {
 			Path\Path::make( $this->path );
 		}
+		parent::__construct( $configs );
 	}
 	
 	/*
 	 * @inherit Yume\Fure\Logger\Handler\HandlerInterface
 	 *
 	 */
-	public function handle( Logger\LoggerLevel $level, String $message ): Bool
-	{
+	public function handle( Logger\LoggerLevel $level, String $message ): Bool {
 		$fnew = False;
 		$stack = "";
-		
-		// Check if file is not exists.
-		if( File\File::exists( $this->name ) === False )
-		{
-			// Set new file.
+		if( File\File::exists( $this->name ) === False ) {
 			$fnew = True;
-			
-			// Check if file extension is php.
-			if( strtolower( $this->extension ) === "php" )
-			{
-				// Add protection for php file.
+			if( strtolower( $this->extension ) === "php" ) {
 				$stack = "<?php defined( \"BASE_PATH\" ) || exit( \"No direct script access allowed!\" ) ?>\n\n";
 			}
 		}
-		
-		// Create file open stream.
-		if( $fopen = File\File::open( $this->name, "ab+" ) )
-		{
-			// Create new DateTime instance.
+		if( $fopen = File\File::open( $this->name, "ab+" ) ) {
+			
 			$date = new DateTime\DateTime( "now" );
-			
-			// Get date timestamp.
 			$dates = $date->getTimestamp();
-			
-			// Get datetime format.
 			$datef = $date->format( $this->dateTimeFormat );
-			
-			// Get date timezone.
 			$datez = $date->getTimezone()->getName();
-			
-			// Format stack.
 			$stack = Util\Strings::format( "{+#stack}[{+#level}][{+#timestamp}][{+#timezone}] {+#dateformat} - {+#message}\n", $stack, $level->value, $dates, $datez, $datef, $message );
-			
-			// Write file.
 			$fwrite = File\File::write( $this->name, fdata: $stack, context: $fopen );
-			
-			// Check if file is new.
-			if( $fnew )
-			{
-				// Changes file mode.
+			if( $fnew ) {
 				chmod( Path\Path::path( $this->name ), $this->permission );
 			}
-			
-			// Return result from file write.
 			return( $fwrite );
 		}
 		return( False );

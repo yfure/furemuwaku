@@ -13,8 +13,7 @@ use Yume\Fure\Util\Arr;
  *
  * @package Yume\Fure\Locale\Language
  */
-final class Language extends Arr\Associative
-{
+final class Language extends Arr\Associative {
 	
 	/*
 	 * Construct method of class Language.
@@ -26,10 +25,8 @@ final class Language extends Arr\Associative
 	 *
 	 * @return Void
 	 */
-	public function __construct( public Readonly String $language, Array | Language $translation = [] )
-	{
-		if( $translation Instanceof Language )
-		{
+	public function __construct( public Readonly String $language, Array | Language $translation = [] ) {
+		if( $translation Instanceof Language ) {
 			$translation = $translation->data;
 		}
 		parent::__construct( $translation );
@@ -39,8 +36,7 @@ final class Language extends Arr\Associative
 	 * @inherit Yume\Fure\Util\Arr\Associative::__toString
 	 *
 	 */
-	public function __toString()
-	{
+	public function __toString() {
 		return( Util\Strings::format( "{}<{}> {}", $this::class, $this->language, parent::__toString() ) );
 	}
 	
@@ -54,8 +50,7 @@ final class Language extends Arr\Associative
 	 *
 	 * @return Bool
 	 */
-	public function isLang( String $lang, ? Bool $optional = Null ): Bool
-	{
+	public function isLang( String $lang, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->isLang( $lang ) === $optional : $this->lang() === $lang );
 	}
 	
@@ -66,8 +61,7 @@ final class Language extends Arr\Associative
 	 *
 	 * @return String
 	 */
-	public function lang(): String
-	{
+	public function lang(): String {
 		return( $this )->language;
 	}
 	
@@ -75,14 +69,9 @@ final class Language extends Arr\Associative
 	 * @inherit Yume\Fure\Util\Arr\Associative::offsetSet
 	 *
 	 */
-	public function offsetSet( Mixed $offset, Mixed $value ): Void
-	{
-		// If value is Array type.
-		if( is_array( $value ) || $value Instanceof Language )
-		{
-			// Check if value is exists and value is Instance of Language.
-			if( $this[$offset] Instanceof Language )
-			{
+	public function offsetSet( Mixed $offset, Mixed $value ): Void {
+		if( is_array( $value ) || $value Instanceof Language ) {
+			if( $this[$offset] Instanceof Language ) {
 				$value = $this[$offset]->replace( $value );
 			}
 			else {
@@ -101,33 +90,23 @@ final class Language extends Arr\Associative
 	 *
 	 * @return Array
 	 */
-	private function recursive( Array $array ): Array
-	{
+	private function recursive( Array $array ): Array {
 		$stack = [];
-		
-		foreach( $array As $key => $value )
-		{
-			if( preg_match( "/^\@import(?:\:(?<key>[^\n]+))*$/i", $key, $match, PREG_UNMATCHED_AS_NULL ) )
-			{
-				// If only one translation required.
-				if( is_array( $value ) === False ) $value = [$value];
-				
-				// Mapping required translations.
+		foreach( $array As $key => $value ) {
+			if( preg_match( "/^\@import(?:\:(?<key>[^\n]+))*$/i", $key, $match, PREG_UNMATCHED_AS_NULL ) ) {
+				if( is_array( $value ) === False ) {
+					$value = [$value];
+				}
 				$value = array_map( fn( String $require ) => Locale\Locale::getTranslation( $require, [] ), $value );
-				
-				// Resolve key name.
 				$key = $match['key'] ?? Null;
 			}
-			
-			// If value is array.
-			if( is_array( $value ) )
-			{
+			if( is_array( $value ) ) {
+
 				// Re-recursive values.
 				$value = $this->recursive( $value );
 				
 				// If key not available.
-				if( is_null( $key ) )
-				{
+				if( is_null( $key ) ) {
 					$unpack = [
 						...$stack,
 						...$value
@@ -151,17 +130,13 @@ final class Language extends Arr\Associative
 	 * @inherit Yume\Fure\Util\Arr\Arrayable::replace
 	 *
 	 */
-	public function replace( Array | Arr\Arrayable $array, Bool $recursive = False ): Static
-	{
-		foreach( $array As $offset => $value )
-		{
-			// Check if value of element is Array.
-			if( is_array( $value ) )
-			{
+	public function replace( Array | Arr\Arrayable $array, Bool $recursive = False ): Static {
+		foreach( $array As $offset => $value ) {
+			if( is_array( $value ) ) {
+				
 				// Skip create new Static Instance if recursion is
 				// allowed and if previous element value is Instanceof Arrayable.
-				if( $recursive && $this[$offset] Instanceof Arr\Arrayable )
-				{
+				if( $recursive && $this[$offset] Instanceof Arr\Arrayable ) {
 					continue;
 				}
 				$array[$offset] = new Static( $this->language, $value );

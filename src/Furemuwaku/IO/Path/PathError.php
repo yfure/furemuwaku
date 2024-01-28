@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\IO\Path
  */
-class PathError extends Error\IOError
-{
+class PathError extends Error\IOError {
 	
 	/*
 	 * Error constant for errors when copying directory.

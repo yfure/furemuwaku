@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class ClassError extends ReflectError
-{
+class ClassError extends ReflectError {
 	
 	/*
 	 * Error constant for invalid class.

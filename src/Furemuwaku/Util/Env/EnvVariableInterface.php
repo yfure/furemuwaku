@@ -11,7 +11,7 @@ use Stringable;
  *
  * @package Yume\Fure\Util\Env
  */
-interface EnvVariableInterface extends Stringable
-{}
+interface EnvVariableInterface extends Stringable {
+}
 
 ?>

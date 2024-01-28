@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  * 
  * @package Yume\Fure\Error\Erahandora
  */
-final class Erahandora
-{
+final class Erahandora {
 
 	/*
 	 * Setup trigger error and exception handler.
@@ -21,12 +20,8 @@ final class Erahandora
 	 *
 	 * @return Void
 	 */
-	public static function setup(): Void
-	{
-		// Import error configuration.
+	public static function setup(): Void {
 		$config = config( "error" );
-
-		// Trying to set handlers.
 		set_error_handler( $config->handler->trigger );
 		set_exception_handler( $config->handler->exception );
 	}
@@ -40,8 +35,7 @@ final class Erahandora
 	 *
 	 * @return Void
 	 */
-	public static function exception( Throwable $thrown ): Void
-	{
+	public static function exception( Throwable $thrown ): Void {
 		echo $thrown;
 	}
 	
@@ -57,15 +51,13 @@ final class Erahandora
 	 *
 	 * @return Void
 	 */
-	public static function trigger( Int $code, String $message, String $file, Int $line ): Void
-	{
+	public static function trigger( Int $code, String $message, String $file, Int $line ): Void {
 		throw new Error\TriggerError(
 			message: $message,
 			file: $file,
 			line: $line,
 			code: $code,
-			level: match( $code )
-			{
+			level: match( $code ) {
 				E_ALL => "E_ALL",
 				E_COMPILE_ERROR => "E_COMPILE_ERROR",
 				E_COMPILE_WARNING => "E_COMPILE_WARNING",

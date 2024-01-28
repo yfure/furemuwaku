@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @extends Yume\Fure\Error\RuntimeError
  */
-class CLIError extends Error\RuntimeError
-{
+class CLIError extends Error\RuntimeError {
 	
 	/*
 	 * @inherit Yume\Fure\Error\RuntimeError::$flags

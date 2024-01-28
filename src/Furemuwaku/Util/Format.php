@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  * 
  * @package Yume\Fure\Util
  */
-trait Format
-{
+trait Format {
 
 	/*
 	 * String formater.
@@ -52,29 +51,14 @@ trait Format
 	 *
 	 * @return String
 	 */
-	public static function format( String $format, Mixed ...$values ): String
-	{
-		// Return normalized formated string.
+	public static function format( String $format, Mixed ...$values ): String {
 		return( self::formatNormalize( preg_replace_callback(
-
-			// Pattern for capture format syntax.
 			pattern: "/(?<matched>(?<!\\\)\{(?<syntax>.*?)(?<!\\\)\})/ms",
-
-			// String will be format.
 			subject: $format,
-			/*
-				* Call the format handler.
-				* 
-				* @params Array $match
-				* 
-				* @return String
-				*/
-			callback: function( Array $match ) use( $values ): String
-			{
-				// Statically variable.
+			callback: function( Array $match ) use( $values ): String {
 				static $i = 0;
 				return( self::formatHandler( $match, $values, $i ) );
-			}),
+			})
 		));
 	}
 
@@ -89,9 +73,7 @@ trait Format
 	 *
 	 * @return String
 	 */
-	private static function formatHandler( Array $match, Array &$values, Int &$i ): String
-	{
-		// Patterns matcher.
+	private static function formatHandler( Array $match, Array &$values, Int &$i ): String {
 		$array = "(?<array>(?:[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)*(?:\\[[^\\[\\]]+\\]|[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*)+(?:\\.[a-zA-Z0-9_\x80-\xff](?:[a-zA-Z0-9_\.\x80-\xff]{0,}[a-zA-Z0-9_\x80-\xff]{1})*|\\[[^\\[\\]]+\\])*)";
 		$curly = "(?<curly>\{\})";
 		$iterator = "(?<iterator>(\\\x2b{1,2}|\\\x2d{1,2}))";
@@ -100,45 +82,24 @@ trait Format
 		$function = "(?<function>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(?:\\\[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)*)";
 		$statical = "(?<statical>(?<class>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*(?:\\\[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)*)\:{2}(?<method>[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*))";
 		$closure = "(?<closure>\\\{0,1}(?:{$function}|{$statical}){$argument})";
-
-		// Pattern for validate syntax.
 		$pattern = "/^(?:{$array}|{$curly}|{$iterator}|{$closure})(?:\:\\\{0,1}{$callback})*$/Jms";
-
-		// Extract variables.
 		$matched = self::formatNormalize( trim( $match['matched'] ) );
 		$syntax = self::formatNormalize( trim( $match['syntax'] ) );
 		$value = "";
-
-		try
-		{
-			// Check if format syntax is valid.
-			if( preg_match( $pattern, str_replace( [ "\n", "\x20" ], "", $syntax ), $match, PREG_UNMATCHED_AS_NULL ) )
-			{
-				// Get format values.
+		try {
+			if( preg_match( $pattern, str_replace( [ "\n", "\x20" ], "", $syntax ), $match, PREG_UNMATCHED_AS_NULL ) ) {
 				$value = self::formatValue( $match, $values, $i );
-
-				// Check if syntax function is exists.
-				if( isset( $match['closure'] ) )
-				{	
-					// Get closure function name.
+				if( isset( $match['closure'] ) ) {
 					$closure = $match['statical'] ?? $match['function'];
-
-					// Normalize closure parameter.
 					$params = is_array( $value ) ? $value : [$value];
-
-					// Get function/ method return values.
 					$value = call_user_func_array( $closure, $params );
 				}
 
 				// Avoid argument error when the value is not String type.
 				$value = Strings::parse( $value );
-
-				// Check if method is available.
-				if( isset( $match['callback'] ) )
-				{
-					// Normalize value with callback function.
-					$value = match( strtolower( $match['callback'] ) )
-					{
+				if( isset( $match['callback'] ) ) {
+					$value = match( strtolower( $match['callback'] ) ) {
+						
 						// Supported shorthands callback.
 						"b64decode" => @base64_decode( $value ),
 						"b64encode" => @base64_encode( $value ),
@@ -150,8 +111,8 @@ trait Format
 						"htmlspecialchars" => @htmlspecialchars( $value ),
 
 						// Handle unsupported callback.
-						default => match( True )
-						{
+						default => match( True ) {
+							
 							// When the callback doesn't supported,
 							// We will check if callback is callable.
 							is_callable( $match['callback'] ) => Strings::parse(
@@ -172,8 +133,7 @@ trait Format
 				);
 			}
 		}
-		catch( Throwable $e )
-		{
+		catch( Throwable $e ) {
 			$value = sprintf( "\x23\x5b\x25\x73\x28\x20\x25\x73\x20\x29\x5d", $e::class, $e->getMessage() );
 		}
 		return( $value );
@@ -188,8 +148,7 @@ trait Format
 	 * 
 	 * @return String
 	 */
-	public static function formatNormalize( String $string ): String
-	{
+	public static function formatNormalize( String $string ): String {
 		return( preg_replace_callback( pattern: "/(?:(?<backslash>\\\{1,})(?<curly>\{|\}))/ms", subject: $string, callback: fn( Array $match ) => sprintf( "%s%s", $match['backslash'] === "\x5c" ? "" : str_repeat( "\x5c", strlen( $match['backslash'] ) -1 ), $match['curly'] ) ) );
 	}
 
@@ -209,31 +168,19 @@ trait Format
 	 * @throws Yume\Fure\Error\SyntaxError
 	 *  When the syntax is invalid or doesn't supported.
 	 */
-	private static function formatValue( Array $match, Array $values, Int &$i ): Mixed
-	{
-		// Get values form format parameter by key name.
-		if( isset( $match['array'] ) ) return( Arrays::ify( $match['array'], $values ) );
-			
-		// Check if matched by iteration symbols.
-		if( isset( $match['iterator'] ) )
-		{
-			// Get current index by symbol.
+	private static function formatValue( Array $match, Array $values, Int &$i ): Mixed {
+		if( isset( $match['array'] ) ) {
+			return( Arrays::ify( $match['array'], $values ) );
+		}
+		if( isset( $match['iterator'] ) ) {
 			$index = $match['iterator'][0] === "\x2b" ? $i++ : $i--;
-			
-			// Check if index by iteration is exists.
-			if( isset( $values[$index] ) )
-			{
+			if( isset( $values[$index] ) ) {
 				return( $values[$index] );
 			}
 			throw new Error\IndexError( $index );
 		}
-		
-		// Check if matched is only by iteration.
-		if( $match['matched'] === "\x7b\x7d" || isset( $match['curly'] ) )
-		{
-			// Check if index by iteration is exists.
-			if( isset( $values[$i] ) )
-			{
+		if( $match['matched'] === "\x7b\x7d" || isset( $match['curly'] ) ) {
+			if( isset( $values[$i] ) ) {
 				return( $values[$i++] );
 			}
 			var_dump([

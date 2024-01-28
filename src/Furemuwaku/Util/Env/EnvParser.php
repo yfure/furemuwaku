@@ -14,8 +14,7 @@ use Yume\Fure\Util\RegExp;
  *
  * @package Yume\Fure\Util\Env
  */
-class EnvParser implements EnvParserInterface
-{
+class EnvParser implements EnvParserInterface {
 	
 	/*
 	 * Environment contents.
@@ -60,8 +59,7 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @return Void
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$this->pattern = new RegExp\Pattern( "^(?<variable>(?:(?:[\s\t]*)(?<commented>\#))*(?:[\s\t]*)(?:(?<typedef>[a-zA-Z_\x80-\xff][a-zA-Z0-9-_\x80-\xff]*[a-zA-Z0-9_\x80-\xff]{0,1})?(?:[\s\r\n\t]+))?(?<name>[a-zA-Z_\x80-\xff][a-zA-Z0-9-_\x80-\xff]*[a-zA-Z0-9_\x80-\xff]{0,1})(?:[\s\r\n\t]*)(?:(?<operator>=)(?:[\s\r\n\t]*)(?<value>.*?))*(?<closing>(?<!\\\)\;))(?<endline>[^\n]*)", "ms" );
 	}
 	
@@ -76,12 +74,9 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @return Mixed
 	 */
-	protected function convert( Mixed $value, Util\Type $type, ? String $raw ): Mixed
-	{
-		if( valueIsNotEmpty( $raw ) )
-		{
-			return( match( $type )
-			{
+	protected function convert( Mixed $value, Util\Type $type, ? String $raw ): Mixed {
+		if( valueIsNotEmpty( $raw ) ) {
+			return( match( $type ) {
 				Util\Type::Array,
 				Util\Type::Object => Json\Json::decode( $value, $type === Util\Type::Array ),
 				Util\Type::Bool => Util\Boolean::parse( $value ),
@@ -107,24 +102,16 @@ class EnvParser implements EnvParserInterface
 	 * @return Array
 	 *  Array of multi line comments.
 	 */
-	protected function findComments( ? Int $line = Null ): ? Array
-	{
-		// Get current line number.
+	protected function findComments( ? Int $line = Null ): ? Array {
 		$line ??= $this->findLine() -1;
-		$comments = [];
-		
-		while( $this->isComment( $this->contentsSplited[$line] ?? "", True, $matches ) )
-		{
-			// Check if comment is not variable syntax.
-			if( $this->pattern->match( $this->contentsSplited[$line] ) === Null )
-			{
-				// Push comments into first element.
+		$comments = [];	
+		while( $this->isComment( $this->contentsSplited[$line] ?? "", True, $matches ) ) {
+			if( $this->pattern->match( $this->contentsSplited[$line] ) === Null ) {
 				$comments = [ trim( $matches['comment'] ?? "" ), ...$comments ];
 			}
-			
-			// Break if previous comment is variable.
-			if( $this->pattern->match( $this->contentsSplited[( $line -1 )] ) ) break;
-			
+			if( $this->pattern->match( $this->contentsSplited[( $line -1 )] ) ) {
+				break;
+			}
 			$line--;
 		}
 		return( $comments );
@@ -139,13 +126,9 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @return Int
 	 */
-	public function findLine( ? String $raw = Null ): Int
-	{
-		// Split raw content with newline.
+	public function findLine( ? String $raw = Null ): Int {
 		$raw = split( $raw ?? $this->raw, "\n" );
 		$raw = array_pop( $raw );
-		
-		// Return line number.
 		return( array_search( $raw, $this->contentsSplited ) +1 );
 	}
 	
@@ -159,8 +142,7 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @return Bool
 	 */
-	protected function invalid( Util\Type $type, Util\Type $typedef ): Bool
-	{
+	protected function invalid( Util\Type $type, Util\Type $typedef ): Bool {
 		return( $typedef !== $type && $type !== Util\Type::Mixed &&
 			(
 				(
@@ -207,8 +189,7 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @return Bool
 	 */
-	public function isComment( String $comment, ? Bool $optional = Null, Mixed &$matches = [] ): Bool
-	{
+	public function isComment( String $comment, ? Bool $optional = Null, Mixed &$matches = [] ): Bool {
 		return( $optional !== Null ? $this->isComment( $comment, Null, $matches ) === $optional : preg_match( "/^[\r\n\s\t]*\#(?<comment>[^\n]*)$/", trim( $comment, "\n" ), $matches ) );
 	}
 	
@@ -220,11 +201,8 @@ class EnvParser implements EnvParserInterface
 	 * @return Generator
 	 *  Generator result of process.
 	 */
-	public function parse(): Generator
-	{
-		while( $match = $this->pattern->exec( $this->contents ?? "" ) )
-		{
-			// Handle captured variable.
+	public function parse(): Generator {
+		while( $match = $this->pattern->exec( $this->contents ?? "" ) ) {
 			yield $this->process( $match );
 		}
 		$this->raw = Null;
@@ -239,12 +217,8 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @return Yume\Fure\Util\Env\EnvVariableInterface
 	 */
-	private function process( RegExp\Matches $match ): EnvVariableInterface
-	{
-		// Set current captured syntax.
+	private function process( RegExp\Matches $match ): EnvVariableInterface {
 		$this->raw = trim( $match[0], "\n" );
-		
-		// Get captured groups.
 		$groups = $match->groups;
 		$var = [
 			"raw" => $this->raw,
@@ -254,27 +228,11 @@ class EnvParser implements EnvParserInterface
 			"typedef" => $groups->typedef->value ?? Null,
 			"commented" => $groups->__isset( "commented" )
 		];
-		
-		try
-		{
-			$var['type'] = $this->typedef(
-				$var['typedef'] ? 
-					$var['typedef'] 
-					: 
-					(
-						$var['commented'] ? 
-							"None" 
-							: 
-							( $var['value'] ? 
-								"Mixed" : "None" 
-							) 
-					) 
-			);
+		try {
+			$var['type'] = $this->typedef( $var['typedef'] ? $var['typedef'] : ( $var['commented'] ? "None" : ( $var['value'] ? "Mixed" : "None" ) ) );
 		}
-		catch( EnvError $e )
-		{
-			if( $var['commented'] )
-			{
+		catch( EnvError $e ) {
+			if( $var['commented'] ) {
 				$var['type'] = Util\Type::Mixed;
 			}
 			else {
@@ -286,10 +244,9 @@ class EnvParser implements EnvParserInterface
 		$var['comments'] = $this->findComments();
 		
 		// Check if variable has content in last defined variable.
-		if( valueIsNotEmpty( $groups->endline->value ?? Null ) )
-		{
-			if( $var['commented'] )
-			{
+		if( valueIsNotEmpty( $groups->endline->value ?? Null ) ) {
+			if( $var['commented'] ) {
+
 				/*
 				 * Allowed passed, since the variable has been commented
 				 * out this cannot be considered a syntax error but error
@@ -301,91 +258,56 @@ class EnvParser implements EnvParserInterface
 			else {
 				
 				// Check if EOL if is not comment syntax.
-				if( $this->isComment( $groups->endline->value, False, $matches ) )
-				{
+				if( $this->isComment( $groups->endline->value, False, $matches ) ) {
 					throw new EnvError( $groups->endline->value, EnvError::SYNTAX_ERROR, Null, Env::self()->source, $var['line'] );
 				}
 				$var['comment'] = trim( $matches['comment'] ?? "" );
 			}
 		}
 		
-		// If the variable is not commented out.
-		if( $var['commented'] === False )
-		{
-			// If variable has value.
-			if( valueIsNotEmpty( $var['value'] ) )
-			{
-				// Remove whitespace.
+		if( $var['commented'] === False ) {
+			if( valueIsNotEmpty( $var['value'] ) ) {
 				$var['value'] = trim( $var['value'] );
-				
-				// Check if value is escaped with single or double quote.
-				if( Util\Strings::isQuoted( $var['value'], $result ) )
-				{
+				if( Util\Strings::isQuoted( $var['value'], $result ) ) {
 					$var['typedef'] = Util\Type::String;
 					$var['quoted'] = $result['quote'];
 					$var['value'] = $result['value'];
 				}
 				else {
-					
-					// Resolve backslash symbols.
 					$var['value'] = RegExp\RegExp::replace( "/(?<backslash>\\\{1,})(?!(\;|\#))/ms", $var['value'], fn( Array $match ) => $match['backslash'] === "\x5c" ? "" : str_repeat( "\x5c", strlen( $match['backslash'] ) -1 ) );
-					
-					// Matching invalid semicolon and comment symbol on values.
-					$var['value'] = RegExp\RegExp::replace( "/(?<nomatch>\\\{0,})(?<symbol>(?:(?<taggar>\#)|(?<semicolon>\;)){1,})/ms", $var['value'], function( Array $match ) use( $var )
-					{
-						// Get backslash lenght.
+					$var['value'] = RegExp\RegExp::replace( "/(?<nomatch>\\\{0,})(?<symbol>(?:(?<taggar>\#)|(?<semicolon>\;)){1,})/ms", $var['value'], function( Array $match ) use( $var ) {
 						$length = strlen( $match['nomatch'] ?? "" );
-						
-						// If the number of backslashes is one.
-						if( $length === 1 ) return( $match['symbol'] ?? "" );
-						
-						// If number of backslash is odd.
-						if( Util\Number::isOdd( $length ) )
-						{
+						if( $length === 1 ) {
+							return( $match['symbol'] ?? "" );
+						}
+						if( Util\Number::isOdd( $length ) ) {
 							return( Util\Strings::format( "{}{}", str_repeat( "\x5c", $length -1 ), $match['symbol'] ?? "" ) );
 						}
-						if( $match['taggar'] ?? Null )
-						{
+						if( $match['taggar'] ?? Null ) {
 							throw new EnvError( $var['name'], EnvError::COMMENT_ERROR, Null, Env::self()->source, $var['line'] );
 						}
 						throw new EnvError( ";", EnvError::SYNTAX_ERROR, Null, Env::self()->source, $var['line'] );
 					});
-					
-					// If variable value is Array type.
-					if( $result = RegExp\RegExp::match( "/^(?<value>(?<curly>(?s)((?:\{(?:[^\{\}]++|(?1))*+\})))|(?<square>(?s)((?:\[(?:[^\[\]]++|(?1))*+\]))))$/ms", $var['value'] ) )
-					{
+					if( $result = RegExp\RegExp::match( "/^(?<value>(?<curly>(?s)((?:\{(?:[^\{\}]++|(?1))*+\})))|(?<square>(?s)((?:\[(?:[^\[\]]++|(?1))*+\]))))$/ms", $var['value'] ) ) {
 						$var['typedef'] = Util\Type::Json;
 						$var['value'] = $result['value'];
 					}
 					else {
-						
-						// If variable value is Boolean type.
-						if( $result = RegExp\RegExp::match( "/^(?:[\r\t\n\t\s]*)(?<value>True|False)\\1*$/msi", $var['value'] ) )
-						{
+						if( $result = RegExp\RegExp::match( "/^(?:[\r\t\n\t\s]*)(?<value>True|False)\\1*$/msi", $var['value'] ) ) {
 							$var['typedef'] = Util\Type::Bool;
 							$var['value'] = $result['value'];
 						}
-						
-						// If variable value is None type.
-						else if( $result = RegExp\RegExp::match( "/^([\r\t\n\t\s]*)(?<nullable>None|Null)\\1*$/msi", $var['value'] ) )
-						{
+						else if( $result = RegExp\RegExp::match( "/^([\r\t\n\t\s]*)(?<nullable>None|Null)\\1*$/msi", $var['value'] ) ) {
 							$var['typedef'] = Util\Type::None;
 							$var['value'] = $result['value'];
 						}
 						else {
-							
-							// String is a default value.
 							$var['typedef'] = Util\Type::String;
-							
-							// If variable value is valid Integer or Numeric type.
 							if( Util\Number::isInteger( $var['value'] ) ||
-								Util\Number::isNumeric( $var['value'] ) )
-							{
-								// If variable is valid Double or Float number.
+								Util\Number::isNumeric( $var['value'] ) ) {
 								if( Util\Number::isDouble( $var['value'] ) ||
 									Util\Number::isExponentDouble( $var['value'] ) ||
-									Util\Number::isFloat( $var['value'] ) )
-								{
+									Util\Number::isFloat( $var['value'] ) ) {
 									$var['typedef'] = Util\Type::Float;
 								}
 								else {
@@ -395,27 +317,19 @@ class EnvParser implements EnvParserInterface
 						}
 					}
 				}
-				
-				// If variable has defined named Type.
-				if( $var['typedef'] )
-				{
-					// If given value does not match with defined Type.
-					if( $this->invalid( $var['type'], $var['typedef'] ) )
-					{
+				if( $var['typedef'] ) {
+					if( $this->invalid( $var['type'], $var['typedef'] ) ) {
 						throw new EnvError( [ $var['type']->name, $var['typedef']->name, $var['name'] ], EnvError::ASSIGNMENT_ERROR, Null, Env::self()->source, $var['line'] );
 					}
 				}
 			}
 		}
 		
-		try
-		{
+		try {
 			$var['value'] = $this->convert( $var['value'], $var['type'], $groups->value );
 		}
-		catch( Error\ValueError $e )
-		{
-			if( $var['commented'] )
-			{
+		catch( Error\ValueError $e ) {
+			if( $var['commented'] ) {
 				$var['value'] = Null;
 			}
 			else {
@@ -441,8 +355,7 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @return Yume\Fure\Util\Env\EnvParserInterface
 	 */
-	public function setContents( String $contents ): EnvParserInterface
-	{
+	public function setContents( String $contents ): EnvParserInterface {
 		$this->contents = trim( $contents );
 		$this->contentsSplited = split( $this->contents, "\n" );
 		
@@ -460,12 +373,10 @@ class EnvParser implements EnvParserInterface
 	 *
 	 * @throws Yume\Fure\Util\Env\EnvError
 	 */
-	protected function typedef( String $type ): Util\Type
-	{
+	protected function typedef( String $type ): Util\Type {
 		$type = ucfirst( Util\Strings::fromKebabCaseToCamelCase( $type ) );
 		return(
-			match( $type )
-			{
+			match( $type ) {
 				"Array" => Util\Type::Array,
 				"Bool",
 				"Boolean" => Util\Type::Bool,

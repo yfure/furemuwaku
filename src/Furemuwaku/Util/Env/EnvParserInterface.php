@@ -7,7 +7,7 @@ namespace Yume\Fure\Util\Env;
  *
  * @package Yume\Fure\Util\Env
  */
-interface EnvParserInterface
-{}
+interface EnvParserInterface {
+}
 
 ?>

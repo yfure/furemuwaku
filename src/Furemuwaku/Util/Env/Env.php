@@ -15,8 +15,7 @@ use Yume\Fure\Util;
  *
  * @package Yume\Fure\Util\Env
  */
-class Env extends Support\Singleton
-{
+class Env extends Support\Singleton {
 	
 	/*
 	 * Default source stored environment file.
@@ -57,21 +56,16 @@ class Env extends Support\Singleton
 	/*
 	 * @inherit Yume\Fure\Support\Singleton::__construct
 	 *
+	 * @throws Yume\Fure\IO\File\FileNotFoundError
+	 *  Throw if environment file does not exists.
 	 */
-	protected function __construct( ? String $source = Null, public Readonly Bool $override = True )
-	{
-		// Register builtin environments.
+	protected function __construct( ? String $source = Null, public Readonly Bool $override = True ) {
 		Util\Arrays::map( $_ENV ?? [], fn( Int | String $i, String $name, Mixed $value ) => $this->vars[$name] = new EnvVariable( $name, $value, system: True ) );
-		
-		// Throw if environment file does not exists.
-		if( File\File::exists( $this->source = $source ??= self::DEFAULT, False ) )
-		{
+		if( File\File::exists( $this->source = $source ??= self::DEFAULT, False ) ) {
 			throw new File\FileNotFoundError( $this->source );
 		}
 		$this->parser = new EnvParser();
 		$this->parser->setContents(
-			
-			// Read environment file contents.
 			File\File::read( $this->source )
 		);
 	}
@@ -87,15 +81,13 @@ class Env extends Support\Singleton
 	 * @return Mixed
 	 *
 	 * @throws Yume\Fure\Util\Env\EnvError
+	 *  Throw if environtment variable does not exists
 	 */
-	public static function get( String $name, Mixed $optional = Null ): Mixed
-	{
-		// If variable is sets.
-		if( self::has( $name ) ) return( self::self() )->vars[$name]->getValue();
-		
-		// If optional value is available.
-		if( $optional !== Null )
-		{
+	public static function get( String $name, Mixed $optional = Null ): Mixed {
+		if( self::has( $name ) ) {
+			return( self::self() )->vars[$name]->getValue();
+		}
+		if( $optional !== Null ) {
 			return( $optional );
 		}
 		throw new EnvError( $name, EnvError::NAME_ERROR );
@@ -108,8 +100,7 @@ class Env extends Support\Singleton
 	 *
 	 * @return Array
 	 */
-	public static function getAll(): Array
-	{
+	public static function getAll(): Array {
 		return( self::self() )->vars;
 	}
 	
@@ -123,28 +114,23 @@ class Env extends Support\Singleton
 	 *
 	 * @return Bool
 	 */
-	public static function has( String $name, ? Bool $optional = Null ): Bool
-	{
+	public static function has( String $name, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? self::has( $name ) === $optional : isset( self::self()->vars[$name] ) && self::self()->vars[$name]->isCommented( False ) );
 	}
 	
-	public function parse(): Void
-	{
-		foreach( $this->parser->parse() As $i => $var )
-		{
-			// Check if variable is defined.
-			if( isset( $this->vars[$var->name] ) )
-			{
-				// Check if variable is not system and not commented.
+	/*
+	 *
+	 * @throws Yume\Fure\util\Env\EnvError
+	 *  If override is not allowed.
+	 * 
+	 */
+	public function parse(): Void {
+		foreach( $this->parser->parse() As $i => $var ) {
+			if( isset( $this->vars[$var->name] ) ) {
 				if( $this->vars[$var->name]->isSystem( False ) &&
-					$this->vars[$var->name]->isCommented( False ) )
-				{
-					// If replacement is commented.
+					$this->vars[$var->name]->isCommented( False ) ) {
 					if( $var->isCommented() ) continue;
-					
-					// If override is not allowed.
-					if( $this->override === False )
-					{
+					if( $this->override === False ) {
 						throw new EnvError( [ $var->name, $var->getLine() ], EnvError::OVERRIDE_ERROR, Null, $this->source, $var->getLine() );
 					}
 				}

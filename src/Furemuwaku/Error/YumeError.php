@@ -18,8 +18,7 @@ use Yume\Fure\Util\Reflect;
  *
  * @package Yume\Fure\Error
  */
-class YumeError extends Error
-{
+class YumeError extends Error {
 	
 	/*
 	 * Value of flag.
@@ -61,11 +60,8 @@ class YumeError extends Error
 	 *
 	 * @return Void
 	 */
-	public function __construct( Array | Int | String $message, Int $code = 0, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
-	{
-		// Set error type.
+	public function __construct( Array | Int | String $message, Int $code = 0, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null ) {
 		$this->setType( $code );
-		
 		$this->file = $file ?? $this->getFile();
 		$this->line = $line ?? $this->getLine();
 
@@ -75,62 +71,32 @@ class YumeError extends Error
 		// 	echo $this->line;
 		// 	var_dump( $message );
 		// }
-		
-		// Check if error has type.
-		if( $this->type !== "Unknown" )
-		{
-			// If translation is not available.
-			if( Locale\Locale::getLanguage()->yume === Null ) 
-			{
+
+		if( $this->type !== "Unknown" ) {
+			if( Locale\Locale::getLanguage()->yume === Null )  {
 				Locale\Locale::setTranslation(
 					Locale\Locale::getTranslation( "Furemu" )
 				);
 			}
-			
-			// Optional value when translation is unavailable.
 			$optional = $this->flags[$this::class] ?? [];
 			$optional = $optional[$code] ?? Null;
-			
-			// Create key name.
 			$key = Support\Package::array( $this::class );
-			
-			$furemu = strpos( $this::class, Fure::class ) === 0;
+			$furemu = strpos( $this::class, "Yume\\Fure" ) === 0;
 			$translation = Locale\Locale::translate( $x = join( ".", $furemu ? [ /** "Furemu", */ $key, $this->type ] : [ $key, $this->type ] ), $optional, False );
-			
-			// If translation is available.
-			if( $translation )
-			{
-				if( is_array( $message ) === False )
-				{
+			if( $translation ) {
+				if( is_array( $message ) === False ) {
 					$message = [$message];
 				}
 				$message = Util\Strings::format( $translation, ...$message );
 			}
 		}
-		foreach( $this->track As $group => $info )
-		{
-			// Make Pattern for match filename.
+		foreach( $this->track As $group => $info ) {
 			$pattern = Util\Strings::format( "/{}\\/(?:{})\\.php$/i", str_replace( DIRECTORY_SEPARATOR, "\\" . DIRECTORY_SEPARATOR, Support\Package::path( $group ) ), join( "|", array_map( fn( String $class ) => Util\Strings::pop( $class, "\\", True ), $info['classes'] ) ) );
-			
-			// If current filename match with pattern.
-			if( preg_match( $pattern, $this->getFile() ) )
-			{
-				// Mapping exception traces.
-				foreach( $this->getTrace() As $i => $trace )
-				{
-					// Skip if class name does not exists.
+			if( preg_match( $pattern, $this->getFile() ) ) {
+				foreach( $this->getTrace() As $i => $trace ) {
 					if( in_array( $trace['class'] ?? "", $info['classes'] ) === False ) continue;
-					
-					// Skip if file name has prefix filename from track.
 					if( preg_match( $pattern, $trace['file'] ?? "" ) ) continue;
-					
-					// If keys is exists.
-					if( isset( $trace['function'] ) &&
-						isset( $trace['file'] ) &&
-						isset( $trace['type'] ) &&
-						isset( $trace['line'] ) )
-					{
-						// Change error filename and line number.
+					if( isset( $trace['function'] ) && isset( $trace['file'] ) && isset( $trace['type'] ) && isset( $trace['line'] ) ) {
 						$this->file = $file ?? $trace['file'];
 						$this->line = $line ?? $trace['line'];
 						break;
@@ -148,17 +114,12 @@ class YumeError extends Error
 	 *
 	 * @return String
 	 */
-	public function __toString(): String
-	{
+	public function __toString(): String {
 		$error = $this;
 		$stack = [
 			$this->format( $this )
 		];
-		
-		// When exception thrown has previous exception thrown.
-		while( $error = $error->getPrevious() )
-		{
-			// Parse exception to string.
+		while( $error = $error->getPrevious() ) {
 			$stack[] = $this->format( $error );
 		}
 		return( path( join( "\n", array_reverse( $stack ) ), True ) );
@@ -173,8 +134,7 @@ class YumeError extends Error
 	 *
 	 * @return String
 	 */
-	private function format( Throwable $thrown )
-	{
+	private function format( Throwable $thrown ) {
 		$values = [
 			"class" => $thrown::class,
 			"message" => $thrown->getMessage(),
@@ -184,8 +144,7 @@ class YumeError extends Error
 			"type" => $thrown->type ?? "None",
 			"trace" => $thrown->getTrace()
 		];
-		if( $thrown Instanceof YumeError )
-		{
+		if( $thrown Instanceof YumeError ) {
 			return( Util\Strings::format( "\n{class}: {message}\n{class}: File: {file}\n{class}: Line: {line}\n{class}: Type: {type}\n{class}: Code: {code}\n{class}: {trace}\n", ...$values ) );
 		}
 		return( Util\Strings::format( "\n{class}: {message}\n{class}: File: {file}\n{class}: Line: {line}\n{class}: Code: {code}\n{class}: {trace}\n", ...$values ) );
@@ -198,8 +157,7 @@ class YumeError extends Error
 	 *
 	 * @return String
 	 */
-	public function getType(): String
-	{
+	public function getType(): String {
 		return( $this )->type;
 	}
 	
@@ -212,17 +170,13 @@ class YumeError extends Error
 	 *
 	 * @return String
 	 */
-	private function setType( Int $code ): Void
-	{
-		try
-		{
-			if( Reflect\ReflectProperty::isInitialized( $this, "type" ) === False )
-			{
+	private function setType( Int $code ): Void {
+		try {
+			if( Reflect\ReflectProperty::isInitialized( $this, "type" ) === False ) {
 				$this->type = Util\Strings::fromKebabCaseToUpperCamelCase( is_string( $type = array_search( $code, Reflect\ReflectClass::getConstants( $this ) ) ) ? $type : "Unknown" );
 			}
 		}
-		catch( Throwable )
-		{}
+		catch( Throwable ) {}
 	}
 	
 }

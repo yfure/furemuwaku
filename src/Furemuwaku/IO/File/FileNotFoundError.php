@@ -11,8 +11,7 @@ use Throwable;
  *
  * @package Yume\Fure\IO\File
  */
-final class FileNotFoundError extends FileError
-{
+final class FileNotFoundError extends FileError {
 	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError
@@ -28,8 +27,7 @@ final class FileNotFoundError extends FileError
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = self::NOT_FOUND_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
-	{
+	public function __construct( Array | Int | String $message, Int $code = self::NOT_FOUND_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null ) {
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	

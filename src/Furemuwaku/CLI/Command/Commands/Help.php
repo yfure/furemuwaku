@@ -14,8 +14,7 @@ use Yume\Fure\Util;
  * 
  * @package Yume\Fure\CLI\Command\Commands
  */
-final class Help extends Command\Command implements Command\CommandInterface
-{
+final class Help extends Command\Command implements Command\CommandInterface {
 
 	/*
 	 * @inherit Yume\Fure\CLI\Command\Command::$about
@@ -50,12 +49,8 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::exec
 	 * 
 	 */
-	public function exec( Argument\Argument $argument ): Void
-	{
-		// Command group container.
+	public function exec( Argument\Argument $argument ): Void {
 		$groups = [];
-
-		// Grouping commands.
 		$this->commands->getAll()->map(
 			
 			/*
@@ -67,30 +62,20 @@ final class Help extends Command\Command implements Command\CommandInterface
 			* 
 			* @return Void
 			*/
-			function( Int $i, String $name, CommandInterface $command ) use( &$groups )
-			{
+			function( Int $i, String $name, CommandInterface $command ) use( &$groups ) {
 				$groups[$command->getGroup()] ??= [];
 				$groups[$command->getGroup()][$name] = implode( PHP_EOL, $this->builder( $command ) );
 			}
 		);
-
 		putcln( $this->configs->welcome[0] );
 		putcln( $this->configs->welcome[1] );
 		putcln( $this->configs->usage, PHP_EOL );
 		putcln( $this->configs->command, PHP_EOL );
 
-		// Re-iterating grouping command.
-		foreach( $groups As $group => $commands )
-		{
-			// Display command group name.
+		foreach( $groups As $group => $commands ) {
 			putcln( $this->configs->formats['command.group-name'], $group );
-
-			// Re-iterating commands.
-			foreach( $commands As $name => $command )
-			{
-				// If display all information about of commands.
-				if( $this->getOptionValue( $argument, $this->options['command'], False ) )
-				{
+			foreach( $commands As $name => $command ) {
+				if( $this->getOptionValue( $argument, $this->options['command'], False ) ) {
 					putcln( $this->configs->formats['command.info-list'], $name, $command );
 					continue;
 				}
@@ -109,41 +94,37 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return Array<String,Mixed>
 	 */
-	private function builder( CommandInterface $command ): Array
-	{
+	private function builder( CommandInterface $command ): Array {
 		$docs = [];
-
-		// Build command description.
-		if( $command->hasAbout() ) $docs[] = f( $this->configs->formats['command.about'], $command->getAbout() );
-
-		foreach( $command->getOptions() As $option )
-		{
+		if( $command->hasAbout() ) {
+			$docs[] = f( $this->configs->formats['command.about'], $command->getAbout() );
+		}
+		foreach( $command->getOptions() As $option ) {
 			$name = [];
 			$name[] = $this->buildOptionName( $option->name );
-
-			// Append alias name if option has alias name.
-			if( $option->alias !== Null ) $name[] = $this->buildOptionName( $option->alias );
-
-			// Build option name and alias name.
+			if( $option->alias !== Null ) {
+				$name[] = $this->buildOptionName( $option->alias );
+			}
 			$docs[] = $this->buildJoinOptionName( $name, $option->type );
-
-			foreach( $option->explain As $explain )
-			{
-				// Build option description.
+			foreach( $option->explain As $explain ) {
 				$docs[] = $this->buildOptionDescription( $explain );
 			}
-
-			// Build option is required.
 			$docs[] = $this->buildRequireOption( $option->required );
 
 			// Build option default value.
-			if( $option->default !== Null ) $docs[] = $this->buildDefaultValue( $option->default );
+			if( $option->default !== Null ) {
+				$docs[] = $this->buildDefaultValue( $option->default );
+			}
 
 			// Build option requirements if option has require another options.
-			if( count( $option->requires ) >= 1 ) $docs[] = $this->buildRequirementOptions( $option->requires );
+			if( count( $option->requires ) >= 1 ) {
+				$docs[] = $this->buildRequirementOptions( $option->requires );
+			}
 
 			// Build option example usage.
-			if( count( $option->example ) >= 1 ) $docs[] = $this->buildExampleUsage( $option->example );
+			if( count( $option->example ) >= 1 ) {
+				$docs[] = $this->buildExampleUsage( $option->example );
+			}
 		}
 		return( $docs );
 	}
@@ -157,8 +138,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return String
 	 */
-	private function buildDefaultValue( Mixed $value ): String
-	{
+	private function buildDefaultValue( Mixed $value ): String {
 		return( f( $this->configs->formats['command.option.single-info'], "default", $value ) );
 	}
 
@@ -171,8 +151,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return String
 	 */
-	private function buildExampleUsage( Array $example ): String
-	{
+	private function buildExampleUsage( Array $example ): String {
 		return( f( $this->configs->formats['command.option.multi-info'], "example", join( "\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20", $example ) ) );
 	}
 
@@ -185,8 +164,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return String
 	 */
-	private function buildJoinOptionName( Array $names, Util\Type $type ): String
-	{
+	private function buildJoinOptionName( Array $names, Util\Type $type ): String {
 		return( f( $this->configs->formats['command.option.name-join'], join( "\x7c", $names ), $type->name ) );
 	}
 
@@ -199,8 +177,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return String
 	 */
-	private function buildOptionDescription( String $decsription ): String
-	{
+	private function buildOptionDescription( String $decsription ): String {
 		return( f( $this->configs->formats['command.option.explain'], $decsription ) );
 	}
 
@@ -213,8 +190,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return String
 	 */
-	private function buildOptionName( String $name ): String
-	{
+	private function buildOptionName( String $name ): String {
 		return( join( "", [ strlen( $name ) >= 2 ? "\x2d\x2d" : "\x2d", $name ] ) );
 	}
 
@@ -227,8 +203,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return String
 	 */
-	private function buildRequireOption( Bool $required ): String
-	{
+	private function buildRequireOption( Bool $required ): String {
 		return( f( $this->configs->formats['command.option.single-info'], "require", $required ) );
 	}
 
@@ -241,8 +216,7 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return String
 	 */
-	private function buildRequirementOptions( Array $requirements ): String
-	{
+	private function buildRequirementOptions( Array $requirements ): String {
 		return( f( $this->configs->formats['command.option.single-info'], "linkeds", join( "\x2c\x20", $requirements ) ) );
 	}
 
@@ -255,16 +229,10 @@ final class Help extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return Void
 	 */
-	public function single( CommandInterface $command ): Void
-	{
-		// Generate command info.
+	public function single( CommandInterface $command ): Void {
 		$docs = $this->builder( $command );
-
-		// Display command group name.
 		putcln( "" );
 		putcln( $this->configs->formats['command.group-name'], $command->getGroup() );
-
-		// Display command info.
 		putcln( $this->configs->formats['command.info'], $command->getName(), implode( PHP_EOL, $docs ) );
 		putcln( "" );
 	}

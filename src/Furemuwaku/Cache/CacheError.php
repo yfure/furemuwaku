@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  * 
  * @package Yume\Fure\Cache
  */
-class CacheError extends Error\IOError
-{
+class CacheError extends Error\IOError {
 	
 	/*
 	 * Error constant for invalid time value.

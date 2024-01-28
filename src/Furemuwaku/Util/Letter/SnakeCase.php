@@ -9,8 +9,7 @@ use Yume\Fure\Util;
  *
  * @package Yume\Fure\Util\Letter
  */
-trait SnakeCase
-{
+trait SnakeCase {
 	
 	/*
 	 * ...
@@ -21,8 +20,7 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function toSnakeCase( String $string ): String
-	{
+	public static function toSnakeCase( String $string ): String {
 		return( strtolower( preg_replace( "/(.)(?=[A-Z])/u", "$1_", preg_replace( "/\s+/", "_", str_replace( "-", "_", $string ) ) ) ) );
 	}
 	
@@ -35,8 +33,7 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function fromCamelCaseToSnakeCase( String $string ): String
-	{
+	public static function fromCamelCaseToSnakeCase( String $string ): String {
 		return( strtolower( preg_replace( "/(.)(?=[A-Z])/u", "$1_", $string ) ) );
 	}
 	
@@ -49,8 +46,7 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function fromPascalCaseToSnakeCase( String $string ): String
-	{
+	public static function fromPascalCaseToSnakeCase( String $string ): String {
 		return( str_replace( "-", "_", Util\Strings::fromPascalCaseToKebabCase( $string ) ) );
 	}
 	
@@ -63,8 +59,7 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function fromKebabCaseToSnakeCase( String $string ): String
-	{
+	public static function fromKebabCaseToSnakeCase( String $string ): String {
 		return( str_replace( "-", "_", $string ) );
 	}
 	
@@ -77,8 +72,7 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCamelCaseToSnakeCase( String $string ): String
-	{
+	public static function fromUpperCamelCaseToSnakeCase( String $string ): String {
 		return( Util\Strings::fromCamelCaseToSnakeCase( lcfirst( $string ) ) );
 	}
 	
@@ -91,8 +85,7 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCaseToSnakeCase( String $string ): String
-	{
+	public static function fromUpperCaseToSnakeCase( String $string ): String {
 		return( self::toSnakeCase( strtolower( $string ) ) );
 	}
 	
@@ -105,12 +98,10 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function fromHungarianCaseToSnakeCase( String $string ): String
-	{
+	public static function fromHungarianCaseToSnakeCase( String $string ): String {
 		$parts = explode( "_", $string );
 		$newParts = [];
-		foreach( $parts as $part )
-		{
+		foreach( $parts as $part ) {
 			$newParts[] = strtolower( substr( $part, 0, 1 ) ). substr( $part, 1 );
 		}
 		return implode( "_", $newParts );
@@ -125,18 +116,14 @@ trait SnakeCase
 	 *
 	 * @return String
 	 */
-	public static function fromVerbObjectCaseToSnakeCase( String $string ): String
-	{
+	public static function fromVerbObjectCaseToSnakeCase( String $string ): String {
 		$parts = explode( "_", $string );
 		$newParts = [];
-		foreach( $parts as $part )
-		{
-			if( $part == "get" || $part == "set" )
-			{
+		foreach( $parts as $part ) {
+			if( $part == "get" || $part == "set" ) {
 				$newParts[] = strtolower( $part );
 			}
-			else
-			{
+			else {
 				$newParts[] = $part;
 			}
 		}

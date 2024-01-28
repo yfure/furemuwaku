@@ -14,8 +14,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util\Reflect
  */
-final class ReflectProperty
-{
+final class ReflectProperty {
 	
 	/*
 	 * Gets Attributes
@@ -30,8 +29,7 @@ final class ReflectProperty
 	 *
 	 * @return Array
 	 */
-	public static function getAttributes( Object | String $class, String $property, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
-	{
+	public static function getAttributes( Object | String $class, String $property, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getAttributes( $name, $flags );
 	}
 	
@@ -46,8 +44,7 @@ final class ReflectProperty
 	 *
 	 * @return ReflectionClass
 	 */
-	public static function getDeclaringClass( Object | String $class, String $property, Mixed &$reflect = Null ): ReflectionClass
-	{
+	public static function getDeclaringClass( Object | String $class, String $property, Mixed &$reflect = Null ): ReflectionClass {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getDeclaringClass();
 	}
 	
@@ -62,8 +59,7 @@ final class ReflectProperty
 	 *
 	 * @return Mixed
 	 */
-	public static function getDefaultValue( Object | String $class, String $property, Mixed &$reflect = Null ): Mixed
-	{
+	public static function getDefaultValue( Object | String $class, String $property, Mixed &$reflect = Null ): Mixed {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getDefaultValue();
 	}
 	
@@ -78,8 +74,7 @@ final class ReflectProperty
 	 *
 	 * @return False|String
 	 */
-	public static function getDocComment( Object | String $class, String $property, Mixed &$reflect = Null ): False | String
-	{
+	public static function getDocComment( Object | String $class, String $property, Mixed &$reflect = Null ): False | String {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getDocComment();
 	}
 	
@@ -94,8 +89,7 @@ final class ReflectProperty
 	 *
 	 * @return Int
 	 */
-	public static function getModifiers( Object | String $class, String $property, Mixed &$reflect = Null ): Int
-	{
+	public static function getModifiers( Object | String $class, String $property, Mixed &$reflect = Null ): Int {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getModifiers();
 	}
 	
@@ -110,8 +104,7 @@ final class ReflectProperty
 	 *
 	 * @return String
 	 */
-	public static function getName( Object | String $class, String $property, Mixed &$reflect = Null ): String
-	{
+	public static function getName( Object | String $class, String $property, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getName();
 	}
 	
@@ -126,8 +119,7 @@ final class ReflectProperty
 	 *
 	 * @return ReflectionType
 	 */
-	public static function getType( Object | String $class, String $property, Mixed &$reflect = Null ): ? ReflectionType
-	{
+	public static function getType( Object | String $class, String $property, Mixed &$reflect = Null ): ? ReflectionType {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getType();
 	}
 	
@@ -142,8 +134,7 @@ final class ReflectProperty
 	 *
 	 * @return Mixed
 	 */
-	public static function getValue( Object | String $class, String $property, Mixed &$reflect = Null ): Mixed
-	{
+	public static function getValue( Object | String $class, String $property, Mixed &$reflect = Null ): Mixed {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->getValue();
 	}
 	
@@ -158,8 +149,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function hasDefaultValue( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function hasDefaultValue( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->hasDefaultValue();
 	}
 	
@@ -174,8 +164,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function hasType( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function hasType( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->hasType();
 	}
 	
@@ -190,8 +179,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isDefault( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isDefault( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isDefault();
 	}
 	
@@ -206,8 +194,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isInitialized( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isInitialized( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isInitialized( is_object( $class ) ? $class : Null );
 	}
 	
@@ -222,8 +209,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isPrivate( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isPrivate( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isPrivate();
 	}
 	
@@ -238,8 +224,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isPromoted( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isPromoted( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isPromoted();
 	}
 	
@@ -254,8 +239,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isProtected( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isProtected( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isProtected();
 	}
 	
@@ -270,8 +254,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isPublic( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isPublic( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isPublic();
 	}
 	
@@ -286,8 +269,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isReadOnly( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isReadOnly( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isReadonly();
 	}
 	
@@ -302,8 +284,7 @@ final class ReflectProperty
 	 *
 	 * @return Bool
 	 */
-	public static function isStatic( Object | String $class, String $property, Mixed &$reflect = Null ): Bool
-	{
+	public static function isStatic( Object | String $class, String $property, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $property, $reflect ) )->isStatic();
 	}
 	
@@ -319,14 +300,9 @@ final class ReflectProperty
 	 *
 	 * @return Void
 	 */
-	public static function setAccessible( Object | String $class, String $property, Bool $accessible, Mixed &$reflect = Null ): Void
-	{
-		// Reflection class.
+	public static function setAccessible( Object | String $class, String $property, Bool $accessible, Mixed &$reflect = Null ): Void {
 		$reclass = Null;
-		
-		// Check if class is Singleton.
-		if( ReflectClass::isSingleton( $class, $reclass ) )
-		{
+		if( ReflectClass::isSingleton( $class, $reclass ) ) {
 			throw new Error\PropertyError( [ $reclass->name, $property ], Error\PropertyError::ACCESS_ERROR );
 		}
 		$reflect = self::reflect( $class, $property, $reflect );
@@ -345,20 +321,12 @@ final class ReflectProperty
 	 *
 	 * @return Void
 	 */
-	public static function setValue( Object | String $class, String $property, Mixed $value, Mixed &$reflect = Null ): Void
-	{
-		// Reflection class.
+	public static function setValue( Object | String $class, String $property, Mixed $value, Mixed &$reflect = Null ): Void {
 		$reclass = Null;
-		
-		// Check if class is Singleton.
-		if( ReflectClass::isSingleton( $class, $reclass ) )
-		{
+		if( ReflectClass::isSingleton( $class, $reclass ) ) {
 			throw new Error\PropertyError( [ $reclass->name, $property ], Error\PropertyError::ACCESS_ERROR );
 		}
-		
-		// Check if property is static type.
-		if( self::isStatic( $class, $property, $reflect ) )
-		{
+		if( self::isStatic( $class, $property, $reflect ) ) {
 			$reflect->setValue( $value );
 		}
 		else {
@@ -377,28 +345,18 @@ final class ReflectProperty
 	 *
 	 * @return ReflectionProperty
 	 */
-	private static function reflect( Object | String $class, String $property, Mixed $reflect ): ReflectionProperty
-	{
-		// Check if `reflect` is instanceof ReflectionProperty.
-		if( $reflect Instanceof ReflectionProperty )
-		{
-			// Get class name.
+	private static function reflect( Object | String $class, String $property, Mixed $reflect ): ReflectionProperty {
+		if( $reflect Instanceof ReflectionProperty ) {
 			$object = is_object( $class ) ? $class::class : $class;
-			
-			// Check if class name and property name is equals.
-			if( $reflect->getDeclaringClass()->getName() === $object && $reflect->getName() === $property )
-			{
+			if( $reflect->getDeclaringClass()->getName() === $object && $reflect->getName() === $property ) {
 				return( $reflect );
 			}
 		}
-		try
-		{
+		try {
 			return( new ReflectionProperty( $class, $property ) );
 		}
-		catch( ReflectionException $e )
-		{
-			if( preg_match( "/^Property\s[^\s]*\sdoes\snot\sexist$/i", $e->getMessage() ) )
-			{
+		catch( ReflectionException $e ) {
+			if( preg_match( "/^Property\s[^\s]*\sdoes\snot\sexist$/i", $e->getMessage() ) ) {
 				$e = new Error\PropertyError( [ $class, $property ], Error\PropertyError::NAME_ERROR, $e );
 			}
 			else {

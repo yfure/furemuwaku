@@ -11,8 +11,7 @@ use Throwable;
  *
  * @package Yume\Fure\Error
  */
-class LengthError extends ValueError
-{
+class LengthError extends ValueError {
 	
 	/*
 	 * Error constant for length values that are too small.
@@ -48,8 +47,7 @@ class LengthError extends ValueError
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = self::LENGTH_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
-	{
+	public function __construct( Array | Int | String $message, Int $code = self::LENGTH_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null ) {
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	

@@ -7,7 +7,7 @@ namespace Yume\Fure\Http\Controller;
  * 
  * @package Yume\Fure\Http\Controller
  */
-interface ControllerInterface
-{}
+interface ControllerInterface {
+}
 
 ?>

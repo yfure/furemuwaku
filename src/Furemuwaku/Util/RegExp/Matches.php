@@ -9,8 +9,7 @@ use Yume\Fure\Util\Arr;
  *
  * @package Yume\Fure\Util\RegExp
  */
-final class Matches extends Arr\Lists
-{
+final class Matches extends Arr\Lists {
 	
 	public Readonly Int $lastPosition;
 	
@@ -18,10 +17,8 @@ final class Matches extends Arr\Lists
 	 * @inherit Yume\Fure\Util\Arr\Lists
 	 *
 	 */
-	public function __construct( Array $matches, public Readonly Arr\Associative $groups, public Readonly Int $position )
-	{
+	public function __construct( Array $matches, public Readonly Arr\Associative $groups, public Readonly Int $position ) {
 		$this->lastPosition = $position + strlen( $matches[0] );
-		
 		parent::__construct( $matches );
 	}
 	

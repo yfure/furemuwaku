@@ -15,8 +15,7 @@ use Yume\Fure\Util\Reflect;
  * 
  * @package Yume\Fure\Service
  */
-final class Service extends Support\Singleton
-{
+final class Service extends Support\Singleton {
 
 	/*
 	 * Service providers container.
@@ -40,9 +39,7 @@ final class Service extends Support\Singleton
 	 * @inherit Yume\Fure\Support\Singleton
 	 * 
 	 */
-	protected function __construct( Bool $booting = False )
-	{
-		// If automatically booting allowed.
+	protected function __construct( Bool $booting = False ) {
 		if( $booting ) $this->booting();
 	}
 
@@ -56,8 +53,7 @@ final class Service extends Support\Singleton
 	 *
 	 * @return Bool
 	 */
-	public static function available( Object | String $name, ? Bool $optional = Null ): Bool
-	{
+	public static function available( Object | String $name, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? self::available( $name ) === $optional : isset( static::$services[self::normalize( $name )] ) );
 	}
 
@@ -68,21 +64,16 @@ final class Service extends Support\Singleton
 	 *
 	 * @return Void
 	 */
-	public function booting(): Void
-	{
-		// Check if providers has initialized.
+	public function booting(): Void {
+		
+		// Skip if providers has initialized.
 		if( Reflect\ReflectProperty::isInitialized( $this, "providers" ) ) return;
 		
 		$providers = [];
-		
-		// Getting Services Provider.
 		$services = config( "app" )->services;
-		$services->map( function( Int $i, Int $idx, $service ) use( &$providers )
-		{
-			// Check if service class is implement ServiceProviderInterface.
-			if( Reflect\ReflectClass::isImplements( $service, ServiceProviderInterface::class, $reflect ) )
-			{
-				// Get services provide instance.
+		$services->map( function( Int $i, Int $idx, $service ) use( &$providers ) {
+			if( Reflect\ReflectClass::isImplements( $service, ServiceProviderInterface::class, $reflect ) ) {
+				
 				$provider = $reflect->newInstance();
 				
 				// Call register and booting methods.
@@ -109,21 +100,11 @@ final class Service extends Support\Singleton
 	 *
 	 * @throws Yume\Fure\Support\Services\ServiceLookupError
 	 */
-	public static function get( Object | String $name, Mixed ...$args ): Object
-	{
-		// Normalize service name.
+	public static function get( Object | String $name, Mixed ...$args ): Object {
 		$name = self::normalize( $name );
-
-		// Check if service is available.
-		if( isset( static::$services[$name] ) )
-		{
-			// Get service info.
+		if( isset( static::$services[$name] ) ) {
 			$service = static::$services[$name];
-
-			// If the service is callable.
-			if( $service['callback'] Instanceof Closure )
-			{
-				// Return from service callback.
+			if( $service['callback'] Instanceof Closure ) {
 				return( call_user_func( $service['callback'], ...$args ) );
 			}
 			return( $service['callback'] );
@@ -131,8 +112,7 @@ final class Service extends Support\Singleton
 		throw new ServiceLookupError( $name );
 	}
 
-	public static function getAll()
-	{
+	public static function getAll() {
 		return( static::$services );
 	}
 
@@ -145,8 +125,7 @@ final class Service extends Support\Singleton
 	 * 
 	 * @return String
 	 */
-	private static function normalize( Object | String $name ): String
-	{
+	private static function normalize( Object | String $name ): String {
 		return( is_object( $name ) && $name Instanceof Closure === False ? $name::class : $name );
 	}
 
@@ -160,8 +139,7 @@ final class Service extends Support\Singleton
 	 * 
 	 * @return Bool
 	 */
-	public static function overideable( Object | String $name, ? Bool $optional = Null ): Bool
-	{
+	public static function overideable( Object | String $name, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? self::overideable( $name ) === $optional : ( self::available( $name, True ) ? static::$services[self::normalize( $name )]['override'] : True ) );
 	}
 
@@ -178,14 +156,9 @@ final class Service extends Support\Singleton
 	 *
 	 * @throws Yume\Fure\Support\Service\ServiceOverrideError
 	 */
-	public static function register( Object | String $name, Object $callback, Bool $override = True ): Void
-	{
-		// Normalize service name.
+	public static function register( Object | String $name, Object $callback, Bool $override = True ): Void {
 		$name = self::normalize( $name );
-
-		// Check if service is not available and overideable.
-		if( self::overideable( $name, False ) )
-		{
+		if( self::overideable( $name, False ) ) {
 			throw new ServiceOverrideError( $name );
 		}
 		static::$services[$name] = [

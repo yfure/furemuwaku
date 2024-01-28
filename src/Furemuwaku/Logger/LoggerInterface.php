@@ -9,8 +9,7 @@ use Stringable;
  *
  * @package Yume\Fure\Logger
  */
-interface LoggerInterface
-{
+interface LoggerInterface {
 	
 	/*
 	 * Action must be taken immediately.

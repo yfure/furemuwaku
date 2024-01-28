@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class AttributeError extends ClassError
-{
+class AttributeError extends ClassError {
 	
 	/*
 	 * Error constant for instantiate invalid attribute.

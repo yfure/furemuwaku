@@ -11,8 +11,7 @@ use Yume\Fure\Support;
  * 
  * @package Yume\Fure\Cache
  */
-class Cache extends Support\Singleton
-{
+class Cache extends Support\Singleton {
 
 	/*
 	 * Instance of class CacheItemPoolInterface.
@@ -27,8 +26,7 @@ class Cache extends Support\Singleton
 	 * @inherit Yume\Fure\Support\Singleton::__construct
 	 * 
 	 */
-	protected function __construct()
-	{
+	protected function __construct() {
 		static::$pool = new CacheItemPool();
 	}
 
@@ -41,8 +39,7 @@ class Cache extends Support\Singleton
 	 * 
 	 * @return CacheItemInterface
 	 */
-	public static function get( String $key ): CacheItemInterface
-	{
+	public static function get( String $key ): CacheItemInterface {
 		return( static::$pool )->getItem( $key );
 	}
 
@@ -53,8 +50,7 @@ class Cache extends Support\Singleton
 	 * 
 	 * @return CacheItemPoolInterface
 	 */
-	public static function pool(): CacheItemPoolInterface
-	{
+	public static function pool(): CacheItemPoolInterface {
 		return( Clone static::$pool );
 	}
 
@@ -67,8 +63,7 @@ class Cache extends Support\Singleton
 	 * 
 	 * @return Bool
 	 */
-	public static function save( CacheItemInterface $item ): Bool
-	{
+	public static function save( CacheItemInterface $item ): Bool {
 		return( static::$pool )->save( $item );
 	}
 

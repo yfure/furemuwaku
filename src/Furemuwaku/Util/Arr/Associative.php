@@ -13,8 +13,7 @@ use Yume\Fure\util;
  *
  * @package Yume\Fure\Util\Arr
  */
-class Associative extends Arrayable
-{
+class Associative extends Arrayable {
 	
 	/*
 	 * Construct method of class Associative.
@@ -26,17 +25,15 @@ class Associative extends Arrayable
 	 *
 	 * @return Void
 	 */
-	public function __construct( Array | Arrayable | Traversable $data = [], public Readonly Bool $insensitive = False )
-	{
+	public function __construct( Array | Arrayable | Traversable $data = [], public Readonly Bool $insensitive = False ) {
+		
 		// Copy data from passed Arrayable instance.
 		if( $data Instanceof Arrayable ) $data = $data->data;
 		
 		// Copy data from passed Traversable.
 		if( $data Instanceof Traversable ) $data = Util\Arrays::toArray( $data );
 		
-		parent::__construct(
-			$data
-		);
+		parent::__construct( $data );
 	}
 	
 	/*
@@ -48,8 +45,7 @@ class Associative extends Arrayable
 	 *
 	 * @return Bool
 	 */
-	public function isInsensitive( ? Bool $optional = Null ): Bool
-	{
+	public function isInsensitive( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? ( $this->insensitive ?: $optional ): $this->insensitive );
 	}
 	
@@ -62,10 +58,8 @@ class Associative extends Arrayable
 	 *
 	 * @return String
 	 */
-	private function normalize( Mixed $key ): String
-	{
-		if( $this->insensitive && is_string( $key ) )
-		{
+	private function normalize( Mixed $key ): String {
+		if( $this->insensitive && is_string( $key ) ) {
 			return( strtolower( ( String ) $key ) );
 		}
 		return( ( String ) $key );
@@ -80,8 +74,7 @@ class Associative extends Arrayable
 	 *
 	 * @return Bool
 	 */
-	public function offsetExists( Mixed $offset ): Bool
-	{
+	public function offsetExists( Mixed $offset ): Bool {
 		return( isset( $this->data[$this->normalize( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] ) );
 	}
 	
@@ -94,8 +87,7 @@ class Associative extends Arrayable
 	 *
 	 * @return Mixed
 	 */
-	public function offsetGet( Mixed $offset ): Mixed
-	{
+	public function offsetGet( Mixed $offset ): Mixed {
 		return( $this->data[$this->normalize( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? Null );
 	}
 	
@@ -109,24 +101,16 @@ class Associative extends Arrayable
 	 *
 	 * @return Void
 	 */
-	public function offsetSet( Mixed $offset, Mixed $value ): Void
-	{
-		// Check if value is array.
-		if( is_array( $value ) )
-		{
-			// If value is Array list.
-			if( array_is_list( $value ) )
-			{
+	public function offsetSet( Mixed $offset, Mixed $value ): Void {
+		if( is_array( $value ) ) {
+			if( array_is_list( $value ) ) {
 				$value = new Lists( $value );
 			}
 			else {
 				$value = new Associative( $value );
 			}
 		}
-		
-		// Check if position is null.
-		if( $offset === Null )
-		{
+		if( $offset === Null ) {
 			$this->data[] = $value;
 		}
 		else {
@@ -144,11 +128,8 @@ class Associative extends Arrayable
 	 *
 	 * @return Void
 	 */
-	public function offsetUnset( Mixed $offset ): Void
-	{
-		// Check if array key is exists.
-		if( is_numeric( $index = array_search( $this->normalize( $offset ), $this->keys ) ) )
-		{
+	public function offsetUnset( Mixed $offset ): Void {
+		if( is_numeric( $index = array_search( $this->normalize( $offset ), $this->keys ) ) ) {
 			unset( $this->keys[$index] );
 		}
 		unset( $this->data[$offset] );

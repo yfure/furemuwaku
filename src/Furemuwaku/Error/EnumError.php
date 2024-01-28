@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class EnumError extends ClassError
-{
+class EnumError extends ClassError {
 	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError

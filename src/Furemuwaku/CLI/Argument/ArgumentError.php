@@ -11,8 +11,7 @@ use Yume\Fure\CLI;
  *
  * @extends Yume\Fure\CLI\CLIError
  */
-class ArgumentError extends CLI\CLIError
-{
+class ArgumentError extends CLI\CLIError {
 	
 	public const JSON_VALUE_ERROR = 128282;
 	public const SHORT_OPTION_ERROR = 133245;

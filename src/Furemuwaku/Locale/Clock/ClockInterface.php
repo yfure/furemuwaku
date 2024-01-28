@@ -9,8 +9,7 @@ use Yume\Fure\Locale\DateTime;
  *
  * @package Yume\Fure\Locale\Clock
  */
-interface ClockInterface
-{
+interface ClockInterface {
 	
 	/*
 	 * Returns the current time as a DateTimeImmutable Object.

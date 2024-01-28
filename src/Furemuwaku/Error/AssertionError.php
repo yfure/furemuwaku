@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class AssertionError extends YumeError
-{
+class AssertionError extends YumeError {
 	
 	/*
 	 * Error constant for invalid value given.

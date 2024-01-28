@@ -11,8 +11,7 @@ use DateTimeImmutable as BaseDateTimeImmutable;
  *
  * @package Yume\Fure\Locale\DateTime
  */
-class DateTimeImmutable extends BaseDateTimeImmuable
-{
+class DateTimeImmutable extends BaseDateTimeImmutable {
 	use \Yume\Fure\Locale\DateTime\DateTimeDecorator;
 }
 

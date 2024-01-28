@@ -9,8 +9,7 @@ use Yume\Fure\Util;
  *
  * @package Yume\Fure\Util\Env
  */
-final class EnvVariable implements EnvVariableInterface
-{
+final class EnvVariable implements EnvVariableInterface {
 	
 	/*
 	 * Construct method of class EnvVariable.
@@ -55,8 +54,7 @@ final class EnvVariable implements EnvVariableInterface
 		public Readonly Bool $system = False,
 		protected ? String $quoted = Null,
 		protected ? String $raw = Null
-	)
-	{}
+	) {}
 	
 	/*
 	 * Convert class to String.
@@ -65,8 +63,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return String
 	 */
-	public function __toString(): String
-	{
+	public function __toString(): String {
 		return( $this )->makeRaw();
 	}
 	
@@ -77,8 +74,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return String
 	 */
-	public function getComment(): ? String
-	{
+	public function getComment(): ? String {
 		return( $this )->comment;
 	}
 	
@@ -89,23 +85,19 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Array
 	 */
-	public function getComments(): ? Array
-	{
+	public function getComments(): ? Array {
 		return( $this )->comments;
 	}
 	
-	public function getEOL(): ? String
-	{
+	public function getEOL(): ? String {
 		return( $this )->endline;
 	}
 	
-	public function getLine(): ? Int
-	{
+	public function getLine(): ? Int {
 		return( $this )->line;
 	}
 	
-	public function getQuote(): ? String
-	{
+	public function getQuote(): ? String {
 		return( $this )->quoted;
 	}
 	
@@ -116,8 +108,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return String
 	 */
-	public function getRaw(): ? String
-	{
+	public function getRaw(): ? String {
 		return( $this )->raw;
 	}
 	
@@ -128,8 +119,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Yume\Fure\Util\Type
 	 */
-	public function getType(): Util\Type
-	{
+	public function getType(): Util\Type {
 		return( $this )->type;
 	}
 	
@@ -140,8 +130,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return String
 	 */
-	public function getTypeAsString(): String
-	{
+	public function getTypeAsString(): String {
 		return( $this )->type->name;
 	}
 	
@@ -154,8 +143,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Bool
 	 */
-	public function getValue(): Mixed
-	{
+	public function getValue(): Mixed {
 		return( $this )->value;
 	}
 	
@@ -168,8 +156,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Bool
 	 */
-	public function hasComment( ? Bool $optional = Null ): Bool
-	{
+	public function hasComment( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->hasComment() : valueIsNotEmpty( $this->comment ) );
 	}
 	
@@ -182,28 +169,23 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Bool
 	 */
-	public function hasComments( ? Bool $optional = Null ): Bool
-	{
+	public function hasComments( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->hasComments() : valueIsNotEmpty( $this->comments ) );
 	}
 	
-	public function hasEOL( ? Bool $optional = Null ): Bool
-	{
+	public function hasEOL( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->hasEOL() : valueIsNotEmpty( $this->endline ) );
 	}
 	
-	public function hasLine( ? Bool $optional = Null ): Bool
-	{
+	public function hasLine( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->hasLine() : $this->line !== Null && $this->line >= 1 );
 	}
 	
-	public function hasRaw( ? Bool $optional = Null ): Bool
-	{
+	public function hasRaw( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->hasRaw() : valueIsNotEmpty( $this->raw ) );
 	}
 	
-	public function hasValue( ? Bool $optional = Null ): Bool
-	{
+	public function hasValue( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->hasValue() : valueIsNotEmpty( $this->value ) );
 	}
 	
@@ -216,8 +198,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Bool
 	 */
-	public function isCommented( ? Bool $optional = Null ): Bool
-	{
+	public function isCommented( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->commented : $this->commented );
 	}
 	
@@ -230,8 +211,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Bool
 	 */
-	public function isQuoted( ? Bool $optional = Null ): Bool
-	{
+	public function isQuoted( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->isQuoted() : $this->quoted !== Null );
 	}
 	
@@ -244,8 +224,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Bool
 	 */
-	public function isSystem( ? Bool $optional = Null ): Bool
-	{
+	public function isSystem( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $optional === $this->isSystem() : $this->system );
 	}
 	
@@ -256,8 +235,7 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return String
 	 */
-	public function makeRaw(): String
-	{
+	public function makeRaw(): String {
 		throw new \Yume\Fure\Error\MethodError( "Not Implemented" );
 	}
 	
@@ -270,12 +248,9 @@ final class EnvVariable implements EnvVariableInterface
 	 *
 	 * @return Static
 	 */
-	public function setValue( Mixed $value ): Static
-	{
-		if( is_string( $value ) )
-		{
-			switch( True )
-			{
+	public function setValue( Mixed $value ): Static {
+		if( is_string( $value ) ) {
+			switch( True ) {
 				case Util\Strings::isSerialized( $value ):
 					$type = Util\Type::Raw;
 					break;
@@ -295,8 +270,7 @@ final class EnvVariable implements EnvVariableInterface
 		}
 		else {
 			$this->value = $value;
-			$this->type = match( True )
-			{
+			$this->type = match( True ) {
 				is_array( $value ) => Util\Type::Array,
 				is_bool( $value ) => Util\Type::Bool,
 				is_double( $value ),

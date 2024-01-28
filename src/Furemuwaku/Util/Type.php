@@ -7,8 +7,7 @@ namespace Yume\Fure\Util;
  *
  * @package Yume\Fure\Util
  */
-enum Type: Int
-{
+enum Type: Int {
 	
 	use \Yume\Fure\Util\Backed;
 	

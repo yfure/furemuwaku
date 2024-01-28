@@ -14,8 +14,7 @@ use Yume\Fure\Util\Arr;
  *
  * @package Yume\Fure\Util
  */
-final class Arrays
-{
+final class Arrays {
 	
 	/*
 	 * Retrieve element values using dot as array separator.
@@ -34,45 +33,33 @@ final class Arrays
 	 * @throws Yume\Fure\Error\KeyError
 	 *  Throw if key not found.
 	 */
-	public static function ify( Array | String $refs, Array | ArrayAccess $data, Bool $throw = True ): Mixed
-	{
-		// If `refs` is string type.
-		if( is_string( $refs ) ) $refs = self::ifySplit( $refs );
-		
-		// If `refs` length is zero or empty value.
-		if( count( $refs ) === 0 ) return([]);
-		
-		foreach( $refs As $index )
-		{
-			if( isset( $stack ) )
-			{
-				// If key or index is exists.
-				if( isset( $stack[$index] ) )
-				{
+	public static function ify( Array | String $refs, Array | ArrayAccess $data, Bool $throw = True ): Mixed {
+		if( is_string( $refs ) ) {
+			$refs = self::ifySplit( $refs );
+		}
+		if( count( $refs ) === 0 ) {
+			return([]);
+		}
+		foreach( $refs As $index ) {
+			if( isset( $stack ) ) {
+				if( isset( $stack[$index] ) ) {
 					$stack = $stack[$index];
 				}
 				else {
-					
-					// Throw error if throw is allowed.
-					if( $throw ) throw static::throw( $index, is_string( $index ) );
-					
-					// Just return null.
+					if( $throw ) {
+						throw static::throw( $index, is_string( $index ) );
+					}
 					return( Null );
 				}
 			}
 			else {
-				
-				// If key or index is exists.
-				if( isset( $data[$index] ) )
-				{
+				if( isset( $data[$index] ) ) {
 					$stack = $data[$index];
 				}
 				else {
-					
-					// Throw error if throw is allowed.
-					if( $throw ) throw static::throw( $index, is_string( $index ) );
-					
-					// Just return null.
+					if( $throw ) {
+						throw static::throw( $index, is_string( $index ) );
+					}
 					return( Null );
 				}
 			}
@@ -89,21 +76,19 @@ final class Arrays
 	 *
 	 * @return String
 	 */
-	public static function ifyJoin( Array $split ): String
-	{
+	public static function ifyJoin( Array $split ): String {
 		$result = "";
 		$length = count( $split );
 		
-		foreach( $split As $index => $value )
-		{
+		foreach( $split As $index => $value ) {
+			
 			/*
 			 * Check if value is valid numeric character
 			 * Or if character has period symbols the must
 			 * Be enclose with square bracket.
 			 *
 			 */
-			if( is_int( $value ) || is_int( strpos( $value, "." ) ) )
-			{
+			if( is_int( $value ) || is_int( strpos( $value, "." ) ) ) {
 				$result .= "[$value]";
 			}
 			else {
@@ -122,10 +107,8 @@ final class Arrays
 	 *
 	 * @return Array
 	 */
-	public static function ifySplit( String $refer ): Array
-	{
-		if( preg_match_all( "/(?<!\\\)(?:(?:\\[(?:[^\\]\\\]|\\.)*\\])|(?:[^\\.\\[\\\]+))/", $refer, $matches ) )
-		{
+	public static function ifySplit( String $refer ): Array {
+		if( preg_match_all( "/(?<!\\\)(?:(?:\\[(?:[^\\]\\\]|\\.)*\\])|(?:[^\\.\\[\\\]+))/", $refer, $matches ) ) {
 			return( array_map( fn( String $value ) => is_numeric( $value = str_replace( [ "[", "]" ], "", $value ) ) ? ( Int ) $value : $value, $matches[0] ) );
 		}
 		return([]);
@@ -140,8 +123,7 @@ final class Arrays
 	 *
 	 * @return Bool
 	 */
-	public static function isAssoc( Array $array, ? Bool $optional = Null ): Bool
-	{
+	public static function isAssoc( Array $array, ? Bool $optional = Null ): Bool {
 		return( $optional === Null ? self::isList( $array, False ) : self::isList( $array, False ) === $optional );
 	}
 	
@@ -154,8 +136,7 @@ final class Arrays
 	 *
 	 * @return Bool
 	 */
-	public static function isList( Array $array, ? Bool $optional = Null ): Bool
-	{
+	public static function isList( Array $array, ? Bool $optional = Null ): Bool {
 		return( $optional === Null ? array_is_list( $array ) : array_is_list( $array ) === $optional );
 	}
 	
@@ -168,8 +149,7 @@ final class Arrays
 	 *
 	 * @return Bool
 	 */
-	public static function isMulti( Array $array, ? Bool $optional = Null ): Bool
-	{
+	public static function isMulti( Array $array, ? Bool $optional = Null ): Bool {
 		return( $optional === Null ? count( array_filter( $array, "is_array" ) ) > 0 : self::isMulti( $array ) === $optional );
 	}
 	
@@ -183,54 +163,24 @@ final class Arrays
 	 *
 	 * @return Array|Yume\Fure\Util\Arr\Arrayable
 	 */
-	public static function map( Array | String | Arr\Arrayable $array, Callable $callback ): Array | Arr\Arrayable
-	{
-		// Call default map method if Array is Arrayable.
-		if( $array Instanceof Arr\Arrayable )
-		{
+	public static function map( Array | String | Arr\Arrayable $array, Callable $callback ): Array | Arr\Arrayable {
+		if( $array Instanceof Arr\Arrayable ) {
 			return( $array )->map( $callback );
 		}
 		else {
-			
-			// Split strings if value is string.
-			if( is_string( $array ) )
-			{
+			if( is_string( $array ) ) {
 				$array = split( $array );
 			}
-			
-			// Get array indexs.
 			$indexs = array_keys( $array );
 			$stack = [];
-			
-			// Mapping array.
-			for( $i = 0; $i < count( $array ); $i++ )
-			{
-				try
-				{
-					// Get callback return value.
-					$stack[$indexs[$i]] = call_user_func(
-						
-						// Callback handler.
-						$callback,
-						
-						// Index iteration.
-						$i,
-						
-						// Array key name.
-						$indexs[$i],
-						
-						// Array value.
-						$array[$indexs[$i]]
-					);
+			for( $i = 0; $i < count( $array ); $i++ ) {
+				try {
+					$stack[$indexs[$i]] = call_user_func( $callback, $i, $indexs[$i], $array[$indexs[$i]] );
 				}
-				catch( Support\Stoppable $stopped )
-				{
+				catch( Support\Stoppable $stopped ) {
 					$stack[$indexs[$i]] = $stopped;
 				}
-				
-				// Checks if further execution is terminated.
-				if( $stack[$indexs[$i]] Instanceof Support\Stoppable )
-				{
+				if( $stack[$indexs[$i]] Instanceof Support\Stoppable ) {
 					$stack[$indexs[$i]] = $stack[$indexs[$i]]->value;
 					break;
 				}
@@ -249,10 +199,8 @@ final class Arrays
 	 *
 	 * @return Yume\Fure\Error\LookupError
 	 */
-	private static function throw( Int | String $index, Bool $isKey ): Error\LookupError
-	{
-		if( $isKey )
-		{
+	private static function throw( Int | String $index, Bool $isKey ): Error\LookupError {
+		if( $isKey ) {
 			return( new Error\KeyError( $index ) );
 		}
 		return( new Error\IndexError( $index ) );
@@ -269,70 +217,35 @@ final class Arrays
 	 *
 	 * @return Array
 	 */
-	public static function push( Array | Int | String $position, Array $array, Mixed $replace ): Array
-	{
-		// Get array length.
+	public static function push( Array | Int | String $position, Array $array, Mixed $replace ): Array {
 		$length = count( $array );
-		
-		// If the array is empty with no contents.
-		if( $length === 0 )
-		{
+		if( $length === 0 ) {
 			$array[] = $replace;
 		}
-		
-		// If array length is smaller than position.
-		else if( is_int( $position ) && $length -1 <= $position )
-		{
+		else if( is_int( $position ) && $length -1 <= $position ) {
 			$array[] = $replace;
 		}
-		
-		// If position string then this will overwrite the existing value.
-		else if( is_string( $position ) )
-		{
+		else if( is_string( $position ) ) {
 			$array[$position] = $replace;
 		}
 		else {
-			
-			// Looping iteration start.
 			$i = 0;
-			
-			// Stack values.
 			$stack = [];
-			
-			// To avoid stacking values, unset the array if it exists.
-			if( is_array( $position ) )
-			{
+			if( is_array( $position ) ) {
 				unset( $array[$position[1]] );
 			}
-			
-			// Mapping array.
-			foreach( $array As $index => $value )
-			{
+			foreach( $array As $index => $value ) {
 				$i++;
-				
-				// If position is equal index iteration.
-				if( is_int( $position ) && $i -1 === $position || is_array( $position ) && $i -1 === $position[0] )
-				{
-					// Set array element by position.
+				if( is_int( $position ) && $i -1 === $position || is_array( $position ) && $i -1 === $position[0] ) {
 					$stack[( is_int( $position ) ? $i -1 : $position[1] )] = $replace;
-					
-					// Add next queue.
-					foreach( $array As $k => $v )
-					{
+					foreach( $array As $k => $v ) {
 						$stack[( is_int( $k ) ? $k + 1 : $k )] = $v;
 					}
 					break;
 				}
-				
-				// If position is more than number of array.
-				else if( is_int( $position ) && $length < $position + 1 || is_array( $position ) && $length < $position[0] + 1 )
-				{
-					// Set array element by position.
+				else if( is_int( $position ) && $length < $position + 1 || is_array( $position ) && $length < $position[0] + 1 ) {
 					$stack[( is_int( $position ) ? $i -1 : $position[1] )] = $replace;
-					
-					// Add next queue.
-					foreach( $array As $k => $v )
-					{
+					foreach( $array As $k => $v ) {
 						$stack[( is_int( $k ) ? $k + 1 : $k )] = $v;
 					}
 					break;
@@ -356,10 +269,8 @@ final class Arrays
 	 * 
 	 * @return Array
 	 */
-	public static function toArray( Traversable $value ): Array
-	{
-		if( $value Instanceof Arr\Arrayable )
-		{
+	public static function toArray( Traversable $value ): Array {
+		if( $value Instanceof Arr\Arrayable ) {
 			return( $value->__toArray() );
 		}
 		return( iterator_to_array( $value ) );
@@ -375,17 +286,10 @@ final class Arrays
 	 *
 	 * @return Void
 	 */
-	public static function unset( Array | ArrayAccess &$array, Mixed ...$values ): Void
-	{
-		// Mapping array values.
-		self::map( $values, function( $i, $index, $value ) use( &$array )
-		{
-			// Mapping array data.
-			self::map( $array, function( $i, $index, $target ) use( &$array, $value )
-			{
-				// If array value is equal target.
-				if( $value === $target )
-				{
+	public static function unset( Array | ArrayAccess &$array, Mixed ...$values ): Void {
+		self::map( $values, function( $i, $index, $value ) use( &$array ) {
+			self::map( $array, function( $i, $index, $target ) use( &$array, $value ) {
+				if( $value === $target ) {
 					unset( $array[$index] );
 				}
 			});

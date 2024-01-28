@@ -7,8 +7,7 @@ namespace Yume\Fure\Logger;
  * 
  * @package Yume\Fure\Logger
  */
-interface LoggerHandlerInterface
-{
+interface LoggerHandlerInterface {
 
 	public function allow( LoggerLevel $level ): Bool;
 	

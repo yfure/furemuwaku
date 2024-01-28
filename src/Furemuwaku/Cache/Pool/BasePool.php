@@ -10,8 +10,7 @@ use Yume\Fure\Config;
  * 
  * @package Yume\Fure\Cache\Pool
  */
-abstract class BasePool implements Cache\CacheItemPoolInterface
-{
+abstract class BasePool implements Cache\CacheItemPoolInterface {
 
 	/*
 	 * Construct method of class FileSystemAdapter
@@ -33,8 +32,7 @@ abstract class BasePool implements Cache\CacheItemPoolInterface
 	 *
 	 * @return String
 	 */
-	protected function key( String $key ): String
-	{
+	protected function key( String $key ): String {
 		return( hash( "sha512", $key ) );
 	}
 

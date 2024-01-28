@@ -19,8 +19,7 @@ use Yume\Fure\Util\Reflect;
  * 
  * @package Yume\Fure\CLI\Command\Commands
  */
-final class Helper extends Command\Command implements Command\CommandInterface
-{
+final class Helper extends Command\Command implements Command\CommandInterface {
 
 	/*
 	 * @inherit Yume\Fure\CLI\Command\Command::$about
@@ -61,8 +60,7 @@ final class Helper extends Command\Command implements Command\CommandInterface
 		]
 	];
 
-	public function list(): Void
-	{}
+	public function list(): Void {}
 
 	/*
 	 * Register new helper.
@@ -76,28 +74,18 @@ final class Helper extends Command\Command implements Command\CommandInterface
 	 * @throws Yume\Fure\Error\ModuleNotFoundError
 	 *  When the helper is not found.
 	 */
-	private function register( String $helper ): Void
-	{
+	private function register( String $helper ): Void {
 		$target = Util\Strings::format( "\x7b\x7d\x2e\x70\x68\x70", $helper );
 		$target = Path\Paths::AppHelper->path( $target );
 		$target = path( $target, True );
 
-		// Check if file is exists.
-		if( File\File::exists( $target ) )
-		{
-			// Read composer file.
+		if( File\File::exists( $target ) ) {
 			$json = File\File::json( "composer.json", True );
-			
-			// Check if helper has registered previously.
-			if( in_array( $target, $json['autoload']['files'] ??= [] ) )
-			{
+			if( in_array( $target, $json['autoload']['files'] ??= [] ) ) {
 				CLI\Console::info( "has registered previously", $helper );
 			}
 			else {
-				
-				// Added helper into autoloads file.
 				$json['autoload']['files'][] = $target;
-
 				File\File::write( "composer.json", Json\Json::encode( $json, JSON_PRETTY_PRINT ) );
 				CLI\Console::success( "successfull registered", $helper );
 				CLI\Console::warning( "please dumping your composer" );
@@ -117,24 +105,15 @@ final class Helper extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return Void
 	 */
-	private function remove( String $helper ): Void
-	{
+	private function remove( String $helper ): Void {
 		$target = Util\Strings::format( "\x7b\x7d\x2e\x70\x68\x70", $helper );
 		$target = Path\Paths::AppHelper->path( $target );
 		$target = path( $target, True );
-
-		// Read composer file.
 		$json = File\File::json( "composer.json", True );
-			
-		// Check if helper has registered previously.
-		if( in_array( $target, $json['autoload']['files'] ??= [] ) )
-		{
-			// Get helper index position.
+		
+		if( in_array( $target, $json['autoload']['files'] ??= [] ) ) {
 			$index = array_search( $target, $json['autoload']['files'] );
-
-			// Remove helper from autoloads file.
 			unset( $json['autoload']['files'][$index] );
-
 			File\File::write( "composer.json", Json\Json::encode( $json, JSON_PRETTY_PRINT ) );
 			CLI\Console::success( "has removed", $helper );
 			CLI\Console::warning( "please dumping your composer" );

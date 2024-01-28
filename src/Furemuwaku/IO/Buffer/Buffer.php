@@ -16,8 +16,7 @@ use Yume\Fure\Util\Arr;
  *
  * @package Yume\Fure\IO\Buffer
  */
-class Buffer extends Support\Singleton
-{
+class Buffer extends Support\Singleton {
 	
 	/*
 	 * End or get with clean mode.
@@ -68,8 +67,7 @@ class Buffer extends Support\Singleton
 	 * @inherit Yume\Fure\Support\Singleton
 	 *
 	 */
-	protected function __construct( ? Closure $handler = Null )
-	{
+	protected function __construct( ? Closure $handler = Null ) {
 		$this->handler = $handler;
 		$this->buffer = new Arr\Lists([]);
 		
@@ -91,8 +89,8 @@ class Buffer extends Support\Singleton
 			 *
 			 * @return Void
 			 */
-			function( Int $i, Int $index, $buffer ) use( $handlers )
-			{
+			function( Int $i, Int $index, $buffer ) use( $handlers ) {
+				
 				// Set current buffer level.
 				$this->level = $index;
 				$this->level++;
@@ -118,11 +116,8 @@ class Buffer extends Support\Singleton
 	 * @throws Yume\Fure\IO\Buffer\BufferError
 	 *  When the buffer doesn't not started.
 	 */
-	public function append( String $contents ): Buffer
-	{
-		// Check if output buffering doesn't have level.
-		if( $this->hasLevel( False ) )
-		{
+	public function append( String $contents ): Buffer {
+		if( $this->hasLevel( False ) ) {
 			throw new BufferError( $this->level, BufferError::APPEND_ERROR );
 		}
 		else {
@@ -141,11 +136,8 @@ class Buffer extends Support\Singleton
 	 * @throws Yume\Fure\IO\Buffer\BufferError
 	 *  When the buffer doesn't not started.
 	 */
-	public function clean(): Buffer
-	{
-		// Check if output buffering has level.
-		if( $this->hasLevel() )
-		{
+	public function clean(): Buffer {
+		if( $this->hasLevel() ) {
 			ob_clean();
 		}
 		else {
@@ -166,13 +158,9 @@ class Buffer extends Support\Singleton
 	 * @throws Yume\Fure\IO\Buffer\BufferError
 	 *  When the buffer doesn't not started.
 	 */
-	public function end( Int $flags = self::CLEAN ): Buffer
-	{
-		// Check if output buffering has level.
-		if( $this->hasLevel() )
-		{
-			switch( $flags )
-			{
+	public function end( Int $flags = self::CLEAN ): Buffer {
+		if( $this->hasLevel() ) {
+			switch( $flags ) {
 				case self::CLEAN: $this->clean(); break;
 				case self::FLUSH: $this->flush(); break;
 				default:
@@ -199,14 +187,9 @@ class Buffer extends Support\Singleton
 	 * @throws Yume\Fure\IO\Buffer\BufferError
 	 *  When the buffer doesn't not started.
 	 */
-	public function flush( ? String $contents = Null ): Buffer
-	{
-		// Check if output buffering has level.
-		if( $this->hasLevel() )
-		{
-			// If contents is available.
-			if( $contents )
-			{
+	public function flush( ? String $contents = Null ): Buffer {
+		if( $this->hasLevel() ) {
+			if( $contents ) {
 				$this->append( $contents );
 			}
 			ob_flush();
@@ -231,15 +214,10 @@ class Buffer extends Support\Singleton
 	 *  When the buffer doesn't not started.
 	 *  Or level doesn't exists.
 	 */
-	public function get( Int $level = 0 ): String
-	{
-		// Check if output buffering has level.
-		if( $this->hasLevel() )
-		{
-			if( $level >= 1 )
-			{
-				if( isset( $this->buffer[$level] ) )
-				{
+	public function get( Int $level = 0 ): String {
+		if( $this->hasLevel() ) {
+			if( $level >= 1 ) {
+				if( isset( $this->buffer[$level] ) ) {
 					return( $this )->buffer[$level]->buffer;
 				}
 				throw new BufferError( $level, BufferError::LEVEL_ERROR );
@@ -259,18 +237,10 @@ class Buffer extends Support\Singleton
 	 *
 	 * @return False|String
 	 */
-	final protected function handler( String $buffer, Int $flags ): False | String
-	{
-		// Check if output buffering has level.
-		if( $this->hasLevel() )
-		{
-			// Get output buffering callback handler.
+	final protected function handler( String $buffer, Int $flags ): False | String {
+		if( $this->hasLevel() ) {
 			$handler = $this->buffer[$this->level]->handler ?? $this->handler;
-			
-			// Handle output buffering.
 			$buffer = is_callable( $handler ) ? call_user_func( $handler, $buffer, $flags ) : $buffer;
-			
-			// Append output buffering contents.
 			$this->buffer[$this->level]->buffer .= $buffer ?: "";
 			
 			return( $buffer );
@@ -287,8 +257,7 @@ class Buffer extends Support\Singleton
 	 *
 	 * @return Bool
 	 */
-	final public function hasLevel( ? Bool $optional = Null ): Bool
-	{
+	final public function hasLevel( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasLevel() === $optional : ( $this->level >= 1 && $this->level === ob_get_level() && $this->buffer->count() >= 1 && $this->buffer->count() === $this->level ) );
 	}
 	
@@ -299,8 +268,7 @@ class Buffer extends Support\Singleton
 	 *
 	 * @return Int
 	 */
-	public function level(): Int
-	{
+	public function level(): Int {
 		return( $this )->level;
 	}
 	
@@ -315,18 +283,15 @@ class Buffer extends Support\Singleton
 	 *
 	 * @return Yume\Fure\IO\Buffer\Buffer
 	 */
-	public function start( ? Closure $handler = Null, Int $chunk = 0, Int $flags = PHP_OUTPUT_HANDLER_STDFLAGS ): Buffer
-	{
+	public function start( ? Closure $handler = Null, Int $chunk = 0, Int $flags = PHP_OUTPUT_HANDLER_STDFLAGS ): Buffer {
+		
 		// Starting output buffering.
 		ob_start( fn( String $buffer, Int $flags ) => $this->handler( $buffer, $flags ), $chunk, $flags );
 		
 		// Normalize output buffering handler.
 		$handler Instanceof Closure ? $handler : $this->handler;
-		
-		// Update output buffering level.
+
 		$this->level = ob_get_level();
-		
-		// Get buffer status.
 		$this->buffer[$this->level] = [
 			...ob_get_status(),
 			...[
@@ -350,13 +315,9 @@ class Buffer extends Support\Singleton
 	 * @throws Yume\Fure\IO\Buffer\BufferError
 	 *  When the level is not found.
 	 */
-	public function status( Int $level = 0 ): Arr\Arrayable
-	{
-		if( $level >= 1 )
-		{
-			// Check if buffer status is available.
-			if( $level <= $this->buffer->count() )
-			{
+	public function status( Int $level = 0 ): Arr\Arrayable {
+		if( $level >= 1 ) {
+			if( $level <= $this->buffer->count() ) {
 				return( $this )->buffer[$level]->copy();
 			}
 			throw new BufferError( $level, BufferError::LEVEL_ERROR );

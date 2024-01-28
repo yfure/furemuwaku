@@ -9,6 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class HTTPError extends YumeError {}
+class HTTPError extends YumeError {
+}
 
 ?>

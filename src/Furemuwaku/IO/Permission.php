@@ -7,7 +7,7 @@ namespace Yume\Fure\IO;
  * 
  * @package Yume\Fure\IO
  */
-class Permission
-{}
+class Permission {
+}
 
 ?>

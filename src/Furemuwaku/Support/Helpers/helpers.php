@@ -59,8 +59,7 @@ use Yume\Fure\Util\RegExp;
  *
  * @return String
  */
-function colorize( String $string, ? String $base = Null ): String
-{
+function colorize( String $string, ? String $base = Null ): String {
 	$result = "";
 	$base ??= "\x1b[0m";
 	$regexps = [
@@ -227,50 +226,29 @@ function colorize( String $string, ? String $base = Null ): String
 	 * 
 	 * @return String
 	 */
-	$handler = static function( RegExp\Matches $match, String $escape, Closure $handler, Array $regexps ): String
-	{
-		// If captured has group name.
-		if( count( $match->groups ) )
-		{
-			// Find group name.
-			foreach( $match->groups->keys() As $group )
-			{
+	$handler = static function( RegExp\Matches $match, String $escape, Closure $handler, Array $regexps ): String {
+		if( count( $match->groups ) ) {
+			foreach( $match->groups->keys() As $group ) {
 				if( isset( $match->groups[$group] ) &&
 					isset( $regexps[$group] ) &&
-					isset( $regexps[$group]['ansicol'] ) )
-				{
+					isset( $regexps[$group]['ansicol'] ) ) {
 					break;
 				}
 			}
-			
-			// Get captured caharacters.
 			$chars = $match->groups[$group]->value;
-			
-			// If regex has callback handler.
-			if( $regexps[$group]['handler'] ?? Null )
-			{
-				// If callback is multiple handler.
-				if( is_array( $regexps[$group]['handler'] ) )
-				{
+			if( $regexps[$group]['handler'] ?? Null ) {
+				if( is_array( $regexps[$group]['handler'] ) ) {
 					$pattern = [];
-					
-					foreach( $regexps[$group]['handler'] As $callback )
-					{
+					foreach( $regexps[$group]['handler'] As $callback ) {
 						$match[0] = $chars;
-						
-						// If callback is callable.
-						if( is_callable( $callback ) )
-						{
+						if( is_callable( $callback ) ) {
 							$chars = call_user_func( $callback, $match );
 						}
 						else {
 							$pattern[] = $callback['pattern'];
 						}
 					}
-					
-					// If pattern is available.
-					if( count( $pattern ) >= 1 )
-					{
+					if( count( $pattern ) >= 1 ) {
 						$pattern = new RegExp\Pattern( join( "|", $pattern ), "ms" );
 						$chars = $pattern->replace( $chars, 
 							fn( RegExp\Matches $match ) => $handler( ...[
@@ -286,14 +264,8 @@ function colorize( String $string, ? String $base = Null ): String
 					$chars = call_user_func( $regexps[$group]['handler'], $match );
 				}
 			}
-			
-			// If regex is re-matchable.
-			if( is_array( $regexps[$group]['rematch'] ?? Null ) )
-			{
-				// Building regular expression.
+			if( is_array( $regexps[$group]['rematch'] ?? Null ) ) {
 				$pattern = new RegExp\Pattern( join( "|", array_map( fn( String $regexp ) => $regexps[$regexp]['pattern'], $regexps[$group]['rematch'] ) ), "ms" );
-				
-				// Re-match characters.
 				$chars = $pattern->replace( $chars, 
 					fn( RegExp\Matches $match ) => $handler( ...[
 						"match" => $match,
@@ -308,54 +280,37 @@ function colorize( String $string, ? String $base = Null ): String
 		return( "" );
 	};
 	
-	try
-	{
+	try {
 		$last = $base;
 		$escape = Null;
 		$skipable = [];
 		
-		foreach( $strings As $idx => $string )
-		{
-			// Skip if string is skipable.
+		foreach( $strings As $idx => $string ) {
 			if( in_array( $idx, $skipable ) ) continue;
-			
-			// Check if string is ansi color.
-			if( $color = $regansi->match( $string ) )
-			{
+			if( $color = $regansi->match( $string ) ) {
 				$index = $idx +1;
 				$escape = $last = $color[0];
-				
-				// If index is not out of range.
-				if( isset( $strings[$index] ) )
-				{
-					while( $rescape = $regansi->match( $strings[$index] ) )
-					{
-						// Append index iteration as skipable.
+				if( isset( $strings[$index] ) ) {
+					while( $rescape = $regansi->match( $strings[$index] ) ) {
 						$skipable[] = $index;
-						
-						// Append ansi color.
 						$escape .= $rescape[0];
-						
 						$last = $rescape[0];
 						$index++;
-						
-						// Break if index is out of range.
-						if( isset( $strings[$index] ) === False ) break;
+						if( isset( $strings[$index] ) === False ) {
+							break;
+						}
 					}
 				}
-				
-				// Check if index is in skipable.
-				if( in_array( $index +1, $skipable ) ) $index++;
-				
-				// Append index iteration as skipable.
+				if( in_array( $index +1, $skipable ) ) {
+					$index++;
+				}
 				$skipable[] = $index;
 			}
 			else {
 				$escape = $last;
 				$index = $idx;
 			}
-			if( isset( $strings[$index] ) )
-			{
+			if( isset( $strings[$index] ) ) {
 				$result .= $escape;
 				$result .= $pattern->replace( $strings[$index], 
 					fn( RegExp\Matches $match ) => $handler( ...[
@@ -368,8 +323,7 @@ function colorize( String $string, ? String $base = Null ): String
 			}
 		}
 	}
-	catch( Throwable $e )
-	{
+	catch( Throwable $e ) {
 		echo $e;
 		exit;
 	}
@@ -380,8 +334,7 @@ function colorize( String $string, ? String $base = Null ): String
  * @inherit Yume\Fure\Locale\Clock::now
  * 
  */
-function clock(): DateTime\DateTimeImmutable
-{
+function clock(): DateTime\DateTimeImmutable {
 	return( new Clock\Clock() )->now();
 }
 
@@ -389,8 +342,7 @@ function clock(): DateTime\DateTimeImmutable
  * @inherit Yume\Fure\Main\Main::config
  *
  */
-function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed
-{
+function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed {
 	return( Main\Main::config( ...func_get_args() ) );
 }
 
@@ -402,8 +354,7 @@ function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool
  * 
  * @return Yume\Fure\Locale\DateTime\DateTime
  */
-function datetime( ? String $datetime = Null, ? DateTimeZone $timezone = Null ): DateTime\DateTime
-{
+function datetime( ? String $datetime = Null, ? DateTimeZone $timezone = Null ): DateTime\DateTime {
 	return( new DateTime\DateTime( $datetime, $timezone ) );
 }
 
@@ -417,8 +368,8 @@ function datetime( ? String $datetime = Null, ? DateTimeZone $timezone = Null ):
  *
  * @return String
  */
-function dump( Mixed $value, Bool $colorize = False ): String
-{
+function dump( Mixed $value, Bool $colorize = False ): String {
+	
 	// Starting output buffering.
 	$buffer = Buffer\Buffer::self();
 	$buffer->start( fn( String $buffer ) => $colorize ? colorize( $buffer ) : $buffer );
@@ -443,16 +394,9 @@ function dump( Mixed $value, Bool $colorize = False ): String
  *
  * @return Void
  */
-function e( Throwable $e ): Void
-{
+function e( Throwable $e ): Void {
 	$output = "";
-	
-	/*
-	 * @inherit Yume\Fure\Error\YumeError::format
-	 *
-	 */
-	$format = static function( Throwable $thrown )
-	{
+	$format = static function( Throwable $thrown ) {
 		$values = [
 			"class" => $thrown::class,
 			"message" => $thrown->getMessage(),
@@ -462,8 +406,7 @@ function e( Throwable $e ): Void
 			"trace" => $thrown->getTrace(),
 			"type" => $thrown->type ?? "None"
 		];
-		if( $thrown Instanceof Error\YumeError )
-		{
+		if( $thrown Instanceof Error\YumeError ) {
 			$values = [ "\n{class}: {message}\n{class}: File: {file}\n{class}: Line: {line}\n{class}: Type: {type}\n{class}: Code: {code}\n{class}: {trace}\n", ...$values ];
 		}
 		else {
@@ -471,24 +414,16 @@ function e( Throwable $e ): Void
 		}
 		return( Util\Strings::format( ...$values ) );
 	};
-	if( $e Instanceof Error\YumeError )
-	{
+	if( $e Instanceof Error\YumeError ) {
 		$output = $e->__toString();
 	}
 	else {
-		
-		/*
-		 * Current exception thrown.
-		 *
-		 */
 		$stack = [
 			$format( $error = $e )
 		];
-		
-		// Getting previous exception throwns.
-		while( $error = $error->getPrevious() ) $stack[] = $format( $error );
-		
-		// Push exception trace strings.
+		while( $error = $error->getPrevious() ) {
+			$stack[] = $format( $error );
+		}
 		$output .= join( "\n", array_reverse( $stack ) );
 	}
 	putln( "{}\n", YUME_CONTEXT_CLI ? colorize( $output ) : $output );
@@ -498,8 +433,7 @@ function e( Throwable $e ): Void
  * @inherit Yume\Fure\Util\Env\Env::get
  *
  */
-function env( String $name, Mixed $optional = Null ): Mixed
-{
+function env( String $name, Mixed $optional = Null ): Mixed {
 	return( Env\Env::get( ...func_get_args() ) );
 }
 
@@ -507,8 +441,7 @@ function env( String $name, Mixed $optional = Null ): Mixed
  * @inherit Yume\Fure\Util\Format::format
  *
  */
-function f( String $format, Mixed ...$values ): String
-{
+function f( String $format, Mixed ...$values ): String {
 	return( Util\Strings::format( $format, ...$values ) );
 }
 
@@ -516,8 +449,7 @@ function f( String $format, Mixed ...$values ): String
  * @inherit Yume\Fure\Array\Arr::ify
  *
  */
-function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
-{
+function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed {
 	return( Util\Arrays::ify( $refs, $data ) );
 }
 
@@ -525,8 +457,7 @@ function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed
  * @inherit Yume\Fure\Util\File\File::size
  *
  */
-function fsize( $file, Int | String $optional = 0 ): Int
-{
+function fsize( $file, Int | String $optional = 0 ): Int {
 	return( File\File::size( $file, $optional ) );
 }
 
@@ -534,8 +465,7 @@ function fsize( $file, Int | String $optional = 0 ): Int
  * @inherit Yume\Fure\Support\Package::import
  *
  */
-function import( String $package, Mixed $optional = Null ): Mixed
-{
+function import( String $package, Mixed $optional = Null ): Mixed {
 	return( Support\Package::import( $package, $optional ) );
 }
 
@@ -543,8 +473,7 @@ function import( String $package, Mixed $optional = Null ): Mixed
  * @inherit Yume\Fure\Locale\Locale::translate
  *
  */
-function lang( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String
-{
+function lang( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String {
 	return( Locale\Locale::translate( $key, $optional, $format, ...$values ) );
 }
 
@@ -557,16 +486,12 @@ function lang( String $key, ? String $optional = Null, Bool $format = False, Mix
  *
  * @return Yume\Fure\Logger\LoggerInterface
  */
-function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? String $message = Null, ? Array $context = Null ): ? Logger\LoggerInterface
-{
-	// Check if logger is not available.
-	if( Service\Service::available( Logger\Logger::class, False ) )
-	{
+function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? String $message = Null, ? Array $context = Null ): ? Logger\LoggerInterface {
+	if( Service\Service::available( Logger\Logger::class, False ) ) {
 		Service\Service::register( Logger\Logger::class, new Logger\Logger(), False );
 	}
 	if( valueIsNotEmpty( $level ) && 
-		valueIsNotEmpty( $message ) )
-	{
+		valueIsNotEmpty( $message ) ) {
 		return( Service\Service::get( Logger\Logger::class ) )->log( $level, $message, $context );
 	}
 	return( Service\Service::get( Logger\Logger::class ) );
@@ -576,8 +501,7 @@ function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? Strin
  * @inherit Yume\Fure\Util\Path\Path::path
  *
  */
-function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): String
-{
+function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): String {
 	return( Path\Path::path( $path, $prefix_or_remove ) );
 }
 
@@ -591,8 +515,7 @@ function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): Stri
  *
  * @return Void
  */
-function putc( String $format, Mixed ...$values ): Void
-{
+function putc( String $format, Mixed ...$values ): Void {
 	echo( colorize( Util\Strings::format( $format, ...$values ) ) );
 }
 
@@ -606,8 +529,7 @@ function putc( String $format, Mixed ...$values ): Void
  *
  * @return Void
  */
-function puts( String $format, Mixed ...$values ): Void
-{
+function puts( String $format, Mixed ...$values ): Void {
 	echo( Util\Strings::format( $format, ...$values ) );
 }
 
@@ -621,8 +543,7 @@ function puts( String $format, Mixed ...$values ): Void
  *
  * @return Void
  */
-function putcln( String $format, Mixed ...$values ): Void
-{
+function putcln( String $format, Mixed ...$values ): Void {
 	echo( colorize( Util\Strings::format( $format, ...$values ) ) . "\n" );
 }
 
@@ -636,8 +557,7 @@ function putcln( String $format, Mixed ...$values ): Void
  *
  * @return Void
  */
-function putln( String $format, Mixed ...$values ): Void
-{
+function putln( String $format, Mixed ...$values ): Void {
 	echo( Util\Strings::format( $format, ...$values ) . "\n" );
 }
 
@@ -652,8 +572,7 @@ function putln( String $format, Mixed ...$values ): Void
  *
  * @return Array
  */
-function split( String $string, Int | String $separator = 1, Int $limit = PHP_INT_MAX ): Array
-{
+function split( String $string, Int | String $separator = 1, Int $limit = PHP_INT_MAX ): Array {
 	return( is_int( $separator ) ? str_split( $string, $separator ) : explode( $separator, $string, $limit ) );
 }
 
@@ -667,14 +586,11 @@ function split( String $string, Int | String $separator = 1, Int $limit = PHP_IN
  *
  * @return String
  */
-function type( Mixed $value, ? String $optional = Null, Bool $disable = False, Mixed &$ref = Null ): Bool | String
-{
-	// If optional argument available.
-	if( $optional !== Null ) return( ucfirst( $optional ) === type( $value, Null, $disable, $ref ) );
-	
-	// If value is Object type.
-	if( is_object( $value ) )
-	{
+function type( Mixed $value, ? String $optional = Null, Bool $disable = False, Mixed &$ref = Null ): Bool | String {
+	if( $optional !== Null ) {
+		return( ucfirst( $optional ) === type( $value, Null, $disable, $ref ) );
+	}
+	if( is_object( $value ) ) {
 		return( $ref = $disable ? "Object" : $value::class );
 	}
 	return( $ref = ucfirst( gettype( $value ) ) );
@@ -688,21 +604,12 @@ function type( Mixed $value, ? String $optional = Null, Bool $disable = False, M
  *
  * @return Bool
  */
-function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool
-{
-	try
-	{
-		// If value is Resource type.
+function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool {
+	try {
 		if( is_resource( $value ) ) $value = new Stream\Stream( $value );
-		
-		// If value is instance of Countable.
 		if( is_countable( $value ) ) $value = count( $value );
-		
-		// If value is instance of Stream.
 		if( $value Instanceof Stream\StreamInterface ) $value = $value->getSize();
-		
-		$empty = match( True )
-		{
+		$empty = match( True ) {
 			is_int( $value ) => $value === 0,
 			is_null( $value ) => True,
 			is_bool( $value ) => $value === False,
@@ -710,8 +617,7 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool
 			is_string( $value ) => preg_match( "/^([\r\t\n\s]*)$/", $value ) || $value === ""
 		};
 	}
-	catch( UnhandledMatchError )
-	{
+	catch( UnhandledMatchError ) {
 		$empty = False;
 	}
 	return( $optional === Null ? $empty : $empty === $optional );
@@ -725,8 +631,7 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool
  *
  * @return Bool
  */
-function valueIsNotEmpty( Mixed $value, ? Bool $optional = Null ): Bool
-{
+function valueIsNotEmpty( Mixed $value, ? Bool $optional = Null ): Bool {
 	return( $optional === Null ? valueIsEmpty( $value, False ) : valueIsEmpty( $value, False ) === $optional );
 }
 

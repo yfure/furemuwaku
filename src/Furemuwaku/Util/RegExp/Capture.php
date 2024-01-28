@@ -9,15 +9,13 @@ use Stringable;
  *
  * @package Yume\Fure\Util\RegExp
  */
-final class Capture implements Stringable
-{
+final class Capture implements Stringable {
 	
 	public function __construct(
 		public Readonly String $name,
 		public Readonly String $value,
 		public Readonly Int $index
-	)
-	{}
+	) {}
 	
 	/*
 	 * Parse class to String.
@@ -26,8 +24,7 @@ final class Capture implements Stringable
 	 *
 	 * @return String
 	 */
-	public function __toString(): String
-	{
+	public function __toString(): String {
 		return( $this )->value ?? "";
 	}
 	

@@ -7,7 +7,7 @@ namespace Yume\Fure\Http\Response;
  * 
  * @package Yume\Fure\Http\Response
  */
-interface ResponseInterface
-{}
+interface ResponseInterface {
+}
 
 ?>

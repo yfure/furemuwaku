@@ -2,6 +2,8 @@
 
 namespace Yume\Fure\Util;
 
+use Stringable;
+
 use Yume\Fure\Error;
 
 /*
@@ -9,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util
  */
-class Strings
-{
+class Strings {
 	
 	/*
 	 * Letter traits utility.
@@ -52,9 +53,8 @@ class Strings
 	 *
 	 * @return String
 	 */
-	public static function escape( String $string ): String
-	{
-		return( preg_replace( "/\\\(\S)/m", subject: $string, callback: fn( Array $match ) => $match[1] !== "\"" && $match[1] !== "'" ? self::fmt( "\\\\{1}", $match ) : $match[0] ) );
+	public static function escape( String $string ): String {
+		return( preg_replace_callback( "/\\\(\S)/m", subject: $string, callback: fn( Array $match ) => $match[1] !== "\"" && $match[1] !== "'" ? self::format( "\\\\{1}", $match ) : $match[0] ) );
 	}
 	
 	/*
@@ -67,9 +67,8 @@ class Strings
 	 *
 	 * @return Bool
 	 */
-	public static function firstLetterIsUpper( String $string, ? Bool $optional = Null ): Int | Bool
-	{
-		return( $optional !== Null ? $optional === $this->firstLetterIsUpper( $string ) : ( Bool ) preg_match( "/^[\p{Lu}\x{2160}-\x{216F}]/u", $string ) );
+	public static function firstLetterIsUpper( String $string, ? Bool $optional = Null ): Int | Bool {
+		return( $optional !== Null ? $optional === self::firstLetterIsUpper( $string ) : ( Bool ) preg_match( "/^[\p{Lu}\x{2160}-\x{216F}]/u", $string ) );
 	}
 	
 	/*
@@ -82,9 +81,8 @@ class Strings
 	 *
 	 * @return Bool
 	 */
-	public static function isJson( String $json, ? Bool $optional = Null ): Bool
-	{
-		return( $optional !== Null ? $optional === $this->isJson() : ( Bool ) @json_decode( $json ) );
+	public static function isJson( String $json, ? Bool $optional = Null ): Bool {
+		return( $optional !== Null ? $optional === self::isJson( $json ) : ( Bool ) @json_decode( $json ) );
 	}
 	
 	/*
@@ -97,8 +95,7 @@ class Strings
 	 *
 	 * @return Bool
 	 */
-	public static function isQuoted( String $string, Mixed &$matches ): Bool
-	{
+	public static function isQuoted( String $string, Mixed &$matches ): Bool {
 		return( preg_match( "/^(?<quote>[\"\'])(?<value>(?:\\\\1|(?!\\\\1).)*)\\1/ms", $string, $matches, PREG_UNMATCHED_AS_NULL ) );
 	}
 	
@@ -111,8 +108,7 @@ class Strings
 	 *
 	 * @return Bool
 	 */
-	public static function isSerialized( String $string ): Bool
-	{
+	public static function isSerialized( String $string ): Bool {
 		return( @unserialize( $string ) !== False || $string === "b:0;" );
 	}
 	
@@ -125,8 +121,7 @@ class Strings
 	 *
 	 * @return Bool
 	 */
-	public static function isSpaces( String $string ): Bool
-	{
+	public static function isSpaces( String $string ): Bool {
 		return( preg_match( "/^(?:\s+)$/", $string ) );
 	}
 	
@@ -139,24 +134,15 @@ class Strings
 	 *
 	 * @return String
 	 */
-	public static function parse( Mixed $args ): String
-	{
-		return( match( True )
-		{
-			// If `args` value is Null type.
+	public static function parse( Mixed $args ): String {
+		return( match( True ) {
 			$args === Null => "Null",
-			
-			// If `args` value is Boolean type.
 			$args === True => "True",
 			$args === False => "False",
 			
-			// If `args` value is Array type.
 			is_array( $args ) => Json\Json::encode( $args, JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ),
-			
-			// If `args` value is Object type.
 			is_object( $args ) => is_callable( $args ) ? self::parse( Reflect\ReflectFunction::invoke( $args ) ) : ( $args Instanceof Stringable ? $args->__toString() : $args::class ),
 			
-			// Auto convert.
 			default => ( String ) $args
 		});
 	}
@@ -173,14 +159,11 @@ class Strings
 	 *
 	 * @return String
 	 */
-	public static function pop( String $subject, String $separator, Bool $last = False, Mixed &$ref = Null ): String
-	{
-		if( count( $split = explode( $separator, $subject ) ) > 0 )
-		{
+	public static function pop( String $subject, String $separator, Bool $last = False, Mixed &$ref = Null ): String {
+		if( count( $split = explode( $separator, $subject ) ) > 0 ) {
 			$end = array_pop( $split );
 			
-			if( $last )
-			{
+			if( $last ) {
 				$ref = [
 					$string = implode( $separator, $split ),
 					$end
@@ -207,14 +190,11 @@ class Strings
 	 *
 	 * @return String
 	 */
-	public static function shift( String $subject, String $separator, Bool $shift = False, Mixed &$ref = Null ): String
-	{
-		if( count( $split = explode( $separator, $subject ) ) > 0 )
-		{
+	public static function shift( String $subject, String $separator, Bool $shift = False, Mixed &$ref = Null ): String {
+		if( count( $split = explode( $separator, $subject ) ) > 0 ) {
 			$first = array_shift( $split );
 			
-			if( $shift )
-			{
+			if( $shift ) {
 				$ref = [
 					$string = implode( $separator, $split ),
 					$first
@@ -242,36 +222,24 @@ class Strings
 	 * @return String
 	 *  The ASCII codes of the input string, separated by spaces.
 	 */
-	public static function toASCII( String $string, String $outputEncoding = "ASCII" ): String
-	{
-		// If the input string is empty or null, return an empty string.
-		if( valueIsEmpty( $string ) ) return "";
-		
-		// Convert the input string to UTF-8 encoding.
+	public static function toASCII( String $string, String $outputEncoding = "ASCII" ): String {
+		if( valueIsEmpty( $string ) ) {
+			return "";
+		}
 		$string = mb_convert_encoding( $string, "UTF-8", mb_detect_encoding( $string ) );
-	
-		// Convert each character in the input string to its ASCII code.
 		$ascii = [];
-		
-		for( $i = 0; $i < mb_strlen( $string ); $i++ )
-		{
-			// Get the current character.
+		for( $i = 0; $i < mb_strlen( $string ); $i++ ) {
 			$char = mb_substr( $string, $i, 1, "UTF-8" );
-	
-			// Get the ASCII code for the current character.
 			$code = mb_ord( $char, "ASCII" );
-	
-			// If the ASCII code is within the printable range, add it to the output array.
-			if( $code >= 32 && $code <= 126 )
-			{
+			if( $code >= 32 && $code <= 126 ) {
 				$ascii[] = $code;
 			}
 			else {
 				
 				// If the ASCII code is not within the printable
 				// range, convert it to an escape sequence.
-				switch( $code )
-				{
+				switch( $code ) {
+
 					// Tab character
 					case 9:
 						$ascii[] = 92; // Backslash
@@ -295,11 +263,7 @@ class Strings
 				}
 			}
 		}
-	
-		// Convert the output array to a string.
-		if( $outputEncoding !== "ASCII" )
-		{
-			// Return converted the output array to the desired encoding.
+		if( $outputEncoding !== "ASCII" ) {
 			return( iconv( "ASCII", $outputEncoding . "//IGNORE", implode( "", array_map( "chr", $ascii ) ) ) );
 		}
 		
@@ -328,23 +292,16 @@ class Strings
 	 * @return String
 	 *  The converted String
 	 *
-	 * @throws Yume\Fure\Error\TypeError
+	 * @throws Yume\Fure\Error\UnexpectedError
 	 *  When the conversion failed.
 	 */
-	public static function toUnicode( String $string, String $outputEncoding, String $inputEncoding = "UTF-8", Bool $strict = True, Bool $useBom = True, Bool $useBor = False ): String
-	{
-		// Check if the output encoding is supported by iconv
-		if( in_array( $outputEncoding, iconv_get_encoding( "all" ) ) === False )
-		{
+	public static function toUnicode( String $string, String $outputEncoding, String $inputEncoding = "UTF-8", Bool $strict = True, Bool $useBom = True, Bool $useBor = False ): String {
+		if( in_array( $outputEncoding, iconv_get_encoding( "all" ) ) === False ) {
 			trigger_error( "Unsupported output encoding \"$outputEncoding\"", E_USER_WARNING );
 			return( False );
 		}
-		
-		// Determine the BOM for the output encoding.
-		if( $useBom )
-		{
-			$bom = match( $outputEncoding )
-			{
+		if( $useBom ) {
+			$bom = match( $outputEncoding ) {
 				"UTF-16BE" => "\xFE\xFF",
 				"UTF-16LE" => "\xFF\xFE",
 				"UTF-8" => "\xEF\xBB\xBF",
@@ -357,12 +314,14 @@ class Strings
 		$unicode = @iconv( $inputEncoding, $strict ? $outputEncoding . "//IGNORE" : $outputEncoding, $string );
 		
 		// Check for conversion errors.
-		if( $unicode === False ) throw new Error\TypeError( "Conversion from \"$inputEncoding\" to \"$outputEncoding\" failed" );
+		if( $unicode === False ) {
+			throw new Error\UnexpectedError( "Conversion from \"$inputEncoding\" to \"$outputEncoding\" failed" );
+		}
 		
 		// Reverse the byte order of the output if requested.
-		if( $useBor ) $unicode = strrev( $unicode );
-		
-		// Add the BOM to the output if requested.
+		if( $useBor ) {
+			$unicode = strrev( $unicode );
+		}
 		return( ( $bom ?? "" ) . $unicode );
 	}
 	

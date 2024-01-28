@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util\Json
  */
-class JsonError extends Error\ValueError
-{
+class JsonError extends Error\ValueError {
 	
 	/*
 	 * The maximum stack depth has been exceeded.

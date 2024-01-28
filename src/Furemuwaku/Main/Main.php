@@ -23,8 +23,7 @@ use Yume\Fure\Util\Env;
  *
  * @package Yume\Fure\Main
  */
-final class Main
-{
+final class Main {
 	
 	/*
 	 * Instance of class Main.
@@ -105,10 +104,9 @@ final class Main
 	 *
 	 * @return Void
 	 */
-	protected function __construct()
-	{
-		try
-		{
+	protected function __construct() {
+		try {
+
 			// Initialize installed packages.
 			Support\Package::self();
 			
@@ -127,8 +125,7 @@ final class Main
 			$env = strtolower( env( "ENVIRONMENT", "development" ) );
 			
 			// Check if valid application environment.
-			if( $env === "development" || $env === "production" )
-			{
+			if( $env === "development" || $env === "production" ) {
 				// Define application evironment.
 				defined( "YUME_ENVIRONMENT" ) | define( "YUME_ENVIRONMENT", $env === "development" ? YUME_DEVELOPMENT : YUME_PRODUCTION );
 				
@@ -142,8 +139,7 @@ final class Main
 			// Set trigger error and exception handler.
 			Erahandora\Erahandora::setup();
 		}
-		catch( Throwable $e )
-		{
+		catch( Throwable $e ) {
 			e( $e );
 		}
 	}
@@ -155,8 +151,7 @@ final class Main
 	 *
 	 * @return Void
 	 */
-	protected function __clone(): Void
-	{}
+	protected function __clone(): Void {}
 	
 	/*
 	 * Prevent from being unserialized.
@@ -168,8 +163,7 @@ final class Main
 	 *
 	 * @throws Yume\Fure\Error\RuntimeError
 	 */
-	public function __wakeup(): Void
-	{
+	public function __wakeup(): Void {
 		throw new Error\RuntimeError( sprintf( "Cannot unserialize %s", __CLASS__ ) );
 	}
 	
@@ -197,51 +191,36 @@ final class Main
 	 * @throws Yume\Fure\Error\LookupError
 	 * @throws Yume\Fure\Error\ValueError
 	 */
-	public static function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed
-	{
-		if( valueIsNotEmpty( $name ) )
-		{
-			// Split config name.
+	public static function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed {
+		if( valueIsNotEmpty( $name ) ) {
 			$split = Util\Arrays::ifySplit( $name );
-			
-			// Normalize configuration name.
 			$name = strtolower( array_shift( $split ) );
 			$config = Null;
 			
 			// Check if config is imported.
-			if( isset( static::$configs[$name] ) && !$import )
-			{
-				// If sharedable configuration is available.
-				if( count( $configs = array_filter( static::$configs[$name], fn( Config\Config $config ) => $config->isSharedable() ) ) )
-				{
-					// Get last configuration.
+			if( isset( static::$configs[$name] ) && !$import ) {
+				if( count( $configs = array_filter( static::$configs[$name], fn( Config\Config $config ) => $config->isSharedable() ) ) ) {
 					$config = end( $configs );
 				}
 			}
-			if( $config === Null )
-			{
+			if( $config === Null ) {
+
 				// Importing new Configuration Module.
 				$config = Support\Package::import( join( "/", [ Path\Paths::SystemConfig->value, $name ] ) );
 				
 				// Create new config instance for configuration.
-				if( $config Instanceof Config\Config === False )
-				{
+				if( $config Instanceof Config\Config === False ) {
 					$config = new Config\Config( $name, $shared, $config );
 				}
 				static::$configs[$name][] = $config;
 			}
-			try
-			{
-				if( count( $split ) )
-				{
+			try {
+				if( count( $split ) ) {
 					return( Util\Arrays::ify( $split, $config ) );
 				}
 			}
-			catch( Error\LookupError $e )
-			{
-				// If optional value available.
-				if( $optional )
-				{
+			catch( Error\LookupError $e ) {
+				if( $optional ) {
 					return( $optional );
 				}
 				throw $e;
@@ -258,18 +237,11 @@ final class Main
 	 *
 	 * @return Void
 	 */
-	public function main(): Void
-	{
-		// Avoid duplicate runtime application.
-		if( static::$running )
-		{
+	public function main(): Void {
+		if( static::$running ) {
 			throw new Error\UnexpectedError( "Unable to run running application" );
 		}
-		else {
-			
-			// Set application as running.
-			static::$running = True;
-		}
+		static::$running = True;
 	}
 	
 	/*
@@ -279,8 +251,7 @@ final class Main
 	 *
 	 * @return Static
 	 */
-	public static function self(): Static
-	{
+	public static function self(): Static {
 		return( static::$context ??= new Static() );
 	}
 	

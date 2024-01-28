@@ -7,8 +7,7 @@ namespace Yume\Fure\Util\Letter;
  *
  * @package Yume\Fure\Util\Letter
  */
-trait UpperCase
-{
+trait UpperCase {
 	
 	use \Yume\Fure\Util\Letter\CamelCase;
 	
@@ -21,8 +20,7 @@ trait UpperCase
 	 *
 	 * @return String
 	 */
-	public static function toUpperCase( String $string ): String
-	{
+	public static function toUpperCase( String $string ): String {
 		return( strtoupper( $string ) );
 	}
 	
@@ -35,8 +33,7 @@ trait UpperCase
 	 *
 	 * @return String
 	 */
-	public static function fromCamelCasetoUpperCase( String $string ): String
-	{
+	public static function fromCamelCasetoUpperCase( String $string ): String {
 		return( self::toUpperCase( trim( preg_replace( "/[A-Z]/", "_$0", $string ), "_" ) ) );
 	}
 	
@@ -49,8 +46,7 @@ trait UpperCase
 	 *
 	 * @return String
 	 */
-	public static function fromPascalCasetoUpperCase( String $string ): String
-	{
+	public static function fromPascalCasetoUpperCase( String $string ): String {
 		return( self::fromCamelCasetoUpperCase( $string ) );
 	}
 	
@@ -63,8 +59,7 @@ trait UpperCase
 	 *
 	 * @return String
 	 */
-	public static function fromSnakeCasetoUpperCase( String $string ): String
-	{
+	public static function fromSnakeCasetoUpperCase( String $string ): String {
 		return( self::toUpperCase( $string ) );
 	}
 	
@@ -77,8 +72,7 @@ trait UpperCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCamelCasetoUpperCase( String $string ): String
-	{
+	public static function fromUpperCamelCasetoUpperCase( String $string ): String {
 		return( self::toUpperCase( trim( preg_replace( "/[A-Z]/", "_$0", $string ), "_" ) ) );
 	}
 	
@@ -91,8 +85,7 @@ trait UpperCase
 	 *
 	 * @return String
 	 */
-	public static function fromVerbObjectCasetoUpperCase( String $string ): String
-	{
+	public static function fromVerbObjectCasetoUpperCase( String $string ): String {
 		return( self::fromCamelCasetoUpperCase( self::fromVerbObjectCasetoCamelCase( $string ) ) );
 	}
 	

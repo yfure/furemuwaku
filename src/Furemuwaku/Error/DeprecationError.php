@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class DeprecationError extends YumeError
-{
+class DeprecationError extends YumeError {
 	
 	/*
 	 * Error constant for deprecated function.

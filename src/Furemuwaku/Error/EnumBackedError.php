@@ -11,8 +11,8 @@ use Throwable;
  *
  * @package Yume\Fure\Error
  */
-final class EnumBackedError extends EnumError
-{
+final class EnumBackedError extends EnumError {
+	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError
 	 *

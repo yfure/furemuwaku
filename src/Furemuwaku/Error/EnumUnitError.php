@@ -2,8 +2,6 @@
 
 namespace Yume\Fure\Error;
 
-use Throwable;
-
 /*
  * EnumUnitError
  *
@@ -11,8 +9,7 @@ use Throwable;
  *
  * @package Yume\Fure\Error
  */
-final class EnumUnitError extends EnumError
-{
+final class EnumUnitError extends EnumError {
 	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError

@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class ExtensionError extends ReflectError
-{
+class ExtensionError extends ReflectError {
 	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError

@@ -16,8 +16,7 @@ use Yume\Fure\Util\RegExp;
  *
  * @package Yume\Fure\CLI\Argument
  */
-class Argument implements ArrayAccess, Countable
-{
+class Argument implements ArrayAccess, Countable {
 	
 	/*
 	 * Argument values parsed.
@@ -57,8 +56,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Void
 	 */
-	public function __construct( ? Array $argv = Null )
-	{
+	public function __construct( ? Array $argv = Null ) {
 		$this->parse( $argv );
 	}
 	
@@ -71,8 +69,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Mixed
 	 */
-	public function __get( Int | String $arg ): Mixed
-	{
+	public function __get( Int | String $arg ): Mixed {
 		return( $this )->get( $arg );
 	}
 	
@@ -89,16 +86,12 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @throws Yume\Fure\CLI\Argument\ArgumentJsonValueError
 	 */
-	private function build( Int | String $name, Mixed $value, Bool $long = False ): ArgumentValue
-	{
-		try
-		{
+	private function build( Int | String $name, Mixed $value, Bool $long = False ): ArgumentValue {
+		try {
 			$value = $this->value( $value );
 		}
-		catch( Json\JsonError $e )
-		{
-			if( is_int( $name ) )
-			{
+		catch( Json\JsonError $e ) {
+			if( is_int( $name ) ) {
 				$name = $value;
 			}
 			throw new ArgumentJsonValueError( $name, previous: $e );
@@ -113,8 +106,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Int
 	 */
-	public function count(): Int
-	{
+	public function count(): Int {
 		return( count( $this->args ) );
 	}
 	
@@ -128,8 +120,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Mixed
 	 */
-	public function get( Int | String $arg, Mixed $default = Null ): Mixed
-	{
+	public function get( Int | String $arg, Mixed $default = Null ): Mixed {
 		return( $this )->args[$arg] ?? $default;
 	}
 
@@ -140,8 +131,7 @@ class Argument implements ArrayAccess, Countable
 	 * 
 	 * @return Array<ArgumentValue>
 	 */
-	public function getAll(): Array
-	{
+	public function getAll(): Array {
 		return( $this->args );
 	}
 	
@@ -152,8 +142,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return String
 	 */
-	public function getCommandName(): String
-	{
+	public function getCommandName(): String {
 		return( $this )->command;
 	}
 	
@@ -164,8 +153,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return String
 	 */
-	public function getFileName(): String
-	{
+	public function getFileName(): String {
 		return( $this )->file;
 	}
 	
@@ -179,8 +167,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Bool
 	 */
-	public function has( Int | String $arg, ? Bool $optional = Null ): Bool
-	{
+	public function has( Int | String $arg, ? Bool $optional = Null ): Bool {
 		return( $optional === Null ? isset( $this->args[$arg] ) : isset( $this->args[$arg] ) === $optional );
 	}
 	
@@ -191,8 +178,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Bool
 	 */
-	public function hasCommand(): Bool
-	{
+	public function hasCommand(): Bool {
 		return( $this )->command !== Null;
 	}
 	
@@ -205,8 +191,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Bool
 	 */
-	public function offsetExists( Mixed $offset ): Bool
-	{
+	public function offsetExists( Mixed $offset ): Bool {
 		return( isset( $this->args[$offset] ) );
 	}
 	
@@ -219,8 +204,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Mixed
 	 */
-	public function offsetGet( Mixed $offset ): Mixed
-	{
+	public function offsetGet( Mixed $offset ): Mixed {
 		return( $this->offsetExists( $offset ) ? $this->args[$offset] : Null );
 	}
 	
@@ -236,10 +220,8 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @throws Yume\Fure\CLI\Argument\ArgumentError
 	 */
-	public function offsetSet( Mixed $offset, Mixed $value ): Void
-	{
-		if( $value Instanceof ArgumentValue === False )
-		{
+	public function offsetSet( Mixed $offset, Mixed $value ): Void {
+		if( $value Instanceof ArgumentValue === False ) {
 			throw new ArgumentError( [ $offset, ArgumentValue::class, type( $value ) ], ArgumentError::SET_ERROR );
 		}
 		$this->args[$offset] = $value;
@@ -256,8 +238,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @throws Yume\Fure\CLI\Argument\ArgumentError
 	 */
-	public function offsetUnset( Mixed $offset ): Void
-	{
+	public function offsetUnset( Mixed $offset ): Void {
 		throw new ArgumentError( $offset, ArgumentError::UNSET_ERROR );
 	}
 	
@@ -281,9 +262,7 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @throws Yume\Fure\CLI\Argument\ShortOptionError
 	 */
-	private function parse( ? Array $argv = Null )
-	{
-		// Get command line argument value.
+	private function parse( ? Array $argv = Null ) {
 		$argv = $argv ?? $_SERVER['argv'] ?? [];
 		$args = [];
 		
@@ -291,15 +270,9 @@ class Argument implements ArrayAccess, Countable
 		$this->file = array_shift( $argv );
 		
 		// Counting argument based on argument values length.
-		for( $i = 0, $len = count( $argv ); $i < $len; $i++ )
-		{
-			// Get argument value.
+		for( $i = 0, $len = count( $argv ); $i < $len; $i++ ) {
 			$arg = $argv[$i] ?? Null;
-			
-			// Index number.
 			$idx = $i +1;
-			
-			// Skip if argument value has unset.
 			if( $arg === Null ) continue;
 			
 			/*
@@ -308,40 +281,26 @@ class Argument implements ArrayAccess, Countable
 			 * or double quotes.
 			 *
 			 */
-			if( $arg !== "" )
-			{
-				// If argument value is long option.
-				if( substr( $arg, 0, 2 ) === "--" )
-				{
-					// Get position equal symbol position.
+			if( $arg !== "" ) {
+				if( substr( $arg, 0, 2 ) === "--" ) {
 					$eqPost = strpos( $arg, "=" );
-					
-					// If argument has equal symbol.
-					if( $eqPost !== False )
-					{
+					if( $eqPost !== False ) {
 						$key = substr( $arg, 2, $eqPost -2 );
 						$val = substr( $arg, $eqPost +1 );
 					}
 					else {
-						
-						// Get key name.
 						$key = substr( $arg, 2 );
-						
-						// Index value.
 						$val = $argv[$idx] ?? Null;
 						
 						// If argument value is not enclosed empty string.
-						if( $val !== "" && $val !== Null )
-						{
-							// If doesn't minus symbol.
-							if( $idx < $len && strlen( $val ) !== 0 && $val[0] !== "-" )
-							{
+						if( $val !== "" && $val !== Null ) {
+							if( $idx < $len && strlen( $val ) !== 0 && $val[0] !== "-" ) {
 								$i++;
 							}
 							else {
-								
-								// If argument is not exists.
-								if( isset( $args[$key] ) === False ) $val = True;
+								if( isset( $args[$key] ) === False ) {
+									$val = True;
+								}
 							}
 						}
 						else {
@@ -363,18 +322,14 @@ class Argument implements ArrayAccess, Countable
 					 * this --= then it will not be considered.
 					 *
 					 */
-					if( $key !== "" )
-					{
+					if( $key !== "" ) {
 						$args[$key] = $this->build( $key, $val !== Null ? $val : Null, True );
 					}
 				}
 				
 				// If argument value is short option.
-				else if( substr( $arg, 0, 1 ) === "-" )
-				{
-					// If position 2 has equal symbol.
-					if( substr( $arg, 2, 1 ) === "=" )
-					{
+				else if( substr( $arg, 0, 1 ) === "-" ) {
+					if( substr( $arg, 2, 1 ) === "=" ) {
 						$key = substr( $arg, 1, 1 );
 						$val = substr( $arg, 3 );
 						
@@ -385,8 +340,7 @@ class Argument implements ArrayAccess, Countable
 						// If a short option is like this -xyz
 						// then it will be considered invalid,
 						// only like this -x
-						if( strlen( $arg ) !== 2 )
-						{
+						if( strlen( $arg ) !== 2 ) {
 							throw new ArgumentShortOptionError( $arg );
 						}
 						$args[$arg[1]] = True;
@@ -400,26 +354,15 @@ class Argument implements ArrayAccess, Countable
 				$args[] = $arg;
 			}
 		}
-		
-		// Mapping all arguments.
-		foreach( $args As $name => $value )
-		{
-			// Skip if value has builded.
-			if( $value Instanceof ArgumentValue ) continue;
-			
-			// Build value.
+		foreach( $args As $name => $value ) {
+			if( $value Instanceof ArgumentValue ) {
+				continue;
+			}
 			$args[$name] = $this->build( $name, $value, False );
 		}
-		
-		// If command is available.
-		if( $command = array_values( $args )[0] ?? Null )
-		{
-			if( $command->type->name === "String" && type( $command->name, "Integer" ) )
-			{
-				// Set command name.
+		if( $command = array_values( $args )[0] ?? Null ) {
+			if( $command->type->name === "String" && type( $command->name, "Integer" ) ) {
 				$this->command = $command->value;
-				
-				// Unset command from arguments.
 				unset( $args[$command->name] );
 			}
 		}
@@ -438,48 +381,25 @@ class Argument implements ArrayAccess, Countable
 	 *
 	 * @return Array
 	 */
-	private function value( Mixed $value ): Array
-	{
-		$value = match( True )
-		{
-			// If value is Bool or Int type.
+	private function value( Mixed $value ): Array {
+		$value = match( True ) {
 			is_bool( $value ) || is_int( $value ) => ( Bool ) $value,
-
-			// If value is Null or Empty string.
 			is_null( $value ) => True,
-			
-			// If value is String type.
-			is_string( $value ) => match( ucfirst( strtolower( $value ) ) )
-			{
-				// Nullable
+			is_string( $value ) => match( ucfirst( strtolower( $value ) ) ) {
 				"?", "None", "Null" => Null,
-				
-				// Boolean (True)
 				"I", "Y", "Yes", "True" => True,
-				
-				// Boolean (False)
 				"!", "N", "Not", "False" => False,
-				
-				// Re-Match
-				default => match( True )
-				{
-					// Number (Integer)
+				default => match( True ) {
 					RegExp\RegExp::test( "/^(?:[0-9]{1})(?:[0-9_]{1,}(?:[0-9]{1})*)*$/", $value ) => ( Int ) $value,
-					
-					// Number (Floating)
 					RegExp\RegExp::test( "/^(?:[0-9]+)\.(?:[0-9]+)$/", $value ) => ( Float ) $value,
-					
-					// Array
 					RegExp\RegExp::test( "/^(?:\[[^\]]*\]|\{[^\}]*\})$/", $value ) => Json\Json::decode( $value, True ),
-					
 					default => $value
 				}
 			}
 		};
 		return([
 			"value" => $value,
-			"type" => match( type( $value ) )
-			{
+			"type" => match( type( $value ) ) {
 				"Array" => Util\Type::Array,
 				"Boolean" => Util\Type::Bool,
 				"Double" => Util\Type::Double,
@@ -488,7 +408,6 @@ class Argument implements ArrayAccess, Countable
 				"Integer" => Util\Type::Integer,
 				"NULL" => Util\Type::None,
 				"String" => Util\Type::String,
-				
 				default => Util\Type::Mixed
 			}
 		]);

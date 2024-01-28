@@ -11,8 +11,7 @@ use Yume\Fure\CLI;
  * 
  * @package Yume\Fure\CLI\CLI
  */
-class CommandError extends CLI\CLIError
-{
+class CommandError extends CLI\CLIError {
 
 	/*
 	 * Error constant when command not found.

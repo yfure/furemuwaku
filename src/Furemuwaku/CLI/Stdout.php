@@ -11,8 +11,7 @@ use Yume\Fure\Util;
  * 
  * @package Yume\Fure\CLI
  */
-enum Stdout: String
-{
+enum Stdout: String {
 
 	use \Yume\Fure\Util\Backed;
 

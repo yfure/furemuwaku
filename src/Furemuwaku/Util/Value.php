@@ -14,8 +14,7 @@ namespace Yume\Fure\Util;
  * 
  * @package Yume\Fure\Util
  */
-interface Value
-{
+interface Value {
 
 	/*
 	 * Return value of object.

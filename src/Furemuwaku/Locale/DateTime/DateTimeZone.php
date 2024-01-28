@@ -13,8 +13,7 @@ use Yume\Fure\Locale;
  *
  * @extends BaseDateTimeZone (DateTimeZone)
  */
-class DateTimeZone extends BaseDateTimeZone
-{
+class DateTimeZone extends BaseDateTimeZone {
 	
 	/*
 	 * Construct method of class DateTimeZone.
@@ -25,8 +24,7 @@ class DateTimeZone extends BaseDateTimeZone
 	 *
 	 * @return Void
 	 */
-	public function __construct( ? String $timezone = Null )
-	{
+	public function __construct( ? String $timezone = Null ) {
 		parent::__construct( $timezone ?? Locale\Locale::getTimeZoneName() );
 	}
 	

@@ -13,8 +13,7 @@ use Yume\Fure\Util;
  * 
  * @package Yume\Fure\Cache
  */
-class CacheItem implements CacheItemInterface
-{
+class CacheItem implements CacheItemInterface {
 
 	/*
 	 * Cache expiration time.
@@ -37,8 +36,7 @@ class CacheItem implements CacheItemInterface
 	 *
 	 * @return Void
 	 */
-	public function __construct( private String $key, private Mixed $value, private Bool $hit, private ? Clock\ClockInterface $clock = Null )
-	{
+	public function __construct( private String $key, private Mixed $value, private Bool $hit, private ? Clock\ClockInterface $clock = Null ) {
 		$this->clock = $clock ??= new Clock\Clock; 
 	}
 	
@@ -46,23 +44,21 @@ class CacheItem implements CacheItemInterface
 	 * @inherit Yume\Fure\Cache\CacheInterface::expiresAfter
 	 *
 	 */
-	public function expiresAfter( DateInterval | Int | Null $time ): CacheItemInterface
-	{
-		if( $time === Null ) return( $this )->expiresAt( Null );
-		if( is_int( $time ) )
-		{
-			// Check if provided TTL is supported.
-			if( $interval = DateInterval::createFromDateString( Util\Strings::format( "{} seconds", $time ) ) )
-			{
+	public function expiresAfter( DateInterval | Int | Null $time ): CacheItemInterface {
+		if( $time === Null ) {
+			return( $this )->expiresAt( Null );
+		}
+		if( is_int( $time ) ) {
+			if( $interval = DateInterval::createFromDateString( Util\Strings::format( "{} seconds", $time ) ) ) {
 				$time = $interval;
 			}
 			else {
 				throw new CacheError( $time, CacheError::TTL_ERROR );
 			}
 		}
-		
-		// If time is Instanceof DateInterval class.
-		if( $time Instanceof DateInterval ) return( $this )->expiresAt( $this->clock->now()->add( $time ) );
+		if( $time Instanceof DateInterval ) {
+			return( $this )->expiresAt( $this->clock->now()->add( $time ) );
+		}
 		
 		// Invalid time passed.
 		throw new CacheError( ucfirst( gettype( $time ) ), CacheError::TIME_ERROR );
@@ -72,8 +68,7 @@ class CacheItem implements CacheItemInterface
 	 * @inherit Yume\Fure\Cache\CacheInterface::expiresAt
 	 *
 	 */
-	public function expiresAt( ? DateTimeInterface $expiration ): CacheItemInterface
-	{
+	public function expiresAt( ? DateTimeInterface $expiration ): CacheItemInterface {
 		return([ $this, $this->expires = $expiration Instanceof DateTimeInterface ? $expiration->getTimestamp() : Null ][0]);
 	}
 	
@@ -81,8 +76,7 @@ class CacheItem implements CacheItemInterface
 	 * @inherit Yume\Fure\Cache\CacheInterface::get
 	 *
 	 */
-	public function get(): Mixed
-	{
+	public function get(): Mixed {
 		return( $this )->value;
 	}
 	
@@ -90,8 +84,7 @@ class CacheItem implements CacheItemInterface
 	 * @inherit Yume\Fure\Cache\CacheInterface::getExpires
 	 *
 	 */
-	public function getExpires(): ? Int
-	{
+	public function getExpires(): ? Int {
 		return( $this )->expires;
 	}
 	
@@ -99,8 +92,7 @@ class CacheItem implements CacheItemInterface
 	 * @inherit Yume\Fure\Cache\CacheInterface::getKey
 	 *
 	 */
-	public function getKey(): String
-	{
+	public function getKey(): String {
 		return( $this )->key;
 	}
 	
@@ -108,14 +100,11 @@ class CacheItem implements CacheItemInterface
 	 * @inherit Yume\Fure\Cache\CacheInterface::isHit
 	 *
 	 */
-	public function isHit(): Bool
-	{
+	public function isHit(): Bool {
 		// Check if cache is not hit.
-		if( $this->hit === False )
-		{
+		if( $this->hit === False ) {
 			// Check if cache has no expiration time.
-			if( $this->expires === Null )
-			{
+			if( $this->expires === Null ) {
 				return( True );
 			}
 			return( $this->expires < $this->clock->now()->getTimestamp() );
@@ -127,8 +116,7 @@ class CacheItem implements CacheItemInterface
 	 * @inherit Yume\Fure\Cache\CacheInterface::set
 	 *
 	 */
-	public function set( Mixed $value ): CacheItemInterface
-	{
+	public function set( Mixed $value ): CacheItemInterface {
 		return([ $this, $this->value = $value ][0]);
 	}
 	
@@ -141,8 +129,7 @@ class CacheItem implements CacheItemInterface
 	 *
 	 * @return Yume\Fure\Cache\CacheInterface
 	 */
-	public function setHit( Bool $hit ): CacheItemInterface
-	{
+	public function setHit( Bool $hit ): CacheItemInterface {
 		return([ $this, $this->hit = $hit ][0]);
 	}
 

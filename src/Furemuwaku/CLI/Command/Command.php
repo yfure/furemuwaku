@@ -7,7 +7,6 @@ use Generator;
 use Yume\Fure\CLI\Argument;
 use Yume\Fure\CLI;
 use Yume\Fure\Config;
-use Yume\Fure\Config\Config as ConfigConfig;
 use Yume\Fure\Logger;
 use Yume\Fure\Util;
 use Yume\Fure\Util\Reflect;
@@ -17,8 +16,7 @@ use Yume\Fure\Util\Reflect;
  *
  * @package Yume\Fure\CLI\Command
  */
-abstract class Command implements CommandInterface
-{
+abstract class Command implements CommandInterface {
 	
 	/*
 	 * About of command.
@@ -89,17 +87,10 @@ abstract class Command implements CommandInterface
 	 * 
 	 * @throws Yume\Fure\CLI\Command\CommandUnitializeNameError
 	 */
-	public function __construct( protected Commands $commands, protected Config\Config $configs, protected Logger\LoggerInterface $logger )
-	{
-		// If command name has Initialized.
-		if( Reflect\ReflectProperty::isInitialized( $this, "name" ) )
-		{
-			// If command has options.
-			if( count( $this->options ) >= 1 )
-			{
-				// If command has no help option.
-				if( isset( $this->options['help'] ) === False )
-				{
+	public function __construct( protected Commands $commands, protected Config\Config $configs, protected Logger\LoggerInterface $logger ) {
+		if( Reflect\ReflectProperty::isInitialized( $this, "name" ) ) {
+			if( count( $this->options ) >= 1 ) {
+				if( isset( $this->options['help'] ) === False ) {
 					$this->options['help'] = [
 						"type" => Util\Type::Bool,
 						"alias" => "h",
@@ -108,11 +99,8 @@ abstract class Command implements CommandInterface
 						"implement" => "help"
 					];
 				}
-				foreach( $this->options As $name => $option )
-				{ 
-					// If option is not instance of class CommandOption.
-					if( $option Instanceof CommandOption === False )
-					{
+				foreach( $this->options As $name => $option ) {
+					if( $option Instanceof CommandOption === False ) {
 						$option = new CommandOption(
 							explain: type( $option['explain'] ?? Null, "String" ) ? [$option['explain']] : $option['explain'] ?? [],
 							example: type( $option['example'] ?? Null, "String" ) ? [$option['example']] : $option['example'] ?? [],
@@ -129,8 +117,7 @@ abstract class Command implements CommandInterface
 
 					// If option has defined method implementation
 					// but the option implementation is not implemented.
-					if( $option->implement !== Null && method_exists( $this, $option->implement ) === False )
-					{
+					if( $option->implement !== Null && method_exists( $this, $option->implement ) === False ) {
 						CLI\Console::exit( 1, CLI\Stdout::Error, "Action of option not implemented", $this::class, $this->name, $option->name );
 					}
 					$this->options[$name] = $option;
@@ -146,20 +133,13 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::exec
 	 * 
 	 */
-	public function exec( Argument\Argument $argument ): Void
-	{
-		if( $argument->count() >= 1 )
-		{
-			foreach( $this->options As $option )
-			{
+	public function exec( Argument\Argument $argument ): Void {
+		if( $argument->count() >= 1 ) {
+			foreach( $this->options As $option ) {
 				if( $option->name === "help" ) continue;
 				if( $option->hasImplementation() &&
-					$argument->has( $option->name ) )
-				{
-					// Execute command by argument given.
+					$argument->has( $option->name ) ) {
 					Reflect\ReflectMethod::invoke( $this, $option->name, $argument );
-
-					// Break next argument iteration.
 					return;
 				}
 			}
@@ -171,8 +151,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::getAbout
 	 * 
 	 */
-	public function getAbout(): ? String
-	{
+	public function getAbout(): ? String {
 		return( $this )->about;
 	}
 	
@@ -180,8 +159,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::getGroup
 	 * 
 	 */
-	public function getGroup(): String
-	{
+	public function getGroup(): String {
 		return( $this )->group;
 	}
 	
@@ -189,8 +167,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::getName
 	 * 
 	 */
-	public function getName(): String
-	{
+	public function getName(): String {
 		return( $this )->name;
 	}
 
@@ -207,11 +184,9 @@ abstract class Command implements CommandInterface
 	 * 
 	 * @return Mixed
 	 */
-	protected function getOptionValue( Argument\Argument $argument, CommandOption $option, Mixed $default = Null ): Mixed
-	{
+	protected function getOptionValue( Argument\Argument $argument, CommandOption $option, Mixed $default = Null ): Mixed {
 		if( $argument->has( $name = $option->name, True ) ||
-			$argument->has( $alias = $option->alias ?? "", True ) )
-		{
+			$argument->has( $alias = $option->alias ?? "", True ) ) {
 			return( $argument[$name] ?? $argument[$alias] )->value;
 		}
 		return( $default ?? $option->default );
@@ -221,8 +196,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::getOptions
 	 * 
 	 */
-	public function getOptions(): Array
-	{
+	public function getOptions(): Array {
 		return( $this )->options;
 	}
 
@@ -230,10 +204,8 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::getOptionAliases
 	 * 
 	 */
-	public function getOptionAliases(): Generator
-	{
-		foreach( $this->options As $option )
-		{
+	public function getOptionAliases(): Generator {
+		foreach( $this->options As $option ) {
 			if( $option->hasAlias() ) yield $option->alias;
 		}
 	}
@@ -242,10 +214,8 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::getOptionRequires
 	 * 
 	 */
-	public function getOptionRequires(): Generator
-	{
-		foreach( $this->options As $option )
-		{
+	public function getOptionRequires(): Generator {
+		foreach( $this->options As $option ) {
 			if( $option->isRequired() ) yield $option;
 		}
 	}
@@ -254,8 +224,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::hasAbout
 	 * 
 	 */
-	public function hasAbout( ? Bool $optional = Null ): Bool
-	{
+	public function hasAbout( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasAbout() === $optional : valueIsNotEmpty( $this->about ) );
 	}
 
@@ -263,8 +232,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::hasOption
 	 * 
 	 */
-	public function hasOption( String $option, ? Bool $optional = Null ): Bool
-	{
+	public function hasOption( String $option, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasOption( $option ) === $optional : isset( $this->options[$option] ) );
 	}
 
@@ -272,8 +240,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::hasOptions
 	 * 
 	 */
-	public function hasOptions( ? Bool $optional = Null ): Bool
-	{
+	public function hasOptions( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasOptions() === $optional : count( $this->options ) >= 1 );
 	}
 
@@ -281,8 +248,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::hasOptionRequires
 	 * 
 	 */
-	public function hasOptionRequires( ? Bool $optional = Null ): Bool
-	{
+	public function hasOptionRequires( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasOptionRequires() === $optional : count( iterator_to_array( $this->getOptionRequires() ) ) >= 1 );
 	}
 
@@ -290,10 +256,8 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::help
 	 * 
 	 */
-	public function help(): Void
-	{
-		if( $this->commands->has( "help", False ) )
-		{
+	public function help(): Void {
+		if( $this->commands->has( "help", False ) ) {
 			$this->commands->set( new Commands\Help( 
 				configs: new Config\Config( "app", True, [] ),
 				commands: $this->commands,
@@ -308,8 +272,7 @@ abstract class Command implements CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::isOptionRequired
 	 * 
 	 */
-	public function isOptionRequired( String $option, ? Bool $optional = Null ): Bool
-	{
+	public function isOptionRequired( String $option, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->isOptionRequired( $option ) === $optional : ( $this->hasOption( $option ) ? $this->options[$option]->isRequired() : False ) );
 	}
 	

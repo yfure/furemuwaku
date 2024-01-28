@@ -14,8 +14,7 @@ use Yume\Fure\Util;
  *
  * @package Yume\Fure\Util\Arr
  */
-class Lists extends Arrayable
-{
+class Lists extends Arrayable {
 	
 	/*
 	 * Construct method of class Lists.
@@ -27,8 +26,8 @@ class Lists extends Arrayable
 	 *
 	 * @return Void
 	 */
-	public function __construct( Array | Arrayable $data = [], Bool $keep = False )
-	{
+	public function __construct( Array | Arrayable $data = [], Bool $keep = False ) {
+		
 		// Copy data from passed Arrayable instance.
 		if( $data Instanceof Arrayable ) $data = $data->data;
 		
@@ -36,11 +35,8 @@ class Lists extends Arrayable
 		if( $data Instanceof Traversable ) $data = Util\Arrays::toArray( $data );
 		
 		// Check if keep position is enabled.
-		if( $keep )
-		{
-			// Check if array is not lists.
-			if( array_is_list( $data ) === False )
-			{
+		if( $keep ) {
+			if( array_is_list( $data ) === False ) {
 				throw new Error\UnexpectedError( "Can't keep array position because the array passed is not Lists" );
 			}
 		}
@@ -50,13 +46,9 @@ class Lists extends Arrayable
 			// Because the array list just need value only.
 			$data = array_values( $data );
 		}
-		
-		// Initialize data.
 		$this->data = [];
 		$this->keys = [];
-		
-		foreach( $data As $idx => $val )
-		{
+		foreach( $data As $idx => $val ) {
 			$this->offsetSet( $idx, $val );
 		}
 	}
@@ -71,13 +63,11 @@ class Lists extends Arrayable
 	 * @return Void
 	 *
 	 * @throws Yume\Fure\Error\AssertionError
+	 *  Throw if offset is invalid numeric value.
 	 */
-	private function assert( Mixed &$offset ): Void
-	{
-		// Throw if offset is invalid numeric value.
-		if( is_numeric( $offset ) === False )
-		{
-			throw new Error\AssertionError([ \Numeric::class, type( $offset ) ]);
+	private function assert( Mixed &$offset ): Void {
+		if( is_numeric( $offset ) === False ) {
+			throw new Error\AssertionError([ Util\Numeric::class, type( $offset ) ]);
 		}
 		$offset = ( Int ) $offset;
 	}
@@ -91,8 +81,7 @@ class Lists extends Arrayable
 	 *
 	 * @return Bool
 	 */
-	public function offsetExists( Mixed $offset ): Bool
-	{
+	public function offsetExists( Mixed $offset ): Bool {
 		$this->assert( $offset );
 		return( isset( $this->data[( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] ) );
 	}
@@ -106,8 +95,7 @@ class Lists extends Arrayable
 	 *
 	 * @return Mixed
 	 */
-	public function offsetGet( Mixed $offset ): Mixed
-	{
+	public function offsetGet( Mixed $offset ): Mixed {
 		$this->assert( $offset );
 		return( $this->data[( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? Null );
 	}
@@ -122,24 +110,16 @@ class Lists extends Arrayable
 	 *
 	 * @return Void
 	 */
-	public function offsetSet( Mixed $offset, Mixed $value ): Void
-	{
-		// Check if value is array.
-		if( is_array( $value ) )
-		{
-			// If value is Array list.
-			if( array_is_list( $value ) )
-			{
+	public function offsetSet( Mixed $offset, Mixed $value ): Void {
+		if( is_array( $value ) ) {
+			if( array_is_list( $value ) ) {
 				$value = new Lists( $value );
 			}
 			else {
 				$value = new Associative( $value );
 			}
 		}
-		
-		// Check if position is passed by iteration/ push e.g $x[]
-		if( $offset === Null )
-		{
+		if( $offset === Null ) {
 			$this->data[] = $value;
 			$this->keys = array_keys( $this->data );
 		}
@@ -158,13 +138,9 @@ class Lists extends Arrayable
 	 *
 	 * @return Void
 	 */
-	public function offsetUnset( Mixed $offset ): Void
-	{
+	public function offsetUnset( Mixed $offset ): Void {
 		$this->assert( $offset );
-		
-		// Check if array key is exists.
-		if( is_numeric( $index = array_search( $offset, $this->keys ) ) )
-		{
+		if( is_numeric( $index = array_search( $offset, $this->keys ) ) ) {
 			unset( $this->keys[$index] );
 		}
 		unset( $this->data[$offset] );

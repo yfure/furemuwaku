@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Logger
  */
-class LoggerError extends Error\IOError
-{
+class LoggerError extends Error\IOError {
 	
 	/*
 	 * Error const when no handler for Logger.

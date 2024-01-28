@@ -20,8 +20,7 @@ use Yume\Fure\Util;
  * 
  * @package Yume\Fure\CLI\Command\Commands
  */
-final class Server extends Command\Command implements Command\CommandInterface
-{
+final class Server extends Command\Command implements Command\CommandInterface {
 
 	/*
 	 * @inherit Yume\Fure\CLI\Command\Command::$about
@@ -39,8 +38,7 @@ final class Server extends Command\Command implements Command\CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\Command::__construct
 	 * 
 	 */
-	public function __construct( Command\Commands $commands, Config\Config $configs, Logger\LoggerInterface $logger )
-	{
+	public function __construct( Command\Commands $commands, Config\Config $configs, Logger\LoggerInterface $logger ) {
 		$this->options = [
 			"binary" => [
 				"type" => Util\Type::String,
@@ -95,12 +93,9 @@ final class Server extends Command\Command implements Command\CommandInterface
 	 * @inherit Yume\Fure\CLI\Command\CommandInterface::exec
 	 * 
 	 */
-	public function exec( Argument\Argument $argument ): Void
-	{
-		if( $argument->has( "serve", False ) )
-		{
-			foreach( [ "binary", "host", "port" ] As $option )
-			{
+	public function exec( Argument\Argument $argument ): Void {
+		if( $argument->has( "serve", False ) ) {
+			foreach( [ "binary", "host", "port" ] As $option ) {
 				if( $argument->has( $option ) && $argument->has( "serve", False ) ) throw new Command\CommandOptionRequireError( "Option {$option} require option serve", 0 );
 			}
 		}
@@ -118,10 +113,8 @@ final class Server extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return Void
 	 */
-	private function serve( String $serve, ? String $binary, String $host, Int $port ): Void
-	{
-		switch( strtolower( $serve ) )
-		{
+	private function serve( String $serve, ? String $binary, String $host, Int $port ): Void {
+		switch( strtolower( $serve ) ) {
 			case "cli-server": $this->builtin( $binary, $host, $port ); break;
 			case "openswoole": break;
 			default:
@@ -140,12 +133,12 @@ final class Server extends Command\Command implements Command\CommandInterface
 	 * 
 	 * @return Void
 	 */
-	private function builtin( ? String $binary, String $host, Int $port ): Void
-	{
+	private function builtin( ? String $binary, String $host, Int $port ): Void {
+		
 		// Escaping Shell Argument.
 		$phpb = escapeshellarg( $binary ?? $this->options['binary']->default );
 		$droot = escapeshellarg( path( Path\Paths::Public->path() ) );
-		$start = escapeshellarg( Support\Package::path( $this->configs->start ) );
+		$start = escapeshellarg( path( Support\Package::path( $this->configs->start ) ) );
 
 		putcln( "Yume Server started on http:/\e[0m/{}:{}", $host, $port );
 		putcln( "Press CTRL+C to stop the server{}", PHP_EOL );

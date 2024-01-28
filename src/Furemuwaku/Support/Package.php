@@ -17,8 +17,7 @@ use Yume\Fure\Util\Reflect;
  *
  * @extends Yume\Fure\Support\Singleton
  */
-final class Package extends Singleton
-{
+final class Package extends Singleton {
 	
 	/*
 	 * Composer installed packages.
@@ -33,23 +32,13 @@ final class Package extends Singleton
 	 * @inherit Yume\Fure\Support\Singleton::__construct
 	 *
 	 */
-	protected function __construct()
-	{
+	protected function __construct() {
 		$packages = [];
-		try
-		{
-			// Read installed packages.
+		try {
 			$installed = File\File::json( Path\Paths::VendorInstalled->value, True )['packages'] ?? [];
-			
-			// Mapping all packages.
-			foreach( $installed As $package )
-			{
-				// Get package autoload prs-4.
+			foreach( $installed As $package ) {
 				$autoload = $package['autoload']['psr-4'] ?? [];
-				
-				// Mapping all autoload packages.
-				foreach( $autoload As $space => $path )
-				{
+				foreach( $autoload As $space => $path ) {
 					$autoload[$space] = sprintf( "%s/%s/%s", Path\Paths::Vendor->value, $package['name'], $path );
 				}
 				$packages = [
@@ -58,8 +47,7 @@ final class Package extends Singleton
 				];
 			}
 		}
-		catch( Error\YumeError )
-		{}
+		catch( Error\YumeError ) {}
 		$this->installed = [
 			...$packages,
 			...[
@@ -88,32 +76,18 @@ final class Package extends Singleton
 	 *
 	 * @return String
 	 */
-	public static function array( String $package, ? String $prefix = Null, Bool $disable = False ): String
-	{
-		// If package has prefix or package has installed.
-		if( $prefix !== Null || self::has( $package, $ref ) )
-		{
-			// If package name has backslash symbol.
-			if( strpos( $package, "\\" ) !== False )
-			{
-				// Default format result without suffix.
+	public static function array( String $package, ? String $prefix = Null, Bool $disable = False ): String {
+		if( $prefix !== Null || self::has( $package, $ref ) ) {
+			if( strpos( $package, "\\" ) !== False ) {
 				$format = "%s[%s]";
-				
 				$prefix = Util\Strings::pop( $prefix ?? $ref['name'], "\\" );
 				$middle = Util\Strings::pop( $package, "\\", ref: $suffix );
-				
 				$middle = substr( $middle, strlen( $prefix ) +1 );
-				
-				// If lowercase allowed.
-				if( $disable === False )
-				{
+				if( $disable === False ) {
 					$prefix = strtolower( $prefix );
 					$middle = strtolower( $middle );
 				}
-				
-				// If package has suffix name.
-				if( $suffix = $suffix[1] ?? Null )
-				{
+				if( $suffix = $suffix[1] ?? Null ) {
 					$format = "%s[%s.%s]";
 				}
 				$package = sprintf( $format, $prefix, $middle, $suffix );
@@ -135,16 +109,9 @@ final class Package extends Singleton
 	 *
 	 * @return Bool
 	 */
-	public static function exists( String $package, ? Bool $optional = Null ): Bool
-	{
-		// Get package name.
+	public static function exists( String $package, ? Bool $optional = Null ): Bool {
 		$name = self::path( $package );
-		
-		// Create file name.
-		$file = join( "", [ $name, substr( $name, -4 ) !== ".php" ? ".php" : "" ] );
-		
-		// Return if file exists.
-		return( File\File::exists( $file, $optional ) );
+		return( File\File::exists( join( "", [ $name, substr( $name, -4 ) !== ".php" ? ".php" : "" ] ), $optional ) );
 	}
 	
 	/*
@@ -162,16 +129,10 @@ final class Package extends Singleton
 	 *
 	 * @return Bool
 	 */
-	public static function has( String $package, Mixed &$ref = Null, ? Bool $optional = Null ): Bool
-	{
-		if( $optional === Null )
-		{
-			// Mapping all installed packages.
-			foreach( self::self()->installed As $name => $path )
-			{
-				// If the package has the same prefix name as the namespace.
-				if( strpos( $package, $name ) === 0 )
-				{
+	public static function has( String $package, Mixed &$ref = Null, ? Bool $optional = Null ): Bool {
+		if( $optional === Null ) {
+			foreach( self::self()->installed As $name => $path ) {
+				if( strpos( $package, $name ) === 0 ) {
 					$ref = [
 						"name" => $name,
 						"path" => $path
@@ -199,25 +160,15 @@ final class Package extends Singleton
 	 *
 	 * @return Mixed
 	 */
-	public static function import( String $package, Mixed $optional = Null, Mixed ...$args ): Mixed
-	{
-		// Get package name.
+	public static function import( String $package, Mixed $optional = Null, Mixed ...$args ): Mixed {
 		$name = self::path( $package );
-		
-		// Create file name.
 		$file = join( "", [ $name, substr( $name, -4 ) !== ".php" ? ".php" : "" ] );
-		
-		// Check if file name is exists.
-		if( File\File::exists( $file ) )
-		{
-			try
-			{
+		if( File\File::exists( $file ) ) {
+			try {
 				return( fn( Mixed ...$args ) => require( path( $file ) ) )( ...$args );
 			}
-			catch( Throwable $e )
-			{
-				if( $optional )
-				{
+			catch( Throwable $e ) {
+				if( $optional ) {
 					return( $optional );
 				}
 				throw new Error\ImportError( $package, previous: $e );
@@ -235,12 +186,8 @@ final class Package extends Singleton
 	 *
 	 * @return String
 	 */
-	public static function path( String $package ): String
-	{
-		// If package has installed.
-		if( self::has( $package, $ref ) )
-		{
-			// Replace prefix namespace with pathname.
+	public static function path( String $package ): String {
+		if( self::has( $package, $ref ) ) {
 			$package = substr_replace( $package, $ref['path'], 0, strlen( $ref['name'] ) );
 		}
 		return( str_replace( [ "/", "\\" ], DIRECTORY_SEPARATOR, $package ) );

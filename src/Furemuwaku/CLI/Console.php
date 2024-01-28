@@ -9,8 +9,7 @@ use Yume\Fure\Util;
  * 
  * @package Yume\Fure\CLI
  */
-class Console
-{
+class Console {
 
 	/*
 	 * Print indicate error message.
@@ -22,13 +21,11 @@ class Console
 	 * 
 	 * @return Void
 	 */
-	public static function error( String $string, Mixed ...$values ): Void
-	{
+	public static function error( String $string, Mixed ...$values ): Void {
 		self::write( $string, Stdout::Error, ...$values );
 	}
 
-	public static function exit( Int $code, Stdout $level, String $string, Mixed ...$values ): Void
-	{
+	public static function exit( Int $code, Stdout $level, String $string, Mixed ...$values ): Void {
 		self::write( $string, $level, ...$values );
 		exit( $code );
 	}
@@ -43,8 +40,7 @@ class Console
 	 * 
 	 * @return Void
 	 */
-	public static function info( String $string, Mixed ...$values ): Void
-	{
+	public static function info( String $string, Mixed ...$values ): Void {
 		self::write( $string, Stdout::Info, ...$values );
 	}
 
@@ -58,8 +54,7 @@ class Console
 	 * 
 	 * @return Void
 	 */
-	public static function log( String $string, Mixed ...$values ): Void
-	{
+	public static function log( String $string, Mixed ...$values ): Void {
 		self::write( $string, Stdout::Log, ...$values );
 	}
 
@@ -73,8 +68,7 @@ class Console
 	 * 
 	 * @return Void
 	 */
-	public static function success( String $string, Mixed ...$values ): Void
-	{
+	public static function success( String $string, Mixed ...$values ): Void {
 		self::write( $string, Stdout::Success, ...$values );
 	}
 
@@ -88,8 +82,7 @@ class Console
 	 * 
 	 * @return Void
 	 */
-	public static function warning( String $string, Mixed ...$values ): Void
-	{
+	public static function warning( String $string, Mixed ...$values ): Void {
 		self::write( $string, Stdout::Warning, ...$values );
 	}
 
@@ -103,11 +96,9 @@ class Console
 	 * 
 	 * @return Void
 	 */
-	public static function write( String $string, Mixed ...$values ): Void
-	{
+	public static function write( String $string, Mixed ...$values ): Void {
 		// If Standard output level is available.
-		if( isset( $values[0] ) && $values[0] Instanceof Stdout )
-		{
+		if( isset( $values[0] ) && $values[0] Instanceof Stdout ) {
 			// Change output level.
 			$level = $values[0];
 
@@ -125,8 +116,7 @@ class Console
 		];
 
 		// If values is available.
-		if( count( $values ) >= 1 )
-		{
+		if( count( $values ) >= 1 ) {
 			$stacks = array_map( fn( Mixed $value ) => Util\Strings::parse( $value ), $values );
 			$stacks = join( ": ", $stacks );
 

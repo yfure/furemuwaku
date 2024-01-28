@@ -13,8 +13,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util\Env
  */
-class EnvError extends Error\YumeError
-{
+class EnvError extends Error\YumeError {
 	
 	public const ASSIGNMENT_ERROR = 49028;
 	public const COMMENT_ERROR = 49103;
@@ -56,8 +55,7 @@ class EnvError extends Error\YumeError
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = 0, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
-	{
+	public function __construct( Array | Int | String $message, Int $code = 0, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null ) {
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	

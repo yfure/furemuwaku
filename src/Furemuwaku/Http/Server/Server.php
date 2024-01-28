@@ -7,7 +7,7 @@ namespace Yume\Fure\Http\Server;
  * 
  * @package Yume\Fure\Http\Server
  */
-class Server
-{}
+class Server {
+}
 
 ?>

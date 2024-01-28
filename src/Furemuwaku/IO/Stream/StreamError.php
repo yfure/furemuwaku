@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @extends Yume\Fure\Error\IOError
  */
-class StreamError extends Error\IOError
-{
+class StreamError extends Error\IOError {
 	
 	/*
 	 * Error constant for when stream has detached.

@@ -9,8 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class FunctionError extends ReflectError
-{
+class FunctionError extends ReflectError {
 	
 	/*
 	 * Error constant for undefined function name.

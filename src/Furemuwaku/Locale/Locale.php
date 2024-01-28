@@ -19,8 +19,7 @@ use Yume\Fure\Util;
  *
  * @package Yume\Fure\Locale
  */
-class Locale extends Support\Singleton
-{
+class Locale extends Support\Singleton {
 	
 	/*
 	 * Default language translation.
@@ -71,8 +70,7 @@ class Locale extends Support\Singleton
 	 * @inherit Yume\Fure\Support\Singleton
 	 *
 	 */
-	protected function __construct()
-	{
+	protected function __construct() {
 		$this->clock = new Clock\Clock;
 	}
 	
@@ -85,10 +83,8 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Void
 	 */
-	private static function assertTimeZone( String $timezone ): Void
-	{
-		if( self::isAvailableTimeZone( $timezone, False ) )
-		{
+	private static function assertTimeZone( String $timezone ): Void {
+		if( self::isAvailableTimeZone( $timezone, False ) ) {
 			throw new Error\UnexpectedError( Util\Strings::format( "Unsupported timezone for {}", $timezone ) );
 		}
 	}
@@ -100,8 +96,7 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Yume\Fure\Locale\DateTime\DateTimeImmutable
 	 */
-	public static function clock(): DateTime\DateTimeImmutable
-	{
+	public static function clock(): DateTime\DateTimeImmutable {
 		return( self::self() )->clock->now();
 	}
 	
@@ -112,10 +107,8 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Yume\Fure\Locale\Language\Language
 	 */
-	public static function getLanguage(): Language\Language
-	{
-		if( self::self()->language === Null )
-		{
+	public static function getLanguage(): Language\Language {
+		if( self::self()->language === Null ) {
 			self::setLanguage();
 		}
 		return( self::self() )->language;
@@ -128,10 +121,8 @@ class Locale extends Support\Singleton
 	 *
 	 * @return String
 	 */
-	public static function getLanguageName(): String
-	{
-		if( self::self()->language === Null )
-		{
+	public static function getLanguageName(): String {
+		if( self::self()->language === Null ) {
 			self::setLanguage();
 		}
 		return( self::self() )->language->language;
@@ -144,10 +135,8 @@ class Locale extends Support\Singleton
 	 *
 	 * @return DateTimeZone
 	 */
-	public static function getTimeZone(): DateTimeZone
-	{
-		if( self::self()->timezone === Null )
-		{
+	public static function getTimeZone(): DateTimeZone {
+		if( self::self()->timezone === Null ) {
 			self::setTimeZone();
 		}
 		return( self::self() )->timezone;
@@ -160,10 +149,8 @@ class Locale extends Support\Singleton
 	 *
 	 * @return String
 	 */
-	public static function getTimeZoneName(): String
-	{
-		if( self::self()->timezone === Null )
-		{
+	public static function getTimeZoneName(): String {
+		if( self::self()->timezone === Null ) {
 			self::setTimeZone();
 		}
 		return( self::self() )->timezone->getName();
@@ -179,24 +166,20 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Array|Yume\Fure\Locale\Language\Language
 	 */
-	public static function getTranslation( String $name, ? Array $optional = Null ): Array | Language\Language | Null
-	{
+	public static function getTranslation( String $name, ? Array $optional = Null ): Array | Language\Language | Null {
 		$lang = self::getLanguageName();
 		$source = Path\Paths::AppLanguage->path( join( "/", [ $lang, "{$name}.php" ] ) );
-		try
-		{
+		try {
 			// Normalize translation name.
 			$name = str_replace( "/", ".", $name );
 			
 			// Check if translation has imported.
-			if( isset( self::self()->language[$name] ) )
-			{
+			if( isset( self::self()->language[$name] ) ) {
 				return( self::self()->language[$name] );
 			}
 			return( Support\Package::import( $source ) );
 		}
-		catch( Error\ModuleError )
-		{
+		catch( Error\ModuleError ) {
 			return( $optional ?? Null );
 		}
 	}
@@ -211,10 +194,8 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Bool
 	 */
-	public static function isAvailableTimeZone( String $timezone, ? Bool $optional = Null ): Bool
-	{
-		if( $optional === Null )
-		{
+	public static function isAvailableTimeZone( String $timezone, ? Bool $optional = Null ): Bool {
+		if( $optional === Null ) {
 			return( in_array( $timezone, DateTimeZone::listIdentifiers( DateTimeZone::ALL ) ) );
 		}
 		return( $optional === self::isAvailableTimeZone( $timezone ) );
@@ -229,15 +210,13 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Void
 	 */
-	public static function setLanguage( ? String $lang = Null ): Void
-	{
+	public static function setLanguage( ? String $lang = Null ): Void {
 		// Normalize language name.
 		$lang = strtolower( $lang ?? config( "locale.language", self::DEFAULT_LANGUAGE ) );
 		
 		// Check if language name not same.
 		if( self::self()->language === Null ||
-			self::self()->language->isLang( $lang, False ) )
-		{
+			self::self()->language->isLang( $lang, False ) ) {
 			self::self()->language = new Language\Language( $lang );
 		}
 	}
@@ -251,15 +230,10 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Void
 	 */
-	public static function setTimeZone( String | DateTimeZone | Null $timezone = Null ): Void
-	{
-		// When timezone is null.
+	public static function setTimeZone( String | DateTimeZone | Null $timezone = Null ): Void {
 		$timezone ??= config( "locale" )->timezone ??= self::DEFAULT_TIMEZONE;
-		
-		// Check if timezone name not same.
 		if( self::self()->timezone === Null ||
-			self::self()->timezone !== $timezone )
-		{
+			self::self()->timezone !== $timezone ) {
 			self::assertTimeZone( $timezone );
 			self::self()->timezone = new DateTimeZone( $timezone );
 			
@@ -280,21 +254,15 @@ class Locale extends Support\Singleton
 	 *
 	 * @return Void
 	 */
-	public static function setTranslation( Array | String | Language\Language $translation ): Void
-	{
-		// Normalize translation.
-		if( is_string( $translation ) ) $translation = [$translation];
-		
-		// Mapping translations.
-		foreach( $translation As $index => $value )
-		{
+	public static function setTranslation( Array | String | Language\Language $translation ): Void {
+		if( is_string( $translation ) ) {
+			$translation = [$translation];
+		}
+		foreach( $translation As $index => $value ) {
 			if( is_string( $value ) ) $value = self::getTranslation( $index = $value, [] );
-			if( is_array( $value ) )
-			{
-				if( is_int( $index ) )
-				{
-					foreach( $value As $key => $val )
-					{
+			if( is_array( $value ) ) {
+				if( is_int( $index ) ) {
+					foreach( $value As $key => $val ) {
 						self::self()->language[$key] = $val;
 					}
 					continue;
@@ -316,14 +284,14 @@ class Locale extends Support\Singleton
 	 *
 	 * @return String
 	 */
-	public static function translate( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String
-	{
+	public static function translate( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String {
+		
 		// Get translation strings.
 		$translate = Util\Arrays::ify( $key, self::self()->language, False );
 		
 		// If translation is inherit another translation.
-		while( static::isInheritTranslate( $translate ?? "", $match ) )
-		{
+		while( static::isInheritTranslate( $translate ?? "", $match ) ) {
+			
 			// Re-translate inherited translation value.
 			$translate = Util\Arrays::ify( $match['inherit'] ?? Util\Arrays::ifyJoin([ $match['source'], ...static::splitGroup( $match['group'] ) ]), self::self()->language, False );
 		}
@@ -333,9 +301,7 @@ class Locale extends Support\Singleton
 		
 		// If translation is available and
 		// if format is allowed.
-		if( $translate && $format )
-		{
-			// Return formatted translation.
+		if( $translate && $format ) {
 			return( util\Strings::format( $translate, ...Util\Arrays::map( $values, fn( Int $i, Mixed $k, Mixed $v ) => $v ?? "" ) ) );
 		}
 		return( $translate );
@@ -351,13 +317,11 @@ class Locale extends Support\Singleton
 	 * 
 	 * @return Bool
 	 */
-	static private function isInheritTranslate( String $translate, Mixed &$match = Null ): Bool
-	{
+	static private function isInheritTranslate( String $translate, Mixed &$match = Null ): Bool {
 		return( preg_match( "/^\@(?:[Ii]nherit\:(?<inherit>[^\n]+)|(?:(?<source>[^\<]+)<(?<group>[^\>]+)[\>]+))$/", $translate, $match, PREG_UNMATCHED_AS_NULL ) );
 	}
 
-	static private function splitGroup( String $group ): Array
-	{
+	static private function splitGroup( String $group ): Array {
 		return( Util\Arrays::map( split( $group, "<" ), fn( Int $i, Int $idx, String $value ) => trim( $value, "<>" ) ) );
 	}
 	

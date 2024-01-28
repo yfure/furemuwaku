@@ -19,7 +19,7 @@ use ReflectionProperty;
 use Yume\Fure\Error;
 use Yume\Fure\Main;
 use Yume\Fure\Support;
-use Yume\Fure\Services;
+use Yume\Fure\Service;
 use Yume\Fure\Util\Arr;
 
 /*
@@ -27,8 +27,7 @@ use Yume\Fure\Util\Arr;
  *
  * @package Yume\Fure\Util\Reflect
  */
-abstract class ReflectClass
-{
+abstract class ReflectClass {
 	
 	/*
 	 * Gets Attributes.
@@ -42,8 +41,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getAttributes( Object | String $class, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
-	{
+	public static function getAttributes( Object | String $class, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getAttributes( $name, $flags );
 	}
 	
@@ -58,8 +56,7 @@ abstract class ReflectClass
 	 *
 	 * @return Mixed
 	 */
-	public static function getConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Mixed
-	{
+	public static function getConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Mixed {
 		return( $reflect = self::reflect( $class, $reflect ) )->getConstant( $name );
 	}
 	
@@ -74,8 +71,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
-	{
+	public static function getConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getConstants( $filter );
 	}
 	
@@ -89,8 +85,7 @@ abstract class ReflectClass
 	 *
 	 * @return ReflectionMethod
 	 */
-	public static function getConstructor( Object | String $class, Mixed &$reflect = Null ): ? ReflectionMethod
-	{
+	public static function getConstructor( Object | String $class, Mixed &$reflect = Null ): ? ReflectionMethod {
 		return( $reflect = self::reflect( $class, $reflect ) )->getConstructor();
 	}
 	
@@ -104,8 +99,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getDefaultProperties( Object | String $class, Mixed &$reflect = Null ): Array
-	{
+	public static function getDefaultProperties( Object | String $class, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getDefaultProperties();
 	}
 	
@@ -119,8 +113,7 @@ abstract class ReflectClass
 	 *
 	 * @return False|String
 	 */
-	public static function getDocComment( Object | String $class, Mixed &$reflect = Null ): False | String
-	{
+	public static function getDocComment( Object | String $class, Mixed &$reflect = Null ): False | String {
 		return( $reflect = self::reflect( $class, $reflect ) )->getDocComment();
 	}
 	
@@ -134,8 +127,7 @@ abstract class ReflectClass
 	 *
 	 * @return False|Int
 	 */
-	public static function getEndLine( Object | String $class, Mixed &$reflect = Null ): False | Int
-	{
+	public static function getEndLine( Object | String $class, Mixed &$reflect = Null ): False | Int {
 		return( $reflect = self::reflect( $class, $reflect ) )->getEndLine();
 	}
 	
@@ -149,8 +141,7 @@ abstract class ReflectClass
 	 *
 	 * @return ReflectionExtension
 	 */
-	public static function getExtension( Object | String $class, Mixed &$reflect = Null ): ? ReflectionExtension
-	{
+	public static function getExtension( Object | String $class, Mixed &$reflect = Null ): ? ReflectionExtension {
 		return( $reflect = self::reflect( $class, $reflect ) )->getExtension();
 	}
 	
@@ -164,8 +155,7 @@ abstract class ReflectClass
 	 *
 	 * @return False|String
 	 */
-	public static function getExtensionName( Object | String $class, Mixed &$reflect = Null ): False | String
-	{
+	public static function getExtensionName( Object | String $class, Mixed &$reflect = Null ): False | String {
 		return( $reflect = self::reflect( $class, $reflect ) )->getExtensionName();
 	}
 	
@@ -179,8 +169,7 @@ abstract class ReflectClass
 	 *
 	 * @return String
 	 */
-	public static function getFileName( Object | String $class, Mixed &$reflect = Null ): False | String
-	{
+	public static function getFileName( Object | String $class, Mixed &$reflect = Null ): False | String {
 		return( $reflect = self::reflect( $class, $reflect ) )->getFileName();
 	}
 	
@@ -194,8 +183,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getInterfaceNames( Object | String $class, Mixed &$reflect = Null ): Array
-	{
+	public static function getInterfaceNames( Object | String $class, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getInterfaceNames();
 	}
 	
@@ -209,8 +197,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getInterfaces( Object | String $class, Mixed &$reflect = Null ): Array
-	{
+	public static function getInterfaces( Object | String $class, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getInterfaces();
 	}
 	
@@ -225,8 +212,7 @@ abstract class ReflectClass
 	 *
 	 * @return ReflectionMethod
 	 */
-	public static function getMethod( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionMethod
-	{
+	public static function getMethod( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionMethod {
 		return( $reflect = self::reflect( $class, $reflect ) )->getMethod( $name );
 	}
 	
@@ -241,8 +227,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getMethods( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
-	{
+	public static function getMethods( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getMethods( $filter );
 	}
 	
@@ -256,8 +241,7 @@ abstract class ReflectClass
 	 *
 	 * @return Int
 	 */
-	public static function getModifiers( Object | String $class, Mixed &$reflect = Null ): Int
-	{
+	public static function getModifiers( Object | String $class, Mixed &$reflect = Null ): Int {
 		return( $reflect = self::reflect( $class, $reflect ) )->getModifiers();
 	}
 	
@@ -271,8 +255,7 @@ abstract class ReflectClass
 	 *
 	 * @return String
 	 */
-	public static function getName( Object | String $class, Mixed &$reflect = Null ): String
-	{
+	public static function getName( Object | String $class, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $class, $reflect ) )->getName();
 	}
 	
@@ -286,8 +269,7 @@ abstract class ReflectClass
 	 *
 	 * @return String
 	 */
-	public static function getNamespaceName( Object | String $class, Mixed &$reflect = Null ): String
-	{
+	public static function getNamespaceName( Object | String $class, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $class, $reflect ) )->getNamespaceName();
 	}
 	
@@ -301,8 +283,7 @@ abstract class ReflectClass
 	 *
 	 * @return ReflectionClass
 	 */
-	public static function getParentClass( Object | String $class, Mixed &$reflect = Null ): False | ReflectionClass
-	{
+	public static function getParentClass( Object | String $class, Mixed &$reflect = Null ): False | ReflectionClass {
 		return( $reflect = self::reflect( $class, $reflect ) )->getParentClass();
 	}
 	
@@ -316,13 +297,11 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getParentClasses( Object | String $class, Mixed &$reflect = Null ): Array
-	{
+	public static function getParentClasses( Object | String $class, Mixed &$reflect = Null ): Array {
 		$parent = self::reflect( $class, $reflect );
 		$parents = [];
 		
-		while( $parent = $parent->getParentClass() )
-		{
+		while( $parent = $parent->getParentClass() ) {
 			$parents[] = $parent->getName();
 		}
 		return( $parents );
@@ -339,8 +318,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getProperties( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
-	{
+	public static function getProperties( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getProperties( $filter );
 	}
 	
@@ -355,8 +333,7 @@ abstract class ReflectClass
 	 *
 	 * @return ReflectionProperty
 	 */
-	public static function getProperty( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionProperty
-	{
+	public static function getProperty( Object | String $class, String $name, Mixed &$reflect = Null ): ReflectionProperty {
 		return( $reflect = self::reflect( $class, $reflect ) )->getProperty( $name );
 	}
 	
@@ -371,8 +348,7 @@ abstract class ReflectClass
 	 *
 	 * @return False|ReflectionClassConstant
 	 */
-	public static function getReflectionConstant( Object | String $class, String $name, Mixed &$reflect = Null ): False | ReflectionClassConstant
-	{
+	public static function getReflectionConstant( Object | String $class, String $name, Mixed &$reflect = Null ): False | ReflectionClassConstant {
 		return( $reflect = self::reflect( $class, $reflect ) )->getReflectionConstant( $name );
 	}
 	
@@ -387,8 +363,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getReflectionConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array
-	{
+	public static function getReflectionConstants( Object | String $class, ? Int $filter = Null, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getReflectionConstants( $filter );
 	}
 	
@@ -402,8 +377,7 @@ abstract class ReflectClass
 	 *
 	 * @return String
 	 */
-	public static function getShortName( Object | String $class, Mixed &$reflect = Null ): String
-	{
+	public static function getShortName( Object | String $class, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $class, $reflect ) )->getShortName();
 	}
 	
@@ -417,8 +391,7 @@ abstract class ReflectClass
 	 *
 	 * @return False|Int
 	 */
-	public static function getStartLine( Object | String $class, Mixed &$reflect = Null ): False | Int
-	{
+	public static function getStartLine( Object | String $class, Mixed &$reflect = Null ): False | Int {
 		return( $reflect = self::reflect( $class, $reflect ) )->getStartLine();
 	}
 	
@@ -432,8 +405,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getStaticProperties( Object | String $class, Mixed &$reflect = Null ): ? Array
-	{
+	public static function getStaticProperties( Object | String $class, Mixed &$reflect = Null ): ? Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getStaticProperties();
 	}
 	
@@ -448,8 +420,7 @@ abstract class ReflectClass
 	 *
 	 * @return Mixed
 	 */
-	public static function getStaticPropertyValue( Object | String $class, String $name, Mixed &$value, Mixed &$reflect = Null ): Mixed
-	{
+	public static function getStaticPropertyValue( Object | String $class, String $name, Mixed &$value, Mixed &$reflect = Null ): Mixed {
 		return( $reflect = self::reflect( $class, $reflect ) )->getStaticPropertyValue( $name );
 	}
 	
@@ -463,8 +434,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getTraitAliases( Object | String $class, Mixed &$reflect = Null ): Array
-	{
+	public static function getTraitAliases( Object | String $class, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getTraitAliases();
 	}
 	
@@ -478,8 +448,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getTraitNames( Object | String $class, Mixed &$reflect = Null ): Array
-	{
+	public static function getTraitNames( Object | String $class, Mixed &$reflect = Null ): Array {
 		// ...
 		$traitsNames = [];
 		
@@ -504,8 +473,7 @@ abstract class ReflectClass
 	 *
 	 * @return Array
 	 */
-	public static function getTraits( Object | String $class, Mixed &$reflect = Null ): Array
-	{
+	public static function getTraits( Object | String $class, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $reflect ) )->getTraits();
 	}
 	
@@ -520,8 +488,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function hasConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
-	{
+	public static function hasConstant( Object | String $class, String $name, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->hasConstant( $name );
 	}
 	
@@ -536,8 +503,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function hasMethod( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
-	{
+	public static function hasMethod( Object | String $class, String $name, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->hasMethod( $name );
 	}
 	
@@ -552,8 +518,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function hasProperty( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
-	{
+	public static function hasProperty( Object | String $class, String $name, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->hasProperty( $name );
 	}
 	
@@ -567,8 +532,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function inNamespace( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function inNamespace( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->inNamespace();
 	}
 	
@@ -587,23 +551,16 @@ abstract class ReflectClass
 	 * @throws Yume\Fure\Error\AttributeError
 	 * @throws Yume\Fure\Error\ClassError
 	 */
-	public static function instance( Object | String $class, Array | ArrayAccess | False $argument = [], Mixed &$reflect = Null ): Object
-	{
-		// Check if reflect is instanceof ReflectionAttribute class.
-		if( $reflect Instanceof ReflectionAttribute )
-		{
-			if( $argument === False )
-			{
+	public static function instance( Object | String $class, Array | ArrayAccess | False $argument = [], Mixed &$reflect = Null ): Object {
+		if( $reflect Instanceof ReflectionAttribute ) {
+			if( $argument === False ) {
 				$argument = [];
 			}
-			try
-			{
+			try {
 				return( $reflect )->newInstance( $argument );
 			}
-			catch( \Error $e )
-			{
-				if( preg_match( "/^Attempting\sto\suse\snon\-attribute\sclass\s\"[^\"]+\"\sas\sattribute$/i", $e->getMessage() ) )
-				{
+			catch( \Error $e ) {
+				if( preg_match( "/^Attempting\sto\suse\snon\-attribute\sclass\s\"[^\"]+\"\sas\sattribute$/i", $e->getMessage() ) ) {
 					$e = new Error\AttributeError( $reflect->getName(), Error\AttributeError::TYPE_ERROR, $e );
 				}
 				else {
@@ -613,15 +570,12 @@ abstract class ReflectClass
 			}
 		}
 		else {
-			
-			// Check if class is instantiable and not Singleton class.
 			if( self::isInstantiable( $class, $reflect ) === True &&
-				self::isSingleton( $class, $reflect ) === False )
-			{
+				self::isSingleton( $class, $reflect ) === False ) {
+			
 				// If the constructor is allowed to be called,
 				// and if class has constructor method.
-				if( $argument !== False && $construct = $reflect->getConstructor() )
-				{
+				if( $argument !== False && $construct = $reflect->getConstructor() ) {
 					return( $reflect )->newInstance(
 						...ReflectParameter::builder( 
 							$construct->getParameters(), 
@@ -645,8 +599,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isAbstract( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isAbstract( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isAbstract();
 	}
 	
@@ -660,8 +613,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isAnonymous( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isAnonymous( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isAnonymous();
 	}
 	
@@ -675,11 +627,9 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isApp( Object | String $class, Mixed &$reflect = Null  ): Bool
-	{
+	public static function isApp( Object | String $class, Mixed &$reflect = Null  ): Bool {
 		// Check if `class` is Object type.
-		if( is_object( $class ) )
-		{
+		if( is_object( $class ) ) {
 			return( $class Instanceof Main\Main );
 		}
 		return( self::getName( $class, $reflect ) === Main\Main::class );
@@ -695,8 +645,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isArrayable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isArrayable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( self::isImplements( $class, Arr\Arrayable::class, $reflect ) );
 	}
 	
@@ -710,8 +659,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isCloneable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isCloneable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isCloneable();
 	}
 	
@@ -725,8 +673,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isCountable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isCountable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( self::isImplements( $class, Countable::class, $reflect ) );
 	}
 	
@@ -740,8 +687,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isEnum( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isEnum( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isEnum();
 	}
 	
@@ -755,8 +701,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isFinal( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isFinal( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isFinal();
 	}
 	
@@ -770,8 +715,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isImplements( Object | String $class, String $name, Mixed &$reflect = Null ): Bool
-	{
+	public static function isImplements( Object | String $class, String $name, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->implementsInterface( $name );
 	}
 	
@@ -785,8 +729,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isInstance( Object | String $class, Object $object, Mixed &$reflect = Null ): Bool
-	{
+	public static function isInstance( Object | String $class, Object $object, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isInstance( $object );
 	}
 	
@@ -800,8 +743,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isInstantiable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isInstantiable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isInstantiable();
 	}
 	
@@ -815,8 +757,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isInterface( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isInterface( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isInterface();
 	}
 	
@@ -830,8 +771,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isInternal( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isInternal( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isInternal();
 	}
 	
@@ -845,8 +785,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isInvokable( Object | String $class, Mixed $reflect = Null ): Bool
-	{
+	public static function isInvokable( Object | String $class, Mixed $reflect = Null ): Bool {
 		return( self::hasMethod( $class, "__invoke", $reflect ) );
 	}
 	
@@ -860,8 +799,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isIterable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isIterable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isIterable();
 	}
 	
@@ -875,8 +813,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isIterateable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isIterateable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isIterateable();
 	}
 	
@@ -890,9 +827,8 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isServicesProvider( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
-		return( self::isImplements( $class, Services\ServicesProviderInterface::class, $reflect ) );
+	public static function isServicesProvider( Object | String $class, Mixed &$reflect = Null ): Bool {
+		return( self::isImplements( $class, Service\ServiceProviderInterface::class, $reflect ) );
 	}
 	
 	/*
@@ -905,8 +841,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isSingleton( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isSingleton( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( self::isSubClassOf( $class, Support\Singleton::class, $reflect ) );
 	}
 	
@@ -921,8 +856,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isSubclassOf( Object | String $class, String | ReflectionClass $subclass, Mixed &$reflect = Null ): Bool
-	{
+	public static function isSubclassOf( Object | String $class, String | ReflectionClass $subclass, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isSubClassOf( $subclass );
 	}
 	
@@ -936,8 +870,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isStringable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isStringable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( self::isImplements( $class, Stringable::class, $reflect ) );
 	}
 	
@@ -951,8 +884,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isThrowable( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isThrowable( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( self::isImplements( $class, Throwable::class, $reflect ) );
 	}
 	
@@ -966,8 +898,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isTrait( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isTrait( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isTrait();
 	}
 	
@@ -981,8 +912,7 @@ abstract class ReflectClass
 	 *
 	 * @return Bool
 	 */
-	public static function isUserDefined( Object | String $class, Mixed &$reflect = Null ): Bool
-	{
+	public static function isUserDefined( Object | String $class, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $reflect ) )->isUserDefined();
 	}
 	
@@ -998,8 +928,7 @@ abstract class ReflectClass
 	 *
 	 * @return Void
 	 */
-	public static function setStaticPropertyValue( Object | String $class, String $name, Mixed $value, Mixed &$reflect = Null ): Void
-	{
+	public static function setStaticPropertyValue( Object | String $class, String $name, Mixed $value, Mixed &$reflect = Null ): Void {
 		( $reflect = self::reflect( $class, $reflect ) )->setStaticPropertyValue( $name, $value );
 	}
 	
@@ -1013,27 +942,19 @@ abstract class ReflectClass
 	 *
 	 * @return ReflectionAttribute|ReflectionClass|ReflectionEnum
 	 */
-	private static function reflect( Object | String $class, Mixed $reflect ): ReflectionAttribute | ReflectionClass | ReflectionEnum
-	{
-		// Get class name.
+	private static function reflect( Object | String $class, Mixed $reflect ): ReflectionAttribute | ReflectionClass | ReflectionEnum {
 		$class = is_object( $class ) ? $class::class : $class;
-		
-		// Check if `reflect` is instance of Reflection Attribute, Class or Enum.
 		if( $reflect Instanceof ReflectionAttribute && $reflect->getName() === $class ||
 			$reflect Instanceof ReflectionClass && $reflect->name === $class ||
-			$reflect Instanceof ReflectionEnum )
-		{
+			$reflect Instanceof ReflectionEnum ) {
 			return( $reflect );
 		}
 		else {
-			try
-			{
+			try {
 				return( new ReflectionClass( $class ) );
 			}
-			catch( ReflectionException $e )
-			{
-				if( preg_match( "/^Class\s\"[^\"]+\"\sdoes\snot\sexist$/i", $e->getMessage() ) )
-				{
+			catch( ReflectionException $e ) {
+				if( preg_match( "/^Class\s\"[^\"]+\"\sdoes\snot\sexist$/i", $e->getMessage() ) ) {
 					$e = new Error\ClassNameError( $class, previous: $e );
 				}
 				else {

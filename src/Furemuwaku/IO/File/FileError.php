@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\IO\File
  */
-class FileError extends Error\IOError
-{
+class FileError extends Error\IOError {
 	
 	/*
 	 * Error constant for errors when copying files.

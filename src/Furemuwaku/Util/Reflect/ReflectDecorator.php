@@ -10,8 +10,7 @@ use Generator;
  *
  * @package Yume\Fure\Util\Reflect
  */
-trait ReflectDecorator
-{
+trait ReflectDecorator {
 	
 	/*
 	 * Get the file name of the current execution point.
@@ -23,8 +22,7 @@ trait ReflectDecorator
 	 *
 	 * @return String
 	 */
-	public static function getExecutingFile( Fiber | Generator $target, Mixed &$reflect = Null ): String
-	{
+	public static function getExecutingFile( Fiber | Generator $target, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $target, $reflect ) )->getExecutingFile();
 	}
 	
@@ -38,8 +36,7 @@ trait ReflectDecorator
 	 *
 	 * @return Int
 	 */
-	public static function getExecutingLine( Fiber | Generator $target, Mixed &$reflect = Null ): Int
-	{
+	public static function getExecutingLine( Fiber | Generator $target, Mixed &$reflect = Null ): Int {
 		return( $reflect = self::reflect( $target, $reflect ) )->getExecutingLine();
 	}
 	
@@ -54,8 +51,7 @@ trait ReflectDecorator
 	 *
 	 * @return Array
 	 */
-	public static function getTrace( Fiber | Generator $target, Int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT, Mixed &$reflect = Null ): Array
-	{
+	public static function getTrace( Fiber | Generator $target, Int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $target, $reflect ) )->getTrace( $options );
 	}
 	

@@ -12,8 +12,7 @@ use Yume\Fure\Util\Arr;
  *
  * @package Yume\Fure\Util\RegExp
  */
-final class Pattern implements Stringable
-{
+final class Pattern implements Stringable {
 	
 	/*
 	 * Compiled regular expression.
@@ -60,26 +59,23 @@ final class Pattern implements Stringable
 	 *
 	 * @return Void
 	 */
-	public function __construct( public Readonly String $pattern, Array | String $flags = [] )
-	{
-		// Avoid empty pattern.
-		if( valueIsEmpty( $pattern ) ) throw new RegExpError( "Pattern can't be empty" );
-		
-		// Normalize pattern flags.
+	public function __construct( public Readonly String $pattern, Array | String $flags = [] ) {
+		if( valueIsEmpty( $pattern ) ) {
+			throw new RegExpError( "Pattern can't be empty" );
+		}
 		$this->flags = is_array( $flags ) ? $flags : split( $flags );
-		
-		foreach( $this->flags As $flag )
-		{
-			// Checked flags.
+		foreach( $this->flags As $flag ) {
 			$checked = [];
 			
 			// Check if flags is not supported.
-			if( RegExp::isFlag( $flag, False ) ) throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_ERROR );
+			if( RegExp::isFlag( $flag, False ) ) {
+				throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_ERROR );
+			}
 			
 			// Check if there are duplicate flag.
-			if( in_array( $flag, $checked ) ) throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_DUPLICATE_ERROR );
-			
-			// Push checked flag.
+			if( in_array( $flag, $checked ) ) {
+				throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_DUPLICATE_ERROR );
+			}
 			$checked[] = $flag;
 		}
 		$this->compiled = sprintf( "/%1\$s/%2\$s", $this->pattern, join( "", $this->flags ) );
@@ -92,8 +88,7 @@ final class Pattern implements Stringable
 	 *
 	 * @return String
 	 */
-	public function __toString(): String
-	{
+	public function __toString(): String {
 		return( $this )->compiled;
 	}
 	
@@ -106,17 +101,11 @@ final class Pattern implements Stringable
 	 *
 	 * @return Yume\Fure\Util\RegExp\Matches
 	 */
-	public function exec( String $subject ): ? Matches
-	{
+	public function exec( String $subject ): ? Matches {
 		$this->index = $this->subject === $subject ? $this->index : 0;
 		$this->subject = $subject;
-		
-		// Explode string for avoid infinity loop.
 		$explode = substr( $subject, $this->index );
-		
-		// Check if subject is matched.
-		if( $matches = RegExp::match( $this->compiled, $explode ) )
-		{
+		if( $matches = RegExp::match( $this->compiled, $explode ) ) {
 			return( $this )->process( $subject, $explode, $matches, $this->index );
 		}
 		return( Null );
@@ -129,8 +118,7 @@ final class Pattern implements Stringable
 	 *
 	 * @return String
 	 */
-	public function getSubject(): ? String
-	{
+	public function getSubject(): ? String {
 		return( $this )->subject;
 	}
 	
@@ -138,11 +126,9 @@ final class Pattern implements Stringable
 	 * @inherit Yume\Fure\Util\RegExp\RegExp::match
 	 *
 	 */
-	public function match( String $subject ): ? Matches
-	{
+	public function match( String $subject ): ? Matches {
 		// Check if subject is matched.
-		if( $matches = RegExp::match( $this->compiled, $subject ) )
-		{
+		if( $matches = RegExp::match( $this->compiled, $subject ) ) {
 			return( $this )->process( $subject, $subject, $matches );
 		}
 		return( Null );
@@ -161,10 +147,8 @@ final class Pattern implements Stringable
 	 *
 	 * @return Array|String
 	 */
-	public function replace( Array | String $subject, Callable | String $replace, Int $limit = -1, Int &$count = Null, Int $flags = 0 ): Array | String
-	{
-		if( $replace Instanceof Closure )
-		{
+	public function replace( Array | String $subject, Callable | String $replace, Int $limit = -1, Int &$count = Null, Int $flags = 0 ): Array | String {
+		if( $replace Instanceof Closure ) {
 			// Captured position.
 			$index = 0;
 			
@@ -196,8 +180,7 @@ final class Pattern implements Stringable
 	 *
 	 * @return Yume\Fure\Util\RegExp\Matches
 	 */
-	private function process( String $subject, String &$explode, Array $matches, Int &$index = 0 ): Matches
-	{
+	private function process( String $subject, String &$explode, Array $matches, Int &$index = 0 ): Matches {
 		// Save previous index.
 		$iprev = $index;
 		
@@ -214,11 +197,9 @@ final class Pattern implements Stringable
 		$stacks = "";
 		
 		// Mapping captured strings.
-		foreach( $matches As $group => $value )
-		{
+		foreach( $matches As $group => $value ) {
 			// If group has name, and if group has value.
-			if( is_string( $group ) && valueIsNotEmpty( $value ) )
-			{
+			if( is_string( $group ) && valueIsNotEmpty( $value ) ) {
 				// Get position group in captured string.
 				$post = strpos( $string, $value );
 				$post += strlen( $stacks );

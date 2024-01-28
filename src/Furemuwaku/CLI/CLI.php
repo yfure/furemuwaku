@@ -14,8 +14,7 @@ use Yume\Fure\Support;
  *
  * @package Yume\Fure\CLI
  */
-class CLI extends Support\Singleton
-{
+class CLI extends Support\Singleton {
 	
 	/*
 	 * Instance of class Main.
@@ -57,8 +56,7 @@ class CLI extends Support\Singleton
 	 * @inherit Yume\Fure\Support\Singleton::__construct
 	 *
 	 */
-	protected function __construct( ? Main\Main $app = Null )
-	{
+	protected function __construct( ? Main\Main $app = Null ) {
 		$this->app = $app ?? Main\Main::self();
 		$this->argument = new Argument\Argument;
 		$this->commands = new Command\Commands( logger() );
@@ -71,8 +69,7 @@ class CLI extends Support\Singleton
 	 *
 	 * @return Void
 	 */
-	public function start(): Void
-	{
+	public function start(): Void {
 		$this->commands->exec(
 			$this->argument->command ?? $this->command,
 			$this->argument

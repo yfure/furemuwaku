@@ -14,8 +14,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util\Reflect
  */
-abstract class ReflectConstant
-{
+abstract class ReflectConstant {
 	
 	/*
 	 * Gets Attributes.
@@ -30,8 +29,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Array<ReflectionAttribute>
 	 */
-	public static function getAttributes( Object | String $class, String $constant, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
-	{
+	public static function getAttributes( Object | String $class, String $constant, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getAttributes( $name, $flags );
 	}
 	
@@ -46,8 +44,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return ReflectionClass
 	 */
-	public static function getDeclaringClass( Object | String $class, String $constant, Mixed &$reflect = Null ): ReflectionClass
-	{
+	public static function getDeclaringClass( Object | String $class, String $constant, Mixed &$reflect = Null ): ReflectionClass {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getDeclaringClass();
 	}
 	
@@ -62,8 +59,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return False|String
 	 */
-	public static function getDocComment( Object | String $class, String $constant, Mixed &$reflect = Null ): False | String
-	{
+	public static function getDocComment( Object | String $class, String $constant, Mixed &$reflect = Null ): False | String {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getDocComment();
 	}
 	
@@ -78,8 +74,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Int
 	 */
-	public static function getModifiers( Object | String $class, String $constant, Mixed &$reflect = Null ): Int
-	{
+	public static function getModifiers( Object | String $class, String $constant, Mixed &$reflect = Null ): Int {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getModifiers();
 	}
 	
@@ -94,8 +89,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return String
 	 */
-	public static function getName( Object | String $class, String $constant, Mixed &$reflect = Null ): String
-	{
+	public static function getName( Object | String $class, String $constant, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getName();
 	}
 	
@@ -110,8 +104,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Mixed
 	 */
-	public static function getValue( Object | String $class, String $constant, Mixed &$reflect = Null ): Mixed
-	{
+	public static function getValue( Object | String $class, String $constant, Mixed &$reflect = Null ): Mixed {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getValue();
 	}
 	
@@ -126,8 +119,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Bool
 	 */
-	public static function isEnumCase( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool
-	{
+	public static function isEnumCase( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->isEnumCase();
 	}
 	
@@ -142,8 +134,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Bool
 	 */
-	public static function isFinal( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool
-	{
+	public static function isFinal( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->isFinal();
 	}
 	
@@ -158,8 +149,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Bool
 	 */
-	public static function isPrivate( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool
-	{
+	public static function isPrivate( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->isPrivate();
 	}
 	
@@ -174,8 +164,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Bool
 	 */
-	public static function isProtected( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool
-	{
+	public static function isProtected( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->isProtected();
 	}
 	
@@ -190,8 +179,7 @@ abstract class ReflectConstant
 	 * 
 	 * @return Bool
 	 */
-	public static function isPublic( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool
-	{
+	public static function isPublic( Object | String $class, String $constant, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->isPublic();
 	}
 	
@@ -206,21 +194,16 @@ abstract class ReflectConstant
 	 * 
 	 * @return ReflectionClassConstant|ReflectionEnumUnitCase
 	 */
-	private static function reflect( Object | String $class, String $constant, Mixed $reflect ): ReflectionClassConstant | ReflectionEnumUnitCase
-	{
+	private static function reflect( Object | String $class, String $constant, Mixed $reflect ): ReflectionClassConstant | ReflectionEnumUnitCase {
 		if( $reflect Instanceof ReflectionClassConstant &&
-			$reflect->getName() === $constant )
-		{
+			$reflect->getName() === $constant ) {
 			return( $reflect );
 		}
-		try
-		{
+		try {
 			return( new ReflectionClassConstant( $class, $constant ) );
 		}
-		catch( ReflectionException $e )
-		{
-			if( preg_match( "/^Constant\s[^\s]+\sdoes\snot\sexist$/", $e->getMessage() ) )
-			{
+		catch( ReflectionException $e ) {
+			if( preg_match( "/^Constant\s[^\s]+\sdoes\snot\sexist$/", $e->getMessage() ) ) {
 				$e = new Error\ConstantError( [ $class, $constant ], Error\ConstantError::NAME_ERROR, $e );
 			}
 			else {

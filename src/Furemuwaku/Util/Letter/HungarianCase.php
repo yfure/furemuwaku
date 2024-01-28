@@ -7,8 +7,7 @@ namespace Yume\Fure\Util\Letter;
  *
  * @package Yume\Fure\Util\Letter
  */
-trait HungarianCase
-{
+trait HungarianCase {
 	
 	/*
 	 * ...
@@ -19,12 +18,10 @@ trait HungarianCase
 	 *
 	 * @return String
 	 */
-	public static function toHungarianCase( String $string, String $type = "str" ): String
-	{
+	public static function toHungarianCase( String $string, String $type = "str" ): String {
 		$parts = preg_split( "/(?=[A-Z])|[_-]/", $string );
 		$prefix = "";
-		switch( $type )
-		{
+		switch( $type ) {
 			case "str":
 				$prefix = "str";
 				break;
@@ -53,12 +50,10 @@ trait HungarianCase
 	 *
 	 * @return String
 	 */
-	public static function fromCamelCasetoHungarianCase( String $string, String $type = "str" ): String
-	{
+	public static function fromCamelCasetoHungarianCase( String $string, String $type = "str" ): String {
 		$parts = preg_split( "/(?=[A-Z])/", $string );
 		$prefix = "";
-		switch( $type )
-		{
+		switch( $type ) {
 			case "str":
 				$prefix = "str";
 				break;
@@ -87,8 +82,7 @@ trait HungarianCase
 	 *
 	 * @return String
 	 */
-	public static function fromPascalCasetoHungarianCase( String $string, String $type = "str" ): String
-	{
+	public static function fromPascalCasetoHungarianCase( String $string, String $type = "str" ): String {
 		return self::fromCamelCasetoHungarianCase( $string, $type );
 	}
 	
@@ -101,12 +95,10 @@ trait HungarianCase
 	 *
 	 * @return String
 	 */
-	public static function fromSnakeCasetoHungarianCase( String $string, String $type = "str" ): String
-	{
+	public static function fromSnakeCasetoHungarianCase( String $string, String $type = "str" ): String {
 		$parts = explode( "_", $string );
 		$prefix = "";
-		switch( $type )
-		{
+		switch( $type ) {
 			case "str":
 				$prefix = "str";
 				break;
@@ -135,12 +127,10 @@ trait HungarianCase
 	 *
 	 * @return String
 	 */
-	public static function fromKebabCasetoHungarianCase( String $string, String $type = "str" ): String
-	{
+	public static function fromKebabCasetoHungarianCase( String $string, String $type = "str" ): String {
 		$parts = explode( "-", $string );
 		$prefix = "";
-		switch( $type )
-		{
+		switch( $type ) {
 			case "str":
 				$prefix = "str";
 				break;
@@ -169,12 +159,10 @@ trait HungarianCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCamelCasetoHungarianCase( String $string, String $type = "str" ): String
-	{
+	public static function fromUpperCamelCasetoHungarianCase( String $string, String $type = "str" ): String {
 		$parts = preg_split( "/(?=[A-Z])/", lcfirst( $string ) );
 		$prefix = "";
-		switch( $type )
-		{
+		switch( $type ) {
 			case "str":
 				$prefix = "str";
 				break;
@@ -203,14 +191,11 @@ trait HungarianCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCasetoHungarianCase( String $string ): String
-	{
+	public static function fromUpperCasetoHungarianCase( String $string ): String {
 		$words = preg_split( "/(?=[A-Z])/", $string );
 		$result = "";
-		foreach( $words as $word )
-		{
-			if( $result !== "" )
-			{
+		foreach( $words as $word ) {
+			if( $result !== "" ) {
 				$result .= "_";
 			}
 			$result .= strtolower( $word );

@@ -9,8 +9,7 @@ use ReflectionExtension;
  *
  * @package Yume\Fure\Util\Reflect
  */
-final class ReflectExtension
-{
+final class ReflectExtension {
 	
 	/*
 	 * Gets classes.
@@ -20,8 +19,7 @@ final class ReflectExtension
 	 *
 	 * @return Array
 	*/
-	public static function getClasses( String $extension, Mixed &$reflect = Null ): Array
-	{
+	public static function getClasses( String $extension, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getClasses();
 	}
 	
@@ -33,8 +31,7 @@ final class ReflectExtension
 	 *
 	 * @return Array
 	*/
-	public static function getClassNames( String $extension, Mixed &$reflect = Null ): Array
-	{
+	public static function getClassNames( String $extension, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getClassNames();
 	}
 	
@@ -46,8 +43,7 @@ final class ReflectExtension
 	 *
 	 * @return Array
 	*/
-	public static function getConstants( String $extension, Mixed &$reflect = Null ): Array
-	{
+	public static function getConstants( String $extension, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getConstants();
 	}
 	
@@ -59,8 +55,7 @@ final class ReflectExtension
 	 *
 	 * @return Array
 	*/
-	public static function getDependencies( String $extension, Mixed &$reflect = Null ): Array
-	{
+	public static function getDependencies( String $extension, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getDependencies();
 	}
 	
@@ -72,8 +67,7 @@ final class ReflectExtension
 	 *
 	 * @return Array
 	*/
-	public static function getFunctions( String $extension, Mixed &$reflect = Null ): Array
-	{
+	public static function getFunctions( String $extension, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getFunctions();
 	}
 	
@@ -85,8 +79,7 @@ final class ReflectExtension
 	 *
 	 * @return Array
 	*/
-	public static function getINIEntries( String $extension, Mixed &$reflect = Null ): Array
-	{
+	public static function getINIEntries( String $extension, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getINIEntries();
 	}
 	
@@ -98,8 +91,7 @@ final class ReflectExtension
 	 *
 	 * @return String
 	*/
-	public static function getName( String $extension, Mixed &$reflect = Null ): String
-	{
+	public static function getName( String $extension, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getName();
 	}
 	
@@ -111,8 +103,7 @@ final class ReflectExtension
 	 *
 	 * @return String
 	*/
-	public static function getVersion( String $extension, Mixed &$reflect = Null ): ? String
-	{
+	public static function getVersion( String $extension, Mixed &$reflect = Null ): ? String {
 		return( $reflect = self::reflect( $extension, $reflect ) )->getVersion();
 	}
 	
@@ -124,8 +115,7 @@ final class ReflectExtension
 	 *
 	 * @return Void
 	*/
-	public static function info( String $extension, Mixed &$reflect = Null ): Void
-	{
+	public static function info( String $extension, Mixed &$reflect = Null ): Void {
 		$reflect = self::reflect( $extension, $reflect );
 		$reflect->info();
 	}
@@ -138,8 +128,7 @@ final class ReflectExtension
 	 *
 	 * @return Bool
 	*/
-	public static function isPersistent( String $extension, Mixed &$reflect = Null ): Bool
-	{
+	public static function isPersistent( String $extension, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $extension, $reflect ) )->isPersistent();
 	}
 	
@@ -151,8 +140,7 @@ final class ReflectExtension
 	 *
 	 * @return Bool
 	*/
-	public static function isTemporary( String $extension, Mixed &$reflect = Null ): Bool
-	{
+	public static function isTemporary( String $extension, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $extension, $reflect ) )->isTemporary();
 	}
 	
@@ -166,12 +154,9 @@ final class ReflectExtension
 	 *
 	 * @return ReflectionExtension
 	 */
-	private static function reflect( String $extension, Mixed $reflect )
-	{
-		if( $reflect Instanceof ReflectionExtension )
-		{
-			if( $reflect->name === $extension )
-			{
+	private static function reflect( String $extension, Mixed $reflect ) {
+		if( $reflect Instanceof ReflectionExtension ) {
+			if( $reflect->name === $extension ) {
 				return( $reflect );
 			}
 		}

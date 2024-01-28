@@ -9,8 +9,7 @@ namespace Yume\Fure\Http\Request;
  * 
  * @package Yume\Fure\Http\Request
  */
-enum RequestMethod: String
-{
+enum RequestMethod: String {
 
 	case HEAD    = "HEAD";
     case GET     = "GET";

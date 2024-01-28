@@ -7,8 +7,7 @@ namespace Yume\Fure\Service;
  * 
  * @package Yume\Fure\Service
  */
-interface ServiceProviderInterface
-{
+interface ServiceProviderInterface {
 	
 	/*
 	 * Service booting.

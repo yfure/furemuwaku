@@ -17,8 +17,7 @@ use Yume\Fure\Util\Arr;
  * 
  * @package Yume\Fure\Cache
  */
-class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
-{
+class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface {
 	
 	/*
 	 * Cache stored pathname.
@@ -51,24 +50,16 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\Pool\BasPool::__construct
 	 * 
 	 */
-	public function __construct( Config\Config $configs )
-	{
+	public function __construct( Config\Config $configs ) {
 		$this->path = $configs->path ?? $this->path;
 		$this->extension = $configs->extension ?? $this->extension;
 		$this->permission = $configs->permission ?? $this->permission;
 		
-		// Check if cache path doesn't exists.
-		if( Path\Path::exists( $this->path ) === False )
-		{
+		if( Path\Path::exists( $this->path ) === False ) {
 			Path\Path::make( $this->path, $this->permission );
 		}
-		else {
-			
-			// Check if path is not writable.
-			if( is_writable( Path\Path::path( $this->path ) ) === False )
-			{
-				throw new Path\PathError( $this->path, Path\PathError::READ_ERROR );
-			}
+		else if( is_writable( Path\Path::path( $this->path ) ) === False ) {
+			throw new Path\PathError( $this->path, Path\PathError::READ_ERROR );
 		}
 	}
 	
@@ -76,8 +67,7 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::clear
 	 *
 	 */
-	public function clear(): Bool
-	{
+	public function clear(): Bool {
 		return( Path\Path::remove( $this->path, "/*", True ) );
 	}
 	
@@ -85,8 +75,7 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::commit
 	 *
 	 */
-	public function commit(): Bool
-	{
+	public function commit(): Bool {
 		return( True );
 	}
 	
@@ -94,8 +83,7 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::deleteItem
 	 *
 	 */
-	public function deleteItem( String $key ): Bool
-	{
+	public function deleteItem( String $key ): Bool {
 		return( File\File::remove( $this->path( $key ) ) );
 	}
 	
@@ -103,10 +91,8 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::deleteItems
 	 *
 	 */
-	public function deleteItems( Array $keys ): Bool
-	{
-		foreach( array_values( $keys ) As $key )
-		{
+	public function deleteItems( Array $keys ): Bool {
+		foreach( array_values( $keys ) As $key ) {
 			$this->deleteItem( $key );
 		}
 		return( True );
@@ -116,42 +102,25 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::getItem
 	 *
 	 */
-	public function getItem( String $key ): Cache\CacheItemInterface
-	{
+	public function getItem( String $key ): Cache\CacheItemInterface {
 		$cache = new Cache\CacheItem( $key, Null, False );
-		putln( $this->path( $key ) );
-		// Check if cache is exists.
-		if( self::hasItem( $key ) )
-		{
-			// Get path with key name.
+		if( self::hasItem( $key ) ) {
 			$path = $this->path( $key );
-			
-			// Unserializing cache contents.
 			$data = unserialize( File\File::read( $path ), [ "max_depth" => 0 ]);
 			$isHit = False;
-			
-			// If cache contents is valid.
-			if( is_array( $data ) )
-			{
+			if( is_array( $data ) ) {
 				$data = [
 					"time" => $data['time'] ?? 0,
 					"live" => $data['live'] ?? 0,
 					"value" => $data['value'] ?? Null
 				];
-				
-				// Get current timestamp.
 				$time = datetime()->getTimestamp();
 				
 				// Check if cache has expired.
-				if( $data['time'] + $data['live'] < $time )
-				{
-					// Remove expired cache.
+				if( $data['time'] + $data['live'] < $time ) {
+					
 					File\File::remove( $path );
-					
-					// Remove data values.
 					$data['value'] = Null;
-					
-					// Set cache as hit.
 					$isHit = True;
 				}
 				else {
@@ -169,14 +138,11 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::getItems
 	 *
 	 */
-	public function getItems( Array $keys = [] ): Array | Arr\Associative
-	{
-		// Data Instance.
+	public function getItems( Array $keys = [] ): Array | Arr\Associative {
 		$items = new Arr\Associative;
-		
-		// Mapping keys.
-		array_map( fn( String $key ) => $items[$key] = $this->getItem( $key ), array_values( $keys ) );
-		
+		foreach( $keys As $key ) {
+			$items[$key] = $this->getItem( $key );
+		}
 		return( $items );
 	}
 	
@@ -184,8 +150,7 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::hasItem
 	 *
 	 */
-	public function hasItem( String $key ): Bool
-	{
+	public function hasItem( String $key ): Bool {
 		return( File\File::exists( $this->path( $key ) ) );
 	}
 	
@@ -198,8 +163,7 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 *
 	 * @return String
 	 */
-	public function path( String $key ): String
-	{
+	public function path( String $key ): String {
 		return( sprintf( "%s/%s.%s", $this->path, $this->key( $key ), $this->extension ) );
 	}
 	
@@ -207,38 +171,24 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::save
 	 *
 	 */
-	public function save( Cache\CacheItemInterface $item ): Bool
-	{
-		// Get path with key name.
+	public function save( Cache\CacheItemInterface $item ): Bool {
+		
 		$path = $this->path( $item->getkey() );
-		
-		// Get cache expiration time.
 		$time = $item->getExpires();
-		
-		// Get default cache live time.
 		$live = config( "cache" )->time->live;
 		
-		// Check if cache is Hit.
-		if( $item->isHit() )
-		{
-			// Current date timestamp.
+		if( $item->isHit() ) {
 			$time = datetime()->getTimestamp();
 			$live = 0;
 		}
-		
-		// Serializing contents.
 		$save = serialize([
 			"time" => $time,
 			"live" => $live,
 			"value" => $item->get()
 		]);
-		
-		try
-		{
-			if( File\File::write( $path, $save ) )
-			{
-				if( chmod( Path\Path::path( $path ), $this->permission ) )
-				{
+		try {
+			if( File\File::write( $path, $save ) ) {
+				if( chmod( Path\Path::path( $path ), $this->permission ) ) {
 					return( True );
 				}
 				logger( "debug", "Failed set permission for cache {}", [ $item->getkey() ] );
@@ -247,8 +197,7 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 				logger( "debug", "Failed save cache {}", [ $item->getkey() ] );
 			}
 		}
-		catch( Throwable $e )
-		{
+		catch( Throwable $e ) {
 			logger( "debug", "{}: {} when save cache {}", [ $e::class, $e->getMessage(), $item->getkey() ] );
 		}
 		return( False );
@@ -258,8 +207,7 @@ class FileSystemPool extends BasePool implements Cache\CacheItemPoolInterface
 	 * @inherit Yume\Fure\Cache\CacheItemPoolInterface::saveDeferred
 	 *
 	 */
-	public function saveDeferred( Cache\CacheItemInterface $item ): Bool
-	{
+	public function saveDeferred( Cache\CacheItemInterface $item ): Bool {
 		return( $this )->save( $item );
 	}
 }

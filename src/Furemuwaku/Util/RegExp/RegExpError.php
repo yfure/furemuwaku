@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\Util\RegExp
  */
-class RegExpError extends Error\SyntaxError
-{
+class RegExpError extends Error\SyntaxError {
 	
 	/*
 	 * If there was an internal PCRE error.

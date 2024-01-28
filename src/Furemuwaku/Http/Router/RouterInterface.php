@@ -7,7 +7,7 @@ namespace Yume\Fure\Http\Router;
  * 
  * @package Yume\Fure\Http\Router
  */
-interface RouterInterface
-{}
+interface RouterInterface {
+}
 
 ?>

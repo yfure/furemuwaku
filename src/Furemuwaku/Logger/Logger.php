@@ -15,8 +15,7 @@ use Yume\Fure\Util\Reflect;
  *
  * @package Yume\Fure\Logger
  */
-class Logger implements LoggerInterface
-{
+class Logger implements LoggerInterface {
 	
 	/*
 	 * Levels to be logged.
@@ -72,8 +71,7 @@ class Logger implements LoggerInterface
 	 *
 	 * @return Void
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$this->dateTimeFormat = config( "logger" )->datetime->format;
 		$this->handlers = new Arr\Associative;
 		$this->prepare();
@@ -83,8 +81,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::alert
 	 *
 	 */
-	public function alert( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function alert( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Alert, $message, $context );
 	}
 	
@@ -92,8 +89,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::critical
 	 *
 	 */
-	public function critical( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function critical( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Critical, $message, $context );
 	}
 	
@@ -101,8 +97,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::debug
 	 *
 	 */
-	public function debug( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function debug( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Debug, $message, $context );
 	}
 	
@@ -110,8 +105,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::emergency
 	 *
 	 */
-	public function emergency( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function emergency( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Emergency, $message, $context );
 	}
 	
@@ -119,8 +113,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::error
 	 *
 	 */
-	public function error( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function error( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Error, $message, $context );
 	}
 	
@@ -128,8 +121,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::info
 	 *
 	 */
-	public function info( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function info( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Info, $message, $context );
 	}
 	
@@ -137,8 +129,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::notice
 	 *
 	 */
-	public function notice( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function notice( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Notice, $message, $context );
 	}
 	
@@ -146,8 +137,7 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::warning
 	 *
 	 */
-	public function warning( String | Stringable $message, Array $context = [] ): Void
-	{
+	public function warning( String | Stringable $message, Array $context = [] ): Void {
 		$this->log( LoggerLevel::Warning, $message, $context );
 	}
 	
@@ -155,12 +145,9 @@ class Logger implements LoggerInterface
 	 * @inherit Yume\Fure\Logger\LoggerInterface::log
 	 *
 	 */
-	public function log( Int | String | LoggerLevel $level, String | Stringable $message, Array $context = [] ): Void
-	{
-		try
-		{
-			switch( True )
-			{
+	public function log( Int | String | LoggerLevel $level, String | Stringable $message, Array $context = [] ): Void {
+		try {
+			switch( True ) {
 				// If level is Numeric type.
 				case is_numeric( $level ):
 					
@@ -171,8 +158,7 @@ class Logger implements LoggerInterface
 					$levels = array_keys( $this->levels );
 					
 					// Check if index is out of range.
-					if( isset( $levels[$level] ) === False )
-					{
+					if( isset( $levels[$level] ) === False ) {
 						throw new Error\IndexError( f( "Index {} out of range on Array from {}::\$levels", $level, __CLASS__ ), 0 );
 					}
 					else {
@@ -187,8 +173,7 @@ class Logger implements LoggerInterface
 					$level = strtolower( $level );
 					
 					// Check if key is not exists.
-					if( isset( $this->levels[$level] ) === False )
-					{
+					if( isset( $this->levels[$level] ) === False ) {
 						throw new Error\KeyError( f( "Undefined key {} on Array from {}::\$levels", $level, __CLASS__ ), 0 );
 					}
 					else {
@@ -203,23 +188,19 @@ class Logger implements LoggerInterface
 				default: throw new LoggerError( gettype( $level ), LoggerError::LEVEL_ERROR );
 			}
 		}
-		catch( Error\LookupError $e )
-		{
+		catch( Error\LookupError $e ) {
 			throw new LoggerError( $level, LoggerError::LEVEL_ERROR, $e );
 		}
 		
 		// Check if level is allowed for log.
-		if( in_array( $level, $this->allows ) )
-		{
+		if( in_array( $level, $this->allows ) ) {
 			// Format message.
 			$message = f( $message, ...$context );
 			
 			// Mapping handlers.
-			$this->handlers->map( function( Int $i, Int | String $name, Config\Config | LoggerHandlerInterface $handler ) use( $level, $message )
-			{
+			$this->handlers->map( function( Int $i, Int | String $name, Config\Config | LoggerHandlerInterface $handler ) use( $level, $message ) {
 				// Check if handler allowed the level.
-				if( $handler->allow( $level ) )
-				{
+				if( $handler->allow( $level ) ) {
 					return( $handler )
 
 						// Set handler date time format.
@@ -249,43 +230,35 @@ class Logger implements LoggerInterface
 	 *
 	 * @return Void
 	 */
-	private function prepare(): Void
-	{
+	private function prepare(): Void {
 		// Get logger configuration.
 		$config = Logger::config();
 		
 		// Check if threshold is Array type.
-		if( $config->threshold Instanceof Arr\Arrayable )
-		{
+		if( $config->threshold Instanceof Arr\Arrayable ) {
 			// Mapping thresholds.
-			$config->threshold->map( function( Int $i, $idx, $val )
-			{
+			$config->threshold->map( function( Int $i, $idx, $val ) {
 				// If level is String type.
-				if( is_string( $val ) )
-				{
+				if( is_string( $val ) ) {
 					// Check if exists.
-					if( isset( $this->levels[$val] ) )
-					{
+					if( isset( $this->levels[$val] ) ) {
 						$val = $this->levels[$val];
 					}
 				}
 				
 				// If level is Int type.
-				if( is_int( $val ) )
-				{
+				if( is_int( $val ) ) {
 					// Get array keys.
 					$keys = array_keys( $this->levels );
 					
 					// Check if index is exists.
-					if( isset( $keys[$val] ) )
-					{
+					if( isset( $keys[$val] ) ) {
 						$val = $this->levels[$keys[$val]];
 					}
 				}
 				
 				// If level is Enum LoggerLevel.
-				if( $val Instanceof LoggerLevel )
-				{
+				if( $val Instanceof LoggerLevel ) {
 					$this->allows[strtolower( $val->value )] = $val;
 				}
 				else {
@@ -298,13 +271,10 @@ class Logger implements LoggerInterface
 		}
 
 		// Check if logger has handler.
-		if( self::$configs->handlers->count() >= 1 )
-		{
+		if( self::$configs->handlers->count() >= 1 ) {
 			$handlers = self::$configs->handlers->copy();
-			$handlers->map( function( Int $i, Int | String $name, Config\Config | LoggerHandlerInterface $handler ): Void
-			{
-				if( $handler Instanceof Arr\Arrayable )
-				{
+			$handlers->map( function( Int $i, Int | String $name, Config\Config | LoggerHandlerInterface $handler ): Void {
+				if( $handler Instanceof Arr\Arrayable ) {
 					// Check if logger handler name is invalid name.
 					if( is_string( $name ) === False ) throw new Error\AssertionError( [ "logger handler name", "String", type( $name ) ], Error\AssertionError::VALUE_ERROR );
 

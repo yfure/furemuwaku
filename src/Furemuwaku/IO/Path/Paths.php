@@ -7,8 +7,7 @@ namespace Yume\Fure\IO\Path;
  *
  * @package Yume\Fure\IO\Path
  */
-enum Paths: String
-{
+enum Paths: String {
 	
 	/*
 	 * List of default paths for applications.
@@ -91,16 +90,13 @@ enum Paths: String
 	 *
 	 * @return Bool
 	 */
-	public function is( String $path, ? Bool $optional = Null ): Bool
-	{
-		if( $optional === Null )
-		{
+	public function is( String $path, ? Bool $optional = Null ): Bool {
+		if( $optional === Null ) {
 			$paths = [
 				preg_replace( "/\//", DIRECTORY_SEPARATOR, $this->value ),
 				preg_replace( "/\//", DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR . $this->value )
 			];
-			foreach( $paths As $prefix )
-			{
+			foreach( $paths As $prefix ) {
 				if( strpos( $path, $prefix ) === 0 ) return( True );
 			}
 			return( False );
@@ -112,10 +108,8 @@ enum Paths: String
 	 * @inherit Yume\Fure\Util\Path\Path::path
 	 *
 	 */
-	public function path( ? String $path = Null ): String
-	{
-		if( $path )
-		{
+	public function path( ? String $path = Null ): String {
+		if( $path ) {
 			return( Path::path( sprintf( "%s/%s", $this->value, $path ) ) );
 		}
 		return( Path::path( $this->value ) );

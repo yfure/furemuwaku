@@ -19,8 +19,7 @@ use Yume\Fure\Util\Json;
  *
  * @package Yume\Fure\Util\Arr
  */
-abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countable, SeekableIterator, Stringable
-{
+abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countable, SeekableIterator, Stringable {
 	
 	/*
 	 * Get hidden data.
@@ -31,8 +30,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Mixed
 	 */
-	public function __get( String $name ): Mixed
-	{
+	public function __get( String $name ): Mixed {
 		return( $this )->offsetGet( $name );
 	}
 	
@@ -45,8 +43,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Bool
 	 */
-	public function __isset( String $name ): Bool
-	{
+	public function __isset( String $name ): Bool {
 		return( $this )->offsetExists( $name );
 	}
 	
@@ -60,8 +57,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Void
 	 */
-	public function __set( String $name, Mixed $value ): Void
-	{
+	public function __set( String $name, Mixed $value ): Void {
 		$this->offsetSet( $name, $value );
 	}
 	
@@ -72,17 +68,10 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Array
 	 */
-	public function __toArray(): Array
-	{
+	public function __toArray(): Array {
 		$data = [];
-		
-		// Mapping data.
-		foreach( $this->data As $key => $val )
-		{
-			// Check if data value is Data class.
-			if( $val Instanceof Arrayable )
-			{
-				// Get deep data.
+		foreach( $this->data As $key => $val ) {
+			if( $val Instanceof Arrayable ) {
 				$val = $val->__toArray();
 			}
 			$data[$key] = $val;
@@ -97,8 +86,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return String
 	 */
-	public function __toString(): String
-	{
+	public function __toString(): String {
 		return( Json\Json::encode( $this->__toArray(), JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ) );
 	}
 	
@@ -111,8 +99,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Void
 	 */
-	public function __unset( String $name ): Void
-	{
+	public function __unset( String $name ): Void {
 		$this->offsetUnset( $name );
 	}
 	
@@ -126,8 +113,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Static
 	 */
-	public function chunk( Int $length, Bool $preserveKeys = False ): Static
-	{
+	public function chunk( Int $length, Bool $preserveKeys = False ): Static {
 		return( new Static( array_chunk( $this->data, ...func_get_args() ) ) );
 	}
 	
@@ -142,8 +128,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Static
 	 */
-	public function filter( ? Callable $callback = Null, Int $mode = ARRAY_FILTER_USE_BOTH ): Static
-	{
+	public function filter( ? Callable $callback = Null, Int $mode = ARRAY_FILTER_USE_BOTH ): Static {
 		return( new Static( array_filter( $this->data, $callback, ) ) );
 	}
 	
@@ -156,8 +141,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Int
 	 */
-	public function indexOf( Mixed $value ): Int
-	{
+	public function indexOf( Mixed $value ): Int {
 		return( in_array( $this->data, $value ) );
 	}
 	
@@ -170,8 +154,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Bool
 	 */
-	public function isList( ? Bool $optional ): Bool
-	{
+	public function isList( ? Bool $optional ): Bool {
 		return( $optional !== Null ? $this Instanceof Lists === $optional : $this Instanceof Lists );
 	}
 	
@@ -182,8 +165,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Mixed
 	 */
-	public function keyFirst(): Mixed
-	{
+	public function keyFirst(): Mixed {
 		return( $this )->keys[0] ?? Null;
 	}
 	
@@ -194,8 +176,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Mixed
 	 */
-	public function keyLast(): Mixed
-	{
+	public function keyLast(): Mixed {
 		return( end( $this->keys ) );
 	}
 	
@@ -208,8 +189,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Int|String
 	 */
-	public function keyOf( Mixed $value ): Int | String
-	{
+	public function keyOf( Mixed $value ): Int | String {
 		return( $this )->keys[$this->indexOf( $value )];
 	}
 	
@@ -220,8 +200,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Array
 	 */
-	public function keys(): Array
-	{
+	public function keys(): Array {
 		return( $this )->keys;
 	}
 	
@@ -234,47 +213,19 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Static
 	 */
-	public function map( Callable $callback ): Static
-	{
-		// Data stack.
+	public function map( Callable $callback ): Static {
 		$stack = [];
-		
-		// Get data keys.
 		$keys = $this->keys();
 		$vals = $this->values();
-		
-		// Mapping data.
-		for( $i = 0; $i < $this->count(); $i++ )
-		{
-			// Check if element is exists.
-			if( isset( $keys[$i] ) )
-			{
-				try
-				{
-					// Get callback return value.
-					$stack[$keys[$i]] = call_user_func(
-						
-						// Callback handler.
-						$callback,
-						
-						// Index iteration.
-						$i,
-						
-						// Array index.
-						$keys[$i],
-						
-						// Array value.
-						$vals[$i]
-					);
+		for( $i = 0; $i < $this->count(); $i++ ) {
+			if( isset( $keys[$i] ) ) {
+				try {
+					$stack[$keys[$i]] = call_user_func( $callback, $i, $keys[$i], $vals[$i] );
 				}
-				catch( Support\Stoppable $stopped )
-				{
+				catch( Support\Stoppable $stopped ) {
 					$stack[$keys[$i]] = $stopped;
 				}
-				
-				// Checks if further execution is terminated.
-				if( $stack[$keys[$i]] Instanceof Support\Stoppable )
-				{
+				if( $stack[$keys[$i]] Instanceof Support\Stoppable ) {
 					$stack[$keys[$i]] = $stack[$keys[$i]]->value;
 					break;
 				}
@@ -294,20 +245,17 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Static
 	 */
-	public function replace( Array | Arrayable $array, Bool $recursive = False ): Static
-	{
-		// Avoid resetting the position on the iterator.
-		if( $array Instanceof Arrayable ) $array = $array->data;
-		
-		foreach( $array As $offset => $value )
-		{
-			// Check if value of element is Array or Arrayable class.
-			if( is_array( $value ) || $value Instanceof Arrayable )
-			{
+	public function replace( Array | Arrayable $array, Bool $recursive = False ): Static {
+		if( $array Instanceof Arrayable ) {
+			$array = $array->data;
+		}
+		foreach( $array As $offset => $value ) {
+			if( is_array( $value ) || $value Instanceof Arrayable ) {
+				
 				// If recursive option is allowed, we will check if element is exists,
 				// and if value of element is Array or Arrayable class.
-				if( $recursive && isset( $this[$offset] ) && $this[$offset] Instanceof Arrayable )
-				{
+				if( $recursive && isset( $this[$offset] ) && $this[$offset] Instanceof Arrayable ) {
+					
 					// Recursion of array values until exhausted.
 					$value = $this[$offset]->replace( $value );
 				}
@@ -327,8 +275,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 *
 	 * @return Array
 	 */
-	public function values(): Array
-	{
+	public function values(): Array {
 		return( array_values( $this->data ) );
 	}
 	

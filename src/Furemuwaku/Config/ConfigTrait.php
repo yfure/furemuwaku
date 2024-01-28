@@ -9,8 +9,7 @@ use Yume\Fure\Main;
  *
  * @package Yume\Fure\Config
  */
-trait ConfigTrait
-{
+trait ConfigTrait {
 	
 	/*
 	 * Class Configuration.
@@ -35,28 +34,16 @@ trait ConfigTrait
 	 *
 	 * @return Mixed
 	 */
-	final public static function config( Callable | Null | String $name = Null ): Mixed
-	{
-		// If the class configuration has not been imported.
-		if( self::$configs Instanceof Config === False )
-		{
-			// Split class name with backslash character.
+	final public static function config( Callable | Null | String $name = Null ): Mixed {
+		if( self::$configs Instanceof Config === False ) {
 			$split = explode( "\\", __CLASS__ );
-			
-			// Get class name.
 			$class = end( $split );
-			
-			// Get class configuration.
 			self::$configs = Main\Main::config( $class );
 		}
-		
-		// Check if `name` is not Empty value.
-		if( valueIsNotEmpty( $name ) )
-		{
-			// If name is String type.
-			if( is_string( $name ) ) return( ify( $name, self::$configs ) );
-			
-			// Get return value from callback.
+		if( valueIsNotEmpty( $name ) ) {
+			if( is_string( $name ) ) {
+				return( ify( $name, self::$configs ) );
+			}
 			return( call_user_func( $name, self::$configs ) );
 		}
 		return( self::$configs );

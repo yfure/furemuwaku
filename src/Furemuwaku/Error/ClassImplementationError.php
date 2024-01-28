@@ -11,15 +11,13 @@ use Throwable;
  *
  * @package Yume\Fure\Error
  */
-final class ClassImplementationError extends ClassError
-{
+final class ClassImplementationError extends ClassError {
 	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = self::IMPLEMENTS_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
-	{
+	public function __construct( Array | Int | String $message, Int $code = self::IMPLEMENTS_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null ) {
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	

@@ -9,6 +9,7 @@ namespace Yume\Fure\Error;
  *
  * @package Yume\Fure\Error
  */
-class LogicError extends RuntimeError {}
+class LogicError extends RuntimeError {
+}
 
 ?>

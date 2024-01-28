@@ -11,8 +11,7 @@ use Stringable;
  *
  * @package Yume\Fure\IO\Stream
  */
-interface StreamInterface extends Stringable
-{
+interface StreamInterface extends Stringable {
 	
 	/*
 	 * Closes the stream and any underlying resources.

@@ -7,8 +7,7 @@ namespace Yume\Fure\Support;
  *
  * @package Yume\Fure\Support
  */
-abstract class Factory
-{
+abstract class Factory {
 	
 	/*
 	 * Return object instance from factory.

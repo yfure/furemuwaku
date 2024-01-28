@@ -7,7 +7,7 @@ namespace Yume\Fure\Error\Erahandora;
  * 
  * @package Yume\Fure\Error\Erahandora
  */
-class ErahandoraSutakku implements ErahandoraSutakkuInterface
-{}
+class ErahandoraSutakku implements ErahandoraSutakkuInterface {
+}
 
 ?>

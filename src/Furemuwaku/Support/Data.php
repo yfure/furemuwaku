@@ -16,8 +16,7 @@ use Yume\Fure\Util\Arr;
  *
  * @package Yume\Fure\Support
  */
-class Data extends Arr\Associative
-{
+class Data extends Arr\Associative {
 	
 	/*
 	 * Construct method of class Data.
@@ -29,20 +28,15 @@ class Data extends Arr\Associative
 	 *
 	 * @return Void
 	 */
-	public function __construct( Array | Arr\Arrayable | Traversable $data = [], Bool $insensitive = False )
-	{
-		// Copy data from passed Arrayable instance.
-		if( $data Instanceof Arr\Arrayable ) $data = $data->__toArray();
-		
-		// Copy data from passed Traversable.
-		if( $data Instanceof Traversable ) $data = Util\Arrays::toArray( $data );
-		
-		// Mapping data.
-		Util\Arrays::map( $data, static function( Int $i, Mixed $key, Mixed $value ) use( &$data ): Void
-		{
-			// If data value is Array type.
-			if( is_array( $value ) )
-			{
+	public function __construct( Array | Arr\Arrayable | Traversable $data = [], Bool $insensitive = False ) {
+		if( $data Instanceof Arr\Arrayable ) {
+			$data = $data->__toArray();
+		}
+		if( $data Instanceof Traversable ) {
+			$data = Util\Arrays::toArray( $data );
+		}
+		Util\Arrays::map( $data, static function( Int $i, Mixed $key, Mixed $value ) use( &$data ): Void {
+			if( is_array( $value ) ) {
 				$data[$key] = new Data( $value );
 			}
 		});
@@ -61,28 +55,16 @@ class Data extends Arr\Associative
 	 *
 	 * @throws Yume\Fure\Eror\MethodError
 	 */
-	public function __call( String $name, Array $args ): Mixed
-	{
-		// Check if property exists.
-		if( property_exists( $this, $name ) )
-		{
-			// Check if property is Closure.
-			if( $this->{ $name } Instanceof Closure )
-			{
+	public function __call( String $name, Array $args ): Mixed {
+		if( property_exists( $this, $name ) ) {
+			if( $this->{ $name } Instanceof Closure ) {
 				return( call_user_func_array( $this->{ $name }, $args ) );
 			}
 			throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::INVOKE_ERROR );
 		}
-		
-		// Check if data overload is array.
-		if( is_array( $this->data ) )
-		{
-			// Check if data is exists.
-			if( isset( $this->data[$name] ) )
-			{
-				// Check if data is Closure.
-				if( $this->data[$name] Instanceof Closure )
-				{
+		if( is_array( $this->data ) ) {
+			if( isset( $this->data[$name] ) ) {
+				if( $this->data[$name] Instanceof Closure ) {
 					return( call_user_func( $this->data[$name], ...$args ) );
 				}
 				throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::INVOKE_ERROR );
@@ -103,11 +85,8 @@ class Data extends Arr\Associative
 	 *
 	 * @throws Yume\Fure\Error\MethodError
 	 */
-	public static function __callStatic( String $name, Array $args ): Mixed
-	{
-		// Check if property exists.
-		if( property_exists( __CLASS__, $name ) )
-		{
+	public static function __callStatic( String $name, Array $args ): Mixed {
+		if( property_exists( __CLASS__, $name ) ) {
 			return( call_user_func( self::${ $name }, ...$args ) );
 		}
 		throw new Error\MethodError( [ $name, __CLASS__ ], Error\MethodError::NAME_ERROR );
@@ -120,8 +99,7 @@ class Data extends Arr\Associative
 	 *
 	 * @return Static
 	 */
-	public function copy(): Static
-	{
+	public function copy(): Static {
 		return( new Data( $this->__toArray() ) );
 	}
 	

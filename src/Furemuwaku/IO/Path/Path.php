@@ -11,8 +11,7 @@ use Yume\Fure\IO\File;
  *
  * @package Yume\Fure\IO\Path
  */
-class Path
-{
+class Path {
 	
 	/*
 	 * Copy a file or directory recursively to a new location.
@@ -37,8 +36,8 @@ class Path
 	 * @throws Yume\Fure\IO\PathNotFoundError
 	 *  If source destination is not exists.
 	 */
-	public static function copy( String $from, String $to, Bool $overwrite = False, Int $permission = 0755 ): Bool
-	{
+	public static function copy( String $from, String $to, Bool $overwrite = False, Int $permission = 0755 ): Bool {
+	
 		// If the source is a file, simply copy it to the destination.
 		if( File\File::exists( $from ) ) return( File\File::copy( ...func_get_args() ) );
 		
@@ -49,28 +48,20 @@ class Path
 		 * recursively to the new location.
 		 *
 		 */
-		if( self::exists( $from ) )
-		{
-			// If destination is not a file.
-			if( File\File::exists( $to, False ) )
-			{
-				// If target destination directory already exists, copy only the contents.
-				if( self::exists( $to ) === False )
-				{
+		if( self::exists( $from ) ) {
+			if( File\File::exists( $to, False ) ) {
+				if( self::exists( $to ) === False ) {
+					
 					// If destination directory doesn't exist,
 					// create it and this just copy the contents.
-					if( self::make( $to, $permission ) === False ) return( False );
+					if( self::make( $to, $permission ) === False ) {
+						return( False );
+					}
 				}
-				
-				// Mapping directory contents.
-				foreach( self::ls( $from ) as $file )
-				{
+				foreach( self::ls( $from ) as $file ) {
 					$srcFile = $from . DIRECTORY_SEPARATOR . $file;
 					$destFile = $to . DIRECTORY_SEPARATOR . $file;
-					
-					// If copying a file or directory success.
-					if( self::copy( $srcFile, $destFile, $overwrite, $permission ) )
-					{
+					if( self::copy( $srcFile, $destFile, $overwrite, $permission ) ) {
 						continue;
 					}
 					return( False );
@@ -92,8 +83,7 @@ class Path
 	 *
 	 * @return Bool
 	 */
-	public static function exists( String $dir, ? Bool $optional = Null ): Bool
-	{
+	public static function exists( String $dir, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? is_dir( self::path( $dir ) ) === $optional : is_dir( self::path( $dir ) ) );
 	}
 	
@@ -108,14 +98,9 @@ class Path
 	 *
 	 * @throws Yume\Fure\IO\Path\PathNotFoundError
 	 */
-	public static function ls( String $path ): Array
-	{
-		if( self::exists( $path ) )
-		{
-			// Scanning directory.
+	public static function ls( String $path ): Array {
+		if( self::exists( $path ) ) {
 			$scan = scandir( path( $path ) );
-			
-			// Computes the difference of arrays.
 			$scan = array_diff( $scan, [ ".", ".." ] );
 			
 			// Sort an array by key in ascending order.
@@ -136,20 +121,11 @@ class Path
 	 *
 	 * @return Bool
 	 */
-	public static function make( String $path, Int $permissions = 0777 ): Bool
-	{
-		// Directory stack.
+	public static function make( String $path, Int $permissions = 0777 ): Bool {
 		$stack = "";
-		
-		// Directory stack.
 		$stack = "";
-		
-		foreach( explode( DIRECTORY_SEPARATOR, $path ) As $dir )
-		{
-			// Check if directory doesn't exists.
-			if( self::exists( $make = path( $stack .= DIRECTORY_SEPARATOR . $dir ) ) === False )
-			{
-				// If failed to make new directory.
+		foreach( explode( DIRECTORY_SEPARATOR, $path ) As $dir ) {
+			if( self::exists( $make = path( $stack .= DIRECTORY_SEPARATOR . $dir ) ) === False ) {
 				if( mkdir( $make, $permissions ) === False ) return( False );
 			}
 		}
@@ -167,8 +143,7 @@ class Path
 	 *
 	 * @return Bool
 	 */
-	public static function move( String $from, String $to, $context = Null ): Bool
-	{
+	public static function move( String $from, String $to, $context = Null ): Bool {
 		return( rename( self::path( $from ), self::path( $to ), $context ) );
 	}
 	
@@ -183,11 +158,8 @@ class Path
 	 *
 	 * @return String
 	 */
-	public static function path( String $path, Bool | Paths $prefix_or_remove = False ): String
-	{
-		// Remove all basepath in string.
-		if( $prefix_or_remove === True )
-		{
+	public static function path( String $path, Bool | Paths $prefix_or_remove = False ): String {
+		if( $prefix_or_remove === True ) {
 			$paths = [
 				preg_replace( "/\//", DIRECTORY_SEPARATOR, BASE_PATH . DIRECTORY_SEPARATOR ),
 				preg_replace( "/\//", "\\" . DIRECTORY_SEPARATOR, BASE_PATH . DIRECTORY_SEPARATOR ),
@@ -197,17 +169,15 @@ class Path
 			return( str_replace( $paths, "", $path ) );
 		}
 		else {
-			
-			// Check if the path name has a prefix (e.g. php://).
-			if( preg_match( "/^(?<name>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\:(?<separator>\/\/|\\\)/i", $path ) ) return( $path );
-			
-			// Check if thd path has prefix path.
-			if( strpos( $path, BASE_PATH ) !== False || $path === BASE_PATH || $path . "/" === BASE_PATH ) return( $path );
-			
-			// Check if path has prefix.
-			if( $prefix_or_remove Instanceof Paths ) $path = join( "/", [ $prefix_or_remove->value, $path ] );
-			
-			// Add basepath into prefix pathname.
+			if( preg_match( "/^(?<name>[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\:(?<separator>\/\/|\\\)/i", $path ) ) {
+				return( $path );
+			}
+			if( strpos( $path, BASE_PATH ) !== False || $path === BASE_PATH || $path . "/" === BASE_PATH ) {
+				return( $path );
+			}
+			if( $prefix_or_remove Instanceof Paths ) {
+				$path = join( "/", [ $prefix_or_remove->value, $path ] );
+			}
 			return( str_replace( str_repeat( DIRECTORY_SEPARATOR, 2 ), DIRECTORY_SEPARATOR, preg_replace( "/\//", DIRECTORY_SEPARATOR, sprintf( "%s/%s", BASE_PATH, $path ) ) ) );
 		}
 	}
@@ -224,18 +194,12 @@ class Path
 	 *
 	 * @return Bool
 	 */
-	public static function remove( String $path, String $pattern = "/*", Bool $onlyFile = False ): Bool
-	{
-		// Check if path is exists.
-		if( self::exists( $path, True ) )
-		{
-			// Find pathnames matching a pattern.
+	public static function remove( String $path, String $pattern = "/*", Bool $onlyFile = False ): Bool {
+		if( self::exists( $path, True ) ) {
 			$files = glob( sprintf( "%s%s", $path, $pattern ) );
-			
-			foreach( $files !== False ? $files : [] as $file )
-			{
-				if( is_file( self::path( $file ) ) )
-				{
+			foreach( $files !== False ? $files : [] as $file ) {
+				if( is_file( self::path( $file ) ) ) {
+				
 					// If one file fails to delete then
 					// the entire queue below it will not be deleted.
 					if( unlink( self::path( $file ) ) === False ) return( False );
@@ -244,10 +208,7 @@ class Path
 					if( self::remove( $file, $pattern, $onlyFile ) === False ) return( False );
 				}
 			}
-			
-			// If path is allowed for delete.
-			if( $onlyFile === False )
-			{
+			if( $onlyFile === False ) {
 				return( rmdir( $path ) );
 			}
 			return( True );
@@ -268,25 +229,16 @@ class Path
 	 *
 	 * @throws Yume\Fure\IO\PathNotFoundError
 	 */
-	public static function tree( String $path, String $parent = "" ): Array | String
-	{
-		// Resolve pathname.
+	public static function tree( String $path, String $parent = "" ): Array | String {
 		$path = $path !== "/" ? $path : BASE_PATH;
-		
-		// Return if file exists.
-		if( File\File::exists( $path ) ) return( $path );
-		
-		// If path exists.
-		if( self::exists( $path, True ) )
-		{
+		if( File\File::exists( $path ) ) {
+			return( $path );
+		}
+		if( self::exists( $path, True ) ) {
 			$tree = [];
 			$scan = self::ls( $path );
-			
-			// Mapping path and files.
-			foreach( $scan As $i => $file )
-			{
-				if( self::exists( $next = $path . DIRECTORY_SEPARATOR . $file ) )
-				{
+			foreach( $scan As $i => $file ) {
+				if( self::exists( $next = $path . DIRECTORY_SEPARATOR . $file ) ) {
 					$stack[$file] = self::tree( $next );
 				}
 				else {

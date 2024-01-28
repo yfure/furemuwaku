@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @package Yume\Fure\IO\Buffer
  */
-class BufferError extends Error\IOError
-{
+class BufferError extends Error\IOError {
 	
 	/*
 	 * Error constant when failed to append buffer.

@@ -11,8 +11,7 @@ use Yume\Fure\Error;
  *
  * @extends Yume\Fure\Error\RuntimeError;
  */
-class ServiceError extends Error\RuntimeError
-{
+class ServiceError extends Error\RuntimeError {
 	
 	/*
 	 * Error constant for unavailable service.

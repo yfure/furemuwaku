@@ -20,8 +20,7 @@ use Yume\Fure\Util\Json;
  *
  * @package Yume\Fure\Util\Reflect
  */
-final class ReflectParameter
-{
+final class ReflectParameter {
 	
 	/*
 	 * Checks if null is allowed
@@ -34,8 +33,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function allowsNull( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function allowsNull( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->allowsNull();
 	}
 	
@@ -50,8 +48,7 @@ final class ReflectParameter
 	 *
 	 * @return Array
 	 */
-	public static function builder( Array $parameter, Array | ArrayAccess $arguments = [], Mixed &$reflect = Null ): Array
-	{
+	public static function builder( Array $parameter, Array | ArrayAccess $arguments = [], Mixed &$reflect = Null ): Array {
 		// Reflection instance references.
 		$reflect = new Support\Data([]);
 		
@@ -71,60 +68,40 @@ final class ReflectParameter
 		 *
 		 * @return Void
 		 */
-		Util\Arrays::map( $parameter, function( Int $i, Int | String $idx, Mixed $param ) use( &$reflect, &$binding, $arguments ): Void
-		{
-			// Error message.
+		Util\Arrays::map( $parameter, function( Int $i, Int | String $idx, Mixed $param ) use( &$reflect, &$binding, $arguments ): Void {
 			static $error = "Cannot build parameters, the value of the argument \$parameter must be a valid array <ReflectionParameter>|<Callable<ReflectionParameter>>, {} passed in the array element \$parameter<Array[{}]>";
 			
 			//<Function<Array>|<Object>|<String>>
 			//<Parameter<Int>|<String>>
 			//<Reflection<Mixed>>
 			
-			// If param value is Array type.
-			if( is_array( $param ) )
-			{
-				// Get array values.
+			if( is_array( $param ) ) {
 				$param = array_values( $param );
-				
-				// If array value is empty.
-				if( count( $param ) >= 2 )
-				{
-					// Get ReflectionParameter instance.
+				if( count( $param ) >= 2 ) {
 					$param = self::reflect( $param[0], $param[1], $param[3] ?? False );
 				}
 				else {
 					throw new Error\ValueError( f( $error, f( "Array{}", Json\Json::encode( $param, JSON_INVALID_UTF8_SUBSTITUTE ) ), $idx ) );
 				}
 			}
-			else if( $param Instanceof ReflectionParameter )
-			{}
+			else if( $param Instanceof ReflectionParameter ) {
+			}
 			else {
 				throw new Error\ValueError( f( $error, type( $param ), $idx ) );
 			}
-			
-			// Get argument position.
 			$pos = $param->getPosition();
-			
-			// Get argument name.
 			$name = $param->getName();
 			
 			// Get value by parameter name or position.
 			$binding[$name] = $arguments[$pos] ?? $arguments[$name] ?? ( $param->isDefaultValueAvailable() ? $param->getDefaultValue() : Null );
-			
-			// Set ReflectionParameter to reference variable.
 			$reflect[$name] = $param;
 			
-			// Check if parameter has type.
-			if( $param->hasType() )
-			{
-				// Get ReflectionType instance.
+			if( $param->hasType() ) {
 				$ntyped = $param->getType();
-				
-				// Get value by ReflectionType.
 				$binding[$name] = ReflectType::binding( $binding[$name], $ntyped );
-				
-				// Check if value is null and null is not allowed.
-				if( $binding[$name] === Null && $ntyped->allowsNull() === False ) throw new Error\ParameterError( [ $param->getDeclaringFunction()->name, $name, $ntyped->getName() ], Error\ParameterError::REQUIRE_ERROR );
+				if( $binding[$name] === Null && $ntyped->allowsNull() === False ) {
+					throw new Error\ParameterError( [ $param->getDeclaringFunction()->name, $name, $ntyped->getName() ], Error\ParameterError::REQUIRE_ERROR );
+				}
 			}
 		});
 		return( $binding );
@@ -141,8 +118,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function canBePassedByValue( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function canBePassedByValue( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->canBePassedByValue();
 	}
 	
@@ -156,23 +132,16 @@ final class ReflectParameter
 	 *
 	 * @return String
 	 */
-	private static function format( Mixed &$function, Int | String $param ): String
-	{
+	private static function format( Mixed &$function, Int | String $param ): String {
 		$format = new Support\Data([
 			"class" => "*",
 			"function" => "*",
 			"parameter" => $param
 		]);
-		
-		// If `function` is String type.
-		if( is_string( $function ) )
-		{
-			// Split function name with ::.
+		if( is_string( $function ) ) {
 			$function = explode( "::", $function );
-			
-			// Validate function name.
-			$function = match( count( $function ) )
-			{
+			$function = match( count( $function ) ) {
+
 				// Valid function name.
 				1,
 				2 => $function,
@@ -181,26 +150,16 @@ final class ReflectParameter
 				0 => throw new Error\AssertionError( "Invalid function name" )
 			};
 		}
-		
-		// Check if `function` is  type.
-		if( is_array( $function ) )
-		{
-			// Check if array length is two.
-			if( count( $function ) === 2 )
-			{
-				// Check if first element is Callable type.
-				if( is_callable( $function[0] ) )
-				{
+		if( is_array( $function ) ) {
+			if( count( $function ) === 2 ) {
+				if( is_callable( $function[0] ) ) {
 					$format->class = "Closure";
 					$format->function = "{closure}";
 					
 					$function = $function[0];
 				}
 				else {
-					
-					// Check if first element is Object type.
-					if( is_object( $function[0] ) )
-					{
+					if( is_object( $function[0] ) ) {
 						$format->class = $function[0]::class;
 						$format->function = $function[0]::class === "Closure" ? "{closure}" : $function[1]::class;
 					}
@@ -211,10 +170,7 @@ final class ReflectParameter
 				}
 			}
 			else {
-				
-				// Check if first element is Object type.
-				if( is_object( $function[0] ) )
-				{
+				if( is_object( $function[0] ) ) {
 					$format->class = $function[0]::class;
 					$format->function = $function[0]::class === "Closure" ? "{closure}" : "__invoke";
 				}
@@ -225,17 +181,11 @@ final class ReflectParameter
 				$function = $function[0];
 			}
 		}
-		
-		// Check if `function` is Object type.
-		else if( is_object( $function ) )
-		{
+		else if( is_object( $function ) ) {
 			$format->class = $function::class;
 			$format->function = $function::class === "Closure" ? "{closure}" : "__invoke";
 		}
-		
-		// Check if `function` is String type.
-		else if( is_string( $function ) )
-		{
+		else if( is_string( $function ) ) {
 			$format->class = "Declared";
 			$format->function = $function;
 		}
@@ -255,8 +205,7 @@ final class ReflectParameter
 	 *
 	 * @return Array
 	 */
-	public static function getAttributes( Array | Object | String $function, Int | String $param, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array
-	{
+	public static function getAttributes( Array | Object | String $function, Int | String $param, ? String $name = Null, Int $flags = 0, Mixed &$reflect = Null ): Array {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getAttributes( $name, $flags );
 	}
 	
@@ -271,8 +220,7 @@ final class ReflectParameter
 	 *
 	 * @return ReflectionClass
 	 */
-	public static function getDeclaringClass( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ? ReflectionClass
-	{
+	public static function getDeclaringClass( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ? ReflectionClass {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getDeclaringClass();
 	}
 	
@@ -287,8 +235,7 @@ final class ReflectParameter
 	 *
 	 * @return ReflectionFunctionAbstract
 	 */
-	public static function getDeclaringFunction( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ReflectionFunctionAbstract
-	{
+	public static function getDeclaringFunction( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ReflectionFunctionAbstract {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getDeclaringFunction();
 	}
 	
@@ -303,8 +250,7 @@ final class ReflectParameter
 	 *
 	 * @return Mixed
 	 */
-	public static function getDefaultValue( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Mixed
-	{
+	public static function getDefaultValue( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Mixed {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getDefaultValue();
 	}
 	
@@ -319,8 +265,7 @@ final class ReflectParameter
 	 *
 	 * @return String
 	 */
-	public static function getDefaultValueConstantName( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ? String
-	{
+	public static function getDefaultValueConstantName( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ? String {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getDefaultValueConstantName();
 	}
 	
@@ -335,8 +280,7 @@ final class ReflectParameter
 	 *
 	 * @return String
 	 */
-	public static function getName( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): String
-	{
+	public static function getName( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): String {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getName();
 	}
 	
@@ -351,8 +295,7 @@ final class ReflectParameter
 	 *
 	 * @return Int
 	 */
-	public static function getPosition( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Int
-	{
+	public static function getPosition( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Int {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getPosition();
 	}
 	
@@ -367,8 +310,7 @@ final class ReflectParameter
 	 *
 	 * @return ReflectionType
 	 */
-	public static function getType( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ? ReflectionType
-	{
+	public static function getType( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): ? ReflectionType {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->getType();
 	}
 	
@@ -383,8 +325,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function hasType( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function hasType( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->hasType();
 	}
 	
@@ -399,8 +340,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function isDefaultValueAvailable( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function isDefaultValueAvailable( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->isDefaultValueAvailable();
 	}
 	
@@ -415,8 +355,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function isDefaultValueConstant( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function isDefaultValueConstant( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->isDefaultValueConstant();
 	}
 	
@@ -431,8 +370,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function isOptional( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function isOptional( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->isOptional();
 	}
 	
@@ -447,8 +385,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function isPassedByReference( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function isPassedByReference( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->isPassedByReference();
 	}
 	
@@ -463,8 +400,7 @@ final class ReflectParameter
 	 *
 	 * @return Bool
 	 */
-	public static function isVariadic( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool
-	{
+	public static function isVariadic( Array | Object | String $function, Int | String $param, Mixed &$reflect = Null ): Bool {
 		return( $reflect = self::reflect( $function, $param, $reflect ) )->isVariadic();
 	}
 	
@@ -479,49 +415,28 @@ final class ReflectParameter
 	 *
 	 * @return ReflectionParameter
 	 */
-	private static function reflect( Array | Object | String $function, Int | String $param, Mixed $reflect ): ReflectionParameter
-	{
-		// Check if `reflect` is instanceof ReflectionParameter.
-		if( $reflect Instanceof ReflectionParameter )
-		{
-			// Default export format.
+	private static function reflect( Array | Object | String $function, Int | String $param, Mixed $reflect ): ReflectionParameter {
+		if( $reflect Instanceof ReflectionParameter ) {
 			$format = "{ class }::{ function }(:{ parameter })";
-			
-			// Get Reflector instance
 			$reflectFunc = $reflect->getDeclaringFunction();
 			$reflectClass = $reflect->getDeclaringClass();
-			
-			// Export ReflectionParameter instance.
 			$reflectFormat = Util\Strings::format( $format, ...[
-				
-				// Function class name.
 				"class" => $reflectClass ? $reflectClass->getName() : "Anonymous",
-				
-				// Function name.
 				"function" => $reflectFunc->getName(),
-				
-				// Function parameter name.
-				"parameter" => match( is_int( $param ) )
-				{
+				"parameter" => match( is_int( $param ) ) {
 					True => $reflect->getPosition(),
 					False => $reflect->getName()
 				}
 			]);
-			
-			// Export Function given.
 			$functFormat = self::format( $function, $param );
-			
-			if( $functFormat === $reflectFormat )
-			{
+			if( $functFormat === $reflectFormat ) {
 				return( $reflect );
 			}
 		}
-		try
-		{
+		try {
 			return( new ReflectionParameter( $function, $param ) );
 		}
-		catch( ReflectionException $e )
-		{
+		catch( ReflectionException $e ) {
 			throw new Error\ParameterError( [ $function, $param ], Error\ParameterError::NAME_ERROR, $e );
 		}
 	}

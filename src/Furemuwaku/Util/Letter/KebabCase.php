@@ -7,8 +7,7 @@ namespace Yume\Fure\Util\Letter;
  *
  * @package Yume\Fure\Util\Letter
  */
-trait KebabCase
-{
+trait KebabCase {
 	
 	use \Yume\Fure\Util\Letter\SnakeCase;
 	
@@ -21,8 +20,7 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function toKebabCase( String $string ): String
-	{
+	public static function toKebabCase( String $string ): String {
 		return( strtolower( preg_replace( "/(.)(?=[A-Z])/u", "$1-", preg_replace( "/\s+/", "-", str_replace( "_", "-", $string ) ) ) ) );
 	}
 	
@@ -35,8 +33,7 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function fromCamelCaseToKebabCase( String $string ): String
-	{
+	public static function fromCamelCaseToKebabCase( String $string ): String {
 		return( strtolower( preg_replace( "/(.)(?=[A-Z])/u", "$1-", $string ) ) );
 	}
 	
@@ -49,8 +46,7 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function fromPascalCaseToKebabCase( String $string ): String
-	{
+	public static function fromPascalCaseToKebabCase( String $string ): String {
 		return( str_replace( "_", "-", self::fromPascalCaseToSnakeCase( $string ) ) );
 	}
 	
@@ -63,8 +59,7 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function fromSnakeCaseToKebabCase( String $string ): String
-	{
+	public static function fromSnakeCaseToKebabCase( String $string ): String {
 		return( str_replace( "_", "-", $string ) );
 	}
 	
@@ -77,8 +72,7 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCamelCaseToKebabCase( String $string ): String
-	{
+	public static function fromUpperCamelCaseToKebabCase( String $string ): String {
 		return( self::fromCamelCaseToKebabCase( lcfirst( $string ) ) );
 	}
 	
@@ -91,8 +85,7 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCaseToKebabCase( String $string ): String
-	{
+	public static function fromUpperCaseToKebabCase( String $string ): String {
 		return( self::toKebabCase( strtolower( $string ) ) );
 	}
 	
@@ -105,8 +98,7 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function fromHungarianCaseToKebabCase( String $string ): String
-	{
+	public static function fromHungarianCaseToKebabCase( String $string ): String {
 		return( implode( "-", array_map( fn( String $part ) => strtolower( substr( $part, 0, 1 ) ) . substr( $part, 1 ), explode( "_", $string ) ) ) );
 	}
 	
@@ -119,17 +111,13 @@ trait KebabCase
 	 *
 	 * @return String
 	 */
-	public static function fromVerbObjectCaseToKebabCase( String $string ): String
-	{
+	public static function fromVerbObjectCaseToKebabCase( String $string ): String {
 		$parts = explode( "_", $string );
 		$newParts = [];
-		foreach( $parts as $part )
-		{
-			if( $part == "get" || $part == "set" )
-			{
+		foreach( $parts as $part ) {
+			if( $part == "get" || $part == "set" ) {
 				$newParts[] = strtolower( $part );
-			} else
-			{
+			} else {
 				$newParts[] = $part;
 			}
 		}

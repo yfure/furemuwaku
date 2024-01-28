@@ -12,8 +12,7 @@ use Yume\Fure\Error;
  * 
  * @package Yume\Fure\Support
  */
-class Iterate implements Countable, SeekableIterator
-{
+class Iterate implements Countable, SeekableIterator {
 	
 	/*
 	 * Iterator position.
@@ -42,8 +41,7 @@ class Iterate implements Countable, SeekableIterator
 	 * 
 	 * @return Void
 	 */
-	public function __construct( protected Array $data = [] )
-	{
+	public function __construct( protected Array $data = [] ) {
 		$this->keys = array_keys( $data );
 	}
 	
@@ -54,8 +52,7 @@ class Iterate implements Countable, SeekableIterator
 	 *
 	 * @return Int
 	 */
-	public function count(): Int
-	{
+	public function count(): Int {
 		return( count( $this->data ) );
 	}
 
@@ -66,8 +63,7 @@ class Iterate implements Countable, SeekableIterator
 	 * 
 	 * @return Mixed
 	 */
-	public function current(): Mixed
-	{
+	public function current(): Mixed {
 		return( $this )->data[$this->keys[$this->index]];
 	}
 	
@@ -78,8 +74,7 @@ class Iterate implements Countable, SeekableIterator
 	 * 
 	 * @return Mixed
 	 */
-	public function key(): Mixed
-	{
+	public function key(): Mixed {
 		return( $this )->keys[$this->index];
 	}
 
@@ -90,8 +85,7 @@ class Iterate implements Countable, SeekableIterator
 	 * 
 	 * @return Void
 	 */
-	public function next(): Void
-	{
+	public function next(): Void {
 		++$this->index;
 	}
 
@@ -102,8 +96,7 @@ class Iterate implements Countable, SeekableIterator
 	 * 
 	 * @return Void
 	 */
-	public function rewind(): Void
-	{
+	public function rewind(): Void {
 		$this->seek( 0 );
 	}
 
@@ -114,10 +107,8 @@ class Iterate implements Countable, SeekableIterator
 	 * 
 	 * @return Void
 	 */
-	public function seek( Int $i ): Void
-	{
-		if( isset( $this->keys[$i] ) === False )
-		{
+	public function seek( Int $i ): Void {
+		if( isset( $this->keys[$i] ) === False ) {
 			throw new Error\IndexError( $i );
 		}
 		$this->index = $i;
@@ -130,8 +121,7 @@ class Iterate implements Countable, SeekableIterator
 	 * 
 	 * @return Bool
 	 */
-	public function valid(): Bool
-	{
+	public function valid(): Bool {
 		return(
 			isset( $this->keys[$this->index] ) &&
 			isset( $this->data[$this->keys[$this->index]] )

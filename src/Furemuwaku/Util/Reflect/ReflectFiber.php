@@ -10,8 +10,7 @@ use ReflectionFiber;
  *
  * @package Yume\Fure\Util\Reflect
  */
-class ReflectFiber
-{
+class ReflectFiber {
 	
 	use \Yume\Fure\Util\Reflect\ReflectDecorator;
 	
@@ -25,8 +24,7 @@ class ReflectFiber
 	 *
 	 * @return Callable
 	 */
-	public static function getCallable( Fiber $fiber, Mixed &$reflect = Null ): Callable
-	{
+	public static function getCallable( Fiber $fiber, Mixed &$reflect = Null ): Callable {
 		return( $reflect = self::reflect( $fiber, $reflect ) )->getCallable();
 	}
 	
@@ -40,12 +38,9 @@ class ReflectFiber
 	 *
 	 * @return ReflectionFiber
 	 */
-	private static function reflect( Fiber $fiber, Mixed $reflect ): ReflectionFiber
-	{
-		if( $reflect Instanceof ReflectionFiber )
-		{
-			if( $reflect->getFiber() === $fiber )
-			{
+	private static function reflect( Fiber $fiber, Mixed $reflect ): ReflectionFiber {
+		if( $reflect Instanceof ReflectionFiber ) {
+			if( $reflect->getFiber() === $fiber ) {
 				return( $reflect );
 			}
 		}

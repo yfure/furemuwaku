@@ -9,8 +9,7 @@ use Yume\Fure\Util;
  * 
  * @package Yume\Fure\CLI\Command
  */
-final class CommandOption
-{
+final class CommandOption {
 
 	/*
 	 * If option anme is long option.
@@ -59,8 +58,7 @@ final class CommandOption
 		public Readonly Bool $required,
 		public Readonly Array $requires,
 		public Readonly Mixed $default,
-		public Readonly Util\Type $type )
-	{
+		public Readonly Util\Type $type ) {
 		$this->long = strlen( $name ) >= 2;
 	}
 
@@ -73,8 +71,7 @@ final class CommandOption
 	 * 
 	 * @return Bool
 	 */
-	public function hasAlias( ? Bool $optional = Null ): Bool
-	{
+	public function hasAlias( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasAlias() === $optional : valueIsNotEmpty( $this->alias ) );
 	}
 
@@ -87,8 +84,7 @@ final class CommandOption
 	 * 
 	 * @return Bool
 	 */
-	public function hasDefaultValue( ? Bool $optional = Null ): Bool
-	{
+	public function hasDefaultValue( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasDefaultValue() === $optional : $this->default !== Null);
 	}
 
@@ -101,8 +97,7 @@ final class CommandOption
 	 * 
 	 * @return Bool
 	 */
-	public function hasImplementation( ? Bool $optional = Null ): Bool
-	{
+	public function hasImplementation( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasImplementation() === $optional : valueIsNotEmpty( $this->implement ) );
 	}
 
@@ -115,8 +110,7 @@ final class CommandOption
 	 * 
 	 * @return Bool
 	 */
-	public function hasType( ? Bool $optional = Null ): Bool
-	{
+	public function hasType( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasType() === $optional : $this->type !== Util\Type::None && $this->type !== Util\Type::Mixed );
 	}
 
@@ -129,8 +123,7 @@ final class CommandOption
 	 * 
 	 * @return Bool
 	 */
-	public function isIncluded( ? Bool $optional = Null ): Bool
-	{
+	public function isIncluded( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->isIncluded() === $optional : $this->include === True );
 	}
 
@@ -143,8 +136,7 @@ final class CommandOption
 	 * 
 	 * @return Bool
 	 */
-	public function isRequired( ? Bool $optional = Null ): Bool
-	{
+	public function isRequired( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->isRequired() === $optional : $this->required === True );
 	}
 
@@ -158,8 +150,7 @@ final class CommandOption
 	 * 
 	 * @return Bool
 	 */
-	public function isRequiredWith( Null | String | CommandOption $option = Null, ? Bool $optional = Null ): Bool
-	{
+	public function isRequiredWith( Null | String | CommandOption $option = Null, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->isRequiredWith( $option ) === $optional : ( $option !== Null ? in_array( $option Instanceof CommandOption ? $option->name : $option, $this->requires ) >= 0 : count( $this->requires ) >= 1 ) );
 	}
 

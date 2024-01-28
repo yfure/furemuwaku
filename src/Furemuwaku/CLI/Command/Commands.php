@@ -17,8 +17,7 @@ use Yume\Fure\Util\Reflect;
  *
  * @package Yume\Fure\CLI\Command
  */
-final class Commands
-{
+final class Commands {
 	
 	/*
 	 * Commands container.
@@ -38,8 +37,7 @@ final class Commands
 	 * 
 	 * @return Void
 	 */
-	public function __construct( protected Readonly Logger\LoggerInterface $logger )
-	{
+	public function __construct( protected Readonly Logger\LoggerInterface $logger ) {
 		$this->commands = new Arr\Associative([]);
 		$this->prepare();
 	}
@@ -54,14 +52,12 @@ final class Commands
 	 * 
 	 * @return Void
 	 */
-	public function exec( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void
-	{
+	public function exec( String | Argument\ArgumentValue $command, Argument\Argument $argument ): Void {
 		/*
 		 * ...
 		 * 
 		 */
-		$resolver = function( Callable $self, CommandInterface $command, Array $requires ) use( &$argument ): Void
-		{};
+		$resolver = function( Callable $self, CommandInterface $command, Array $requires ) use( &$argument ): Void {};
 
 		// If command name is object instance of class ArgumentValue.
 		if( $command Instanceof Argument\ArgumentValue ) $command = is_int( $command->name ) ? $command->value : $command->name;
@@ -76,8 +72,7 @@ final class Commands
 		$requires = [];
 
 		// Mapping all defined options.
-		foreach( $command->getOptions() As $option )
-		{
+		foreach( $command->getOptions() As $option ) {
 			// If argument has option name.
 			if( $argument->has( $option->name ) ) $value = $argument[$option->name];
 
@@ -85,12 +80,9 @@ final class Commands
 			else if( $option->hasAlias() && $argument->has( $option->alias ) ) $value = $argument[$option->name] = $argument[$option->alias];
 
 			// If option has default value.
-			else if( $option->hasDefaultValue() )
-			{
-				if( $option->isIncluded( False ) )
-				{
-					if( $option->isRequired() )
-					{
+			else if( $option->hasDefaultValue() ) {
+				if( $option->isIncluded( False ) ) {
+					if( $option->isRequired() ) {
 						throw new CommandOptionRequireError([ $command, $option->name ]);
 					}
 					continue;
@@ -108,14 +100,12 @@ final class Commands
 			else continue;
 			
 			// If option has defined Type.
-			if( $option->hasType() )
-			{
+			if( $option->hasType() ) {
 				// If option type is Mixed or Null, skip/ continue.
 				if( $option->type === Util\Type::Mixed || $option->type === Util\Type::None ) continue;
 				
 				// If option available but not for value.
-				if( $value->type === Util\Type::None && $option->hasDefaultValue() )
-				{
+				if( $value->type === Util\Type::None && $option->hasDefaultValue() ) {
 					$value = $argument[$option->name] = new Argument\ArgumentValue(
 						$option->name,
 						$option->default,
@@ -151,10 +141,8 @@ final class Commands
 	 * @throws Yume\Fure\CLI\Command\CommandInterface
 	 *  Throw when the command not found.
 	 */
-	public function get( String $command ): CommandInterface
-	{
-		if( $this->has( $command ) )
-		{
+	public function get( String $command ): CommandInterface {
+		if( $this->has( $command ) ) {
 			return( $this )->commands[$command];
 		}
 		throw new CommandNotFoundError( $command );
@@ -167,8 +155,7 @@ final class Commands
 	 * 
 	 * @return Yune\Fure\Util\Arr\Associative<String,Yume\Fure\CLI\Command\CommandInterface>
 	 */
-	public function getAll(): Arr\Associative
-	{
+	public function getAll(): Arr\Associative {
 		return( new Arr\Associative( $this->commands ) );
 	}
 
@@ -182,8 +169,7 @@ final class Commands
 	 * 
 	 * @return Bool
 	 */
-	public function has( String $command, ? Bool $optional = Null ): Bool
-	{
+	public function has( String $command, ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->has( $command ) === $optional : isset( $this->commands[$command] ) );
 	}
 
@@ -194,8 +180,7 @@ final class Commands
 	 * 
 	 * @return Void
 	 */
-	private function prepare(): Void
-	{
+	private function prepare(): Void {
 		$commands = config( "app" )->commands;
 		$commands->map(
 			
@@ -210,16 +195,13 @@ final class Commands
 			 *
 			 * @throws Yume\Fure\Error\ClassImplementationError
 			 */
-			function( Int $i, Int | String $class, String | Config\Config $config )
-			{
-				if( is_int( $class ) )
-				{
+			function( Int $i, Int | String $class, String | Config\Config $config ) {
+				if( is_int( $class ) ) {
 					$class = $config;
 					$config = new Config\Config( "Builder", False, [] );
 				}
 				// Check if CommandHandler has implement CommandInterface.
-				if( Reflect\ReflectClass::isImplements( $class, CommandInterface::class, $reflect ) )
-				{
+				if( Reflect\ReflectClass::isImplements( $class, CommandInterface::class, $reflect ) ) {
 					// Create new Command instance.
 					$command = $reflect->newInstance( $this, $config, $this->logger );
 					$commandName = $command->getName();
@@ -243,8 +225,7 @@ final class Commands
 	 * 
 	 * @return Void
 	 */
-	public function set( CommandInterface $command ): Void
-	{
+	public function set( CommandInterface $command ): Void {
 		$this->commands[$command->getName()] = $command;
 	}
 

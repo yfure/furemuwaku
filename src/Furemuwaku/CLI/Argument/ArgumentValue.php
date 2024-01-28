@@ -12,8 +12,7 @@ use Yume\Fure\Util;
  *
  * @package Yume\Fure\CLI\Argument
  */
-class ArgumentValue implements ArrayAccess, Util\Value
-{
+class ArgumentValue implements ArrayAccess, Util\Value {
 	
 	/*
 	 * Argument name.
@@ -63,8 +62,7 @@ class ArgumentValue implements ArrayAccess, Util\Value
 	 *
 	 * @return Void
 	 */
-	public function __construct( Int | String $name, Mixed $value, Util\Type $type, Bool $long )
-	{
+	public function __construct( Int | String $name, Mixed $value, Util\Type $type, Bool $long ) {
 		$this->name = $name;
 		$this->value = $value;
 		$this->type = $type;
@@ -82,10 +80,8 @@ class ArgumentValue implements ArrayAccess, Util\Value
 	 *
 	 * @throws Yume\Fure\Error\PropertyError
 	 */
-	public function __get( String $name ): Mixed
-	{
-		if( $this->offsetExists( $name ) )
-		{
+	public function __get( String $name ): Mixed {
+		if( $this->offsetExists( $name ) ) {
 			return( $this )->{ $name };
 		}
 		throw new Error\PropertyError( $name, Error\PropertyError::NAME_ERROR );
@@ -95,8 +91,7 @@ class ArgumentValue implements ArrayAccess, Util\Value
 	 * @inherit Yume\Fure\Util\Value::getValue
 	 * 
 	 */
-	public function getValue(): mixed
-	{
+	public function getValue(): mixed {
 		return( $this )->value;
 	}
 	
@@ -109,8 +104,7 @@ class ArgumentValue implements ArrayAccess, Util\Value
 	 *
 	 * @return Bool
 	 */
-	public function offsetExists( Mixed $offset ): Bool
-	{
+	public function offsetExists( Mixed $offset ): Bool {
 		return( property_exists( $this, $offset ) );
 	}
 	
@@ -123,8 +117,7 @@ class ArgumentValue implements ArrayAccess, Util\Value
 	 *
 	 * @return Mixed
 	 */
-	public function offsetGet( Mixed $offset ): Mixed
-	{
+	public function offsetGet( Mixed $offset ): Mixed {
 		return( $this )->__get( $offset );
 	}
 	
@@ -140,8 +133,7 @@ class ArgumentValue implements ArrayAccess, Util\Value
 	 *
 	 * @throws Yume\Fure\CLI\Argument\ArgumentError
 	 */
-	public function offsetSet( Mixed $offset, Mixed $value ): Void
-	{
+	public function offsetSet( Mixed $offset, Mixed $value ): Void {
 		throw new ArgumentError( $offset, ArgumentError::SET_ERROR );
 	}
 	
@@ -156,8 +148,7 @@ class ArgumentValue implements ArrayAccess, Util\Value
 	 *
 	 * @throws Yume\Fure\CLI\Argument\ArgumentError
 	 */
-	public function offsetUnset( Mixed $offset ): Void
-	{
+	public function offsetUnset( Mixed $offset ): Void {
 		throw new ArgumentError( $offset, ArgumentError::UNSET_ERROR );
 	}
 	

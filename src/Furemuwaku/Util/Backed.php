@@ -11,8 +11,7 @@ use Closure;
  *
  * @package Yume\Fure\Util
  */
-trait Backed
-{
+trait Backed {
 	
 	/*
 	 * Mapping enums.
@@ -23,8 +22,7 @@ trait Backed
 	 *
 	 * @return Array
 	 */
-	public static function map( Closure $callback ): Array
-	{
+	public static function map( Closure $callback ): Array {
 		return( Arrays::map( array_combine( self::names(), self::cases() ), $callback ) );
 	}
 	
@@ -35,8 +33,7 @@ trait Backed
 	 *
 	 * @return Array
 	 */
-	public static function names(): Array
-	{
+	public static function names(): Array {
 		return( array_column( self::cases(), "name" ) );
 	}
 	
@@ -47,8 +44,7 @@ trait Backed
 	 *
 	 * @return Array
 	 */
-	public static function values(): Array
-	{
+	public static function values(): Array {
 		return( array_column( self::cases(), "value" ) );
 	}
 	
@@ -61,10 +57,8 @@ trait Backed
 	 *
 	 * @return Array
 	 */
-	public static function array( Bool $reverse = False ): array
-	{
-		if( $reverse )
-		{
+	public static function array( Bool $reverse = False ): array {
+		if( $reverse ) {
 			return( array_combine( self::values(), self::names() ) );
 		}
 		return( array_combine( self::names(), self::values() ) );

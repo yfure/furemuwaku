@@ -11,8 +11,7 @@ use DateTime As BaseDateTime;
  *
  * @extends BaseDateTime (DateTime)
  */
-class DateTime extends BaseDateTime
-{
+class DateTime extends BaseDateTime {
 	use \Yume\Fure\Locale\DateTime\DateTimeDecorator;
 }
 

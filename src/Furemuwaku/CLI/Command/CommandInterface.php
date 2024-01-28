@@ -11,8 +11,7 @@ use Yume\Fure\CLI\Argument;
  *
  * @package Yume\Fure\CLI\Command
  */
-interface CommandInterface
-{
+interface CommandInterface {
 	
 	/*
 	 * Execute command.

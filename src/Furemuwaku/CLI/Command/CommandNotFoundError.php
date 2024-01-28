@@ -11,14 +11,13 @@ use Throwable;
  * 
  * @pacakge Yume\Fure\CLI\Command
  */
-final class CommandNotFoundError extends CommandError
-{
+final class CommandNotFoundError extends CommandError {
+	
 	/*
 	 * @inherit Yume\Fure\Error\YumeError::__construct
 	 *
 	 */
-	public function __construct( Array | Int | String $message, Int $code = self::NOT_FOUND_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null )
-	{
+	public function __construct( Array | Int | String $message, Int $code = self::NOT_FOUND_ERROR, ? Throwable $previous = Null, ? String $file = Null, ? Int $line = Null ) {
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 }

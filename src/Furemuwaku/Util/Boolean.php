@@ -7,8 +7,7 @@ namespace Yume\Fure\Util;
  *
  * @package Yume\Fure\Util
  */
-final class Boolean
-{
+final class Boolean {
 	
 	/*
 	 * Parse any value to Boolean type.
@@ -19,13 +18,10 @@ final class Boolean
 	 *
 	 * @return Bool
 	 */
-	public static function parse( Mixed $value ): Bool
-	{
+	public static function parse( Mixed $value ): Bool {
 		if( is_bool( $value ) ) return( $value );
-		if( is_string( $value ) )
-		{
-			if( preg_match( "/^(?<type>True|False)$/i", trim( $value ), $match ) )
-			{
+		if( is_string( $value ) ) {
+			if( preg_match( "/^(?<type>True|False)$/i", trim( $value ), $match ) ) {
 				return( Strings::toUpperCamelCase( $match['type'] ) === "True" );
 			}
 		}

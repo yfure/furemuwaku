@@ -23,8 +23,7 @@ use Yume\Fure\Support;
  *
  * @package Yume\Fure\IO\Stream
  */
-final class StreamPump implements StreamInterface
-{
+final class StreamPump implements StreamInterface {
 	
 	/*
 	 * Instance of class StreamBuffer.
@@ -81,8 +80,7 @@ final class StreamPump implements StreamInterface
 	 *
 	 * @return Void
 	 */
-	public function __construct( Callable | Closure $source, Array $options = [])
-	{
+	public function __construct( Callable | Closure $source, Array $options = []) {
 		$this->source = $source;
 		$this->size = $options['size'] ?? null;
 		$this->metadata = $options['metadata'] ?? [];
@@ -93,14 +91,11 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::__toString
 	 *
 	 */
-	public function __toString(): String
-	{
-		try
-		{
+	public function __toString(): String {
+		try {
 			return( StreamFactory::createCopyString( $this ) );
 		}
-		catch( Throwable $e )
-		{
+		catch( Throwable $e ) {
 			throw new StreamError( $this::class, StreamError::STRINGIFY_ERROR, $e );
 		}
 	}
@@ -109,8 +104,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::close
 	 *
 	 */
-	public function close(): Void
-	{
+	public function close(): Void {
 		$this->detach();
 	}
 	
@@ -118,8 +112,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::detach
 	 *
 	 */
-	public function detach()
-	{
+	public function detach() {
 		return([ $this->source = Null, $this->tell = 0 ][0]);
 	}
 	
@@ -127,8 +120,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::eof
 	 *
 	 */
-	public function eof(): Bool
-	{
+	public function eof(): Bool {
 		return( $this )->source === Null;
 	}
 	
@@ -136,12 +128,10 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::getContents
 	 *
 	 */
-	public function getContents(): String
-	{
+	public function getContents(): String {
 		$result = "";
 		
-		while( !$this->eof() )
-		{
+		while( !$this->eof() ) {
 			$result .= $this->read( 1000000 );
 		}
 		return( $result );
@@ -151,8 +141,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::getMetadata
 	 *
 	 */
-	public function getMetadata( Mixed $key = null ): Mixed
-	{
+	public function getMetadata( Mixed $key = null ): Mixed {
 		return( $key ? $this->metadata[$key] ?? Null : $this->metadata );
 	}
 	
@@ -160,8 +149,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::getSize
 	 *
 	 */
-	public function getSize(): ? Int
-	{
+	public function getSize(): ? Int {
 		return( $this )->size;
 	}
 	
@@ -169,8 +157,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::readable
 	 *
 	 */
-	public function isReadable(): Bool
-	{
+	public function isReadable(): Bool {
 		return( True );
 	}
 	
@@ -178,8 +165,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::isSeekable
 	 *
 	 */
-	public function isSeekable(): Bool
-	{
+	public function isSeekable(): Bool {
 		return( False );
 	}
 	
@@ -187,24 +173,15 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::isWritable
 	 *
 	 */
-	public function isWritable(): Bool
-	{
+	public function isWritable(): Bool {
 		return( False );
 	}
 	
-	private function pump( Int $length ): Void
-	{
-		// If the source stream has not been unset.
-		if( $this->source Instanceof Closure )
-		{
-			do
-			{
-				// Get callback return value.
+	private function pump( Int $length ): Void {
+		if( $this->source Instanceof Closure ) {
+			do {
 				$data = call_user_func( $this->source, $length );
-				
-				// If the callback returns the dismiss value.
-				if( $data === False || $data === Null || $data Instanceof Support\Stoppable )
-				{
+				if( $data === False || $data === Null || $data Instanceof Support\Stoppable ) {
 					$this->source = Null; return;
 				}
 				$this->buffer->write( $data );
@@ -218,8 +195,8 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::read
 	 *
 	 */
-	public function read( Int $length ): String
-	{
+	public function read( Int $length ): String {
+		
 		/*
 		 * Add the previous tell position value to the
 		 * length value of the data that has been read.
@@ -228,8 +205,7 @@ final class StreamPump implements StreamInterface
 		$this->tell += $readLength = strlen( $data = $this->buffer->read( $length ) );
 		
 		// If there is still a long remaining.
-		if( $remaining = $length - $readLength )
-		{
+		if( $remaining = $length - $readLength ) {
 			$this->pump( $remaining );
 			$this->tell += strlen( $data .= $this->buffer->read( $remaining ) ) - $readLength;
 		}
@@ -240,8 +216,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::rewind
 	 *
 	 */
-	public function rewind(): Void
-	{
+	public function rewind(): Void {
 		$this->seek( 0 );
 	}
 	
@@ -249,8 +224,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::seek
 	 *
 	 */
-	public function seek( Int $offset, Int $whence = SEEK_SET ): Void
-	{
+	public function seek( Int $offset, Int $whence = SEEK_SET ): Void {
 		throw new StreamError( $this::class, StreamError::SEEK_ERROR );
 	}
 	
@@ -258,8 +232,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::tell
 	 *
 	 */
-	public function tell(): Int
-	{
+	public function tell(): Int {
 		return( $this )->tell;
 	}
 	
@@ -267,8 +240,7 @@ final class StreamPump implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::write
 	 *
 	 */
-	public function write( String $string ): Int
-	{
+	public function write( String $string ): Int {
 		throw new StreamError( $this::class, StreamError::WRITE_ERROR );
 	}
 	

@@ -13,8 +13,7 @@ use UnitEnum;
  * 
  * @extends Yume\Fure\Util\Reflect\ReflectConstant
  */
-abstract class ReflectEnumUnit extends ReflectConstant
-{
+abstract class ReflectEnumUnit extends ReflectConstant {
 	
 	/*
 	 * Gets the reflection of the enum of this case.
@@ -27,8 +26,7 @@ abstract class ReflectEnumUnit extends ReflectConstant
 	 *
 	 * @return ReflectionEnum
 	 */
-	public static function getEnum( Object | String $class, String $constant, Mixed &$reflect = Null ): ReflectionEnum
-	{
+	public static function getEnum( Object | String $class, String $constant, Mixed &$reflect = Null ): ReflectionEnum {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getEnum();
 	}
 	
@@ -43,8 +41,7 @@ abstract class ReflectEnumUnit extends ReflectConstant
 	 *
 	 * @return UnitEnum
 	 */
-	public static function getValue( Object | String $class, String $constant, Mixed &$reflect = Null ): UnitEnum
-	{
+	public static function getValue( Object | String $class, String $constant, Mixed &$reflect = Null ): UnitEnum {
 		return( $reflect = self::reflect( $class, $constant, $reflect ) )->getValue();
 	}
 	
@@ -59,13 +56,10 @@ abstract class ReflectEnumUnit extends ReflectConstant
 	 *
 	 * @return ReflectionEnumUnitCase
 	 */
-	private static function reflect( Object | String $class, String $constant, Mixed $reflect ): ReflectionEnumUnitCase
-	{
-		if( $reflect Instanceof ReflectionEnumUnitCase )
-		{
+	private static function reflect( Object | String $class, String $constant, Mixed $reflect ): ReflectionEnumUnitCase {
+		if( $reflect Instanceof ReflectionEnumUnitCase ) {
 			if( $reflect->name === $constant &&
-				$reflect->class === is_object( $class ) ? $class::class : $class )
-			{
+				$reflect->class === is_object( $class ) ? $class::class : $class ) {
 				return( $reflect );
 			}
 		}

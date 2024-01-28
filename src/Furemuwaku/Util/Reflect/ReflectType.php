@@ -13,8 +13,7 @@ use Yume\Fure\Util\RegExp;
  *
  * @package Yume\Fure\Util\Reflect
  */
-final class ReflectType
-{
+final class ReflectType {
 	
 	/*
 	 * Value binding.
@@ -26,48 +25,37 @@ final class ReflectType
 	 *
 	 * @return Mixed
 	 */
-	public static function binding( Mixed $value = Null, ? ReflectionType $reflect = Null ): Mixed
-	{
-		// If `reflect` is ReflectionType instance.
-		if( $reflect Instanceof ReflectionType )
-		{
-			// Split type name with |.
+	public static function binding( Mixed $value = Null, ? ReflectionType $reflect = Null ): Mixed {
+		if( $reflect Instanceof ReflectionType ) {
 			$types = explode( "|", str_replace( [ "?", "&" ], [ "null|", "|" ], $reflect->__toString() ) );
-			
-			// Get type given.
 			$given = type( $value Instanceof Util\Value ? $value = $value->getValue() : $value, disable: True );
-			
-			foreach( $types As $type )
-			{
-				// Remove interface name.
+			foreach( $types As $type ) {
 				$type = RegExp\RegExp::replace( "/Interface$/i", ucfirst( $type ), "" );
-				
-				// Check if the type name is not Mixed.
-				if( $type !== "Mixed" )
-				{
-					// If the given type is the same as the required one.
+				if( $type !== "Mixed" ) {
 					if( $type === $given || 
 						$type === "Int" && $given === "Integer" || 
 						$type === "Bool" && $given === "Boolean" || 
 						$type === "True" && $given === True ||
 						$type === "False" && $value === False || 
-						$type === "Closure" && $given === "Callable" )
-					{
+						$type === "Closure" && $given === "Callable" ) {
+						return( $value );
+					}
+					if( $type === "String" && $given === "Boolean" || $given === "Float" || $given === "Integer" ) {
 						return( $value );
 					}
 					
-					// If the type is String and the given type is Boolean, Integer, or Float.
-					if( $type === "String" && $given === "Boolean" || $given === "Float" || $given === "Integer" ) return( $value );
-					
 					// If the given type is object and if the required
 					// type is the same as the given instance name.
-					if( $given === "Object" )
-					{
-						if( $type === $value::class ) return( $value );
+					if( $given === "Object" ) {
+						if( $type === $value::class ) {
+							return( $value );
+						}
 					}
 
 					// If class has binded in service container.
-					if( Service\Service::available( $type ) ) return( Service\Service::get( $type ) );
+					if( Service\Service::available( $type ) ) {
+						return( Service\Service::get( $type ) );
+					}
 				}
 				else {
 					return( $value );

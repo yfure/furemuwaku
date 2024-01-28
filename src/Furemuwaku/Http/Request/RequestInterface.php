@@ -7,7 +7,7 @@ namespace Yume\Fure\Http\Request;
  * 
  * @package Yume\Fure\Http\Request
  */
-interface RequestInterface
-{}
+interface RequestInterface {
+}
 
 ?>

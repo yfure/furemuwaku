@@ -9,8 +9,7 @@ use Yume\Fure\Config;
  *
  * @package Yume\Fure\Logger
  */
-abstract class LoggerHandler implements LoggerHandlerInterface
-{
+abstract class LoggerHandler implements LoggerHandlerInterface {
 	
 	/*
 	 * Hander allowed levels.
@@ -39,9 +38,7 @@ abstract class LoggerHandler implements LoggerHandlerInterface
 	 *
 	 * @return Void
 	 */
-	public function __construct( Config\Config $configs )
-	{
-		// Set allowed levels.
+	public function __construct( Config\Config $configs ) {
 		$this->allows = $configs->handles->__toArray();
 	}
 	
@@ -49,8 +46,7 @@ abstract class LoggerHandler implements LoggerHandlerInterface
 	 * @inherit Yume\Fure\Logger\LoggerHandlerInterface::allow
 	 *
 	 */
-	public function allow( LoggerLevel $level ): Bool
-	{
+	public function allow( LoggerLevel $level ): Bool {
 		return( in_array( $level, $this->allows ) );
 	}
 	
@@ -58,8 +54,7 @@ abstract class LoggerHandler implements LoggerHandlerInterface
 	 * @inherit Yume\Fure\Logger\LoggerHandlerInterface::setDateTimeFormat
 	 *
 	 */
-	public function setDateTimeFormat( String $format ): LoggerHandlerInterface
-	{
+	public function setDateTimeFormat( String $format ): LoggerHandlerInterface {
 		return([ $this, $this->dateTimeFormat = $format ][0]);
 	}
 	

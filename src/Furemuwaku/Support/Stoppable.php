@@ -7,14 +7,13 @@ use Yume\Fure\Error;
 /*
  * Stoppable
  *
- * Throw for stop execution program.
+ * Throw for stop execution program (Inspirated by Python StopIteration exception).
  *
  * @extends Yume\Fure\Error\YumeError
  *
  * @package Yume\Fure\Support
  */
-final class Stoppable extends Error\YumeError
-{
+final class Stoppable extends Error\YumeError {
 	
 	/*
 	 * Stopped program.
@@ -44,12 +43,8 @@ final class Stoppable extends Error\YumeError
 	 *
 	 * @return Void
 	 */
-	public function __construct( public Readonly Mixed $value = Null )
-	{
-		// Get first trace.
+	public function __construct( public Readonly Mixed $value = Null ) {
 		$called = $this->getTrace()[0];
-		
-		// Call parent constructor.
 		parent::__construct( $called['function'] ?? $called['class'] ?? "Unknown source", self::STOPPED );
 	}
 	
@@ -60,8 +55,7 @@ final class Stoppable extends Error\YumeError
 	 *
 	 * @return Mixed
 	 */
-	public function getValue(): Mixed
-	{
+	public function getValue(): Mixed {
 		return( $this )->value;
 	}
 	
@@ -74,8 +68,7 @@ final class Stoppable extends Error\YumeError
 	 *
 	 * @return Bool
 	 */
-	public function hasValue( ? Bool $optional = Null ): Bool
-	{
+	public function hasValue( ? Bool $optional = Null ): Bool {
 		return( $optional !== Null ? $this->hasValue() === $optional : $this->value !== Null );
 	}
 	

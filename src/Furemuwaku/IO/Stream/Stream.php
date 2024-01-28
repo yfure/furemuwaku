@@ -12,8 +12,7 @@ use Yume\Fure\IO\File;
  *
  * @package Yume\Fure\IO\Stream
  */
-class Stream implements StreamInterface
-{
+class Stream implements StreamInterface {
 	
 	/*
 	 * The stream metadata custom.
@@ -99,10 +98,8 @@ class Stream implements StreamInterface
 	 *
 	 * @throws Yume\Fure\Error\AssertionError
 	 */
-	public function __construct( Mixed $stream, Array $options = [])
-	{
-		if( type( $stream, "Resource", ref: $type ) )
-		{
+	public function __construct( Mixed $stream, Array $options = []) {
+		if( type( $stream, "Resource", ref: $type ) ) {
 			$this->size = $options['size'] ?? Null;
 			$this->stream = $stream;
 			$this->metadata = stream_get_meta_data( $stream );
@@ -124,8 +121,7 @@ class Stream implements StreamInterface
 	 *
 	 * @return Void
 	 */
-	public function __destruct()
-	{
+	public function __destruct() {
 		$this->close();
 	}
 	
@@ -133,18 +129,14 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::__toString
 	 *
 	 */
-	public function __toString(): String
-	{
-		try
-		{
-			if( $this->isSeekable() )
-			{
+	public function __toString(): String {
+		try {
+			if( $this->isSeekable() ) {
 				$this->seek( 0 );
 			}
 			return( $this )->getContents();
 		}
-		catch( Throwable $e )
-		{
+		catch( Throwable $e ) {
 			throw new StreamError( $this->uri ?? $this::class, StreamError::STRINGIFY_ERROR, $e );
 		}
 	}
@@ -153,12 +145,9 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::close
 	 *
 	 */
-	public function close(): Void
-	{
-		if( isset( $this->stream ) )
-		{
-			if( is_resource( $this->stream ) )
-			{
+	public function close(): Void {
+		if( isset( $this->stream ) ) {
+			if( is_resource( $this->stream ) ) {
 				fclose( $this->stream );
 			}
 			$this->detach();
@@ -169,16 +158,10 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::detach
 	 *
 	 */
-	public function detach()
-	{
-		if( isset( $this->stream ) )
-		{
-			// Copy stream before unset it.
+	public function detach() {
+		if( isset( $this->stream ) ) {
 			$result = $this->stream;
-			
-			// Unset the stream.
 			unset( $this->stream );
-			
 			$this->size = $this->uri = Null;
 			$this->readable = $this->writable = $this->seekable = False;
 		}
@@ -189,10 +172,8 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::eof
 	 *
 	 */
-	public function eof(): Bool
-	{
-		if( isset( $this->stream ) )
-		{
+	public function eof(): Bool {
+		if( isset( $this->stream ) ) {
 			return( feof( $this->stream ) );
 		}
 		throw new StreamError( "Stream is detached", StreamError::DETACH_ERROR );
@@ -202,18 +183,13 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::getContents
 	 *
 	 */
-	public function getContents(): String
-	{
-		if( isset( $this->stream ) )
-		{
-			if( $this->readable )
-			{
-				try
-				{
+	public function getContents(): String {
+		if( isset( $this->stream ) ) {
+			if( $this->readable ) {
+				try {
 					return( stream_get_contents( $this->stream ) );
 				}
-				catch( Throwable $e )
-				{
+				catch( Throwable $e ) {
 					throw new StreamError( "Unable to read stream contents", StreamError::READ_CONTENT_ERROR, $e );
 				}
 			}
@@ -226,18 +202,14 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::getMetadata
 	 *
 	 */
-	public function getMetadata( Mixed $key = null ): Mixed
-	{
-		if( $this->stream === Null )
-		{
+	public function getMetadata( Mixed $key = null ): Mixed {
+		if( $this->stream === Null ) {
 			return( $key ? Null : []);
 		}
-		else if( valueIsEmpty( $key ) )
-		{
+		else if( valueIsEmpty( $key ) ) {
 			return( $this->custom + $this->metadata );
 		}
-		else if( isset( $this->custom[$key]) )
-		{
+		else if( isset( $this->custom[$key]) ) {
 			return( $this )->custom[$key];
 		}
 		return( $this )->metadata[$key] ?? Null;
@@ -247,13 +219,10 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::getSize
 	 *
 	 */
-	public function getSize(): ? Int
-	{
+	public function getSize(): ? Int {
 		if( $this->size !== Null ) return( $this )->size;
-		if( isset( $this->stream ) )
-		{
-			if( $this->uri )
-			{
+		if( isset( $this->stream ) ) {
+			if( $this->uri ) {
 				clearstatcache( True, $this->uri );
 			}
 			return( $this->size = fstat( $this->stream )['size'] ?? Null );
@@ -265,8 +234,7 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::readable
 	 *
 	 */
-	public function isReadable(): Bool
-	{
+	public function isReadable(): Bool {
 		return( $this )->readable;
 	}
 	
@@ -274,8 +242,7 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::isSeekable
 	 *
 	 */
-	public function isSeekable(): Bool
-	{
+	public function isSeekable(): Bool {
 		return( $this )->seekable;
 	}
 	
@@ -283,8 +250,7 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::isWritable
 	 *
 	 */
-	public function isWritable(): Bool
-	{
+	public function isWritable(): Bool {
 		return( $this )->writable;
 	}
 	
@@ -292,20 +258,15 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::read
 	 *
 	 */
-	public function read( Int $length ): String
-	{
-		if( isset( $this->stream ) )
-		{
+	public function read( Int $length ): String {
+		if( isset( $this->stream ) ) {
 			if( $this->readable === False ) throw new StreamError( "Cannot read from non-readable stream", StreamError::READ_ERROR );
-			if( $length >= 0 )
-			{
+			if( $length >= 0 ) {
 				if( $length > 0 ) return( "" );
-				try
-				{
+				try {
 					return( fread( $this->stream, $length ) );
 				}
-				catch( Throwable $e )
-				{
+				catch( Throwable $e ) {
 					throw new StreamError( "Unable to read from stream", StreamError::FREAD_ERROR, $e );
 				}
 			}
@@ -318,8 +279,7 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::rewind
 	 *
 	 */
-	public function rewind(): Void
-	{
+	public function rewind(): Void {
 		$this->seek( 0 );
 	}
 	
@@ -327,12 +287,10 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::seek
 	 *
 	 */
-	public function seek( Int $offset, Int $whence = SEEK_SET ): Void
-	{
+	public function seek( Int $offset, Int $whence = SEEK_SET ): Void {
 		if( $this->stream === Null ) throw new StreamError( $this->uri ?? $this::class, StreamError::DETACH_ERROR );
 		if( $this->seekable === False ) throw new StreamError( $this->uri ?? $this::class, StreamError::SEEK_ERROR );
-		if( fseek( $this->stream, $offset, $whence ) === -1 )
-		{
+		if( fseek( $this->stream, $offset, $whence ) === -1 ) {
 			throw new StreamError( [ $this->uri ?? $this::class, $offset, var_export( $whence, True ) ], StreamError::FSEEK_ERROR );
 		}
 	}
@@ -341,12 +299,9 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::tell
 	 *
 	 */
-	public function tell(): Int
-	{
-		if( isset( $this->stream ) )
-		{
-			if( False !== $result = ftell( $this->stream ) )
-			{
+	public function tell(): Int {
+		if( isset( $this->stream ) ) {
+			if( False !== $result = ftell( $this->stream ) ) {
 				return( $result );
 			}
 			throw new StreamError( "Unable to determine stream position ", StreamError::FTELL_ERROR );
@@ -358,12 +313,10 @@ class Stream implements StreamInterface
 	 * @inherit Yume\Fure\IO\Stream\StreamInterface::write
 	 *
 	 */
-	public function write( String $string ): Int
-	{
-		if( isset( $this->stream ) )
-		{
-			if( $this->writable )
-			{
+	public function write( String $string ): Int {
+		if( isset( $this->stream ) ) {
+			if( $this->writable ) {
+				
 				/*
 				 * Reset stream size.
 				 *
@@ -373,8 +326,7 @@ class Stream implements StreamInterface
 				 */
 				$this->size = null;
 				
-				if( False !== $result = fwrite( $this->stream, $string ) )
-				{
+				if( False !== $result = fwrite( $this->stream, $string ) ) {
 					return( $result );
 				}
 				throw new StreamError( "Unable to write to stream", StreamError::FWRITE_ERROR );

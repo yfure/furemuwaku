@@ -7,8 +7,7 @@ namespace Yume\Fure\Util\Letter;
  *
  * @package Yume\Fure\Util\Letter
  */
-trait UpperCamelCase
-{
+trait UpperCamelCase {
 	
 	use \Yume\Fure\Util\Letter\CamelCase;
 	
@@ -21,8 +20,7 @@ trait UpperCamelCase
 	 *
 	 * @return String
 	 */
-	public static function toUpperCamelCase( String $string ): String
-	{
+	public static function toUpperCamelCase( String $string ): String {
 		return( str_replace( "\x20", "", ucwords( str_replace( [ "-", "_" ], "\x20", $string ) ) ) );
 	}
 	
@@ -35,8 +33,7 @@ trait UpperCamelCase
 	 *
 	 * @return String
 	 */
-	public static function fromCamelCasetoUpperCamelCase( String $string ): String
-	{
+	public static function fromCamelCasetoUpperCamelCase( String $string ): String {
 		return( ucfirst( $string ) );
 	}
 	
@@ -49,8 +46,7 @@ trait UpperCamelCase
 	 *
 	 * @return String
 	 */
-	public static function fromPascalCasetoUpperCamelCase( String $string ): String
-	{
+	public static function fromPascalCasetoUpperCamelCase( String $string ): String {
 		return( $string );
 	}
 	
@@ -63,8 +59,7 @@ trait UpperCamelCase
 	 *
 	 * @return String
 	 */
-	public static function fromSnakeCasetoUpperCamelCase( String $string ): String
-	{
+	public static function fromSnakeCasetoUpperCamelCase( String $string ): String {
 		return( self::toUpperCamelCase( self::fromSnakeCasetoCamelCase( $string ) ) );
 	}
 	
@@ -77,8 +72,7 @@ trait UpperCamelCase
 	 *
 	 * @return String
 	 */
-	public static function fromKebabCasetoUpperCamelCase( String $string ): String
-	{
+	public static function fromKebabCasetoUpperCamelCase( String $string ): String {
 		return( self::toUpperCamelCase( self::fromKebabCasetoCamelCase( $string ) ) );
 	}
 	
@@ -91,8 +85,7 @@ trait UpperCamelCase
 	 *
 	 * @return String
 	 */
-	public static function fromUpperCasetoUpperCamelCase( String $string ): String
-	{
+	public static function fromUpperCasetoUpperCamelCase( String $string ): String {
 		return( strtolower( $string ) );
 	}
 	

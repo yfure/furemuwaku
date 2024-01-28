@@ -9,8 +9,8 @@ use DateTimeZone As BaseDateTimeZone;
  *
  * @package Yume\Fure\Locale\DateTime
  */
-trait DateTimeDecorator
-{
+trait DateTimeDecorator {
+	
 	/*
 	 * Construct method of class DateTime.
 	 *
@@ -21,8 +21,7 @@ trait DateTimeDecorator
 	 *
 	 * @return Void
 	 */
-	final public function __construct( ? String $datetime = Null, ? BaseDateTimeZone $timezone = Null )
-	{
+	final public function __construct( ? String $datetime = Null, ? BaseDateTimeZone $timezone = Null ) {
 		parent::__construct( $datetime ?? "now", $timezone ?? new DateTimeZone );
 	}
 	

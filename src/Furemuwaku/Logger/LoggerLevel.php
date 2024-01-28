@@ -7,8 +7,7 @@ namespace Yume\Fure\Logger;
  *
  * @package Yume\Fure\Logger
  */
-enum LoggerLevel: Int
-{
+enum LoggerLevel: Int {
 	
 	use \Yume\Fure\Util\Backed;
 	
