@@ -15,6 +15,13 @@ use Yume\Fure\Util\Arr;
  */
 trait MessageTrait {
 
+	/*
+	 * Http Message Protocol Body.
+	 * 
+	 * @access Private
+	 * 
+	 * @values Yume\Fure\IO\Stream\StreamInterface
+	 */
 	private ?Stream\StreamInterface $body = Null;
 
 	/*
@@ -28,6 +35,13 @@ trait MessageTrait {
 	 */
 	private ? Header\Headers $headers;
 
+	/*
+	 * Http Message Protocol Version.
+	 * 
+	 * @access Private
+	 * 
+	 * @values String
+	 */
 	private String $protocol = "1.1";
 
 	/*
@@ -66,6 +80,10 @@ trait MessageTrait {
 		return isset( $this->headers[$name] );
 	}
 
+	/*
+	 * @inherit Yume\Fure\Http\Message\MessageInterface->getHeader
+	 * 
+	 */
 	public function getHeader( String $name ): Array {
 		if( $this->hasHeader( $name ) ) {
 			return $this->headers[$name];
@@ -73,22 +91,37 @@ trait MessageTrait {
 		return [];
 	}
 
+	/*
+	 * @inherit Yume\Fure\Http\Message\MessageInterface->getHeaderLine
+	 * 
+	 */
 	public function getHeaderLine( String $name ): String {
-		return join( "\x2c\x20", $this->getHeader( $name ) );
+		if( $this->hasHeader( $name ) ) {
+			return $this->headers[$name]->line();
+		}
+		return "";
 	}
 
+	/*
+	 * @inherit Yume\Fure\Http\Message\MessageInterface->withHeader
+	 * 
+	 */
 	public function withHeader( String $name, Mixed $value ): MessageInterface {
 		$instance = Clone $this;
-		$instance->headers = new Header\Headers( $instance->headers );
+		$instance->headers = new Header\Headers( $this->headers );
 		$instance->headers[$name] = $value;
 		return $instance;
 	}
 
+	/*
+	 * @inherit Yume\Fure\Http\Message\MessageInterface->withAddedHeader
+	 * 
+	 */
 	public function withAddedHeader( String $name, Mixed $value ): MessageInterface {
 		if( $this->hasHeader( $name ) ) {
 			$value = Header\Header::normalizeValue( $name, $value );
 			$instance = Clone $this;
-			$instance->headers = new Header\Headers( $instance->headers );
+			$instance->headers = new Header\Headers( $this->headers );
 			$instance->headers[$name] = array_merge( $this->headers[$name]->value, $value );
 		}
 		else {
@@ -97,6 +130,10 @@ trait MessageTrait {
 		return $instance;
 	}
 
+	/*
+	 * @inherit Yume\Fure\Http\Message\MessageInterface->withoutHeader
+	 * 
+	 */
 	public function withoutHeader( String $name ): MessageInterface {
 		if( $this->hasHeader( $name ) ) {
 			$instance = Clone $this;
