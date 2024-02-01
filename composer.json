@@ -22,12 +22,13 @@
 	"homepage": "https://yfure.github.io/",
 	"keywords": [
 		"framework",
+		"furemuwaku",
 		"sasayaki",
 		"yume"
 	],
 	"license": "MIT",
 	"minimum-stability": "stable",
-	"name": "yfure/framework",
+	"name": "yfure/furemuwaku",
 	"prefer-stable": true,
 	"require": {
 		"php": "^8.2",
