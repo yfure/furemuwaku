@@ -1,32 +1,10 @@
 {
-	"name": "yfure/framework",
-	"type": "library",
-	"description": "The Yume Framework.",
-	"keywords": [
-		"framework",
-		"sasayaki",
-		"yume"
-	],
-	"support": {
-		"issues": "https://github.com/yfure/framework/issues",
-		"source": "https://github.com/yfure/framework"
-	},
-	"homepage": "https://yfure.github.io/",
-	"license": "MIT",
 	"authors": [
 		{
 			"name": "Ari Setiawan",
 			"email": "hxari@proton.me"
 		}
 	],
-	"require": {
-		"php": "^8.2",
-		"ext-mbstring": "*",
-		"ext-openssl": "*"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "^9.5.10"
-	},
 	"autoload": {
 		"files": [
 			"src/Furemuwaku/Support/Helpers/helpers.php"
@@ -35,6 +13,35 @@
 			"Yume\\Fure\\": "src/Furemuwaku/"
 		}
 	},
-	"minimum-stability": "dev",
-	"prefer-stable": true
+	"config": {
+		"platform": {
+			"php": "8.2"
+		}
+	},
+	"description": "The Yume Framework.",
+	"homepage": "https://yfure.github.io/",
+	"keywords": [
+		"framework",
+		"sasayaki",
+		"yume"
+	],
+	"license": "MIT",
+	"minimum-stability": "stable",
+	"name": "yfure/framework",
+	"prefer-stable": true,
+	"require": {
+		"php": "^8.2",
+		"ext-mbstring": "*",
+		"ext-openssl": "*"
+	},
+	"require-dev": {
+	},
+	"suggest": {
+	},
+	"support": {
+		"issues": "https://github.com/yfure/framework/issues",
+		"source": "https://github.com/yfure/framework",
+		"email": "yfuremu@gmail.com"
+	},
+	"type": "library"
 }
