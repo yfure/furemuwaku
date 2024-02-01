@@ -16,11 +16,11 @@
 	"authors": [
 		{
 			"name": "Ari Setiawan",
-			"email": "ari160824@gmail.com"
+			"email": "hxari@proton.me"
 		}
 	],
 	"require": {
-		"php": "^8.1.10",
+		"php": "^8.2",
 		"ext-mbstring": "*",
 		"ext-openssl": "*"
 	},
