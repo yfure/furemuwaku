@@ -83,7 +83,7 @@ class Lists extends Arrayable {
 	 */
 	public function offsetExists( Mixed $offset ): Bool {
 		$this->assert( $offset );
-		return( isset( $this->data[( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] ) );
+		return isset( $this->data[( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] );
 	}
 	
 	/*
@@ -97,7 +97,7 @@ class Lists extends Arrayable {
 	 */
 	public function offsetGet( Mixed $offset ): Mixed {
 		$this->assert( $offset );
-		return( $this->data[( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? Null );
+		return $this->data[( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? Null;
 	}
 	
 	/*
