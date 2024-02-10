@@ -275,16 +275,14 @@ function colorize( String $string, ? String $base = Null ): String {
 					])
 				);
 			}
-			return( "{$escape}{$regexps[$group]['ansicol']}{$chars}{$escape}" );
+			return "{$escape}{$regexps[$group]['ansicol']}{$chars}{$escape}";
 		}
-		return( "" );
+		return "";
 	};
-	
 	try {
 		$last = $base;
 		$escape = Null;
 		$skipable = [];
-		
 		foreach( $strings As $idx => $string ) {
 			if( in_array( $idx, $skipable ) ) continue;
 			if( $color = $regansi->match( $string ) ) {
@@ -327,7 +325,7 @@ function colorize( String $string, ? String $base = Null ): String {
 		echo $e;
 		exit;
 	}
-	return( $result );
+	return $result;
 }
 
 /*
@@ -335,7 +333,7 @@ function colorize( String $string, ? String $base = Null ): String {
  * 
  */
 function clock(): DateTime\DateTimeImmutable {
-	return( new Clock\Clock() )->now();
+	return ( new Clock\Clock )->now();
 }
 
 /*
@@ -343,7 +341,7 @@ function clock(): DateTime\DateTimeImmutable {
  *
  */
 function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool $import = False ): Mixed {
-	return( Main\Main::config( ...func_get_args() ) );
+	return Main\Main::config( ...func_get_args() );
 }
 
 /*
@@ -355,7 +353,7 @@ function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool
  * @return Yume\Fure\Locale\DateTime\DateTime
  */
 function datetime( ? String $datetime = Null, ? DateTimeZone $timezone = Null ): DateTime\DateTime {
-	return( new DateTime\DateTime( $datetime, $timezone ) );
+	return new DateTime\DateTime( $datetime, $timezone );
 }
 
 /*
@@ -384,7 +382,7 @@ function dump( Mixed $value, Bool $colorize = False ): String {
 	$buffer->end( $buffer::FLUSH );
 
 	// Return output buffering.
-	return( $string );
+	return $string;
 }
 
 /*
@@ -412,7 +410,7 @@ function e( Throwable $e ): Void {
 		else {
 			$values = [ "\n{class}: {message}\n{class}: File: {file}\n{class}: Line: {line}\n{class}: Code: {code}\n{class}: {trace}\n", ...$values ];
 		}
-		return( Util\Strings::format( ...$values ) );
+		return Util\Strings::format( ...$values );
 	};
 	if( $e Instanceof Error\YumeError ) {
 		$output = $e->__toString();
@@ -426,7 +424,14 @@ function e( Throwable $e ): Void {
 		}
 		$output .= join( "\n", array_reverse( $stack ) );
 	}
-	putln( "{}\n", YUME_CONTEXT_CLI ? colorize( $output ) : $output );
+	if( YUME_CONTEXT !== YUME_CONTEXT_CLI ) {
+		header( "HTTP/1.1 500 Server Internal Error", True, 500 );
+		puts( "<pre>{}</pre>", $output );
+	}
+	else {
+		putcln( "{}\n", colorize( $output ) );
+	}
+	exit( 1 );
 }
 
 /*
@@ -434,7 +439,7 @@ function e( Throwable $e ): Void {
  *
  */
 function env( String $name, Mixed $optional = Null ): Mixed {
-	return( Env\Env::get( ...func_get_args() ) );
+	return Env\Env::get( ...func_get_args() );
 }
 
 /*
@@ -442,7 +447,7 @@ function env( String $name, Mixed $optional = Null ): Mixed {
  *
  */
 function f( String $format, Mixed ...$values ): String {
-	return( Util\Strings::format( $format, ...$values ) );
+	return Util\Strings::format( $format, ...$values );
 }
 
 /*
@@ -450,7 +455,7 @@ function f( String $format, Mixed ...$values ): String {
  *
  */
 function fsize( $file, Int | String $optional = 0 ): Int {
-	return( File\File::size( $file, $optional ) );
+	return File\File::size( $file, $optional );
 }
 
 /*
@@ -458,7 +463,7 @@ function fsize( $file, Int | String $optional = 0 ): Int {
  *
  */
 function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed {
-	return( Util\Arrays::ify( $refs, $data ) );
+	return Util\Arrays::ify( $refs, $data );
 }
 
 /*
@@ -466,7 +471,7 @@ function ify( Array | String $refs, Array | ArrayAccess $data ): Mixed {
  *
  */
 function import( String $package, Mixed $optional = Null, Mixed ...$args ): Mixed {
-	return( Support\Package::import( $package, $optional, ...$args ) );
+	return Support\Package::import( $package, $optional, ...$args );
 }
 
 /*
@@ -493,7 +498,7 @@ function isolation( String $module, Mixed ...$args ): Void {
  *
  */
 function lang( String $key, ? String $optional = Null, Bool $format = False, Mixed ...$values ): ? String {
-	return( Locale\Locale::translate( $key, $optional, $format, ...$values ) );
+	return Locale\Locale::translate( $key, $optional, $format, ...$values );
 }
 
 /*
@@ -511,9 +516,9 @@ function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? Strin
 	}
 	if( valueIsNotEmpty( $level ) && 
 		valueIsNotEmpty( $message ) ) {
-		return( Service\Service::get( Logger\Logger::class ) )->log( $level, $message, $context );
+		return Service\Service::get( Logger\Logger::class )->log( $level, $message, $context );
 	}
-	return( Service\Service::get( Logger\Logger::class ) );
+	return Service\Service::get( Logger\Logger::class );
 }
 
 /*
@@ -521,7 +526,7 @@ function logger( Int | Null | String | Logger\LoggerLevel $level = Null, ? Strin
  *
  */
 function path( String $path, Bool | Path\Paths $prefix_or_remove = False ): String {
-	return( Path\Path::path( $path, $prefix_or_remove ) );
+	return Path\Path::path( $path, $prefix_or_remove );
 }
 
 /*
@@ -592,7 +597,7 @@ function putln( String $format, Mixed ...$values ): Void {
  * @return Array
  */
 function split( String $string, Int | String $separator = 1, Int $limit = PHP_INT_MAX ): Array {
-	return( is_int( $separator ) ? str_split( $string, $separator ) : explode( $separator, $string, $limit ) );
+	return is_int( $separator ) ? str_split( $string, $separator ) : explode( $separator, $string, $limit );
 }
 
 /*
@@ -607,12 +612,12 @@ function split( String $string, Int | String $separator = 1, Int $limit = PHP_IN
  */
 function type( Mixed $value, ? String $optional = Null, Bool $disable = False, Mixed &$ref = Null ): Bool | String {
 	if( $optional !== Null ) {
-		return( ucfirst( $optional ) === type( $value, Null, $disable, $ref ) );
+		return ucfirst( $optional ) === type( $value, Null, $disable, $ref );
 	}
 	if( is_object( $value ) ) {
-		return( $ref = $disable ? "Object" : $value::class );
+		return $ref = $disable ? "Object" : $value::class;
 	}
-	return( $ref = ucfirst( gettype( $value ) ) );
+	return $ref = ucfirst( gettype( $value ) );
 }
 
 /*
@@ -639,7 +644,7 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool {
 	catch( UnhandledMatchError ) {
 		$empty = False;
 	}
-	return( $optional === Null ? $empty : $empty === $optional );
+	return $optional === Null ? $empty : $empty === $optional;
 }
 
 /*
@@ -651,7 +656,7 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool {
  * @return Bool
  */
 function valueIsNotEmpty( Mixed $value, ? Bool $optional = Null ): Bool {
-	return( $optional === Null ? valueIsEmpty( $value, False ) : valueIsEmpty( $value, False ) === $optional );
+	return $optional === Null ? valueIsEmpty( $value, False ) : valueIsEmpty( $value, False ) === $optional;
 }
 
 ?>

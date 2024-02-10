@@ -12,7 +12,7 @@ namespace Yume\Fure\Error;
 class GeneratorError extends ReflectError {
 	
 	/*
-	 * @inherit Yume\Fure\Error\YumeError
+	 * @inherit Yume\Fure\Error\YumeError::$flags
 	 *
 	 */
 	protected Array $flags = [
