@@ -21,7 +21,7 @@ class AssertionError extends YumeError {
 	public const VALUE_ERROR = 96488;
 	
 	/*
-	 * @inherit Yume\Fure\Error\YumeError
+	 * @inherit Yume\Fure\Error\YumeError::$flags
 	 *
 	 */
 	protected Array $flags = [
