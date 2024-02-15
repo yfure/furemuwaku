@@ -4,12 +4,11 @@ namespace Yume\Fure\Util\Arr;
 
 use ArrayAccess;
 use Countable;
+use JsonSerializable;
 use SeekableIterator;
 use Stringable;
 
-use Yume\Fure\Error;
 use Yume\Fure\Support;
-use Yume\Fure\Util;
 use Yume\Fure\Util\Json;
 
 /*
@@ -19,7 +18,7 @@ use Yume\Fure\Util\Json;
  *
  * @package Yume\Fure\Util\Arr
  */
-abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countable, SeekableIterator, Stringable {
+abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countable, JsonSerializable, SeekableIterator, Stringable {
 	
 	/*
 	 * Get hidden data.
@@ -31,7 +30,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Mixed
 	 */
 	public function __get( String $name ): Mixed {
-		return( $this )->offsetGet( $name );
+		return $this->offsetGet( $name );
 	}
 	
 	/*
@@ -44,7 +43,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Bool
 	 */
 	public function __isset( String $name ): Bool {
-		return( $this )->offsetExists( $name );
+		return $this->offsetExists( $name );
 	}
 	
 	/*
@@ -76,7 +75,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 			}
 			$data[$key] = $val;
 		}
-		return( $data );
+		return $data;
 	}
 	
 	/*
@@ -87,7 +86,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return String
 	 */
 	public function __toString(): String {
-		return( Json\Json::encode( $this->__toArray(), JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT ) );
+		return Json\Json::encode( $this->__toArray(), JSON_INVALID_UTF8_SUBSTITUTE | JSON_PRETTY_PRINT );
 	}
 	
 	/*
@@ -114,7 +113,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Static
 	 */
 	public function chunk( Int $length, Bool $preserveKeys = False ): Static {
-		return( new Static( array_chunk( $this->data, ...func_get_args() ) ) );
+		return new Static( array_chunk( $this->data, ...func_get_args() ) );
 	}
 	
 	/*
@@ -129,7 +128,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Static
 	 */
 	public function filter( ? Callable $callback = Null, Int $mode = ARRAY_FILTER_USE_BOTH ): Static {
-		return( new Static( array_filter( $this->data, $callback, ) ) );
+		return new Static( array_filter( $this->data, $callback, $mode ) );
 	}
 	
 	/*
@@ -142,7 +141,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Int
 	 */
 	public function indexOf( Mixed $value ): Int {
-		return( in_array( $this->data, $value ) );
+		return in_array( $this->data, $value );
 	}
 	
 	/*
@@ -155,7 +154,18 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Bool
 	 */
 	public function isList( ? Bool $optional ): Bool {
-		return( $optional !== Null ? $this Instanceof Lists === $optional : $this Instanceof Lists );
+		return $optional !== Null ? $this Instanceof Lists === $optional : $this Instanceof Lists;
+	}
+
+	/*
+	 * Allow class to JSON Serialize.
+	 * 
+	 * @access Public
+	 * 
+	 * @return Mixed
+	 */
+	public function jsonSerialize(): Mixed {
+		return $this->__toArray();
 	}
 	
 	/*
@@ -166,7 +176,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Mixed
 	 */
 	public function keyFirst(): Mixed {
-		return( $this )->keys[0] ?? Null;
+		return $this->keys[0] ?? Null;
 	}
 	
 	/*
@@ -177,7 +187,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Mixed
 	 */
 	public function keyLast(): Mixed {
-		return( end( $this->keys ) );
+		return end( $this->keys );
 	}
 	
 	/*
@@ -190,7 +200,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Int|String
 	 */
 	public function keyOf( Mixed $value ): Int | String {
-		return( $this )->keys[$this->indexOf( $value )];
+		return $this->keys[$this->indexOf( $value )];
 	}
 	
 	/*
@@ -201,7 +211,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Array
 	 */
 	public function keys(): Array {
-		return( $this )->keys;
+		return $this->keys;
 	}
 	
 	/*
@@ -231,7 +241,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 				}
 			}
 		}
-		return( new Static( $stack ) );
+		return new Static( $stack );
 	}
 	
 	/*
@@ -265,7 +275,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 			}
 			$this[$offset] = $value;
 		}
-		return( $this );
+		return $this;
 	}
 	
 	/*
@@ -276,7 +286,7 @@ abstract class Arrayable extends Support\Iterate implements ArrayAccess, Countab
 	 * @return Array
 	 */
 	public function values(): Array {
-		return( array_values( $this->data ) );
+		return array_values( $this->data );
 	}
 	
 }

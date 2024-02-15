@@ -28,6 +28,7 @@ class MethodError extends ConstantError
 	protected Array $flags = [
 		MethodError::class => [
 			self::ACCESS_ERROR => "Method {}::{} is not accessible from outsite class",
+			self::IMPLEMENTS_ERROR => "The method {}::{} is unimplemented",
 			self::INVOKE_ERROR => "Can't invoke method {}::{}, it's not accessible from outsite class",
 			self::NAME_ERROR => "Class {} has no method named {}"
 		]

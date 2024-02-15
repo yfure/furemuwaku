@@ -60,24 +60,23 @@ final class Pattern implements Stringable {
 	 * @return Void
 	 */
 	public function __construct( public Readonly String $pattern, Array | String $flags = [] ) {
+		if( is_string( $flags ) ) {
+			$flags = split( $flags );
+		}
 		if( valueIsEmpty( $pattern ) ) {
 			throw new RegExpError( "Pattern can't be empty" );
 		}
-		$this->flags = is_array( $flags ) ? $flags : split( $flags );
-		foreach( $this->flags As $flag ) {
-			$checked = [];
-			
-			// Check if flags is not supported.
+		$checked = [];
+		foreach( $flags As $flag ) {
 			if( RegExp::isFlag( $flag, False ) ) {
 				throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_ERROR );
 			}
-			
-			// Check if there are duplicate flag.
 			if( in_array( $flag, $checked ) ) {
 				throw new RegExpError( [ $flag, $pattern ], RegExpError::MODIFIER_DUPLICATE_ERROR );
 			}
 			$checked[] = $flag;
 		}
+		$this->flags = $flags;
 		$this->compiled = sprintf( "/%1\$s/%2\$s", $this->pattern, join( "", $this->flags ) );
 	}
 	
@@ -101,7 +100,7 @@ final class Pattern implements Stringable {
 	 *
 	 * @return Yume\Fure\Util\RegExp\Matches
 	 */
-	public function exec( String $subject ): ? Matches {
+	public function exec( String $subject ): ?Matches {
 		$this->index = $this->subject === $subject ? $this->index : 0;
 		$this->subject = $subject;
 		$explode = substr( $subject, $this->index );
@@ -126,8 +125,7 @@ final class Pattern implements Stringable {
 	 * @inherit Yume\Fure\Util\RegExp\RegExp::match
 	 *
 	 */
-	public function match( String $subject ): ? Matches {
-		// Check if subject is matched.
+	public function match( String $subject ): ?Matches {
 		if( $matches = RegExp::match( $this->compiled, $subject ) ) {
 			return( $this )->process( $subject, $subject, $matches );
 		}
@@ -149,10 +147,7 @@ final class Pattern implements Stringable {
 	 */
 	public function replace( Array | String $subject, Callable | String $replace, Int $limit = -1, Int &$count = Null, Int $flags = 0 ): Array | String {
 		if( $replace Instanceof Closure ) {
-			// Captured position.
 			$index = 0;
-			
-			// Exploded sub string of subject.
 			$explode = $subject;
 			$callback = $replace;
 			
@@ -187,6 +182,9 @@ final class Pattern implements Stringable {
 		// Get next index iteration.
 		$search = $index += strpos( $explode, $matches[0] );
 		$index += strlen( $matches[0] );
+
+		// Get last position.
+		$last = $search + strlen( $matches[0] );
 		
 		// Get subject string for next iteration.
 		$explode = substr( $subject, $index );
@@ -198,12 +196,9 @@ final class Pattern implements Stringable {
 		
 		// Mapping captured strings.
 		foreach( $matches As $group => $value ) {
-			// If group has name, and if group has value.
 			if( is_string( $group ) && valueIsNotEmpty( $value ) ) {
-				// Get position group in captured string.
-				$post = strpos( $string, $value );
-				$post += strlen( $stacks );
 				
+				$post = strpos( $string, $value ) + strlen( $stacks );
 				$string = substr( $matches[0], $post );
 				$stacks = substr( $matches[0], 0, $post );
 				
@@ -214,7 +209,7 @@ final class Pattern implements Stringable {
 				unset( $matches[$group] );
 			}
 		}
-		return( new Matches( $matches, $groups, $search ) );
+		return( new Matches( $matches, $groups, $search, $last ) );
 	}
 	
 }

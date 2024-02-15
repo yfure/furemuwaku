@@ -46,7 +46,7 @@ class Associative extends Arrayable {
 	 * @return Bool
 	 */
 	public function isInsensitive( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? ( $this->insensitive ?: $optional ): $this->insensitive );
+		return $optional !== Null ? ( $this->insensitive ?: $optional ): $this->insensitive;
 	}
 	
 	/*
@@ -60,9 +60,9 @@ class Associative extends Arrayable {
 	 */
 	protected function normalize( Mixed $key ): String {
 		if( $this->insensitive && is_string( $key ) ) {
-			return( strtolower( ( String ) $key ) );
+			return strtolower( ( String ) $key );
 		}
-		return( ( String ) $key );
+		return ( String ) $key;
 	}
 	
 	/*
@@ -75,7 +75,7 @@ class Associative extends Arrayable {
 	 * @return Bool
 	 */
 	public function offsetExists( Mixed $offset ): Bool {
-		return( isset( $this->data[$this->normalize( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] ) );
+		return isset( $this->data[$this->normalize( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? $offset )] );
 	}
 	
 	/*
@@ -88,7 +88,7 @@ class Associative extends Arrayable {
 	 * @return Mixed
 	 */
 	public function offsetGet( Mixed $offset ): Mixed {
-		return( $this->data[$this->normalize( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? Null );
+		return $this->data[$this->normalize( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? $offset )] ?? Null;
 	}
 	
 	/*

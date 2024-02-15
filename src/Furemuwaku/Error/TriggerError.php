@@ -35,14 +35,12 @@ class TriggerError extends YumeError
 	 *
 	 * @return Void
 	 */
-	public function __construct( String $message, String $level, String $file, Int $line, Int $code, ? Throwable $previous = Null )
-	{
-		try
-		{
+	public function __construct( String $message, String $level, String $file, Int $line, Int $code, ? Throwable $previous = Null ) {
+		try {
 			$this->type = $level;
 		}
-		catch( Throwable )
-		{}
+		catch( Throwable ) {
+		}
 		parent::__construct( $message, $code, $previous, $file, $line );
 	}
 	
