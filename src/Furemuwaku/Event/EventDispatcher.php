@@ -18,7 +18,7 @@ final class EventDispatcher implements EventDispatcherInterface {
 	 * 
 	 * @access Public Initialize
 	 * 
-	 * @params Private Readonlu Yume\Fure\Event\EventListenerProviderInterface $provider
+	 * @params Private Readonly Yume\Fure\Event\EventListenerProviderInterface $provider
 	 * 
 	 * @return Void
 	 */
