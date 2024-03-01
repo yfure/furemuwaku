@@ -11,16 +11,16 @@ use Yume\Fure\Service;
  * 
  * @package Yume\Fure\Logger
  */
-class LoggerServiceProvider extends Service\ServiceProvider implements Service\ServiceProviderInterface {
+final class LoggerServiceProvider extends Service\ServiceProvider implements Service\ServiceProviderInterface {
 
 	/*
-	 * Instance of class Logger.
+	 * Instance of class LoggerInterface.
 	 * 
-	 * @access Private
+	 * @access Private Readonly
 	 * 
-	 * @values Yume\Fure\Logger\Logger
+	 * @values Yume\Fure\Logger\LoggerInterface
 	 */
-	private Logger $logger;
+	private Readonly LoggerInterface $logger;
 
 	/*
 	 * Construct method of class LoggerServiceProver.
@@ -38,7 +38,7 @@ class LoggerServiceProvider extends Service\ServiceProvider implements Service\S
 	 *
 	 */
 	public function register(): Void {
-		$this->bind( [ "logger", Logger::class ], $this->logger, True );
+		$this->bind( [ "logger", Logger::class ], $this->logger, override: False );
 	}
 
 }
