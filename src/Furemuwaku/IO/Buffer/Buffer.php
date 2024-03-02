@@ -68,6 +68,7 @@ class Buffer extends Support\Singleton {
 	 *
 	 */
 	protected function __construct( ? Closure $handler = Null ) {
+		
 		$this->handler = $handler;
 		$this->buffer = new Arr\Lists([]);
 		
@@ -85,20 +86,15 @@ class Buffer extends Support\Singleton {
 			 *
 			 * @params Int $i
 			 * @params Int $index
-			 * @params Yume\Fure\Util\Arr\Associative $buffer
+			 * @params Array|Yume\Fure\Util\Arr\Associative $buffer
 			 *
 			 * @return Void
 			 */
-			function( Int $i, Int $index, $buffer ) use( $handlers ) {
-				
-				// Set current buffer level.
+			function( Int $i, Int $index, Array|Arr\Associative $buffer ) use( $handlers ) {
 				$this->level = $index;
 				$this->level++;
-				
-				// Set buffer contents.
+				$this->buffer[$this->level] ??= new Arr\Associative( $buffer );
 				$this->buffer[$this->level]->buffer = ob_get_clean();
-				
-				// Set buffer handler.
 				$this->buffer[$this->level]->handler = $handlers[$index];
 			}
 		);
@@ -123,7 +119,7 @@ class Buffer extends Support\Singleton {
 		else {
 			echo $contents;
 		}
-		return( $this );
+		return $this;
 	}
 	
 	/*
@@ -143,7 +139,7 @@ class Buffer extends Support\Singleton {
 		else {
 			throw new BufferError( 0, BufferError::CLEAN_ERROR );
 		}
-		return( $this );
+		return $this;
 	}
 	
 	/*
@@ -171,7 +167,7 @@ class Buffer extends Support\Singleton {
 		else {
 			throw new BufferError( 0, BufferError::TERMINATE_ERROR );
 		}
-		return( $this );
+		return $this;
 	}
 	
 	/*
@@ -197,7 +193,7 @@ class Buffer extends Support\Singleton {
 		else {
 			throw new BufferError( 0, BufferError::FLUSH_ERROR );
 		}
-		return( $this );
+		return $this;
 	}
 	
 	/*
@@ -218,11 +214,11 @@ class Buffer extends Support\Singleton {
 		if( $this->hasLevel() ) {
 			if( $level >= 1 ) {
 				if( isset( $this->buffer[$level] ) ) {
-					return( $this )->buffer[$level]->buffer;
+					return $this->buffer[$level]->buffer;
 				}
 				throw new BufferError( $level, BufferError::LEVEL_ERROR );
 			}
-			return( $this )->buffer[$this->level]->buffer;
+			return $this->buffer[$this->level]->buffer;
 		}
 		throw new BufferError( $this->buffer, BufferError::STATUS_ERROR );
 	}
@@ -243,9 +239,9 @@ class Buffer extends Support\Singleton {
 			$buffer = is_callable( $handler ) ? call_user_func( $handler, $buffer, $flags ) : $buffer;
 			$this->buffer[$this->level]->buffer .= $buffer ?: "";
 			
-			return( $buffer );
+			return $buffer;
 		}
-		return( False );
+		return False;
 	}
 	
 	/*
@@ -258,7 +254,7 @@ class Buffer extends Support\Singleton {
 	 * @return Bool
 	 */
 	final public function hasLevel( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $this->hasLevel() === $optional : ( $this->level >= 1 && $this->level === ob_get_level() && $this->buffer->count() >= 1 && $this->buffer->count() === $this->level ) );
+		return $optional !== Null ? $this->hasLevel() === $optional : ( $this->level >= 1 && $this->level === ob_get_level() && $this->buffer->count() >= 1 && $this->buffer->count() === $this->level );
 	}
 	
 	/*
@@ -269,7 +265,7 @@ class Buffer extends Support\Singleton {
 	 * @return Int
 	 */
 	public function level(): Int {
-		return( $this )->level;
+		return $this->level;
 	}
 	
 	/*
@@ -299,7 +295,7 @@ class Buffer extends Support\Singleton {
 				"handler" => $handler
 			]
 		];
-		return( $this );
+		return $this;
 	}
 	
 	/*
@@ -318,13 +314,11 @@ class Buffer extends Support\Singleton {
 	public function status( Int $level = 0 ): Arr\Arrayable {
 		if( $level >= 1 ) {
 			if( $level <= $this->buffer->count() ) {
-				return( $this )->buffer[$level]->copy();
+				return $this->buffer[$level]->copy();
 			}
 			throw new BufferError( $level, BufferError::LEVEL_ERROR );
 		}
-		return( new Arr\Lists( $this->buffer ) );
+		return new Arr\Lists( $this->buffer );
 	}
 	
 }
-
-?>
