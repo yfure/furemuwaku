@@ -7,7 +7,18 @@ namespace Yume\Fure\Event;
  * 
  * @package Yume\Fure\Event
  */
-class Event {
+final class Event {
+
+	/*
+	 * Construct method of class Event.
+	 * 
+	 * @access Public Initialize
+	 * 
+	 * @return Void
+	 */
+	public function __construct() {
+	}
+
 }
 
 ?>

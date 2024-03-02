@@ -12,13 +12,13 @@ use Yume\Fure\Main;
 trait ConfigTrait {
 	
 	/*
-	 * Class Configuration.
+	 * Instance of class Config.
 	 *
 	 * @access Protected Static
 	 *
 	 * @values Yume\Fure\Config\Config
 	 */
-	protected static ? Config $configs = Null;
+	protected static ?Config $configs = Null;
 	
 	/*
 	 * Take one configuration value or take all

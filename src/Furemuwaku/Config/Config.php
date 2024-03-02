@@ -95,7 +95,7 @@ class Config extends Support\Data {
 			$data ??= [];
 			$data = [ ...$data, ...$inherit->__toArray() ];
 		}
-		return( array_replace_recursive( $data ?? [], parent::__toArray() ) );
+		return array_replace_recursive( $data ?? [], parent::__toArray() );
 	}
 	
 	/*
@@ -106,14 +106,14 @@ class Config extends Support\Data {
 	 * @return String
 	 */
 	final public function __toString(): String {
-		return( Util\Strings::format( "{}<{}>({})", $this::class, $this->name, $this->__toArray() ) );
+		return Util\Strings::format( "{}<{}>({})", $this::class, $this->name, $this->__toArray() );
 	}
 
 	/*
 	 * @inherit Yume\Fure\Suport\Data::copy
 	 */
 	public function copy(): Static {
-		return( new Config( $this->name, $this->shared, $this->__toArray() ) );
+		return new Config( $this->name, $this->shared, $this->__toArray() );
 	}
 	
 	/*
@@ -138,7 +138,7 @@ class Config extends Support\Data {
 				}
 			}
 		}
-		return( new Static( $this->name, $this->shared, $stack ) );
+		return new Static( $this->name, $this->shared, $stack );
 	}
 	
 	/*
@@ -146,7 +146,7 @@ class Config extends Support\Data {
 	 *
 	 */
 	public function offsetExists( Mixed $offset ): Bool {
-		return( isset( $this->data[( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] ) || isset( $this->inherit[$offset] ) );
+		return isset( $this->data[( $this->keys[( is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null )] ?? Null )] ) || isset( $this->inherit[$offset] );
 	}
 	
 	/*
@@ -154,7 +154,7 @@ class Config extends Support\Data {
 	 *
 	 */
 	public function offsetGet( Mixed $offset ): Mixed {
-		return( $this->data[( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? $this->inherit[$offset] ?? Null );
+		return $this->data[( $this->keys[is_numeric( $idx = array_search( $offset, $this->keys ) ) ? $idx : Null ] ?? Null )] ?? $this->inherit[$offset] ?? Null;
 	}
 	
 	/*
@@ -200,7 +200,7 @@ class Config extends Support\Data {
 	 * @return Bool
 	 */
 	final public function isSharedable( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->shared : $this->shared );
+		return $optional !== Null ? $optional === $this->shared : $this->shared;
 	}
 	
 	/*
@@ -219,7 +219,7 @@ class Config extends Support\Data {
 				$array[$offset] = new Static( $this->name, $this->shared, $value );
 			}
 		}
-		return( parent::replace( $array, $recursive ) );
+		return parent::replace( $array, $recursive );
 	}
 	
 }
