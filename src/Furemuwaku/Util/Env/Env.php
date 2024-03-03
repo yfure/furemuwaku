@@ -101,7 +101,7 @@ class Env extends Support\Singleton {
 	 * @return Array
 	 */
 	public static function getAll(): Array {
-		return( self::self() )->vars;
+		return self::self()->vars;
 	}
 	
 	/*
@@ -140,5 +140,3 @@ class Env extends Support\Singleton {
 	}
 	
 }
-
-?>
