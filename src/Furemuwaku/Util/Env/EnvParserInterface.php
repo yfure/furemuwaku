@@ -57,5 +57,3 @@ interface EnvParserInterface {
 	public function setContents( String $contents ): EnvParserInterface;
 	
 }
-
-?>
