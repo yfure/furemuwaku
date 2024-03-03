@@ -76,7 +76,7 @@ class EnvParser implements EnvParserInterface {
 	 */
 	protected function convert( Mixed $value, Util\Type $type, ? String $raw ): Mixed {
 		if( valueIsNotEmpty( $raw ) ) {
-			return( match( $type ) {
+			return match( $type ) {
 				Util\Type::Array,
 				Util\Type::Object => Json\Json::decode( $value, $type === Util\Type::Array ),
 				Util\Type::Bool => Util\Boolean::parse( $value ),
@@ -87,9 +87,9 @@ class EnvParser implements EnvParserInterface {
 				Util\Type::None => Null,
 				Util\Type::Raw => unserialize( $value ),
 				Util\Type::Mixed => $value,
-			});
+			};
 		}
-		return( Null );
+		return Null;
 	}
 	
 	/*
@@ -114,22 +114,17 @@ class EnvParser implements EnvParserInterface {
 			}
 			$line--;
 		}
-		return( $comments );
+		return $comments;
 	}
 	
 	/*
-	 * Find line number by current raw matched.
-	 *
-	 * @access Public
-	 *
-	 * @params String $raw
-	 *
-	 * @return Int
+	 * @inherit Yume\Fure\Util\Env\EnvParserInterface->findLine
+	 * 
 	 */
 	public function findLine( ? String $raw = Null ): Int {
 		$raw = split( $raw ?? $this->raw, "\n" );
 		$raw = array_pop( $raw );
-		return( array_search( $raw, $this->contentsSplited ) +1 );
+		return array_search( $raw, $this->contentsSplited ) +1;
 	}
 	
 	/*
@@ -143,63 +138,62 @@ class EnvParser implements EnvParserInterface {
 	 * @return Bool
 	 */
 	protected function invalid( Util\Type $type, Util\Type $typedef ): Bool {
-		return( $typedef !== $type && $type !== Util\Type::Mixed &&
+		return $typedef !== $type && $type !== Util\Type::Mixed && (
 			(
 				(
-					(
-						$type === Util\Type::Array || 
-						$type === Util\Type::Json ||
-						$type === Util\Type::Object
-					) &&
+					$type === Util\Type::Array || 
+					$type === Util\Type::Json ||
+					$type === Util\Type::Object
+				) 
+					&&
+				(
 					$typedef !== Util\Type::Json
-				) ||
-				(
-					(
-						$type === Util\Type::Raw ||
-						$type === Util\Type::String
-					) &&
-					$typedef !== Util\Type::String
-				) ||
-				(
-					(
-						$type === Util\Type::Float ||
-						$type === Util\Type::Int
-					) &&
-					(
-						$typedef !== Util\Type::Float ||
-						$typedef !== Util\Type::Int
-					)
-				) ||
-				(
-					$type === Util\Type::None &&
-					$typedef === Util\Type::None
 				)
+			) 
+				||
+			(
+				(
+					$type === Util\Type::Raw ||
+					$type === Util\Type::String
+				) 
+					&&
+				(
+					$typedef !== Util\Type::String
+				)
+			) 
+				||
+			(
+				(
+					$type === Util\Type::Double ||
+					$type === Util\Type::Float ||
+					$type === Util\Type::Int
+				) 
+					&&
+				(
+					$typedef !== Util\Type::Double ||
+					$typedef !== Util\Type::Float ||
+					$typedef !== Util\Type::Int
+				)
+			) 
+				||
+			(
+				$type === Util\Type::None &&
+				$typedef === Util\Type::None
 			)
 		);
 	}
 	
 	/*
-	 * Return if raw contents is single line comment.
-	 *
-	 * @access Public
-	 *
-	 * @params String $comment
-	 * @params Bool $optional
-	 * @params Mixed &$matches
-	 *
-	 * @return Bool
+	 * @inherit Yume\Fure\Util\Env\EnvParserInterface->isComment
+	 * 
 	 */
 	public function isComment( String $comment, ? Bool $optional = Null, Mixed &$matches = [] ): Bool {
-		return( $optional !== Null ? $this->isComment( $comment, Null, $matches ) === $optional : preg_match( "/^[\r\n\s\t]*\#(?<comment>[^\n]*)$/", trim( $comment, "\n" ), $matches ) );
+		return $optional !== Null ? $this->isComment( $comment, Null, $matches ) === $optional : preg_match( "/^[\r\n\s\t]*\#(?<comment>[^\n]*)$/", trim( $comment, "\n" ), $matches );
 	}
 	
 	/*
-	 * Parse environment contents.
-	 *
-	 * @access Public
-	 *
-	 * @return Generator
-	 *  Generator result of process.
+	 * @inherit Yume\Fure\Util\Env\EnvParserInterface->parse
+	 * 
 	 */
 	public function parse(): Generator {
 		while( $match = $this->pattern->exec( $this->contents ?? "" ) ) {
@@ -218,7 +212,7 @@ class EnvParser implements EnvParserInterface {
 	 * @return Yume\Fure\Util\Env\EnvVariableInterface
 	 */
 	private function process( RegExp\Matches $match ): EnvVariableInterface {
-		$this->raw = trim( $match[0], "\n" );
+		$this->raw = trim( Util\Strings::parse( $match[0] ), "\n" );
 		$groups = $match->groups;
 		$var = [
 			"raw" => $this->raw,
@@ -278,10 +272,10 @@ class EnvParser implements EnvParserInterface {
 					$var['value'] = RegExp\RegExp::replace( "/(?<nomatch>\\\{0,})(?<symbol>(?:(?<taggar>\#)|(?<semicolon>\;)){1,})/ms", $var['value'], function( Array $match ) use( $var ) {
 						$length = strlen( $match['nomatch'] ?? "" );
 						if( $length === 1 ) {
-							return( $match['symbol'] ?? "" );
+							return $match['symbol'] ?? "";
 						}
 						if( Util\Number::isOdd( $length ) ) {
-							return( Util\Strings::format( "{}{}", str_repeat( "\x5c", $length -1 ), $match['symbol'] ?? "" ) );
+							return Util\Strings::format( "{}{}", str_repeat( "\x5c", $length -1 ), $match['symbol'] ?? "" );
 						}
 						if( $match['taggar'] ?? Null ) {
 							throw new EnvError( $var['name'], EnvError::COMMENT_ERROR, Null, Env::self()->source, $var['line'] );
@@ -333,7 +327,7 @@ class EnvParser implements EnvParserInterface {
 				$var['value'] = Null;
 			}
 			else {
-				throw new EnvError( [ Json\Json::error(), $var['name'] ], EnvError::JSON_ERROR, Null, Env::self()->source, $var['line'], $e );
+				throw new EnvError( [ Json\Json::error(), $var['name'] ], EnvError::JSON_ERROR, $e, Env::self()->source, $var['line'] );
 			}
 		}
 		
@@ -343,23 +337,17 @@ class EnvParser implements EnvParserInterface {
 		// Normalize variable name.
 		$var['name'] = str_replace( "\x2d", "\x5f", $var['name'] );
 		
-		return( new EnvVariable( ...$var ) );
+		return new EnvVariable( ...$var );
 	}
 	
 	/*
-	 * Set parser contents.
-	 *
-	 * @access Public
-	 *
-	 * @params String $contents
-	 *
-	 * @return Yume\Fure\Util\Env\EnvParserInterface
+	 * @inherit Yume\Fure\Util\Env\EnvParserInterface->setContents
+	 * 
 	 */
 	public function setContents( String $contents ): EnvParserInterface {
 		$this->contents = trim( $contents );
 		$this->contentsSplited = split( $this->contents, "\n" );
-		
-		return( $this );
+		return $this;
 	}
 	
 	/*
@@ -375,27 +363,23 @@ class EnvParser implements EnvParserInterface {
 	 */
 	protected function typedef( String $type ): Util\Type {
 		$type = ucfirst( Util\Strings::fromKebabCaseToCamelCase( $type ) );
-		return(
-			match( $type ) {
-				"Array" => Util\Type::Array,
-				"Bool",
-				"Boolean" => Util\Type::Bool,
-				"Double",
-				"Float" => Util\Type::Float,
-				"Int",
-				"Integer" => Util\Type::Int,
-				"Json" => Util\Type::Json,
-				"Mixed" => Util\Type::Mixed,
-				"None" => Util\Type::None,
-				"Object" => Util\Type::Object,
-				"Raw" => Util\Type::Raw,
-				"String" => Util\Type::String,
-				
-				default => throw new EnvError( [ $type, join( "|", Util\Type::names() ) ], EnvError::TYPEDEF_ERROR, Null, Env::self()->source, $this->findLine() )
-			}
-		);
+		return match( $type ) {
+			"Array" => Util\Type::Array,
+			"Bool",
+			"Boolean" => Util\Type::Bool,
+			"Double",
+			"Float" => Util\Type::Float,
+			"Int",
+			"Integer" => Util\Type::Int,
+			"Json" => Util\Type::Json,
+			"Mixed" => Util\Type::Mixed,
+			"None" => Util\Type::None,
+			"Object" => Util\Type::Object,
+			"Raw" => Util\Type::Raw,
+			"String" => Util\Type::String,
+			
+			default => throw new EnvError( [ $type, join( "|", Util\Type::names() ) ], EnvError::TYPEDEF_ERROR, Null, Env::self()->source, $this->findLine() )
+		};
 	}
 	
 }
-
-?>
