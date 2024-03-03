@@ -3,6 +3,8 @@
 namespace Yume\Fure\Util\Env;
 
 use Yume\Fure\Util;
+use Yume\Fure\Util\Json;
+use Yume\Fure\Util\RegExp;
 
 /*
  * EnvVariable
@@ -64,189 +66,214 @@ final class EnvVariable implements EnvVariableInterface {
 	 * @return String
 	 */
 	public function __toString(): String {
-		return( $this )->makeRaw();
+		return $this->makeRaw();
 	}
 	
 	/*
-	 * Return single line comment after defined variable.
-	 *
-	 * @access Public
-	 *
-	 * @return String
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getComment
+	 * 
 	 */
 	public function getComment(): ? String {
-		return( $this )->comment;
+		return $this->comment;
 	}
 	
 	/*
-	 * Return multiline comments before define variable.
-	 *
-	 * @access Public
-	 *
-	 * @return Array
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getComments
+	 * 
 	 */
 	public function getComments(): ? Array {
-		return( $this )->comments;
-	}
-	
-	public function getEOL(): ? String {
-		return( $this )->endline;
-	}
-	
-	public function getLine(): ? Int {
-		return( $this )->line;
-	}
-	
-	public function getQuote(): ? String {
-		return( $this )->quoted;
+		return $this->comments;
 	}
 	
 	/*
-	 * Return variable as raw.
-	 *
-	 * @access Public
-	 *
-	 * @return String
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getEOL
+	 * 
+	 */
+	public function getEOL(): ? String {
+		return $this->endline;
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getLine
+	 * 
+	 */
+	public function getLine(): ? Int {
+		return $this->line;
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getQuote
+	 * 
+	 */
+	public function getQuote(): ? String {
+		return $this->quoted;
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getRaw
+	 * 
 	 */
 	public function getRaw(): ? String {
-		return( $this )->raw;
+		return $this->raw;
 	}
 	
 	/*
-	 * Return variable type.
-	 *
-	 * @access Public
-	 *
-	 * @return Yume\Fure\Util\Type
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getType
+	 * 
 	 */
 	public function getType(): Util\Type {
-		return( $this )->type;
+		return $this->type;
 	}
 	
 	/*
-	 * Return variable type as String.
-	 *
-	 * @access Public
-	 *
-	 * @return String
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getTypeAsString
+	 * 
 	 */
 	public function getTypeAsString(): String {
-		return( $this )->type->name;
+		return $this->type->name;
 	}
 	
 	/*
-	 * Return value of variable.
-	 *
-	 * @access Public
-	 *
-	 * @params Bool $optional
-	 *
-	 * @return Bool
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->getValue
+	 * 
 	 */
 	public function getValue(): Mixed {
-		return( $this )->value;
+		return $this->value;
 	}
 	
 	/*
-	 * Return if variable has single line comment.
-	 *
-	 * @access Public
-	 *
-	 * @params Bool $optional
-	 *
-	 * @return Bool
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->hasComment
+	 * 
 	 */
 	public function hasComment( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->hasComment() : valueIsNotEmpty( $this->comment ) );
+		return $optional !== Null ? $optional === $this->hasComment() : valueIsNotEmpty( $this->comment );
 	}
 	
 	/*
-	 * Return if variable has multiline comments.
-	 *
-	 * @access Public
-	 *
-	 * @params Bool $optional
-	 *
-	 * @return Bool
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->hasComments
+	 * 
 	 */
 	public function hasComments( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->hasComments() : valueIsNotEmpty( $this->comments ) );
-	}
-	
-	public function hasEOL( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->hasEOL() : valueIsNotEmpty( $this->endline ) );
-	}
-	
-	public function hasLine( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->hasLine() : $this->line !== Null && $this->line >= 1 );
-	}
-	
-	public function hasRaw( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->hasRaw() : valueIsNotEmpty( $this->raw ) );
-	}
-	
-	public function hasValue( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->hasValue() : valueIsNotEmpty( $this->value ) );
+		return $optional !== Null ? $optional === $this->hasComments() : valueIsNotEmpty( $this->comments );
 	}
 	
 	/*
-	 * Return if variable is commented.
-	 *
-	 * @access Public
-	 *
-	 * @params Bool $optional
-	 *
-	 * @return Bool
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->hasEOL
+	 * 
+	 */
+	public function hasEOL( ? Bool $optional = Null ): Bool {
+		return $optional !== Null ? $optional === $this->hasEOL() : valueIsNotEmpty( $this->endline );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->hasLine
+	 * 
+	 */
+	public function hasLine( ? Bool $optional = Null ): Bool {
+		return $optional !== Null ? $optional === $this->hasLine() : $this->line !== Null && $this->line >= 1;
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->hasRaw
+	 * 
+	 */
+	public function hasRaw( ? Bool $optional = Null ): Bool {
+		return $optional !== Null ? $optional === $this->hasRaw() : valueIsNotEmpty( $this->raw );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->hasValue
+	 * 
+	 */
+	public function hasValue( ? Bool $optional = Null ): Bool {
+		return $optional !== Null ? $optional === $this->hasValue() : valueIsNotEmpty( $this->value );
+	}
+	
+	/*
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->isCommented
+	 * 
 	 */
 	public function isCommented( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->commented : $this->commented );
+		return $optional !== Null ? $optional === $this->commented : $this->commented;
 	}
 	
 	/*
-	 * Return if value of variable is quoted.
-	 *
-	 * @access Public
-	 *
-	 * @params Bool $optional
-	 *
-	 * @return Bool
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->isQuoted
+	 * 
 	 */
 	public function isQuoted( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->isQuoted() : $this->quoted !== Null );
+		return $optional !== Null ? $optional === $this->isQuoted() : $this->quoted !== Null;
 	}
 	
 	/*
-	 * Return if variable is declared by system.
-	 *
-	 * @access Public
-	 *
-	 * @params Bool $optional
-	 *
-	 * @return Bool
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->isSystem
+	 * 
 	 */
 	public function isSystem( ? Bool $optional = Null ): Bool {
-		return( $optional !== Null ? $optional === $this->isSystem() : $this->system );
+		return $optional !== Null ? $optional === $this->isSystem() : $this->system;
 	}
 	
 	/*
-	 * Returns a raw variable declaration.
-	 *
-	 * @access Public
-	 *
-	 * @return String
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->makeRaw
+	 * 
 	 */
 	public function makeRaw(): String {
-		throw new \Yume\Fure\Error\MethodError( "Not Implemented" );
+		$format = "{ comments }{ commented }{ type }{ name } = { value };{ comment }";
+		$params = [
+			"name" => $this->name,
+			"type" => $this->type,
+			"value" => $this->value ?? "",
+			"comment" => "",
+			"comments" => "",
+			"commented" => ""
+		];
+		if( $this->hasValue() && $this->isCommented( False ) ) {
+			$params['value'] = match( $this->type ) {
+				Util\Type::Bool => $this->value ? "True": "False",
+				Util\Type::Array => Json\Json::encode( $this->value, JSON_INVALID_UTF8_SUBSTITUTE ),
+				Util\Type::None => "",
+				Util\Type::Int => ( String ) $this->value,
+				Util\Type::String => $this->value,
+				default => $this->value
+			};
+			if( $this->type === Util\Type::String ) {
+				$params['value'] = RegExp\RegExp::replace( "/(\\$|\\#|\"|\'|\;|\\\)/ms", $params['value'], "\x5c\x5c\$1" );
+				if( $this->isQuoted() ) {
+					$params['value'] = f( "{0}{1}{0}", $this->getQuote(), $params['value'] );
+				}
+			}
+			// $this->valueReference->map( function( $i, $name, $var ) use( &$params ) {
+			// 	$valueFromReference = match( $var->getType() ) {
+			// 		Util\Type::Bool => $var->getValue() ? "True": "False",
+			// 		Util\Type::Array => Json\Json::encode( $var->getValue(), JSON_INVALID_UTF8_SUBSTITUTE ),
+			// 		Util\Type::None => "",
+			// 		Util\Type::Int => ( String ) $var->getValue(),
+			// 		Util\Type::String => $var->getValue()
+			// 	};
+			// 	$params['value'] = str_replace( RegExp\RegExp::replace( "/(\\$|\\#|\"|\'|\;|\\\)/ms", $valueFromReference, "\x5c\x5c\$1" ), Type\Str::fmt( "\${}", $var->getName() ), $params['value'] );
+			// });
+		}
+		$params['type'] = $params['type'] !== Util\Type::None ? f( "{} ", $params['type']->name ) : "";
+		if( $this->hasComment() ) {
+			$params['comment'] = f( " # {}", $this->comment );
+		}
+		else {
+			if( $this->name === "RESPONSE_CHARSET" ) {
+				echo dump( $this, True );
+			}
+		}
+		if( $this->hasComments() ) {
+			$params['comments'] = f( "# {}\n", implode( "\n# ", $this->comments ) );
+		}
+		if( $this->isCommented() ) {
+			$params['commented'] = "# ";
+		}
+		return f( $format, ...$params );
 	}
 	
 	/*
-	 * Set variable value.
-	 *
-	 * @access Public
-	 *
-	 * @params Mixed $value
-	 *
-	 * @return Static
+	 * @inherit Yume\Fure\Util\Env\EnvVariableInterface->setValue
+	 * 
 	 */
 	public function setValue( Mixed $value ): Static {
 		if( is_string( $value ) ) {
@@ -289,9 +316,7 @@ final class EnvVariable implements EnvVariableInterface {
 				default => Util\Type::Mixed
 			};
 		}
-		return( $this );
+		return $this;
 	}
 	
 }
-
-?>
