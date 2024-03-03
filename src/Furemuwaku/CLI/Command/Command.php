@@ -139,7 +139,7 @@ abstract class Command implements CommandInterface {
 				if( $option->name === "help" ) continue;
 				if( $option->hasImplementation() &&
 					$argument->has( $option->name ) ) {
-					Reflect\ReflectMethod::invoke( $this, $option->name, $argument );
+					Reflect\ReflectMethod::invoke( $this, $option->implement, $argument );
 					return;
 				}
 			}
