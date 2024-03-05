@@ -46,6 +46,7 @@ use Yume\Fure\Main;
 use Yume\Fure\Service;
 use Yume\Fure\Support;
 use Yume\Fure\Util;
+use Yume\Fure\Util\Arr;
 use Yume\Fure\Util\Env;
 use Yume\Fure\Util\RegExp;
 
@@ -195,7 +196,7 @@ function colorize( String $string, ? String $base = Null ): String {
 					"ansicol" => "\x1b[1;38;5;85m"
 				],
 				"escape" => [
-					"pattern" => "(?<escape>\\\(?:040|40|7|11|011|0113|113|377|81|[aA]|[bB]|cx|[dD]|ddd|e|f|g|[hH]|k|n|[pP]|[rR]|[sS]|t|[vV]|[wW]|xhh|Z))",
+					"pattern" => "(?<escape>(?<!\\\)\\\(?:040|40|7|11|011|0113|113|377|81|[aA]|[bB]|cx|[dD]|ddd|e|f|g|[hH]|k|n|[pP]|[rR]|[sS]|t|[vV]|[wW]|xhh|Z))",
 					"ansicol" => "\x1b[1;38;5;208m"
 				],
 				"define" => [
@@ -345,6 +346,14 @@ function config( String $name, Mixed $optional = Null, Bool $shared = True, Bool
 }
 
 /*
+ * @inherit Yume\Fure\Support\Data::__construct()
+ * 
+ */
+function data( Array | Arr\Arrayable | Traversable $data = [], Bool $insensitive = False ): Support\Data {
+	return new Support\Data( $data, $insensitive );
+}
+
+/*
  * Return new instance DateTime.
  * 
  * @params String $datetime
@@ -388,11 +397,11 @@ function dump( Mixed $value, Bool $colorize = False ): String {
 /*
  * Parse exception class into string.
  *
- * @params Throwable $e
+ * @params Throwable|Yume\Fure\Error\Yume\Error $e
  *
  * @return Void
  */
-function e( Throwable $e ): Void {
+function e( Throwable|Error\YumeError $e ): Void {
 	$output = "";
 	$format = static function( Throwable $thrown ) {
 		$values = [
@@ -402,7 +411,7 @@ function e( Throwable $e ): Void {
 			"line" => $thrown->getLine(),
 			"code" => $thrown->getCode(),
 			"trace" => $thrown->getTrace(),
-			"type" => $thrown->type ?? "None"
+			"type" => $thrown Instanceof Error\YumeError ? $thrown->type ?? "None" : "None"
 		];
 		if( $thrown Instanceof Error\YumeError ) {
 			$values = [ "\n{class}: {message}\n{class}: File: {file}\n{class}: Line: {line}\n{class}: Type: {type}\n{class}: Code: {code}\n{class}: {trace}\n", ...$values ];
@@ -422,14 +431,14 @@ function e( Throwable $e ): Void {
 		while( $error = $error->getPrevious() ) {
 			$stack[] = $format( $error );
 		}
-		$output .= join( "\n", array_reverse( $stack ) );
+		$output .= join( "", array_reverse( $stack ) );
 	}
-	if( YUME_CONTEXT !== YUME_CONTEXT_CLI ) {
+	if( YUME_CONTEXT_CLI_SERVER || YUME_CONTEXT_WEB ) {
 		header( "HTTP/1.1 500 Server Internal Error", True, 500 );
 		puts( "<pre>{}</pre>", $output );
 	}
 	else {
-		putcln( "{}\n", colorize( $output ) );
+		putcln( "{}", colorize( $output ) );
 	}
 	exit( 1 );
 }
@@ -568,7 +577,7 @@ function puts( String $format, Mixed ...$values ): Void {
  * @return Void
  */
 function putcln( String $format, Mixed ...$values ): Void {
-	echo( colorize( Util\Strings::format( $format, ...$values ) ) . "\n" );
+	echo( colorize( Util\Strings::format( $format, ...$values ) ) . PHP_EOL );
 }
 
 /*
@@ -582,7 +591,7 @@ function putcln( String $format, Mixed ...$values ): Void {
  * @return Void
  */
 function putln( String $format, Mixed ...$values ): Void {
-	echo( Util\Strings::format( $format, ...$values ) . "\n" );
+	echo( Util\Strings::format( $format, ...$values ) . PHP_EOL );
 }
 
 /*
@@ -658,5 +667,3 @@ function valueIsEmpty( Mixed $value, ? Bool $optional = Null ): Bool {
 function valueIsNotEmpty( Mixed $value, ? Bool $optional = Null ): Bool {
 	return $optional === Null ? valueIsEmpty( $value, False ) : valueIsEmpty( $value, False ) === $optional;
 }
-
-?>
